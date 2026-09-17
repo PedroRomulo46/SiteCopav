@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&icon_names=search,arrow_right_alt,palette,settings&display=block" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   </head>
 
@@ -16,23 +17,35 @@
       <div class="drawer-content flex flex-col">
 
         <!-- Navbar -->
-        <nav class="navbar w-full h-20 bg-green-500 text-white flex justify-between items-center px-4">
+        <nav class="navbar w-full h-20 bg-green-700 text-white flex justify-between items-center px-4">
           <!-- Botão para abrir menu no mobile -->
           <label for="my-drawer-4" class="btn btn-square btn-ghost lg:hidden">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
           </label>
 
+          <!-- Saudação -->
           <div class="text-2xl">Olá, Carlos!</div>
 
           <!-- Campo de busca -->
-          <div class="w-1/3">
-            <input type="text" placeholder="Buscar lotes, produtos ou compradores..." class="input w-full bg-white text-gray-600">
+          <div class="w-1/3 relative flex items-center">
+            <input type="text" placeholder="Buscar lotes, produtos ou compradores..." class="input w-full bg-white text-gray-700 pl-10 pr-4">
+            <span class="material-symbols-outlined absolute left-3 text-gray-400 pointer-events-none">search</span>
           </div>
 
           <!-- Banner promocional -->
-          <div class="bg-white text-black text-xs p-2 rounded flex items-center gap-2 border">
-            <span class="font-bold text-emerald-800">Café Arabica</span>
-            <span>6 Sacas por R$ 8.980,87</span>
+          <div class="hidden md:flex items-center gap-3 bg-emerald-800/60 backdrop-blur-md text-white p-1.5 pr-4 rounded-full border border-emerald-500/30 shadow-sm hover:bg-emerald-800/80 transition-all cursor-pointer">
+            <span class="bg-amber-400 text-emerald-950 text-[10px] font-black uppercase px-2 py-1 rounded-full shadow-xs">
+              Oferta
+            </span>
+            <div class="flex items-center gap-2 text-xs">
+              <span class="font-semibold text-emerald-100">Café Arabica (6 Sacas)</span>
+              <span class="text-emerald-300">|</span>
+              <span class="text-gray-400 line-through text-[10px]">6 Sacas por R$ 9.581,22</span>
+              <span class="font-bold text-amber-300">R$ 8.980,87</span>
+            </div>
+
+            <!-- ìcone de seta -->
+            <span class="material-symbols-outlined">arrow_right_alt</span>
           </div>
         </nav>
 
