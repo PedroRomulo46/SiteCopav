@@ -10,6 +10,20 @@ use App\Http\Controllers\OfertaController;
 use App\Http\Controllers\NegociacaoController;
 use App\Http\Controllers\PropostaController;
 
+# Rota página 
+Route::get('/', function () {
+    return view('site.home');
+});
+
+// Tela de Cadastrar Lote (simulação)
+Route::get('/lotes/cadastrar', function () {
+    return view('site.cadastrar');
+});
+
+// Tela de Detalhes do Produto (simulação)
+Route::get('/produtos/detalhes', function () {
+    return view('site.show');
+});
 
 // Categorias
 Route::resource('categorias', CategoriaController::class);
