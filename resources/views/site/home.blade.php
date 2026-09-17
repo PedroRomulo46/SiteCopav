@@ -73,44 +73,44 @@
       
       <!-- Produto 1 -->
       <div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between">
-        <img class="w-96 h-96 object-cover rounded-xl mb-3" src="{{ asset('assets/milho.png') }}" alt="Sementes Milho" />
+        <img class="w-96 h-96 object-cover rounded-xl mb-3" src="{{ asset('assets/sementesmilho.png') }}" alt="Sementes Milho" />
         <div>
           <h2 class="font-bold text-gray-800">Sementes Milho Híbrido</h2>
           <p class="text-xs text-gray-400">Alta produtividade - oferta especial</p>
-          <p class="text-lg font-bold text-green-600 mt-1">R$ 450,00/Kg</p>
+          <p class="text-lg font-bold text-green-600 mt-1">R$ 45,00/Kg</p>
           <span class="text-xs text-gray-400">Hugo Jorge</span>
         </div>
       </div>
 
       <!-- Produto 2 -->
       <div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between">
-        <img class="w-96 h-96 object-cover rounded-xl mb-3" src="{{ asset('assets/caju.png') }}" alt="Sementes Milho" />
+        <img class="w-96 h-96 object-cover rounded-xl mb-3" src="{{ asset('assets/drone.png') }}" alt="Drone" />
         <div>
-          <h2 class="font-bold text-gray-800">Sementes Milho Híbrido</h2>
-          <p class="text-xs text-gray-400">Alta produtividade - oferta especial</p>
-          <p class="text-lg font-bold text-green-600 mt-1">R$ 450,00/Kg</p>
+          <h2 class="font-bold text-gray-800">Drone Pulverizador</h2>
+          <p class="text-xs text-gray-400">Ideal para a pulverização de grandes campos</p>
+          <p class="text-lg font-bold text-green-600 mt-1">R$ 60.000,00</p>
           <span class="text-xs text-gray-400">Hugo Jorge</span>
         </div>
       </div>
 
       <!-- Produto 3 -->
       <div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between">
-        <img class="w-96 h-96 object-cover rounded-xl mb-3" src="{{ asset('assets/feijao.png') }}" alt="Nutriente de solo" />
+        <img class="w-96 h-96 object-cover rounded-xl mb-3" src="{{ asset('assets/nutriente.png') }}" alt="Nutriente de solo" />
         <div>
           <h2 class="font-bold text-gray-800">Nutriente de solo</h2>
+          <p class="text-xs text-gray-400">Ideal para o crescimento e frutificação</p>
           <p class="text-lg font-bold text-green-600 mt-1">R$ 450,00/Kg</p>
-          <p class="text-xs text-gray-400">Para cultivar tomate</p>
           <span class="text-xs text-gray-400">Hugo Jorge</span>
         </div>
       </div>
 
       <!-- Produto 4 -->
       <div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between">
-        <img class="w-96 h-96 object-cover rounded-xl mb-3" src="{{ asset('assets/tomate.png') }}" alt="Sementes Milho" />
+        <img class="w-96 h-96 object-cover rounded-xl mb-3" src="{{ asset('assets/maca.png') }}" alt="Sementes Milho" />
         <div>
-          <h2 class="font-bold text-gray-800">Sementes Milho Híbrido</h2>
-          <p class="text-lg font-bold text-green-600 mt-1">R$ 450,00/Kg</p>
+          <h2 class="font-bold text-gray-800">Maçã Fuji</h2>
           <p class="text-xs text-gray-400">Alta produtividade - oferta especial</p>
+          <p class="text-lg font-bold text-green-600 mt-1">R$ 12,00/Kg</p>
           <span class="text-xs text-gray-400">Hugo Jorge</span>
         </div>
       </div>
