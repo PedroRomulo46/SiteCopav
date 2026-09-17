@@ -17,7 +17,7 @@
       <div class="drawer-content flex flex-col">
 
         <!-- Navbar -->
-        <nav class="navbar w-full h-20 bg-green-700 text-white flex justify-between items-center px-4">
+        <nav class="navbar w-full h-20 text-white flex justify-between items-center px-4 shadow-xl"  style="background-color: #79A961">
           <!-- Botão para abrir menu no mobile -->
           <label for="my-drawer-4" class="btn btn-square btn-ghost lg:hidden">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
@@ -28,8 +28,10 @@
 
           <!-- Campo de busca -->
           <div class="w-1/3 relative flex items-center">
-            <input type="text" placeholder="Buscar lotes, produtos ou compradores..." class="input w-full bg-white text-gray-700 pl-10 pr-4">
-            <span class="material-symbols-outlined absolute left-3 text-gray-400 pointer-events-none">search</span>
+            <input type="text" placeholder="Buscar lotes, produtos ou compradores..." class="input w-full bg-white text-gray-500 font-bold pl-10 pr-4">
+            <span class="material-symbols-outlined absolute left-3 text-gray-500 pointer-events-none">
+              search
+            </span>
           </div>
 
           <!-- Banner promocional -->
@@ -57,11 +59,11 @@
       <!-- Sidebar -->
       <div class="drawer-side is-drawer-close:overflow-visible">
         <label for="my-drawer-4" aria-label="close sidebar" class="drawer-overlay"></label>
-        <div class="flex min-h-full flex-col items-start bg-base-200 is-drawer-close:w-14 is-drawer-open:w-64">
+        <div class="flex min-h-full flex-col items-start is-drawer-close:w-14 is-drawer-open:w-64" style="background-color:#DDD8CC">
 
           <!-- Foto de perfil -->
-          <div class="avatar p-2">
-            <div class="w-10 rounded-full">
+          <div class="avatar p-2 py-5">
+            <div class="w-16 rounded-full">
               <img src="https://media.istockphoto.com/id/2185723286/pt/foto/portrait-of-senior-farmer-in-corn-field-looking-at-camera-holding-crop-in-hands-at-sunset.jpg?s=2048x2048&w=is&k=20&c=a8WmLGrSWVQ0dBexy2unxfRUZMPijulF6DUc4mf5hUQ=" alt="Foto perfil agricultor">
             </div>
           </div>

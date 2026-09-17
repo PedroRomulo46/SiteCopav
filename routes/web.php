@@ -10,6 +10,10 @@ use App\Http\Controllers\OfertaController;
 use App\Http\Controllers\NegociacaoController;
 use App\Http\Controllers\PropostaController;
 
+# Rota página 
+Route::get('/', function () {
+    return view('site.home');
+});
 
 // Categorias
 Route::resource('categorias', CategoriaController::class);
