@@ -14,7 +14,7 @@ class CategoriaController extends Controller
     {
         $categorias = Categoria::all();
         
-        return view('categorias.index', compact('categorias'));
+        return view('site.testes.categorias.index', compact('categorias'));
     }
 
     /**
@@ -22,7 +22,7 @@ class CategoriaController extends Controller
      */
     public function create()
     {
-        return view('categorias.create');
+        return view('site.testes.categorias.create');
     }
 
     /**
@@ -38,7 +38,7 @@ class CategoriaController extends Controller
         Categoria::create($dados);
 
         return redirect()
-            ->route('categorias.index')
+            ->route('site.testes.categorias.index')
             ->with('sucesso', 'categoria cadastrada com sucesso!');
     }
 
@@ -47,7 +47,7 @@ class CategoriaController extends Controller
      */
     public function show(Categoria $categoria)
     {
-        return view('categorias.show', compact('categoria'));
+        return view('site.testes.categorias.show', compact('categoria'));
     }
 
     /**
@@ -55,7 +55,7 @@ class CategoriaController extends Controller
      */
     public function edit(Categoria $categoria)
     {
-        return view('categorias.edit', compact('categoria'));
+        return view('site.testes.categorias.edit', compact('categoria'));
     }
 
     /**
@@ -71,7 +71,7 @@ class CategoriaController extends Controller
         $categoria->update($dados);
 
         return redirect()
-            ->route('categorias.index')
+            ->route('site.testes.categorias.index')
             ->with('sucesso', 'Categoria atualizada com sucesso!');
     }
 
@@ -83,7 +83,7 @@ class CategoriaController extends Controller
         $categoria->delete();
 
         return redirect()
-            ->route('categorias.index')
+            ->route('site.testes.categorias.index')
             ->with('sucesso', 'Categoria excluída com sucesso!');
     }
 }

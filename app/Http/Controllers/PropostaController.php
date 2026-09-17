@@ -2,64 +2,53 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Negociacao;
 use App\Models\Proposta;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class PropostaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function create(Negociacao $negociacao)
     {
-        //
+        $negociacao->load([
+            'oferta.produto',
+            'oferta.fornecedor',
+            'cliente'
+        ]);
+
+        $usuarios = User::whereIn('id', [
+            $negociacao->cliente_id,
+            $negociacao->oferta->fornecedor->user_id
+        ])->get();
+
+        return view(
+            'propostas.create',
+            compact('negociacao', 'usuarios')
+        );
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
-    }
+        $dados = $request->validate([
+            'negociacao_id' => 'required|exists:negociacoes,id',
+            'usuario_id' => 'required|exists:users,id',
+            'valor' => 'required|numeric|min:0',
+            'quantidade' => 'nullable|numeric|min:0',
+            'observacao' => 'nullable|string',
+            'status' => 'required|in:pendente,aceita,recusada',
+        ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Proposta $proposta)
-    {
-        //
-    }
+        Proposta::create($dados);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Proposta $proposta)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Proposta $proposta)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Proposta $proposta)
-    {
-        //
+        return redirect()
+            ->route(
+                'negociacoes.show',
+                $dados['negociacao_id']
+            )
+            ->with(
+                'sucesso',
+                'Proposta enviada com sucesso!'
+            );
     }
 }

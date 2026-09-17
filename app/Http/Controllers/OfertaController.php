@@ -3,63 +3,121 @@
 namespace App\Http\Controllers;
 
 use App\Models\Oferta;
+use App\Models\Fornecedor;
+use App\Models\Produto;
 use Illuminate\Http\Request;
 
 class OfertaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $ofertas = Oferta::with([
+            'fornecedor',
+            'produto'
+        ])->get();
+
+        return view(
+            'ofertas.index',
+            compact('ofertas')
+        );
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        $fornecedores = Fornecedor::all();
+        $produtos = Produto::all();
+
+        return view(
+            'ofertas.create',
+            compact('fornecedores', 'produtos')
+        );
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $dados = $request->validate([
+            'fornecedor_id' => 'required|exists:fornecedores,id',
+            'produto_id' => 'required|exists:produtos,id',
+            'quantidade' => 'required|numeric|min:0',
+            'valor' => 'required|numeric|min:0',
+            'unidade' => 'required|string|max:50',
+            'localizacao' => 'nullable|string|max:255',
+            'data_inicio' => 'nullable|date',
+            'data_validade' => 'nullable|date|after_or_equal:data_inicio',
+            'status' => 'required|in:rascunho,publicada,encerrada,cancelada',
+        ]);
+
+        Oferta::create($dados);
+
+        return redirect()
+            ->route('ofertas.index')
+            ->with(
+                'sucesso',
+                'Oferta cadastrada com sucesso!'
+            );
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Oferta $oferta)
     {
-        //
+        $oferta->load([
+            'fornecedor',
+            'produto'
+        ]);
+
+        return view(
+            'ofertas.show',
+            compact('oferta')
+        );
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Oferta $oferta)
     {
-        //
+        $fornecedores = Fornecedor::all();
+        $produtos = Produto::all();
+
+        return view(
+            'ofertas.edit',
+            compact(
+                'oferta',
+                'fornecedores',
+                'produtos'
+            )
+        );
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Oferta $oferta)
     {
-        //
+        $dados = $request->validate([
+            'fornecedor_id' => 'required|exists:fornecedores,id',
+            'produto_id' => 'required|exists:produtos,id',
+            'quantidade' => 'required|numeric|min:0',
+            'valor' => 'required|numeric|min:0',
+            'unidade' => 'required|string|max:50',
+            'localizacao' => 'nullable|string|max:255',
+            'data_inicio' => 'nullable|date',
+            'data_validade' => 'nullable|date|after_or_equal:data_inicio',
+            'status' => 'required|in:rascunho,publicada,encerrada,cancelada',
+        ]);
+
+        $oferta->update($dados);
+
+        return redirect()
+            ->route('ofertas.index')
+            ->with(
+                'sucesso',
+                'Oferta atualizada com sucesso!'
+            );
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Oferta $oferta)
     {
-        //
+        $oferta->delete();
+
+        return redirect()
+            ->route('ofertas.index')
+            ->with(
+                'sucesso',
+                'Oferta excluída com sucesso!'
+            );
     }
 }
