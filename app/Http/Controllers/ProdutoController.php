@@ -11,18 +11,26 @@ class ProdutoController extends Controller
 {
     public function index()
     {
-        $produtos = Produto::with(['fornecedor', 'categoria'])->get();
+        $produtos = Produto::with([
+            'fornecedor',
+            'categoria'
+        ])->get();
 
-        return view('produtos.index', compact('produtos'));
+        return view(
+            'site.testes.produtos.index',
+            compact('produtos')
+        );
     }
 
     public function create()
     {
-
-        $fornecedores = Fornecedor::all();
+        $fornecedores = Fornecedor::where('status', 'ativo')->get();
         $categorias = Categoria::all();
 
-        return view('produtos.create', compact('fornecedores', 'categorias'));
+        return view(
+            'site.testes.produtos.create',
+            compact('fornecedores', 'categorias')
+        );
     }
 
     public function store(Request $request)
@@ -44,19 +52,29 @@ class ProdutoController extends Controller
 
     public function show(Produto $produto)
     {
-        $produto->load(['fornecedor', 'categoria']);
+        $produto->load([
+            'fornecedor',
+            'categoria'
+        ]);
 
-        return view('produtos.show', compact('produto'));
+        return view(
+            'site.testes.produtos.show',
+            compact('produto')
+        );
     }
 
     public function edit(Produto $produto)
     {
-        $fornecedores = Fornecedor::all();
+        $fornecedores = Fornecedor::where('status', 'ativo')->get();
         $categorias = Categoria::all();
 
         return view(
-            'produtos.edit',
-            compact('produto', 'fornecedores', 'categorias')
+            'site.testes.produtos.edit',
+            compact(
+                'produto',
+                'fornecedores',
+                'categorias'
+            )
         );
     }
 

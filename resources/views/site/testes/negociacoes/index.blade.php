@@ -13,34 +13,43 @@
 @forelse($negociacoes as $negociacao)
 
     <div>
+
         <h2>
             {{ $negociacao->oferta->produto->nome }}
         </h2>
 
         <p>
-            Fornecedor:
+            <strong>Fornecedor:</strong>
             {{ $negociacao->oferta->fornecedor->nome }}
         </p>
 
         <p>
-            Cliente:
+            <strong>Cliente:</strong>
             {{ $negociacao->cliente->nome }}
         </p>
 
         <p>
-            Status:
+            <strong>Valor da oferta:</strong>
+            R$ {{ $negociacao->oferta->valor }}
+        </p>
+
+        <p>
+            <strong>Status:</strong>
             {{ $negociacao->status }}
         </p>
 
         <a href="{{ route('negociacoes.show', $negociacao) }}">
             Ver negociação
         </a>
+
     </div>
 
     <hr>
 
 @empty
 
-    <p>Nenhuma negociação cadastrada.</p>
+    <p>
+        Nenhuma negociação cadastrada.
+    </p>
 
 @endforelse

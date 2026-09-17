@@ -17,18 +17,22 @@ class OfertaController extends Controller
         ])->get();
 
         return view(
-            'ofertas.index',
+            'site.testes.ofertas.index',
             compact('ofertas')
         );
     }
 
     public function create()
     {
-        $fornecedores = Fornecedor::all();
-        $produtos = Produto::all();
+        $fornecedores = Fornecedor::where('status', 'ativo')->get();
+
+        $produtos = Produto::with([
+            'fornecedor',
+            'categoria'
+        ])->get();
 
         return view(
-            'ofertas.create',
+            'site.testes.ofertas.create',
             compact('fornecedores', 'produtos')
         );
     }
@@ -51,10 +55,7 @@ class OfertaController extends Controller
 
         return redirect()
             ->route('ofertas.index')
-            ->with(
-                'sucesso',
-                'Oferta cadastrada com sucesso!'
-            );
+            ->with('sucesso', 'Oferta cadastrada com sucesso!');
     }
 
     public function show(Oferta $oferta)
@@ -65,18 +66,22 @@ class OfertaController extends Controller
         ]);
 
         return view(
-            'ofertas.show',
+            'site.testes.ofertas.show',
             compact('oferta')
         );
     }
 
     public function edit(Oferta $oferta)
     {
-        $fornecedores = Fornecedor::all();
-        $produtos = Produto::all();
+        $fornecedores = Fornecedor::where('status', 'ativo')->get();
+
+        $produtos = Produto::with([
+            'fornecedor',
+            'categoria'
+        ])->get();
 
         return view(
-            'ofertas.edit',
+            'site.testes.ofertas.edit',
             compact(
                 'oferta',
                 'fornecedores',
@@ -103,10 +108,7 @@ class OfertaController extends Controller
 
         return redirect()
             ->route('ofertas.index')
-            ->with(
-                'sucesso',
-                'Oferta atualizada com sucesso!'
-            );
+            ->with('sucesso', 'Oferta atualizada com sucesso!');
     }
 
     public function destroy(Oferta $oferta)
@@ -115,9 +117,6 @@ class OfertaController extends Controller
 
         return redirect()
             ->route('ofertas.index')
-            ->with(
-                'sucesso',
-                'Oferta excluída com sucesso!'
-            );
+            ->with('sucesso', 'Oferta excluída com sucesso!');
     }
 }

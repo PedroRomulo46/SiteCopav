@@ -28,7 +28,10 @@ Route::resource('ofertas', OfertaController::class);
 
 
 // Negociações
-Route::resource('negociacoes', NegociacaoController::class);
+Route::resource('negociacoes', NegociacaoController::class)
+    ->parameters([
+        'negociacoes' => 'negociacao'
+    ]);
 
 
 // Propostas

@@ -11,13 +11,18 @@ class FornecedorController extends Controller
     {
         $fornecedores = Fornecedor::all();
 
-        return view('fornecedores.index', compact('fornecedores'));
+        return view('site.testes.fornecedores.index', compact('fornecedores'));
     }
 
     public function create()
-    {
-        return view('fornecedores.create');
-    }
+{
+        $usuarios = \App\Models\User::where('user_type', 'fornecedor')->get();
+
+        return view(
+            'site.testes.fornecedores.create',
+            compact('usuarios')
+    );
+}
 
     public function store(Request $request)
     {
@@ -42,12 +47,12 @@ class FornecedorController extends Controller
 
     public function show(Fornecedor $fornecedor)
     {
-        return view('fornecedores.show', compact('fornecedor'));
+        return view('site.testes.fornecedores.show', compact('fornecedor'));
     }
 
     public function edit(Fornecedor $fornecedor)
     {
-        return view('fornecedores.edit', compact('fornecedor'));
+        return view('site.testes.fornecedores.edit', compact('fornecedor'));
     }
 
     public function update(Request $request, Fornecedor $fornecedor)

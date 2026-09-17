@@ -15,13 +15,13 @@
 </p>
 
 <p>
-    <strong>Quantidade da oferta:</strong>
+    <strong>Quantidade:</strong>
     {{ $negociacao->oferta->quantidade }}
     {{ $negociacao->oferta->unidade }}
 </p>
 
 <p>
-    <strong>Valor:</strong>
+    <strong>Valor da oferta:</strong>
     R$ {{ $negociacao->oferta->valor }}
 </p>
 
@@ -39,6 +39,11 @@
     @foreach($negociacao->propostas as $proposta)
 
         <div>
+
+            <p>
+                <strong>Enviada por:</strong>
+                {{ $proposta->usuario->nome }}
+            </p>
 
             <p>
                 <strong>Valor:</strong>
@@ -68,9 +73,17 @@
 
 @else
 
-    <p>Nenhuma proposta foi realizada.</p>
+    <p>
+        Nenhuma proposta foi realizada.
+    </p>
 
 @endif
+
+<a href="{{ route('propostas.create', $negociacao) }}">
+    Fazer proposta
+</a>
+
+<br><br>
 
 <a href="{{ route('negociacoes.index') }}">
     Voltar

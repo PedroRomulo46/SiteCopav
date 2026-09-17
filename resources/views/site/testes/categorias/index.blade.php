@@ -1,3 +1,4 @@
+
 <h1>Lista de Categorias</h1>
 
 @if(session('sucesso'))
@@ -48,3 +49,4 @@
     <p>Nenhuma categoria cadastrada.</p>
 
 @endforelse
+

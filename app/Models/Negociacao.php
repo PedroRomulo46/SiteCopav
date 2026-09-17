@@ -16,7 +16,7 @@ class Negociacao extends Model
 
     public function oferta()
     {
-        return $this->belongsTo(Oferta::class);
+        return $this->belongsTo(Oferta::class, 'oferta_id');
     }
 
     public function cliente()

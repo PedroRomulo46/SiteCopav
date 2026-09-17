@@ -23,7 +23,7 @@ class PropostaController extends Controller
         ])->get();
 
         return view(
-            'propostas.create',
+            'site.testes.propostas.create',
             compact('negociacao', 'usuarios')
         );
     }

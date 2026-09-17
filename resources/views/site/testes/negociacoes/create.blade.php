@@ -7,7 +7,7 @@
     <div>
         <label>Oferta:</label>
 
-        <select name="oferta_id">
+        <select name="oferta_id" required>
 
             <option value="">
                 Selecione uma oferta
@@ -18,9 +18,13 @@
                 <option value="{{ $oferta->id }}">
 
                     {{ $oferta->produto->nome }}
+
                     -
+
                     {{ $oferta->fornecedor->nome }}
+
                     -
+
                     R$ {{ $oferta->valor }}
 
                 </option>
@@ -35,10 +39,10 @@
     <div>
         <label>Cliente:</label>
 
-        <select name="cliente_id">
+        <select name="cliente_id" required>
 
             <option value="">
-                Selecione um cliente
+                Selecione o cliente
             </option>
 
             @foreach($clientes as $cliente)
@@ -57,7 +61,7 @@
     <div>
         <label>Status:</label>
 
-        <select name="status">
+        <select name="status" required>
 
             <option value="pendente">
                 Pendente
