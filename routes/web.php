@@ -10,6 +10,7 @@ use App\Http\Controllers\OfertaController;
 use App\Http\Controllers\NegociacaoController;
 use App\Http\Controllers\PropostaController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ChatController;
 
 
 /*
@@ -18,9 +19,16 @@ use App\Http\Controllers\HomeController;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', [HomeController::class, 'index'])
-    ->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
+
+/*
+|--------------------------------------------------------------------------
+| Página de Chat
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/chat', [ChatController::class, 'index'])->name('chat');
 
 /*
 |--------------------------------------------------------------------------
