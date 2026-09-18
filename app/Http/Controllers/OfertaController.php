@@ -65,9 +65,12 @@ class OfertaController extends Controller
             'produto'
         ]);
 
+        // Extrair produto associado a oferta
+        $produto = $oferta->produto;
+
         return view(
-            'site.testes.ofertas.show',
-            compact('oferta')
+            'site.details',
+            compact('oferta', 'produto') // Passar 'oferta' e 'produto' na view
         );
     }
 
