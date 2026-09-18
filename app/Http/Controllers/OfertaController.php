@@ -17,7 +17,7 @@ class OfertaController extends Controller
         ])->get();
 
         return view(
-            'site.testes.ofertas.index',
+            'site.ofertas.index',
             compact('ofertas')
         );
     }
@@ -32,7 +32,7 @@ class OfertaController extends Controller
         ])->get();
 
         return view(
-            'site.testes.ofertas.create',
+            'site.ofertas.create',
             compact('fornecedores', 'produtos')
         );
     }
@@ -60,10 +60,7 @@ class OfertaController extends Controller
 
     public function show(Oferta $oferta)
     {
-        $oferta->load([
-            'fornecedor',
-            'produto'
-        ]);
+        $oferta->load(['fornecedor', 'produto']);
 
         // Extrair produto associado a oferta
         $produto = $oferta->produto;
@@ -84,7 +81,7 @@ class OfertaController extends Controller
         ])->get();
 
         return view(
-            'site.testes.ofertas.edit',
+            'site.ofertas.edit',
             compact(
                 'oferta',
                 'fornecedores',

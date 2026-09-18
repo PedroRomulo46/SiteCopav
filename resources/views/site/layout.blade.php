@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&icon_names=search,arrow_right_alt,forum,home,palette,settings&display=block" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&icon_names=search,arrow_right_alt,forum,home,arrow_back,palette,settings&display=block" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   </head>
 
@@ -14,7 +14,7 @@
       <input id="my-drawer-4" type="checkbox" class="drawer-toggle inline" />
       
       <!-- Conteúdo principal -->
-      <div class="drawer-content flex flex-col">
+      <div class="drawer-content min-h-screen flex flex-col">
 
         <!-- Navbar -->
         <nav class="navbar w-full h-20 bg-[#79A961] text-white flex justify-between items-center px-4 shadow-xl">
@@ -24,7 +24,7 @@
           </label>
 
           <!-- Saudação -->
-          <div class="text-2xl">Olá, Carlos!</div>
+          <div class="text-2xl">Olá, Copav!</div>
 
           <!-- Campo de busca -->
           <div class="w-1/3 relative flex items-center">
@@ -52,12 +52,14 @@
         </nav>
 
         <!-- Conteudo da home -->
-        @yield('conteudo')
+        <main class="flex-1">
+          @yield('conteudo')
+        </main>
 
       </div>
 
       <!-- Sidebar -->
-      <div class="drawer-side is-drawer-close:overflow-visible">
+      <div class="drawer-side is-drawer-close:overflow-visible min-h-screen">
         <label for="my-drawer-4" aria-label="close sidebar" class="drawer-overlay"></label>
         <div class="bg-[#DDD8CC] flex min-h-full flex-col items-start is-drawer-close:w-14 is-drawer-open:w-64">
 
@@ -79,26 +81,32 @@
           <!-- Itens da sidebar -->
           <ul class="menu w-full grow">
             <!-- Botão Home -->
-            <li>
-              <button class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Homepage">
-                <span class="material-symbols-outlined">home</span>
-                <span class="is-drawer-close:hidden">Home</span>
-              </button>
-            </li>
+            <a href="{{ route('home') }}">
+              <li>
+                  <button class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Homepage">
+                    <span class="material-symbols-outlined">home</span>
+                    <span class="is-drawer-close:hidden">Home</span>
+                  </button>
+              </li>
+            </a>
             <!-- Botão Mensagens -->
-            <li>
-              <button class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Settings">
-                <span class="material-symbols-outlined">forum</span>
-                <span class="is-drawer-close:hidden">Mensagens</span>
-              </button>
-            </li>
+            <a href="{{ route('chat') }}">
+              <li>
+                <button class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Settings">
+                  <span class="material-symbols-outlined">forum</span>
+                  <span class="is-drawer-close:hidden">Mensagens</span>
+                </button>
+              </li>
+            </a>
             <!-- Botão Configurções -->
-            <li>
-              <button class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Settings">
-                <span class="material-symbols-outlined">settings</span>
-                <span class="is-drawer-close:hidden">Configurações</span>
-              </button>
-            </li>
+            <a href="{{ route('home') }}">
+              <li>
+                <button class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Settings">
+                  <span class="material-symbols-outlined">settings</span>
+                  <span class="is-drawer-close:hidden">Configurações</span>
+                </button>
+              </li>
+            </a>
           </ul>
         </div>
       </div>

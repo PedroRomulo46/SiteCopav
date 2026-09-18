@@ -54,10 +54,11 @@ class FornecedorController extends Controller
 
     public function edit(Fornecedor $fornecedor)
     {
+        $usuarios = \App\Models\User::where('user_type', 'fornecedor')->get();
+
         return view(
-            'site.testes.fornecedores.edit',
-            compact('fornecedor')
-        );
+            'site.fornecedores.edit',
+            compact('usuarios', 'fornecedor'));
     }
 
     public function update(Request $request, Fornecedor $fornecedor)
