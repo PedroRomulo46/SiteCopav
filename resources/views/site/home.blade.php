@@ -52,7 +52,7 @@
               <p class="text-gray-500">Expira em: {{ $oferta->data_validade ? $oferta->data_validade->format('d/m/Y') : 'Sem data' }}</p>
             </div>
             <div class="flex justify-end mt-2">
-              <a href="{{ route('ofertas.show', $oferta->id) }}" class="btn border-2 hover:bg-[#79A961] hover:text-white p-2 btn-xs sm:btn-sm" style="border-color: #79A961;">
+              <a href="{{ route('ofertas.show', $oferta->id) }}" class="btn bg-[#79A961] hover:bg-[#709b58] text-white p-2 btn-xs sm:btn-sm">
                 Ver detalhes
               </a>
             </div>
@@ -84,7 +84,7 @@
           </div>
         </a>
       @empty
-        <p class="text-gray-500">Nenhum produto cadastrado.</p>
+        <p class="text-gray-500">Nenhum produto encontrado.</p>
       @endforelse
     </div>
   </div>
