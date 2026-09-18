@@ -14,15 +14,17 @@
                 <p class="text-sm text-gray-500 mt-2">{{ $produto->descricao }}</p>
                 <p class="text-sm font-bold text-[#79A961] mt-3">Vendida em: {{ $produto->unidade }}</p>
             </div>
-
-            <div class="mt-6">
-                <a href="{{ route('home') }}" class="btn text-white bg-[#79A961] hover:bg-[#709b58] border-none rounded-xl px-4 py-2">
-                    Voltar para a Home
-                </a>
-            </div>
         </div>
-
     </div>
+
+        <div class="mt-6 flex flex-col gap-2">
+            <a href="{{ route('home') }}" class="btn text-white bg-[#79A961] hover:bg-[#709b58] border-none rounded-xl px-4 py-2">
+                Comprar Agora
+            </a>
+            <a href="{{ route('home') }}" class="btn text-white bg-[#79A961] hover:bg-[#709b58] border-none rounded-xl px-4 py-2">
+                Adicionar ao Carrinho
+            </a>
+        </div>
 </div>
 
 @endsection
