@@ -9,10 +9,21 @@ use Illuminate\Http\Request;
 class HomeController extends Controller
 {
     public function index()
-    {
-        $produtos = Produto::with('categoria')->latest()->take(18)->get();
-        $ofertas = Oferta::with('produto')->latest()->take(6)->get();
+{
+    // Vitrine da direita: traz as ofertas ativas no mercado
+    $produtos = Oferta::with(['produto', 'fornecedor'])->latest()->take(9)->get();
 
-        return view('site.home', compact('produtos', 'ofertas'));
-    }
+    // "Meus Lotes": Ofertas criadas pelo fornecedor logado
+    $ofertas = (auth()->check() && auth()->user()->fornecedor)
+        ? Oferta::with('produto')->where('fornecedor_id', auth()->user()->fornecedor->id)->latest()->get()
+        : Oferta::with('produto')->latest()->take(10)->get();
+
+    // "Demandas da Empresa": [Tem que criar o Model/Tabela de demandas]
+    // O envio limpo está garantido até a criação do Model
+    $demandas = class_exists('\App\Models\Demanda') 
+        ? \App\Models\Demanda::where('status', 'aberta')->latest()->get() 
+        : collect();
+
+    return view('site.home', compact('produtos', 'ofertas', 'demandas'));
+}
 }

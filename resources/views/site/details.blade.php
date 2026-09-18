@@ -3,22 +3,25 @@
 
 @section('conteudo')
 
-<a href="{{ route('home') }}" class=" text-lg hover:underline">
-    ← Voltar para os produtos
-</a>
+<div class="text-gray-500 mx-4 mt-2 ">
+    <a href="{{ route('home') }}" class="inline-flex gap-1">
+        <span class="material-symbols-outlined">arrow_back</span>
+        Voltar para os produtos
+    </a>
+</div>
 
 <div class="bg-white min-h-screen p-4 md:p-8">
     <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         <!-- Coluna com a Imagem do Produto (4 colunas) -->
         <div class="lg:col-span-5 flex justify-center items-start sticky top-4">
-            <div class="border border-gray-800 rounded-lg p-2 w-full bg-white">
+            <div class="rounded-lg p-2 w-full bg-white">
                 <img class="w-full h-auto max-h-[450px] object-contain rounded-lg" src="{{ asset('assets/milho.png') }}" alt="{{ $produto->nome }}" />
             </div>
         </div>
 
         <!-- Coluna com as Informações do Produto (4 colunas) -->
-        <div class="lg:col-span-4 flex flex-col gap-3">
+        <div class="lg:col-span-4 flex flex-col gap-2">
             <h1 class="text-xl md:text-2xl font-medium text-gray-900 leading-tight">
                 {{ $produto->nome }}
             </h1>
@@ -75,11 +78,11 @@
 
                 <!-- Botões de Ação -->
                 <div class="flex flex-col gap-2 mt-3">
-                    <button class="w-full bg-[#79A961] hover:bg-[#F7CA00] text-white text-xs font-medium py-2 px-4 rounded-full transition-colors shadow-sm">
-                        Adicionar ao Carrinho
+                    <button class="w-full bg-[#79A961] hover:bg-[#709b58] text-white text-xs font-medium py-2 px-4 rounded-full transition-colors shadow-sm">
+                        Negociar Preço
                     </button>
                     
-                    <button class="w-full bg-[#79A961] hover:bg-[#FA8900] text-gray-900 text-xs font-medium py-2 px-4 rounded-full transition-colors shadow-sm">
+                    <button class="w-full bg-[#79A961] hover:bg-[#709b58] text-white text-xs font-medium py-2 px-4 rounded-full transition-colors shadow-sm">
                         Comprar Agora
                     </button>
                 </div>

@@ -15,8 +15,8 @@ class DatabaseSeeder extends Seeder
     {
         // 1. Cria Usuário principal
         $user = User::factory()->create([
-            'nome' => 'Carlos',
-            'email' => 'carlos@example.com',
+            'nome' => 'Copav',
+            'email' => 'copavagricola@example.com',
         ]);
 
         // 2. Cria Categoria
@@ -51,12 +51,13 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $p3 = Produto::create([
-            'nome' => 'Café Arábica',
-            'descricao' => 'Café especial ensacado e pronto para transporte.',
+            'nome' => 'Maçãs Verdes',
+            'descricao' => 'Maçãs suculentas da fazenda.',
             'unidade' => 'Saca (60kg)',
             'categoria_id' => $categoria->id,
             'fornecedor_id' => $fornecedor->id,
         ]);
+
         // 5. Cria Ofertas com valor e status compatível com o ENUM
         Oferta::create([
             'produto_id' => $p1->id,
