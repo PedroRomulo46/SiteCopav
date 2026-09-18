@@ -1,8 +1,8 @@
-
 <?php
 
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\FornecedorController;
 use App\Http\Controllers\ProdutoController;
@@ -10,45 +10,51 @@ use App\Http\Controllers\OfertaController;
 use App\Http\Controllers\NegociacaoController;
 use App\Http\Controllers\PropostaController;
 
-# Rota página 
+
+/* | Página inicial | */
+
 Route::get('/', function () {
     return view('site.home');
 });
 
-// Tela de Cadastrar Lote (simulação)
-Route::get('/lotes/cadastrar', function () {
-    return view('site.cadastrar');
-});
 
-// Tela de Detalhes do Produto (simulação)
-Route::get('/produtos/detalhes', function () {
-    return view('site.show');
-});
+/* | Dashboard | */
 
-// Categorias
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+
+/* | Categorias | */
+
 Route::resource('categorias', CategoriaController::class);
 
 
-// Fornecedores
+/* | Fornecedores | */
+
 Route::resource('fornecedores', FornecedorController::class);
 
 
-// Produtos
+/* | Produtos | */
+
 Route::resource('produtos', ProdutoController::class);
 
 
-// Ofertas
+/* | Ofertas | */
+
 Route::resource('ofertas', OfertaController::class);
 
 
-// Negociações
+/* | Negociações | */
+
 Route::resource('negociacoes', NegociacaoController::class)
     ->parameters([
         'negociacoes' => 'negociacao'
     ]);
 
 
-// Propostas
+/* Propostas */
+
 Route::get(
     '/negociacoes/{negociacao}/propostas/create',
     [PropostaController::class, 'create']
@@ -58,3 +64,23 @@ Route::post(
     '/propostas',
     [PropostaController::class, 'store']
 )->name('propostas.store');
+
+
+/* | Perfil | */
+
+Route::middleware('auth')->group(function () {
+
+    Route::get('/profile', [ProfileController::class, 'edit'])
+        ->name('profile.edit');
+
+    Route::patch('/profile', [ProfileController::class, 'update'])
+        ->name('profile.update');
+
+    Route::delete('/profile', [ProfileController::class, 'destroy'])
+        ->name('profile.destroy');
+});
+
+
+/* | Rotas de autenticação do Breeze | */
+
+require __DIR__.'/auth.php';
