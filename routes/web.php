@@ -9,43 +9,50 @@ use App\Http\Controllers\ProdutoController;
 use App\Http\Controllers\OfertaController;
 use App\Http\Controllers\NegociacaoController;
 use App\Http\Controllers\PropostaController;
+use App\Http\Controllers\HomeController;
 
 
-/* | Página inicial | */
+/*
+|--------------------------------------------------------------------------
+| Página inicial
+|--------------------------------------------------------------------------
+*/
 
-Route::get('/', function () {
-    return view('site.home');
-});
+Route::get('/', [HomeController::class, 'index'])
+    ->name('home');
 
 
-/* | Dashboard | */
+/*
+|--------------------------------------------------------------------------
+| Dashboard
+|--------------------------------------------------------------------------
+*/
 
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 
-/* | Categorias | */
+/*
+|--------------------------------------------------------------------------
+| Recursos
+|--------------------------------------------------------------------------
+*/
 
 Route::resource('categorias', CategoriaController::class);
 
-
-/* | Fornecedores | */
-
 Route::resource('fornecedores', FornecedorController::class);
 
-
-/* | Produtos | */
-
 Route::resource('produtos', ProdutoController::class);
-
-
-/* | Ofertas | */
 
 Route::resource('ofertas', OfertaController::class);
 
 
-/* | Negociações | */
+/*
+|--------------------------------------------------------------------------
+| Negociações
+|--------------------------------------------------------------------------
+*/
 
 Route::resource('negociacoes', NegociacaoController::class)
     ->parameters([
@@ -53,7 +60,11 @@ Route::resource('negociacoes', NegociacaoController::class)
     ]);
 
 
-/* Propostas */
+/*
+|--------------------------------------------------------------------------
+| Propostas
+|--------------------------------------------------------------------------
+*/
 
 Route::get(
     '/negociacoes/{negociacao}/propostas/create',
@@ -66,7 +77,11 @@ Route::post(
 )->name('propostas.store');
 
 
-/* | Perfil | */
+/*
+|--------------------------------------------------------------------------
+| Perfil
+|--------------------------------------------------------------------------
+*/
 
 Route::middleware('auth')->group(function () {
 
@@ -81,6 +96,10 @@ Route::middleware('auth')->group(function () {
 });
 
 
-/* | Rotas de autenticação do Breeze | */
+/*
+|--------------------------------------------------------------------------
+| Autenticação do Breeze
+|--------------------------------------------------------------------------
+*/
 
 require __DIR__.'/auth.php';

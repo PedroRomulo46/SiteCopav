@@ -70,25 +70,25 @@
 
           <!-- Itens da sidebar -->
           <ul class="menu w-full grow">
-            <!---->
+            <!-- Botão Home -->
             <li>
               <button class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Homepage">
                 <span class="material-symbols-outlined">home</span>
                 <span class="is-drawer-close:hidden">Home</span>
               </button>
             </li>
-            <!---->
-            <li>
-              <button class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Settings">
-                <span class="material-symbols-outlined">settings</span>
-                <span class="is-drawer-close:hidden">Configurações</span>
-              </button>
-            </li>
-            <!---->
+            <!-- Botão Mensagens -->
             <li>
               <button class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Settings">
                 <span class="material-symbols-outlined">forum</span>
                 <span class="is-drawer-close:hidden">Mensagens</span>
+              </button>
+            </li>
+            <!-- Botão Configurções -->
+            <li>
+              <button class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Settings">
+                <span class="material-symbols-outlined">settings</span>
+                <span class="is-drawer-close:hidden">Configurações</span>
               </button>
             </li>
           </ul>
