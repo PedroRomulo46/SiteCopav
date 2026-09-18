@@ -43,33 +43,6 @@
             />
         </div>
 
-        <!-- Tipo de usuário -->
-        <div class="mt-4">
-            <x-input-label for="user_type" :value="__('Tipo de usuário')" />
-
-            <select
-                id="user_type"
-                name="user_type"
-                class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
-                required
-            >
-                <option value="">Selecione uma opção</option>
-
-                <option value="cliente" {{ old('user_type') == 'cliente' ? 'selected' : '' }}>
-                    Cliente
-                </option>
-
-                <option value="fornecedor" {{ old('user_type') == 'fornecedor' ? 'selected' : '' }}>
-                    Fornecedor
-                </option>
-            </select>
-
-            <x-input-error
-                :messages="$errors->get('user_type')"
-                class="mt-2"
-            />
-        </div>
-
         <!-- Senha -->
         <div class="mt-4">
             <x-input-label for="password" :value="__('Senha')" />

@@ -64,7 +64,15 @@
           <!-- Foto de perfil -->
           <div class="avatar p-2 py-5">
             <div class="w-16 rounded-full border-2" style="border-color: #79A961">
-              <img src="https://media.istockphoto.com/id/2185723286/pt/foto/portrait-of-senior-farmer-in-corn-field-looking-at-camera-holding-crop-in-hands-at-sunset.jpg?s=2048x2048&w=is&k=20&c=a8WmLGrSWVQ0dBexy2unxfRUZMPijulF6DUc4mf5hUQ=" alt="Foto perfil agricultor">
+              @if(auth()->user()->imagem)
+                <img
+                  src="{{ asset('storage/' . auth()->user()->imagem) }}"
+                  alt="Foto de perfil">
+                  @else
+                    <span class="material-symbols-outlined">
+                      account_circle
+                    </span>
+                  @endif
             </div>
           </div>
 

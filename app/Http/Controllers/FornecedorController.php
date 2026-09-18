@@ -11,23 +11,20 @@ class FornecedorController extends Controller
     {
         $fornecedores = Fornecedor::all();
 
-        return view('site.testes.fornecedores.index', compact('fornecedores'));
+        return view(
+            'site.testes.fornecedores.index',
+            compact('fornecedores')
+        );
     }
 
     public function create()
-{
-        $usuarios = \App\Models\User::where('user_type', 'fornecedor')->get();
-
-        return view(
-            'site.testes.fornecedores.create',
-            compact('usuarios')
-    );
-}
+    {
+        return view('site.testes.fornecedores.create');
+    }
 
     public function store(Request $request)
     {
         $dados = $request->validate([
-            'user_id' => 'required|exists:users,id',
             'nome' => 'required|string|max:255',
             'documento' => 'required|string|max:255|unique:fornecedores,documento',
             'telefone' => 'required|string|max:255',
@@ -35,8 +32,10 @@ class FornecedorController extends Controller
             'endereco' => 'required|string|max:255',
             'cidade' => 'required|string|max:255',
             'estado' => 'required|string|size:2',
-            'status' => 'required|in:pendente,ativo,rejeitado,bloqueado',
         ]);
+
+        $dados['user_id'] = auth()->id();
+        $dados['status'] = 'pendente';
 
         Fornecedor::create($dados);
 
@@ -47,18 +46,23 @@ class FornecedorController extends Controller
 
     public function show(Fornecedor $fornecedor)
     {
-        return view('site.testes.fornecedores.show', compact('fornecedor'));
+        return view(
+            'site.testes.fornecedores.show',
+            compact('fornecedor')
+        );
     }
 
     public function edit(Fornecedor $fornecedor)
     {
-        return view('site.testes.fornecedores.edit', compact('fornecedor'));
+        return view(
+            'site.testes.fornecedores.edit',
+            compact('fornecedor')
+        );
     }
 
     public function update(Request $request, Fornecedor $fornecedor)
     {
         $dados = $request->validate([
-            'user_id' => 'required|exists:users,id',
             'nome' => 'required|string|max:255',
             'documento' => 'required|string|max:255|unique:fornecedores,documento,' . $fornecedor->id,
             'telefone' => 'required|string|max:255',
@@ -66,7 +70,6 @@ class FornecedorController extends Controller
             'endereco' => 'required|string|max:255',
             'cidade' => 'required|string|max:255',
             'estado' => 'required|string|size:2',
-            'status' => 'required|in:pendente,ativo,rejeitado,bloqueado',
         ]);
 
         $fornecedor->update($dados);

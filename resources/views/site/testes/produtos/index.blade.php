@@ -11,6 +11,15 @@
 <hr>
 
 @forelse($produtos as $produto)
+    @if($produto->imagem)
+        <img
+            src="{{ asset('storage/' . $produto->imagem) }}"
+            alt="{{ $produto->nome }}"
+            width="200"
+        >
+    @else
+        <p>Sem imagem</p>
+    @endif
 
     <div>
 

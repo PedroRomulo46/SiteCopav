@@ -15,5 +15,10 @@ class Categoria extends Model
     {
         return $this->hasMany(Produto::class);
     }
+    
+    public function demandas()
+{
+    return $this->hasMany(Demanda::class);
+}
 }
 

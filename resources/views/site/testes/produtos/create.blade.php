@@ -1,8 +1,24 @@
 <h1>Cadastrar Produto</h1>
 
-<form action="{{ route('produtos.store') }}" method="POST">
+<form
+    action="{{ route('produtos.store') }}"
+    method="POST"
+    enctype="multipart/form-data"
+>
 
     @csrf
+
+    <div>
+        <label>Imagem do produto:</label>
+
+        <input
+            type="file"
+            name="imagem"
+            accept="image/jpeg,image/png,image/jpg,image/webp"
+        >
+    </div>
+
+<br>
 
     <div>
         <label>Fornecedor:</label>

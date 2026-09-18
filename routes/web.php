@@ -10,6 +10,8 @@ use App\Http\Controllers\OfertaController;
 use App\Http\Controllers\NegociacaoController;
 use App\Http\Controllers\PropostaController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\DemandaController;
+use App\Http\Controllers\OfertaDiretaController;
 
 
 /*
@@ -47,6 +49,12 @@ Route::resource('produtos', ProdutoController::class);
 
 Route::resource('ofertas', OfertaController::class);
 
+Route::resource('demandas', DemandaController::class);
+
+Route::resource(
+    'ofertas-diretas',
+    OfertaDiretaController::class
+);
 
 /*
 |--------------------------------------------------------------------------

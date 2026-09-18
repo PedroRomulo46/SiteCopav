@@ -6,6 +6,7 @@ use App\Models\Produto;
 use App\Models\Fornecedor;
 use App\Models\Categoria;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProdutoController extends Controller
 {
@@ -41,7 +42,13 @@ class ProdutoController extends Controller
             'nome' => 'required|string|max:255',
             'descricao' => 'nullable|string',
             'unidade' => 'required|string|max:50',
+            'imagem' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
+
+        if ($request->hasFile('imagem')) {
+            $dados['imagem'] = $request->file('imagem')
+                ->store('produtos', 'public');
+        }
 
         Produto::create($dados);
 

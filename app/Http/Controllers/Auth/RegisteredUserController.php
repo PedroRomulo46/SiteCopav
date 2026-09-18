@@ -27,8 +27,8 @@ class RegisteredUserController extends Controller
      *
      * @throws ValidationException
      */
-    public function store(Request $request): RedirectResponse
-    {
+    public function store(Request $request): RedirectResponse {
+        
         $request->validate([
             'nome' => ['required', 'string', 'max:255'],
 
@@ -39,11 +39,6 @@ class RegisteredUserController extends Controller
                 'email',
                 'max:255',
                 'unique:' . User::class
-            ],
-
-            'user_type' => [
-                'required',
-                'in:cliente,fornecedor'
             ],
 
             'password' => [
@@ -57,7 +52,7 @@ class RegisteredUserController extends Controller
             'nome' => $request->nome,
             'email' => $request->email,
             'password' => $request->password,
-            'user_type' => $request->user_type,
+            'user_type' => 'cliente',
         ]);
 
         event(new Registered($user));

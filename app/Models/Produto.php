@@ -12,6 +12,7 @@ class Produto extends Model
         'nome',
         'descricao',
         'unidade',
+        'imagem',
     ];
 
     public function fornecedor() {

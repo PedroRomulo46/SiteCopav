@@ -32,4 +32,9 @@ class Fornecedor extends Model
     public function ofertas() { 
         return $this->hasMany(Oferta::class); 
     }
+    
+    public function ofertasDiretas()
+    {
+        return $this->hasMany(OfertaDireta::class);
+    }
 }

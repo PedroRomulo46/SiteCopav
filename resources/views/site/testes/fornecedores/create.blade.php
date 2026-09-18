@@ -1,28 +1,10 @@
-<h1>Cadastrar Fornecedor</h1>
+<h1>Cadastrar-se como Fornecedor</h1>
 
 <form action="{{ route('fornecedores.store') }}" method="POST">
-
     @csrf
 
     <div>
-        <label>Usuário:</label>
-
-        <select name="user_id" required>
-            <option value="">Selecione o usuário</option>
-
-            @foreach($usuarios as $usuario)
-                <option value="{{ $usuario->id }}">
-                    {{ $usuario->nome }} - {{ $usuario->email }}
-                </option>
-            @endforeach
-        </select>
-    </div>
-
-    <br>
-
-    <div>
-        <label>Nome:</label>
-
+        <label>Nome da empresa:</label>
         <input
             type="text"
             name="nome"
@@ -35,7 +17,6 @@
 
     <div>
         <label>Documento:</label>
-
         <input
             type="text"
             name="documento"
@@ -48,7 +29,6 @@
 
     <div>
         <label>Telefone:</label>
-
         <input
             type="text"
             name="telefone"
@@ -61,7 +41,6 @@
 
     <div>
         <label>Descrição:</label>
-
         <textarea name="descricao">{{ old('descricao') }}</textarea>
     </div>
 
@@ -69,7 +48,6 @@
 
     <div>
         <label>Endereço:</label>
-
         <input
             type="text"
             name="endereco"
@@ -82,7 +60,6 @@
 
     <div>
         <label>Cidade:</label>
-
         <input
             type="text"
             name="cidade"
@@ -95,7 +72,6 @@
 
     <div>
         <label>Estado:</label>
-
         <input
             type="text"
             name="estado"
@@ -107,25 +83,13 @@
 
     <br>
 
-    <div>
-        <label>Status:</label>
-
-        <select name="status" required>
-            <option value="pendente">Pendente</option>
-            <option value="ativo">Ativo</option>
-        </select>
-    </div>
-
-    <br>
-
     <button type="submit">
-        Cadastrar fornecedor
+        Cadastrar como fornecedor
     </button>
-
 </form>
 
 <br>
 
-<a href="{{ route('fornecedores.index') }}">
+<a href="{{ route('dashboard') }}">
     Voltar
 </a>
