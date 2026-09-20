@@ -18,7 +18,7 @@
     <!-- Botão Novo Lote -->
     <a href="{{ route('ofertas.create') }}" class="w-full">
       <button class="btn text-white bg-[#79A961] hover:bg-[#709b58] w-full border-none text-lg py-8 rounded-xl shadow-inner">
-        Cadastrar novo lote +
+        Cadastrar Nova Oferta +
       </button>
     </a>
 

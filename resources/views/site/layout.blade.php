@@ -66,7 +66,7 @@
           <!-- Foto de perfil -->
           <div class="avatar p-2 py-5">
             <div class="w-16 rounded-full border-2" style="border-color: #79A961">
-              @if(auth()->user()->imagem)
+                @if(auth()->user()?->imagem)
                 <img
                   src="{{ asset('storage/' . auth()->user()->imagem) }}"
                   alt="Foto de perfil">
