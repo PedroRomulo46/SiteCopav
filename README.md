@@ -2,15 +2,11 @@
 
 Sistema de marketplace voltado para o agronegócio no Vale do Jaguaribe, para produtores rurais negociarem lotes, produtos e suprimentos.
 
----
-
 ## Tecnologias Utilizadas
 
 - Laravel 11 / PHP 8.3
 - MySQL (Laragon)
 - Blade, Tailwind CSS (CDN), DaisyUI (CDN) e Google Material Symbols
-
----
 
 ## Pré-requisitos
 
@@ -18,8 +14,6 @@ Sistema de marketplace voltado para o agronegócio no Vale do Jaguaribe, para pr
 - [Composer](https://getcomposer.org/)
 - [Node.js](https://nodejs.org/) (+ NPM)
 - [Laragon](https://laragon.org/) (servidor MySQL local)
-
----
 
 ## Passo a Passo para Configuração do Projeto
 
