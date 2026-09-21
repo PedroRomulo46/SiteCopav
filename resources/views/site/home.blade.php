@@ -12,12 +12,10 @@
 
 <div x-data="{ abaAtiva: 'lotes' }" class="p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 bg-gray-50 min-h-screen">
 
-  <!-- Coluna Esquerda: Ações e Gestão (Lotes/Demandas) -->
+  <!-- Coluna Esquerda: Ações e Gestão -->
   <div class="lg:col-span-5 h-fit p-4 rounded-2xl flex flex-col gap-4" style="background-color: #DDD8CC;">
     
-    <!-- Vísivel para quem está logado -->
     @auth
-      <!-- Botão Novo Lote -->
       <a href="{{ route('ofertas.create') }}" class="w-full">
         <button class="btn text-white bg-[#79A961] hover:bg-[#709b58] w-full border-none text-lg py-8 rounded-xl shadow-inner">
           Cadastrar Nova Oferta +
@@ -25,7 +23,6 @@
       </a>
     @endauth
 
-    <!-- Call to action para visitantes realizarem login -->
     @guest
     <div class="bg-white p-6 rounded-xl text-center flex flex-col gap-3 shadow-md">
       <h2 class="font-bold text-gray-800 text-base">Quer vender no marketplace?</h2>
@@ -38,10 +35,7 @@
     @endguest
 
     @auth
-    <!-- Painel de Abas e Listagem -->
     <div class="bg-white rounded-xl p-4 flex flex-col gap-3 shadow-md">
-
-      <!-- Navegação de Abas -->
       <div role="tablist" class="tabs tabs-border w-full flex justify-around border-b pb-2">
         <button
           @click="abaAtiva = 'lotes'"
@@ -57,7 +51,7 @@
         </button>
       </div>
 
-      <!-- Aba 1: Meus Lotes [=OFERTAS] -->
+      <!-- Aba 1: Meus Lotes -->
       <div x-show="abaAtiva === 'lotes'" class="flex flex-col gap-3 mt-2">
         @forelse($ofertas as $oferta)
         <div class="flex items-start gap-3 p-3 bg-white rounded-xl border border-gray-100 hover:shadow-[0_0_8px_3px_rgba(0,0,0,0.2)] transition-shadow">
@@ -81,7 +75,7 @@
         @endforelse
       </div>
 
-      <!-- Aba 2: Demandas da Empresa (PREPARADO PARA O BACK-END) [=Outra variável] -->
+      <!-- Aba 2: Demandas -->
       <div x-show="abaAtiva === 'demandas'" x-cloak class="flex flex-col gap-3 mt-2">
         @forelse($demandas ?? [] as $demanda)
         <div class="flex items-start gap-3 p-3 bg-white rounded-xl border border-gray-100 hover:shadow-[0_0_8px_3px_rgba(0,0,0,0.2)] transition-shadow">
@@ -110,9 +104,7 @@
   <div class="lg:col-span-7 flex flex-col gap-4 items-center">
     <h1 class="text-xl font-bold text-gray-800 self-start">Produtos que você pode se interessar...</h1>
 
-    <!-- Grid de Cards de Produtos Recomendados -->
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 w-full">
-      <!-- Coluna Direita: Vitrine de Produtos (home.blade.php) -->
     @forelse($produtos as $item)
       <a href="{{ route('ofertas.show', $item->id) }}" class="block h-full">
         <div class="bg-white hover:shadow-[0_0_20px_2px_rgba(0,0,0,0.15)] p-3 rounded-2xl flex flex-col justify-between h-full transition-all border border-gray-100">
