@@ -17,11 +17,11 @@ Sistema de marketplace voltado para o agronegócio no Vale do Jaguaribe, para pr
 
 ## Passo a Passo para Configuração do Projeto
 
-Siga os passos abaixo toda vez que fizer um novo clone do repositório:
+Passos para fazer um novo clone do repositório:
 
 ### 1. Clonar o repositório
 ```bash
-git clone <url-do-repositorio>
+git clone https://github.com/PedroRomulo46/SiteCopav
 cd SiteCopav
 ```
 
