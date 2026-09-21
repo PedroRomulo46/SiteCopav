@@ -84,9 +84,10 @@
             {{-- Unidade --}}
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Unidade:</label>
-                <select name="status" class="p-3 w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                    <option value="rascunho" {{ old('status') == 'rascunho' ? 'selected' : '' }}>Kg</option>
-                    <option value="publicada" {{ old('status', 'publicada') == 'publicada' ? 'selected' : '' }}>Saca</option>
+                <select name="unidade" required class="p-3 w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">Selecione a unidade</option>
+                    <option value="kg" {{ old('unidade') == 'kg' ? 'selected' : '' }}>Kg</option>
+                    <option value="saca" {{ old('unidade') == 'saca' ? 'selected' : '' }}>Saca</option>
                 </select>
             </div>
 

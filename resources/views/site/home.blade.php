@@ -15,13 +15,29 @@
   <!-- Coluna Esquerda: Ações e Gestão (Lotes/Demandas) -->
   <div class="lg:col-span-5 h-fit p-4 rounded-2xl flex flex-col gap-4" style="background-color: #DDD8CC;">
     
-    <!-- Botão Novo Lote -->
-    <a href="{{ route('ofertas.create') }}" class="w-full">
-      <button class="btn text-white bg-[#79A961] hover:bg-[#709b58] w-full border-none text-lg py-8 rounded-xl shadow-inner">
-        Cadastrar Nova Oferta +
-      </button>
-    </a>
+    <!-- Vísivel para quem está logado -->
+    @auth
+      <!-- Botão Novo Lote -->
+      <a href="{{ route('ofertas.create') }}" class="w-full">
+        <button class="btn text-white bg-[#79A961] hover:bg-[#709b58] w-full border-none text-lg py-8 rounded-xl shadow-inner">
+          Cadastrar Nova Oferta +
+        </button>
+      </a>
+    @endauth
 
+    <!-- Call to action para visitantes realizarem login -->
+    @guest
+    <div class="bg-white p-6 rounded-xl text-center flex flex-col gap-3 shadow-md">
+      <h2 class="font-bold text-gray-800 text-base">Quer vender no marketplace?</h2>
+      <p class="text-xs text-gray-600">Acesse sua conta ou cadastre-se para criar lotes e enviar propostas.</p>
+      <div class="flex gap-2 justify-center mt-2">
+        <a href="{{ route('login') }}" class="btn bg-[#79A961] hover:bg-[#709b58] text-white btn-sm px-4 rounded-md">Entrar</a>
+        <a href="{{ route('register') }}" class="btn btn-outline border-gray-400 text-gray-700 hover:bg-gray-100 btn-sm px-4 rounded-md">Cadastrar</a>
+      </div>
+    </div>
+    @endguest
+
+    @auth
     <!-- Painel de Abas e Listagem -->
     <div class="bg-white rounded-xl p-4 flex flex-col gap-3 shadow-md">
 
@@ -87,6 +103,7 @@
         @endforelse
       </div>
     </div>
+    @endauth
   </div>
 
   <!-- Coluna Direita: Vitrine de Produtos -->
