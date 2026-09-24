@@ -86,9 +86,9 @@
             <li class="mt-auto">
               <form method="POST" action="{{ route('logout') }}" class="w-full">
                 @csrf
-                <button type="submit" class="w-full text-red-600 is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Sair">
+                <button type="submit" class="w-full text-red-600 is-drawer-close:tooltip is-drawer-close:tooltip-right inline-flex itens-center" data-tip="Sair">
                   <span class="material-symbols-outlined">logout</span>
-                  <span class="is-drawer-close:hidden font-semibold">Sair</span>
+                  <span class="is-drawer-close:hidden font-semibol mx-2">Sair</span>
                 </button>
               </form>
             </li>

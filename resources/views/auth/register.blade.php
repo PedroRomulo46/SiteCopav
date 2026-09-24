@@ -2,7 +2,6 @@
     <form method="POST" action="{{ route('register') }}">
 
         @csrf
-        <div class="bg-[#79A961] p-5 rounded-sm">
         <!-- Nome -->
         <div>
             <x-input-label for="nome" :value="__('Nome')"/>
@@ -70,7 +69,6 @@
                 :messages="$errors->get('password_confirmation')"
                 class="mt-2"
             />
-        </div>
         </div>
 
         <div class="flex items-center justify-end mt-4">
