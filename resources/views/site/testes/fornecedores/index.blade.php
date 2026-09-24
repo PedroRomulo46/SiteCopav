@@ -4,9 +4,15 @@
     <p>{{ session('sucesso') }}</p>
 @endif
 
-<a href="{{ route('fornecedores.create') }}">
-    Cadastrar fornecedor
-</a>
+@if(auth()->user()->fornecedor)
+    <a href="{{ route('fornecedores.show', auth()->user()->fornecedor) }}">
+        Meu fornecedor
+    </a>
+@else
+    <a href="{{ route('fornecedores.create') }}">
+        Cadastrar fornecedor
+    </a>
+@endif
 
 <hr>
 

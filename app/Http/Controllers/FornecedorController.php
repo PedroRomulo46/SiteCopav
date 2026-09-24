@@ -19,11 +19,23 @@ class FornecedorController extends Controller
 
     public function create()
     {
+        if (auth()->user()->fornecedor) {
+            return redirect()
+                ->route('fornecedores.show', auth()->user()->fornecedor)
+                ->with('sucesso', 'Você já possui um cadastro de fornecedor.');
+        }
+
         return view('site.testes.fornecedores.create');
     }
 
     public function store(Request $request)
     {
+        if ($request->user()->fornecedor) {
+            return redirect()
+                ->route('fornecedores.show', $request->user()->fornecedor)
+                ->with('sucesso', 'Você já possui um cadastro de fornecedor.');
+        }
+
         $dados = $request->validate([
             'nome' => 'required|string|max:255',
             'documento' => 'required|string|max:255|unique:fornecedores,documento',
@@ -34,14 +46,17 @@ class FornecedorController extends Controller
             'estado' => 'required|string|size:2',
         ]);
 
-        $dados['user_id'] = auth()->id();
+        $dados['user_id'] = $request->user()->id;
         $dados['status'] = 'pendente';
 
         Fornecedor::create($dados);
 
         return redirect()
             ->route('fornecedores.index')
-            ->with('sucesso', 'Fornecedor cadastrado com sucesso!');
+            ->with(
+                'sucesso',
+                'Fornecedor cadastrado com sucesso! Aguarde a aprovação.'
+            );
     }
 
     public function show(Fornecedor $fornecedor)
