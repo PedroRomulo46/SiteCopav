@@ -21,10 +21,10 @@
           </label>
 
           <div class="text-2xl font-semibold">
-            Olá, {{ auth()->check() ? auth()->user()->name : 'Visitante' }}!
+            Site Copav
           </div>
 
-          <div class="w-1/3 relative flex items-center">
+          <div class="w-1/2 relative flex items-center">
             <input type="text" placeholder="Buscar lotes, produtos ou compradores..." class="input w-full bg-white text-gray-500 font-bold pl-10 pr-4">
             <span class="material-symbols-outlined absolute left-3 text-gray-500 pointer-events-none">search</span>
           </div>
@@ -41,7 +41,7 @@
           </div>
         </nav>
 
-        <!-- AQUI ENTRA O CONTEÚDO DAS OUTRAS PÁGINAS -->
+        <!-- Conteúdo -->
         <main class="flex-1">
           @yield('conteudo')
         </main>
@@ -52,19 +52,24 @@
         <label for="my-drawer-4" aria-label="close sidebar" class="drawer-overlay"></label>
         <div class="bg-[#DDD8CC] flex min-h-full flex-col items-center is-drawer-close:w-14 is-drawer-open:w-64 transition-all">
 
-          <div class="avatar p-2 py-5">
+          <!-- Foto de perfil -->
+          <div class="avatar p-2 py-5 flex flex-col">
             <div class="w-14 h-14 rounded-full border-2 border-[#79A961] flex items-center justify-center bg-white text-gray-600 overflow-hidden">
               @if(auth()->check() && auth()->user()->imagem)
-                <img src="{{ asset('storage/' . auth()->user()->imagem) }}" alt="Foto de perfil" class="w-full h-full object-cover">
+                <img src="{{ Storage::url(auth()->user()->imagem) }}" alt="Foto de perfil" class="w-full h-full object-cover">
               @else
                 <span class="material-symbols-outlined text-4xl leading-none flex items-center justify-center">account_circle</span>
               @endif
             </div>
+            <!-- Nome do usuário -->
+            <span class="mt-2 text-sm font-semibold text-gray-800 text-center is-drawer-close:hidden truncate max-w-[180px]">
+              {{ auth()->check() ? auth()->user()->nome : 'Visitante' }}
+            </span>
           </div>
 
           <ul class="menu w-full grow px-2 gap-1">
             <li>
-              <a href="{{ route('home') }}" class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Home">
+              <a href="{{ route('home') }}" class="is-drawer-close:tooltip is-drawer-close:tooltip-right focus:bg-[#bbb6aa]" data-tip="Home">
                 <span class="material-symbols-outlined">home</span>
                 <span class="is-drawer-close:hidden">Home</span>
               </a>
@@ -72,13 +77,13 @@
 
             @auth
             <li>
-              <a href="{{ route('chat') }}" class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Mensagens">
+              <a href="{{ route('chat') }}" class="is-drawer-close:tooltip is-drawer-close:tooltip-right focus:bg-[#bbb6aa]" data-tip="Mensagens">
                 <span class="material-symbols-outlined">forum</span>
                 <span class="is-drawer-close:hidden">Mensagens</span>
               </a>
             </li>
             <li>
-              <a href="{{ route('profile.edit') }}" class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Configurações">
+              <a href="{{ route('profile.edit') }}" class="is-drawer-close:tooltip is-drawer-close:tooltip-right focus:bg-[#bbb6aa]" data-tip="Configurações">
                 <span class="material-symbols-outlined">settings</span>
                 <span class="is-drawer-close:hidden">Configurações</span>
               </a>
@@ -86,9 +91,11 @@
             <li class="mt-auto">
               <form method="POST" action="{{ route('logout') }}" class="w-full">
                 @csrf
-                <button type="submit" class="w-full text-red-600 is-drawer-close:tooltip is-drawer-close:tooltip-right inline-flex itens-center" data-tip="Sair">
+                <button type="submit"
+                class="w-full text-red-600 focus:bg-[#bbb6aa] is-drawer-close:tooltip is-drawer-close:tooltip-right inline-flex items-center"
+                data-tip="Sair">
                   <span class="material-symbols-outlined">logout</span>
-                  <span class="is-drawer-close:hidden font-semibol mx-2">Sair</span>
+                  <span class="is-drawer-close:hidden font-semibold mx-2">Sair</span>
                 </button>
               </form>
             </li>
