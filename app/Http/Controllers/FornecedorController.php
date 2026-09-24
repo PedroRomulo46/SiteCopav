@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Fornecedor;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class FornecedorController extends Controller
@@ -11,10 +12,7 @@ class FornecedorController extends Controller
     {
         $fornecedores = Fornecedor::all();
 
-        return view(
-            'site.testes.fornecedores.index',
-            compact('fornecedores')
-        );
+        return view('fornecedores.index', compact('fornecedores'));
     }
 
     public function create()
@@ -25,7 +23,7 @@ class FornecedorController extends Controller
                 ->with('sucesso', 'Você já possui um cadastro de fornecedor.');
         }
 
-        return view('site.testes.fornecedores.create');
+        return view('fornecedores.create');
     }
 
     public function store(Request $request)
@@ -61,19 +59,14 @@ class FornecedorController extends Controller
 
     public function show(Fornecedor $fornecedor)
     {
-        return view(
-            'site.testes.fornecedores.show',
-            compact('fornecedor')
-        );
+        return view('fornecedores.show', compact('fornecedor'));
     }
 
     public function edit(Fornecedor $fornecedor)
     {
-        $usuarios = \App\Models\User::where('user_type', 'fornecedor')->get();
+        $usuarios = User::where('user_type', 'fornecedor')->get();
 
-        return view(
-            'site.fornecedores.edit',
-            compact('usuarios', 'fornecedor'));
+        return view('fornecedores.edit', compact('usuarios', 'fornecedor'));
     }
 
     public function update(Request $request, Fornecedor $fornecedor)

@@ -17,10 +17,7 @@ class NegociacaoController extends Controller
             'cliente'
         ])->get();
 
-        return view(
-            'site.testes.negociacoes.index',
-            compact('negociacoes')
-        );
+        return view('negociacoes.index', compact('negociacoes'));
     }
 
     public function create()
@@ -32,15 +29,9 @@ class NegociacaoController extends Controller
         ->where('status', 'publicada')
         ->get();
 
-        $clientes = User::where(
-            'user_type',
-            'cliente'
-        )->get();
+        $clientes = User::where('user_type', 'cliente')->get();
 
-        return view(
-            'site.testes.negociacoes.create',
-            compact('ofertas', 'clientes')
-        );
+        return view('negociacoes.create', compact('ofertas', 'clientes'));
     }
 
     public function store(Request $request)
@@ -55,53 +46,30 @@ class NegociacaoController extends Controller
 
         return redirect()
             ->route('negociacoes.index')
-            ->with(
-                'sucesso',
-                'Negociação criada com sucesso!'
-            );
+            ->with('sucesso', 'Negociação criada com sucesso!');
     }
 
-   public function show(Negociacao $negociacao)
-{
-    $negociacao->load([
-        'oferta.produto',
-        'oferta.fornecedor',
-        'cliente',
-        'propostas.usuario'
-    ]);
+    public function show(Negociacao $negociacao)
+    {
+        $negociacao->load([
+            'oferta.produto',
+            'oferta.fornecedor',
+            'cliente',
+            'propostas.usuario'
+        ]);
 
-    return view(
-        'site.testes.negociacoes.show',
-        compact('negociacao')
-    );
-}
+        return view('negociacoes.show', compact('negociacao'));
+    }
 
     public function edit(Negociacao $negociacao)
     {
-        $ofertas = Oferta::where(
-            'status',
-            'publicada'
-        )->get();
+        $ofertas = Oferta::where('status', 'publicada')->get();
+        $clientes = User::where('user_type', 'cliente')->get();
 
-        $clientes = User::where(
-            'user_type',
-            'cliente'
-        )->get();
-
-        return view(
-            'site.testes.negociacoes.edit',
-            compact(
-                'negociacao',
-                'ofertas',
-                'clientes'
-            )
-        );
+        return view('negociacoes.edit', compact('negociacao', 'ofertas', 'clientes'));
     }
 
-    public function update(
-        Request $request,
-        Negociacao $negociacao
-    ) {
+    public function update(Request $request, Negociacao $negociacao) {
         $dados = $request->validate([
             'oferta_id' => 'required|exists:ofertas,id',
             'cliente_id' => 'required|exists:users,id',
@@ -112,10 +80,7 @@ class NegociacaoController extends Controller
 
         return redirect()
             ->route('negociacoes.index')
-            ->with(
-                'sucesso',
-                'Negociação atualizada com sucesso!'
-            );
+            ->with('sucesso', 'Negociação atualizada com sucesso!');
     }
 
     public function destroy(Negociacao $negociacao)
@@ -124,9 +89,6 @@ class NegociacaoController extends Controller
 
         return redirect()
             ->route('negociacoes.index')
-            ->with(
-                'sucesso',
-                'Negociação excluída com sucesso!'
-            );
+            ->with('sucesso', 'Negociação excluída com sucesso!');
     }
 }

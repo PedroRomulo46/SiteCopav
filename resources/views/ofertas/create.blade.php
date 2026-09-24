@@ -136,7 +136,7 @@
             <a href="{{ route('ofertas.index') }}" class="text-gray-600 hover:text-gray-900">
                 Cancelar
             </a>
-            <button type="submit" class="bg-[#79A961] hover:bg-[#709b58] text-white px-5 py-2 rounded-md transition-colors">
+            <button type="submit" class="bg-[#236350] hover:bg-[#1B4D3E] text-white px-5 py-2 rounded-md transition-colors">
                 Cadastrar oferta
             </button>
         </div>

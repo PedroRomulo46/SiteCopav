@@ -32,7 +32,8 @@
         </div>
 
         <div class="flex items-center gap-4">
-            <button type="submit" class="bg-[#79A961] hover:bg-[#709b58] text-white px-4 py-2 rounded-md">
+            <button type="submit" class="text-white px-4 py-2 rounded-md"
+            style="background-color: #236350">
                 Salvar
             </button>
 

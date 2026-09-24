@@ -16,10 +16,7 @@ class OfertaDiretaController extends Controller
             'fornecedor'
         ])->get();
 
-        return view(
-            'site.testes.ofertas_diretas.index',
-            compact('ofertasDiretas')
-        );
+        return view('ofertas_diretas.index', compact('ofertasDiretas'));
     }
 
     public function create()
@@ -31,15 +28,9 @@ class OfertaDiretaController extends Controller
             ])
             ->get();
 
-        $fornecedores = Fornecedor::where(
-            'status',
-            'ativo'
-        )->get();
+        $fornecedores = Fornecedor::where('status', 'ativo')->get();
 
-        return view(
-            'site.testes.ofertas_diretas.create',
-            compact('demandas', 'fornecedores')
-        );
+        return view('ofertas_diretas.create', compact('demandas', 'fornecedores'));
     }
 
     public function store(Request $request)
@@ -58,10 +49,7 @@ class OfertaDiretaController extends Controller
 
         return redirect()
             ->route('demandas.show', $dados['demanda_id'])
-            ->with(
-                'sucesso',
-                'Oferta enviada com sucesso!'
-            );
+            ->with('sucesso', 'Oferta enviada com sucesso!');
     }
 
     public function show(OfertaDireta $ofertaDireta)
@@ -72,35 +60,19 @@ class OfertaDiretaController extends Controller
             'fornecedor'
         ]);
 
-        return view(
-            'site.testes.ofertas_diretas.show',
-            compact('ofertaDireta')
-        );
+        return view('ofertas_diretas.show', compact('ofertaDireta'));
     }
 
     public function edit(OfertaDireta $ofertaDireta)
     {
         $demandas = Demanda::where('status', 'aberta')->get();
+        $fornecedores = Fornecedor::where('status', 'ativo')->get();
 
-        $fornecedores = Fornecedor::where(
-            'status',
-            'ativo'
-        )->get();
-
-        return view(
-            'site.testes.ofertas_diretas.edit',
-            compact(
-                'ofertaDireta',
-                'demandas',
-                'fornecedores'
-            )
-        );
+        return view('ofertas_diretas.edit', compact('ofertaDireta', 'demandas', 'fornecedores'));
     }
 
-    public function update(
-        Request $request,
-        OfertaDireta $ofertaDireta
-    ) {
+    public function update(Request $request, OfertaDireta $ofertaDireta)
+    {
         $dados = $request->validate([
             'demanda_id' => 'required|exists:demandas,id',
             'fornecedor_id' => 'required|exists:fornecedores,id',
@@ -114,10 +86,7 @@ class OfertaDiretaController extends Controller
 
         return redirect()
             ->route('ofertas-diretas.index')
-            ->with(
-                'sucesso',
-                'Oferta atualizada com sucesso!'
-            );
+            ->with('sucesso', 'Oferta atualizada com sucesso!');
     }
 
     public function destroy(OfertaDireta $ofertaDireta)
@@ -126,9 +95,6 @@ class OfertaDiretaController extends Controller
 
         return redirect()
             ->route('ofertas-diretas.index')
-            ->with(
-                'sucesso',
-                'Oferta excluída com sucesso!'
-            );
+            ->with('sucesso', 'Oferta excluída com sucesso!');
     }
 }

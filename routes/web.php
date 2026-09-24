@@ -23,10 +23,12 @@ use App\Http\Controllers\ChatController;
 // Página inicial
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-// Visitantes só podem VER listas e detalhes de categorias, produtos e ofertas
+// Visualização de Categorias e Produtos (Públicos)
 Route::resource('categorias', CategoriaController::class)->only(['index', 'show']);
 Route::resource('produtos', ProdutoController::class)->only(['index', 'show']);
-Route::resource('ofertas', OfertaController::class)->only(['index', 'show']);
+
+// Visualização de Ofertas (Públicas)
+Route::get('/ofertas', [OfertaController::class, 'index'])->name('ofertas.index');
 
 /*
 |--------------------------------------------------------------------------
@@ -44,10 +46,14 @@ Route::middleware('auth')->group(function () {
     // Página de Chat
     Route::get('/chat', [ChatController::class, 'index'])->name('chat');
 
-    // Ofertas (Apenas ações de criação, edição e remoção)
-    Route::resource('ofertas', OfertaController::class)->except(['index', 'show']);
+    // Criação/Ações de Ofertas (Obrigatório vir antes da rota pública de show /{oferta})
+    Route::get('/ofertas/create', [OfertaController::class, 'create'])->name('ofertas.create');
+    Route::post('/ofertas', [OfertaController::class, 'store'])->name('ofertas.store');
+    Route::get('/ofertas/{oferta}/edit', [OfertaController::class, 'edit'])->name('ofertas.edit');
+    Route::put('/ofertas/{oferta}', [OfertaController::class, 'update'])->name('ofertas.update');
+    Route::delete('/ofertas/{oferta}', [OfertaController::class, 'destroy'])->name('ofertas.destroy');
 
-    // Outros Recursos Completos
+    // Outros Recursos
     Route::resource('fornecedores', FornecedorController::class);
     Route::resource('demandas', DemandaController::class);
     Route::resource('ofertas-diretas', OfertaDiretaController::class);
@@ -67,6 +73,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
 });
+
+// Detalhes da Oferta (Público - MANTIDO NO FINAL para não capturar '/ofertas/create' como ID)
+Route::get('/ofertas/{oferta}', [OfertaController::class, 'show'])->name('ofertas.show');
 
 /*
 |--------------------------------------------------------------------------

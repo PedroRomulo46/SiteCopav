@@ -30,15 +30,11 @@ class ProfileController extends Controller
         $dados = $request->validated();
 
         if ($request->hasFile('imagem')) {
-
             if ($request->user()->imagem) {
-                Storage::disk('public')->delete(
-                    $request->user()->imagem
-                );
+                Storage::disk('public')->delete($request->user()->imagem);
             }
 
-            $dados['imagem'] = $request->file('imagem')
-                ->store('perfis', 'public');
+            $dados['imagem'] = $request->file('imagem')->store('perfis', 'public');
         }
 
         $request->user()->fill($dados);

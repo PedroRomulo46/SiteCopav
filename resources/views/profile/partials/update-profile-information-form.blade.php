@@ -39,7 +39,8 @@
                             height: 128px;
                             border-radius: 50%;
                             object-fit: cover;
-                            display: block;">
+                            display: block;
+                            border: 1px solid black;">
                 </div>
             @endif
 
@@ -48,7 +49,7 @@
                 name="imagem"
                 type="file"
                 accept="image/jpeg,image/png,image/jpg,image/webp"
-                class="block mt-2 w-full text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50"
+                class="block mt-2 w-full text-sm text-gray-900 border-none"
             >
 
             <p class="mt-1 text-sm text-gray-500">
@@ -124,7 +125,9 @@
 
         {{-- BOTÃO SALVAR --}}
         <div class="flex items-center gap-4">
-            <button type="submit" class="bg-[#79A961] hover:bg-[#709b58] text-white px-4 py-2 rounded-md">
+            <button type="submit"
+            class="text-white px-4 py-2 rounded-md"
+            style="background-color: #236350">
                 Salvar
             </button>
 

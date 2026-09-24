@@ -2,20 +2,20 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@yield('title', 'Meu Marketplace')</title>
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&icon_names=search,arrow_right_alt,account_circle,forum,home,arrow_back,palette,settings,logout&display=block" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   </head>
 
   <body>
     <div class="drawer lg:drawer-open">
-      <input id="my-drawer-4" type="checkbox" class="drawer-toggle inline" />
+      <input id="my-drawer-4" type="checkbox" class="drawer-toggle inline"/>
       
       <div class="drawer-content min-h-screen flex flex-col">
         <!-- Navbar -->
-        <nav class="navbar w-full h-20 bg-[#79A961] text-white flex justify-between items-center px-4 shadow-xl">
+        <nav class="navbar w-full h-20 bg-[#1B4D3E] text-white flex justify-between items-center px-4 shadow-xl">
           <label for="my-drawer-4" class="btn btn-square btn-ghost lg:hidden">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
           </label>
@@ -50,11 +50,11 @@
       <!-- Sidebar -->
       <div class="drawer-side is-drawer-close:overflow-visible min-h-screen">
         <label for="my-drawer-4" aria-label="close sidebar" class="drawer-overlay"></label>
-        <div class="bg-[#DDD8CC] flex min-h-full flex-col items-center is-drawer-close:w-14 is-drawer-open:w-64 transition-all">
+        <div class="bg-[#123228] flex min-h-full flex-col items-center is-drawer-close:w-14 is-drawer-open:w-64 transition-all">
 
           <!-- Foto de perfil -->
           <div class="avatar p-2 py-5 flex flex-col">
-            <div class="w-14 h-14 rounded-full border-2 border-[#79A961] flex items-center justify-center bg-white text-gray-600 overflow-hidden">
+            <div class="w-16 h-16 rounded-full border-2 border-[#1B4D3E] flex items-center justify-center bg-white text-gray-600 overflow-hidden">
               @if(auth()->check() && auth()->user()->imagem)
                 <img src="{{ Storage::url(auth()->user()->imagem) }}" alt="Foto de perfil" class="w-full h-full object-cover">
               @else
@@ -62,14 +62,14 @@
               @endif
             </div>
             <!-- Nome do usuário -->
-            <span class="mt-2 text-sm font-semibold text-gray-800 text-center is-drawer-close:hidden truncate max-w-[180px]">
+            <span class="mt-2 text-sm font-semibold text-white text-center is-drawer-close:hidden truncate max-w-[180px]">
               {{ auth()->check() ? auth()->user()->nome : 'Visitante' }}
             </span>
           </div>
 
           <ul class="menu w-full grow px-2 gap-1">
             <li>
-              <a href="{{ route('home') }}" class="is-drawer-close:tooltip is-drawer-close:tooltip-right focus:bg-[#bbb6aa]" data-tip="Home">
+              <a href="{{ route('home') }}" class="is-drawer-close:tooltip is-drawer-close:tooltip-right text-white hover:bg-[#1B4D3E]" data-tip="Home">
                 <span class="material-symbols-outlined">home</span>
                 <span class="is-drawer-close:hidden">Home</span>
               </a>
@@ -77,22 +77,22 @@
 
             @auth
             <li>
-              <a href="{{ route('chat') }}" class="is-drawer-close:tooltip is-drawer-close:tooltip-right focus:bg-[#bbb6aa]" data-tip="Mensagens">
+              <a href="{{ route('chat') }}" class="is-drawer-close:tooltip is-drawer-close:tooltip-right text-white hover:bg-[#1B4D3E]" data-tip="Mensagens">
                 <span class="material-symbols-outlined">forum</span>
                 <span class="is-drawer-close:hidden">Mensagens</span>
               </a>
             </li>
             <li>
-              <a href="{{ route('profile.edit') }}" class="is-drawer-close:tooltip is-drawer-close:tooltip-right focus:bg-[#bbb6aa]" data-tip="Configurações">
+              <a href="{{ route('profile.edit') }}" class="is-drawer-close:tooltip is-drawer-close:tooltip-right text-white hover:bg-[#1B4D3E]" data-tip="Configurações">
                 <span class="material-symbols-outlined">settings</span>
                 <span class="is-drawer-close:hidden">Configurações</span>
               </a>
             </li>
-            <li class="mt-auto">
+            <li class="mt-auto hover:bg-[#1B4D3E] rounded-sm">
               <form method="POST" action="{{ route('logout') }}" class="w-full">
                 @csrf
                 <button type="submit"
-                class="w-full text-red-600 focus:bg-[#bbb6aa] is-drawer-close:tooltip is-drawer-close:tooltip-right inline-flex items-center"
+                class="w-full text-red-600 is-drawer-close:tooltip is-drawer-close:tooltip-right inline-flex items-center"
                 data-tip="Sair">
                   <span class="material-symbols-outlined">logout</span>
                   <span class="is-drawer-close:hidden font-semibold mx-2">Sair</span>
@@ -103,7 +103,7 @@
 
             @guest
             <li>
-              <a href="{{ route('login') }}" class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Entrar">
+              <a href="{{ route('login') }}" class="text-white is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Entrar">
                 <span class="material-symbols-outlined">account_circle</span>
                 <span class="is-drawer-close:hidden">Entrar / Cadastrar</span>
               </a>
