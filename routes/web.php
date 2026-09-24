@@ -23,12 +23,10 @@ use App\Http\Controllers\ChatController;
 // Página inicial
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-// Visitantes só podem VER listas e detalhes de categorias e produtos
+// Visitantes só podem VER listas e detalhes de categorias, produtos e ofertas
 Route::resource('categorias', CategoriaController::class)->only(['index', 'show']);
 Route::resource('produtos', ProdutoController::class)->only(['index', 'show']);
-
-// Listagem pública de ofertas (sem usar resource para evitar conflitos)
-Route::get('/ofertas', [OfertaController::class, 'index'])->name('ofertas.index');
+Route::resource('ofertas', OfertaController::class)->only(['index', 'show']);
 
 /*
 |--------------------------------------------------------------------------
@@ -46,10 +44,10 @@ Route::middleware('auth')->group(function () {
     // Página de Chat
     Route::get('/chat', [ChatController::class, 'index'])->name('chat');
 
-    // Ofertas (Criar, Salvar, Editar, Atualizar e Deletar)
+    // Ofertas (Apenas ações de criação, edição e remoção)
     Route::resource('ofertas', OfertaController::class)->except(['index', 'show']);
 
-    // Outros Recursos
+    // Outros Recursos Completos
     Route::resource('fornecedores', FornecedorController::class);
     Route::resource('demandas', DemandaController::class);
     Route::resource('ofertas-diretas', OfertaDiretaController::class);
@@ -69,13 +67,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
 });
-
-/*
-|--------------------------------------------------------------------------
-| DETALHES DA OFERTA (Fica no final para não interceptar o /ofertas/create)
-|--------------------------------------------------------------------------
-*/
-Route::get('/ofertas/{oferta}', [OfertaController::class, 'show'])->name('ofertas.show');
 
 /*
 |--------------------------------------------------------------------------

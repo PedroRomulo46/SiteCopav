@@ -24,6 +24,6 @@ class HomeController extends Controller
         ? \App\Models\Demanda::where('status', 'aberta')->latest()->get() 
         : collect();
 
-    return view('site.home', compact('produtos', 'ofertas', 'demandas'));
+    return view('home', compact('produtos', 'ofertas', 'demandas'));
 }
 }

@@ -32,7 +32,7 @@ class OfertaController extends Controller
         ])->get();
 
         return view(
-            'site.ofertas.create',
+            'ofertas.create',
             compact('fornecedores', 'produtos')
         );
     }
@@ -66,7 +66,7 @@ class OfertaController extends Controller
         $produto = $oferta->produto;
 
         return view(
-            'site.details',
+            'ofertas.show',
             compact('oferta', 'produto') // Passar 'oferta' e 'produto' na view
         );
     }
@@ -81,7 +81,7 @@ class OfertaController extends Controller
         ])->get();
 
         return view(
-            'site.ofertas.edit',
+            'ofertas.edit',
             compact(
                 'oferta',
                 'fornecedores',
