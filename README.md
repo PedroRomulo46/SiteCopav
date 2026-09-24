@@ -56,3 +56,9 @@ php artisan migrate --seed
 npm install
 npm run build
 ```
+
+### 7. Instalar Dependências Front-end e Gerar Build
+```bash
+npm install
+npm run build
+```
