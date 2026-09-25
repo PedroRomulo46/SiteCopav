@@ -17,8 +17,10 @@
         </div>
 
         <div class="flex items-center justify-end mt-4">
-            <button class="bg-[#79A961] text-white font-semibold p-2 rounded-md">
-                {{ __('Email Password Reset Link') }}
+            <button
+            class="text-white font-semibold p-2 rounded-md"
+            style="background-color: #1B4D3E">
+                Enviar link para resetar senha
             </button>
         </div>
     </form>
