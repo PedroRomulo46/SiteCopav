@@ -22,10 +22,7 @@ class PropostaController extends Controller
             $negociacao->oferta->fornecedor->user_id
         ])->get();
 
-        return view(
-            'site.testes.propostas.create',
-            compact('negociacao', 'usuarios')
-        );
+        return view('propostas.create', compact('negociacao', 'usuarios'));
     }
 
     public function store(Request $request)
@@ -42,13 +39,7 @@ class PropostaController extends Controller
         Proposta::create($dados);
 
         return redirect()
-            ->route(
-                'negociacoes.show',
-                $dados['negociacao_id']
-            )
-            ->with(
-                'sucesso',
-                'Proposta enviada com sucesso!'
-            );
+            ->route('negociacoes.show', $dados['negociacao_id'])
+            ->with('sucesso', 'Proposta enviada com sucesso!');
     }
-}
+} 

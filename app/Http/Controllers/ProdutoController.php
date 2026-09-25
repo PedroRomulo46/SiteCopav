@@ -17,10 +17,7 @@ class ProdutoController extends Controller
             'categoria'
         ])->get();
 
-        return view(
-            'site.testes.produtos.index',
-            compact('produtos')
-        );
+        return view('produtos.index', compact('produtos'));
     }
 
     public function create()
@@ -89,10 +86,7 @@ class ProdutoController extends Controller
             'categoria'
         ]);
 
-        return view(
-            'site.testes.produtos.show',
-            compact('produto')
-        );
+        return view('produtos.show', compact('produto'));
     }
 
     public function edit(Produto $produto)
@@ -100,14 +94,7 @@ class ProdutoController extends Controller
         $fornecedores = Fornecedor::where('status', 'ativo')->get();
         $categorias = Categoria::all();
 
-        return view(
-            'site.testes.produtos.edit',
-            compact(
-                'produto',
-                'fornecedores',
-                'categorias'
-            )
-        );
+        return view('produtos.edit', compact('produto', 'fornecedores', 'categorias'));
     }
 
     public function update(Request $request, Produto $produto)

@@ -23,11 +23,11 @@ use App\Http\Controllers\ChatController;
 // Página inicial
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-// Visitantes só podem VER listas e detalhes de categorias e produtos
+// Visualização de Categorias e Produtos (Públicos)
 Route::resource('categorias', CategoriaController::class)->only(['index', 'show']);
 Route::get('/produtos', [ProdutoController::class, 'index'])->name('produtos.index');
 
-// Listagem pública de ofertas (sem usar resource para evitar conflitos)
+// Visualização de Ofertas (Públicas)
 Route::get('/ofertas', [OfertaController::class, 'index'])->name('ofertas.index');
 
 /*
@@ -46,8 +46,12 @@ Route::middleware('auth')->group(function () {
     // Página de Chat
     Route::get('/chat', [ChatController::class, 'index'])->name('chat');
 
-    // Ofertas (Criar, Salvar, Editar, Atualizar e Deletar)
-    Route::resource('ofertas', OfertaController::class)->except(['index', 'show']);
+    // Criação/Ações de Ofertas (Obrigatório vir antes da rota pública de show /{oferta})
+    Route::get('/ofertas/create', [OfertaController::class, 'create'])->name('ofertas.create');
+    Route::post('/ofertas', [OfertaController::class, 'store'])->name('ofertas.store');
+    Route::get('/ofertas/{oferta}/edit', [OfertaController::class, 'edit'])->name('ofertas.edit');
+    Route::put('/ofertas/{oferta}', [OfertaController::class, 'update'])->name('ofertas.update');
+    Route::delete('/ofertas/{oferta}', [OfertaController::class, 'destroy'])->name('ofertas.destroy');
 
     // Outros Recursos
     Route::resource('fornecedores', FornecedorController::class)
@@ -79,14 +83,8 @@ Route::middleware('auth')->group(function () {
 
 });
 
-//Produtos show separado para não confundir 'produtos/create' com parâmetro
+//show separado para não confundir o método com parâmetro
 Route::get('/produtos/{produto}', [ProdutoController::class, 'show'])->name('produtos.show');
-
-/*
-|--------------------------------------------------------------------------
-| DETALHES DA OFERTA (Fica no final para não interceptar o /ofertas/create)
-|--------------------------------------------------------------------------
-*/
 Route::get('/ofertas/{oferta}', [OfertaController::class, 'show'])->name('ofertas.show');
 
 /*

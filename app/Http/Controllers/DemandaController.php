@@ -15,20 +15,14 @@ class DemandaController extends Controller
             'categoria'
         ])->get();
 
-        return view(
-            'site.testes.demandas.index',
-            compact('demandas')
-        );
+        return view('demandas.index', compact('demandas'));
     }
 
     public function create()
     {
         $categorias = Categoria::all();
 
-        return view(
-            'site.testes.demandas.create',
-            compact('categorias')
-        );
+        return view('demandas.create', compact('categorias'));
     }
 
     public function store(Request $request)
@@ -62,20 +56,14 @@ class DemandaController extends Controller
             'ofertasDiretas.fornecedor'
         ]);
 
-        return view(
-            'site.testes.demandas.show',
-            compact('demanda')
-        );
+        return view('demandas.show', compact('demanda'));
     }
 
     public function edit(Demanda $demanda)
     {
         $categorias = Categoria::all();
 
-        return view(
-            'site.testes.demandas.edit',
-            compact('demanda', 'categorias')
-        );
+        return view('demandas.edit', compact('demanda', 'categorias'));
     }
 
     public function update(Request $request, Demanda $demanda)

@@ -11,17 +11,12 @@ class CategoriaController extends Controller
     {
         $categorias = Categoria::all();
 
-        return view(
-            'site.testes.categorias.index',
-            compact('categorias')
-        );
+        return view('categorias.index', compact('categorias'));
     }
 
     public function create()
     {
-        return view(
-            'site.testes.categorias.create'
-        );
+        return view('categorias.create');
     }
 
     public function store(Request $request)
@@ -35,32 +30,21 @@ class CategoriaController extends Controller
 
         return redirect()
             ->route('categorias.index')
-            ->with(
-                'sucesso',
-                'Categoria cadastrada com sucesso!'
-            );
+            ->with('sucesso', 'Categoria cadastrada com sucesso!');
     }
 
     public function show(Categoria $categoria)
     {
-        return view(
-            'site.testes.categorias.show',
-            compact('categoria')
-        );
+        return view('categorias.show', compact('categoria'));
     }
 
     public function edit(Categoria $categoria)
     {
-        return view(
-            'site.testes.categorias.edit',
-            compact('categoria')
-        );
+        return view('categorias.edit', compact('categoria'));
     }
 
-    public function update(
-        Request $request,
-        Categoria $categoria
-    ) {
+    public function update(Request $request, Categoria $categoria)
+    {
         $dados = $request->validate([
             'nome' => 'required|string|max:255',
             'descricao' => 'nullable|string',
@@ -70,10 +54,7 @@ class CategoriaController extends Controller
 
         return redirect()
             ->route('categorias.index')
-            ->with(
-                'sucesso',
-                'Categoria atualizada com sucesso!'
-            );
+            ->with('sucesso', 'Categoria atualizada com sucesso!');
     }
 
     public function destroy(Categoria $categoria)
@@ -82,10 +63,6 @@ class CategoriaController extends Controller
 
         return redirect()
             ->route('categorias.index')
-            ->with(
-                'sucesso',
-                'Categoria excluída com sucesso!'
-            );
+            ->with('sucesso', 'Categoria excluída com sucesso!');
     }
 }
-

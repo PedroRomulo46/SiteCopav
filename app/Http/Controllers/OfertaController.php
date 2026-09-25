@@ -16,10 +16,7 @@ class OfertaController extends Controller
             'produto'
         ])->get();
 
-        return view(
-            'site.ofertas.index',
-            compact('ofertas')
-        );
+        return view('ofertas.index', compact('ofertas'));
     }
 
     public function create()
@@ -31,10 +28,7 @@ class OfertaController extends Controller
             'categoria'
         ])->get();
 
-        return view(
-            'site.ofertas.create',
-            compact('fornecedores', 'produtos')
-        );
+        return view('ofertas.create', compact('fornecedores', 'produtos'));
     }
 
     public function store(Request $request)
@@ -62,13 +56,9 @@ class OfertaController extends Controller
     {
         $oferta->load(['fornecedor', 'produto']);
 
-        // Extrair produto associado a oferta
         $produto = $oferta->produto;
 
-        return view(
-            'site.details',
-            compact('oferta', 'produto') // Passar 'oferta' e 'produto' na view
-        );
+        return view('ofertas.show', compact('oferta', 'produto'));
     }
 
     public function edit(Oferta $oferta)
@@ -80,14 +70,7 @@ class OfertaController extends Controller
             'categoria'
         ])->get();
 
-        return view(
-            'site.ofertas.edit',
-            compact(
-                'oferta',
-                'fornecedores',
-                'produtos'
-            )
-        );
+        return view('ofertas.edit', compact('oferta', 'fornecedores', 'produtos'));
     }
 
     public function update(Request $request, Oferta $oferta)

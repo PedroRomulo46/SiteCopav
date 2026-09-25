@@ -80,7 +80,8 @@
             </a>
             <!-- Botão Cadastrar -->
             <button type="submit"
-            class="ms-4 px-4 py-2 bg-[#79A961] hover:bg-[#709b58] text-white font-semibold rounded-md shadow-sm">
+            class="ms-4 px-4 py-2 text-white font-semibold rounded-md shadow-sm"
+            style="background-color: #236350">
                 {{ __('Cadastrar') }}
             </button>
         </div>

@@ -11,7 +11,7 @@ class ChatController extends Controller
      */
     public function index()
     {
-        return view('site.chat');
+        return view('chat.index');
     }
 
     /**
