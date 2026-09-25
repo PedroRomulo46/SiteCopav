@@ -29,18 +29,6 @@
         @csrf
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {{-- Fornecedor --}}
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Fornecedor:</label>
-                <select name="fornecedor_id" required class="p-3 w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                    <option value="">Selecione o fornecedor</option>
-                    @foreach($fornecedores as $fornecedor)
-                        <option value="{{ $fornecedor->id }}" {{ old('fornecedor_id') == $fornecedor->id ? 'selected' : '' }}>
-                            {{ $fornecedor->nome }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
 
             {{-- Produto --}}
             <div>

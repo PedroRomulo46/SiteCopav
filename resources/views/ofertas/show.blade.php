@@ -16,7 +16,13 @@
         <!-- Coluna 1: Imagem do Produto (5 colunas) -->
         <div class="lg:col-span-5 flex justify-center items-start sticky top-4">
             <div class="rounded-lg p-2 w-full bg-white">
-                <img class="w-full h-auto max-h-[450px] object-contain rounded-lg" src="{{ asset('assets/milho.png') }}" alt="{{ $produto->nome ?? 'Produto' }}" />
+                <img
+                    class="w-full h-[450px] object-cover rounded-lg"
+                    src="{{ $produto->imagem
+                        ? asset('storage/' . $produto->imagem)
+                        : asset('assets/milho.png') }}"
+                    alt="{{ $produto->nome ?? 'Produto' }}"
+                />
             </div>
         </div>
 

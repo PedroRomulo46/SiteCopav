@@ -39,7 +39,7 @@ class ProdutoController extends Controller
         $categorias = Categoria::all();
 
         return view(
-            'site.testes.produtos.create',
+            'produtos.create',
             compact('categorias')
         );
     }

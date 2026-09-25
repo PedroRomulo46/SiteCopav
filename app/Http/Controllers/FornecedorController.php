@@ -72,7 +72,7 @@ class FornecedorController extends Controller
         }
 
         return view(
-            'site.testes.fornecedores.edit',
+            'fornecedores.edit',
             compact('fornecedor')
         );
     }

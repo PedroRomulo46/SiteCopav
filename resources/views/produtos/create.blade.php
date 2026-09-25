@@ -1,10 +1,6 @@
 <h1>Cadastrar Produto</h1>
 
-<form
-    action="{{ route('produtos.store') }}"
-    method="POST"
-    enctype="multipart/form-data"
->
+<form action="{{ route('produtos.store') }}" method="POST" enctype="multipart/form-data">
     @csrf
 
     <div>
@@ -14,10 +10,7 @@
             <option value="">Selecione uma categoria</option>
 
             @foreach($categorias as $categoria)
-                <option
-                    value="{{ $categoria->id }}"
-                    {{ old('categoria_id') == $categoria->id ? 'selected' : '' }}
-                >
+                <option value="{{ $categoria->id }}">
                     {{ $categoria->nome }}
                 </option>
             @endforeach
@@ -54,6 +47,7 @@
             type="text"
             name="unidade"
             value="{{ old('unidade') }}"
+            placeholder="Ex: kg, saca, unidade"
             required
         >
     </div>
@@ -73,6 +67,10 @@
     <br>
 
     <button type="submit">
-        Cadastrar produto
+        Cadastrar
     </button>
 </form>
+
+<a href="{{ route('produtos.index') }}">
+    Voltar
+</a>
