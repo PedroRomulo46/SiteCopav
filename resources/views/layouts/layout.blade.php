@@ -29,15 +29,29 @@
             <span class="material-symbols-outlined absolute left-3 text-gray-500 pointer-events-none">search</span>
           </div>
 
-          <div class="hidden md:flex items-center gap-3 bg-emerald-800/60 backdrop-blur-md text-white p-1.5 pr-4 rounded-full border border-emerald-500/30 shadow-sm hover:bg-emerald-800/80 transition-all cursor-pointer">
-            <span class="bg-amber-400 text-emerald-950 text-[10px] font-black uppercase px-2 py-1 rounded-full shadow-xs">Oferta</span>
+          <!-- Banner de Oferta -->
+          <div class="hidden md:flex items-center gap-3 bg-amber-100 hover:bg-slate-700 border border-emerald-600 text-white p-2.5 py-2 px-4 rounded-lg shadow-md transition-all cursor-pointer group">
+            
+            <!-- Tag Oferta -->
+            <span class="bg-emerald-800 group-hover:bg-amber-400 transition-colors text-white font-bold text-xs font uppercase px-2.5 py-1 rounded-full shadow-sm shrink-0">
+              Oferta
+            </span>
+
+            <!-- Informações do Produto e Preços -->
             <div class="flex items-center gap-2 text-xs">
-              <span class="font-semibold text-emerald-100 text-[15px]">Café Arabica</span>
-              <span class="text-white">|</span>
-              <span class="text-gray-400 line-through text-[15px]">6 Sacas de R$ 9.581,22</span>
-              <span class="font-bold text-amber-300 text-lg">Por apenas R$ 8.980,87</span>
+              <span class="font-bold text-sm text-black group-hover:text-white transition-colors">Café Arábica</span>
+              <span class="text-black group-hover:text-white transition-colors">|</span>
+              <span class="line-through text-xs text-black group-hover:text-white transition-colors">6 Sacas de R$ 9.581,22</span>
+              <span class="text-xs text-black group-hover:text-white transition-colors font-bold ml-1">Por apenas</span>
+              <span class="font-extrabold text-base text-emerald-800 group-hover:text-emerald-500 transition-colors">R$ 8.980,87</span>
             </div>
-            <span class="material-symbols-outlined">arrow_right_alt</span>
+
+            <!-- Botão Ação -->
+            <div class="ml-auto bg-emerald-600 group-hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-1.5 rounded-md flex items-center gap-1 transition-colors shrink-0">
+              <span>Ver oferta</span>
+              <span class="material-symbols-outlined text-sm transition-transform group-hover:translate-x-0.5">arrow_right_alt</span>
+            </div>
+
           </div>
         </nav>
 
