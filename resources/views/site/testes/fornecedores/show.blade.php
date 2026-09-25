@@ -39,6 +39,31 @@
     {{ $fornecedor->status }}
 </p>
 
+@if(
+    auth()->id() === $fornecedor->user_id ||
+    auth()->user()->user_type === 'admin'
+)
+
+    <a href="{{ route('fornecedores.edit', $fornecedor) }}">
+        Editar fornecedor
+    </a>
+
+    <br><br>
+
+    <form
+        action="{{ route('fornecedores.destroy', $fornecedor) }}"
+        method="POST"
+    >
+        @csrf
+        @method('DELETE')
+
+        <button type="submit">
+            Excluir fornecedor
+        </button>
+    </form>
+
+@endif
+
 <hr>
 
 <a href="{{ route('fornecedores.index') }}">

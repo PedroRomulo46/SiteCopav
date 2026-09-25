@@ -25,19 +25,41 @@ class ProdutoController extends Controller
 
     public function create()
     {
-        $fornecedores = Fornecedor::where('status', 'ativo')->get();
+        $fornecedor = auth()->user()->fornecedor;
+
+        if (!$fornecedor) {
+            return redirect()
+                ->route('fornecedores.create')
+                ->with('sucesso', 'Você precisa cadastrar um fornecedor antes de cadastrar produtos.');
+        }
+
+        if ($fornecedor->status !== 'ativo') {
+            return redirect()
+                ->route('fornecedores.show', $fornecedor)
+                ->with('sucesso', 'Seu fornecedor ainda não está ativo.');
+        }
+
         $categorias = Categoria::all();
 
         return view(
             'site.testes.produtos.create',
-            compact('fornecedores', 'categorias')
+            compact('categorias')
         );
     }
 
     public function store(Request $request)
     {
+        $fornecedor = $request->user()->fornecedor;
+
+        if (!$fornecedor) {
+            abort(403);
+        }
+
+        if ($fornecedor->status !== 'ativo') {
+            abort(403);
+        }
+
         $dados = $request->validate([
-            'fornecedor_id' => 'required|exists:fornecedores,id',
             'categoria_id' => 'required|exists:categorias,id',
             'nome' => 'required|string|max:255',
             'descricao' => 'nullable|string',
@@ -45,8 +67,11 @@ class ProdutoController extends Controller
             'imagem' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
+        $dados['fornecedor_id'] = $fornecedor->id;
+
         if ($request->hasFile('imagem')) {
-            $dados['imagem'] = $request->file('imagem')
+            $dados['imagem'] = $request
+                ->file('imagem')
                 ->store('produtos', 'public');
         }
 

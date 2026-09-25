@@ -5,51 +5,21 @@
     method="POST"
     enctype="multipart/form-data"
 >
-
     @csrf
-
-    <div>
-        <label>Imagem do produto:</label>
-
-        <input
-            type="file"
-            name="imagem"
-            accept="image/jpeg,image/png,image/jpg,image/webp"
-        >
-    </div>
-
-<br>
-
-    <div>
-        <label>Fornecedor:</label>
-
-        <select name="fornecedor_id" required>
-            <option value="">Selecione o fornecedor</option>
-
-            @foreach($fornecedores as $fornecedor)
-
-                <option value="{{ $fornecedor->id }}">
-                    {{ $fornecedor->nome }}
-                </option>
-
-            @endforeach
-        </select>
-    </div>
-
-    <br>
 
     <div>
         <label>Categoria:</label>
 
         <select name="categoria_id" required>
-            <option value="">Selecione a categoria</option>
+            <option value="">Selecione uma categoria</option>
 
             @foreach($categorias as $categoria)
-
-                <option value="{{ $categoria->id }}">
+                <option
+                    value="{{ $categoria->id }}"
+                    {{ old('categoria_id') == $categoria->id ? 'selected' : '' }}
+                >
                     {{ $categoria->nome }}
                 </option>
-
             @endforeach
         </select>
     </div>
@@ -57,7 +27,7 @@
     <br>
 
     <div>
-        <label>Nome do produto:</label>
+        <label>Nome:</label>
 
         <input
             type="text"
@@ -84,8 +54,19 @@
             type="text"
             name="unidade"
             value="{{ old('unidade') }}"
-            placeholder="Ex: kg, saca, tonelada"
             required
+        >
+    </div>
+
+    <br>
+
+    <div>
+        <label>Imagem:</label>
+
+        <input
+            type="file"
+            name="imagem"
+            accept="image/jpeg,image/png,image/jpg,image/webp"
         >
     </div>
 
@@ -94,11 +75,4 @@
     <button type="submit">
         Cadastrar produto
     </button>
-
 </form>
-
-<br>
-
-<a href="{{ route('produtos.index') }}">
-    Voltar
-</a>

@@ -25,7 +25,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // Visitantes só podem VER listas e detalhes de categorias e produtos
 Route::resource('categorias', CategoriaController::class)->only(['index', 'show']);
-Route::resource('produtos', ProdutoController::class)->only(['index', 'show']);
+Route::get('/produtos', [ProdutoController::class, 'index'])->name('produtos.index');
 
 // Listagem pública de ofertas (sem usar resource para evitar conflitos)
 Route::get('/ofertas', [OfertaController::class, 'index'])->name('ofertas.index');
@@ -50,7 +50,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('ofertas', OfertaController::class)->except(['index', 'show']);
 
     // Outros Recursos
-    Route::resource('fornecedores', FornecedorController::class);
+    Route::resource('fornecedores', FornecedorController::class)
+    ->parameters([
+        'fornecedores' => 'fornecedor',
+    ]);
     Route::resource('demandas', DemandaController::class);
     Route::resource('ofertas-diretas', OfertaDiretaController::class);
 
@@ -68,7 +71,16 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    Route::resource('produtos', ProdutoController::class)
+    ->except(['index', 'show'])
+    ->parameters([
+        'produtos' => 'produto',
+    ]);
+
 });
+
+//Produtos show separado para não confundir 'produtos/create' com parâmetro
+Route::get('/produtos/{produto}', [ProdutoController::class, 'show'])->name('produtos.show');
 
 /*
 |--------------------------------------------------------------------------

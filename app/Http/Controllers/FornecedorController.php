@@ -69,15 +69,28 @@ class FornecedorController extends Controller
 
     public function edit(Fornecedor $fornecedor)
     {
-        $usuarios = \App\Models\User::where('user_type', 'fornecedor')->get();
+        if (
+            auth()->id() !== $fornecedor->user_id &&
+            auth()->user()->user_type !== 'admin'
+        ) {
+            abort(403);
+        }
 
         return view(
-            'site.fornecedores.edit',
-            compact('usuarios', 'fornecedor'));
+            'site.testes.fornecedores.edit',
+            compact('fornecedor')
+        );
     }
 
     public function update(Request $request, Fornecedor $fornecedor)
     {
+        if (
+            auth()->id() !== $fornecedor->user_id &&
+            auth()->user()->user_type !== 'admin'
+        ) {
+            abort(403);
+        }
+
         $dados = $request->validate([
             'nome' => 'required|string|max:255',
             'documento' => 'required|string|max:255|unique:fornecedores,documento,' . $fornecedor->id,
@@ -91,12 +104,19 @@ class FornecedorController extends Controller
         $fornecedor->update($dados);
 
         return redirect()
-            ->route('fornecedores.index')
+            ->route('fornecedores.show', $fornecedor)
             ->with('sucesso', 'Fornecedor atualizado com sucesso!');
     }
 
     public function destroy(Fornecedor $fornecedor)
     {
+        if (
+            auth()->id() !== $fornecedor->user_id &&
+            auth()->user()->user_type !== 'admin'
+        ) {
+            abort(403);
+        }
+
         $fornecedor->delete();
 
         return redirect()
