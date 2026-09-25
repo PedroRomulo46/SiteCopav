@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@yield('title', 'Meu Marketplace')</title>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&icon_names=search,arrow_right_alt,account_circle,forum,home,arrow_back,palette,settings,logout&display=block" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&icon_names=search,arrow_right_alt,account_circle,forum,home,arrow_back,palette,settings,patient_list,logout&display=block" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   </head>
 
@@ -30,7 +30,7 @@
           </div>
 
           <!-- Banner de Oferta -->
-          <div class="hidden md:flex items-center gap-3 bg-amber-100 hover:bg-slate-700 border border-emerald-600 text-white p-2.5 py-2 px-4 rounded-lg shadow-md transition-all cursor-pointer group">
+          <div class="hidden md:flex items-center gap-3 bg-amber-100 hover:bg-slate-700 border border-emerald-700 text-white p-2.5 py-2 px-4 rounded-lg shadow-md transition-all cursor-pointer group">
             
             <!-- Tag Oferta -->
             <span class="bg-emerald-800 group-hover:bg-amber-400 transition-colors text-white font-bold text-xs font uppercase px-2.5 py-1 rounded-full shadow-sm shrink-0">
@@ -85,7 +85,7 @@
             <li>
               <a href="{{ route('home') }}" class="is-drawer-close:tooltip is-drawer-close:tooltip-right text-white hover:bg-[#1B4D3E]" data-tip="Home">
                 <span class="material-symbols-outlined">home</span>
-                <span class="is-drawer-close:hidden">Home</span>
+                <span class="is-drawer-close:hidden">Página Inicial</span>
               </a>
             </li>
 
@@ -102,11 +102,19 @@
                 <span class="is-drawer-close:hidden">Configurações</span>
               </a>
             </li>
+            <li>
+              <a href="{{ route('profile.edit') }}" class="is-drawer-close:tooltip is-drawer-close:tooltip-right text-white hover:bg-[#1B4D3E]" data-tip="Configurações">
+                <span class="material-symbols-outlined">patient_list</span>
+                <span class="is-drawer-close:hidden">Virar Fornecedor</span>
+              </a>
+            </li>
+
+            <!-- Botão de sair -->
             <li class="mt-auto hover:bg-[#1B4D3E] rounded-sm">
               <form method="POST" action="{{ route('logout') }}" class="w-full">
                 @csrf
                 <button type="submit"
-                class="w-full text-red-600 is-drawer-close:tooltip is-drawer-close:tooltip-right inline-flex items-center"
+                class="w-full text-white is-drawer-close:tooltip is-drawer-close:tooltip-right inline-flex items-center"
                 data-tip="Sair">
                   <span class="material-symbols-outlined">logout</span>
                   <span class="is-drawer-close:hidden font-semibold mx-2">Sair</span>
