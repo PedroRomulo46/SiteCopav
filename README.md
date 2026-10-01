@@ -55,8 +55,7 @@ php artisan migrate --seed
 
 ### 6. Gerar link para as imagens de produtos e perfis
 ```bash
-npm install
-npm run build
+php artisan storage:link
 ```
 
 ### 7. Instalar dependências front-end e gerar build
