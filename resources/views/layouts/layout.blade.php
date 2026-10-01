@@ -5,135 +5,183 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@yield('title', 'Meu Marketplace')</title>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&icon_names=search,arrow_right_alt,account_circle,forum,home,arrow_back,palette,settings,patient_list,logout&display=block" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&icon_names=search,arrow_right_alt,account_circle,forum,home,arrow_back,palette,settings,patient_list,logout,shopping_cart,menu,close&display=block" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+      [x-cloak] { display: none !important; }
+    </style>
   </head>
 
-  <body>
-    <div class="drawer lg:drawer-open">
-      <input id="my-drawer-4" type="checkbox" class="drawer-toggle inline"/>
-      
-      <div class="drawer-content min-h-screen flex flex-col">
-        <!-- Navbar -->
-        <nav class="navbar w-full h-20 bg-[#1B4D3E] text-white flex justify-between items-center px-4 shadow-xl">
-          <label for="my-drawer-4" class="btn btn-square btn-ghost lg:hidden">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-          </label>
-
-          <div class="text-2xl font-semibold">
+  <body class="bg-[#ebeae7] min-h-screen flex flex-col font-sans" x-data="{ menuMobileAberto: false }">
+  
+    <!-- Cabeçalho Completo -->
+    <header class="bg-[#1B4D3E] text-white shadow-md w-full">
+      <div class="w-full px-4 sm:px-6 lg:px-10 py-3 flex flex-col gap-3">
+        
+        <!-- Linha Superior: Logo + Busca + Banner de Oferta + Botão Mobile -->
+        <div class="flex items-center justify-between gap-2 md:gap-6 w-full">
+          
+          <!-- Logo -->
+          <a href="/" class="text-xl md:text-2xl font-bold tracking-wide shrink-0 whitespace-nowrap hover:opacity-90 transition-opacity">
             Site Copav
+          </a>
+
+          <!-- Busca (Visível em telas Médias e Grandes) -->
+          <div class="hidden sm:flex flex-1 max-w-2xl relative items-center">
+            <input type="text" placeholder="Buscar lotes, produtos ou compradores..." class="input w-full bg-white text-gray-800 placeholder-gray-400 pl-4 pr-10 py-2 rounded-md focus:outline-none shadow-sm text-sm">
+            <button class="absolute right-3 text-gray-500 hover:text-gray-700 flex items-center">
+              <span class="material-symbols-outlined text-xl">search</span>
+            </button>
           </div>
 
-          <div class="w-1/2 relative flex items-center">
-            <input type="text" placeholder="Buscar lotes, produtos ou compradores..." class="input w-full bg-white text-gray-500 font-bold pl-10 pr-4">
-            <span class="material-symbols-outlined absolute left-3 text-gray-500 pointer-events-none">search</span>
-          </div>
-
-          <!-- Banner de Oferta -->
-          <div class="hidden md:flex items-center gap-3 bg-amber-100 hover:bg-slate-700 border border-emerald-700 text-white p-2.5 py-2 px-4 rounded-lg shadow-md transition-all cursor-pointer group">
-            
-            <!-- Tag Oferta -->
-            <span class="bg-emerald-800 group-hover:bg-amber-400 transition-colors text-white font-bold text-xs font uppercase px-2.5 py-1 rounded-full shadow-sm shrink-0">
+          <!-- Banner de Oferta (Telas Grandes) -->
+          <div class="hidden xl:flex items-center gap-3 bg-amber-100 hover:bg-slate-700 border border-emerald-700 p-1.5 px-3 rounded-full shadow-md transition-all cursor-pointer group shrink-0">
+            <span class="bg-emerald-800 group-hover:bg-amber-400 transition-colors text-white font-bold text-[10px] uppercase px-2 py-0.5 rounded-full shrink-0">
               Oferta
             </span>
-
-            <!-- Informações do Produto e Preços -->
-            <div class="flex items-center gap-2 text-xs">
-              <span class="font-bold text-sm text-black group-hover:text-white transition-colors">Café Arábica</span>
+            <div class="flex items-center gap-1.5 text-xs">
+              <span class="font-bold text-black group-hover:text-white transition-colors">Café Arábica</span>
               <span class="text-black group-hover:text-white transition-colors">|</span>
-              <span class="line-through text-xs text-black group-hover:text-white transition-colors">6 Sacas de R$ 9.581,22</span>
-              <span class="text-xs text-black group-hover:text-white transition-colors font-bold ml-1">Por apenas</span>
-              <span class="font-extrabold text-base text-emerald-800 group-hover:text-emerald-500 transition-colors">R$ 8.980,87</span>
+              <span class="line-through text-[11px] text-black group-hover:text-white transition-colors">R$ 9.581,22</span>
+              <span class="font-extrabold text-sm text-emerald-800 group-hover:text-emerald-500 transition-colors">R$ 8.980,87</span>
             </div>
-
-            <!-- Botão Ação -->
-            <div class="ml-auto bg-emerald-600 group-hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-1.5 rounded-md flex items-center gap-1 transition-colors shrink-0">
-              <span>Ver oferta</span>
-              <span class="material-symbols-outlined text-sm transition-transform group-hover:translate-x-0.5">arrow_right_alt</span>
+            <div class="ml-auto bg-emerald-600 group-hover:bg-emerald-500 text-white text-[11px] font-semibold px-2.5 py-1 rounded-full flex items-center gap-1 transition-colors shrink-0">
+              <span>Ver Oferta</span>
+              <span class="material-symbols-outlined text-xs">arrow_right_alt</span>
             </div>
-
-          </div>
-        </nav>
-
-        <!-- Conteúdo -->
-        <main class="flex-1">
-          @yield('conteudo')
-        </main>
-      </div>
-
-      <!-- Sidebar -->
-      <div class="drawer-side is-drawer-close:overflow-visible min-h-screen">
-        <label for="my-drawer-4" aria-label="close sidebar" class="drawer-overlay"></label>
-        <div class="bg-[#123228] flex min-h-full flex-col items-center is-drawer-close:w-14 is-drawer-open:w-64 transition-all">
-
-          <!-- Foto de perfil -->
-          <div class="avatar p-2 py-5 flex flex-col">
-            <div class="w-16 h-16 rounded-full border-2 border-[#1B4D3E] flex items-center justify-center bg-white text-gray-600 overflow-hidden">
-              @if(auth()->check() && auth()->user()->imagem)
-                <img src="{{ Storage::url(auth()->user()->imagem) }}" alt="Foto de perfil" class="w-full h-full object-cover">
-              @else
-                <span class="material-symbols-outlined text-4xl leading-none flex items-center justify-center">account_circle</span>
-              @endif
-            </div>
-            <!-- Nome do usuário -->
-            <span class="mt-2 text-sm font-semibold text-white text-center is-drawer-close:hidden truncate max-w-[180px]">
-              {{ auth()->check() ? auth()->user()->nome : 'Visitante' }}
-            </span>
           </div>
 
-          <ul class="menu w-full grow px-2 gap-1">
-            <li>
-              <a href="{{ route('home') }}" class="is-drawer-close:tooltip is-drawer-close:tooltip-right text-white hover:bg-[#1B4D3E]" data-tip="Home">
-                <span class="material-symbols-outlined">home</span>
-                <span class="is-drawer-close:hidden">Página Inicial</span>
-              </a>
-            </li>
+          <!-- Botão Menu Hambúrguer (Mobile) -->
+          <button @click="menuMobileAberto = !menuMobileAberto" class="lg:hidden p-2 text-white hover:bg-[#236350] rounded-lg transition-colors">
+            <span class="material-symbols-outlined text-2xl" x-text="menuMobileAberto ? 'close' : 'menu'">menu</span>
+          </button>
+        </div>
 
+        <!-- Busca para telas muito pequenas (Mobile) -->
+        <div class="sm:hidden w-full relative flex items-center mt-1">
+          <input type="text" placeholder="Buscar no marketplace..." class="input w-full bg-white text-gray-800 placeholder-gray-400 pl-3 pr-9 py-1.5 rounded-md text-xs">
+          <button class="absolute right-2 text-gray-500 flex items-center">
+            <span class="material-symbols-outlined text-lg">search</span>
+          </button>
+        </div>
+
+        <!-- Linha Inferior: Desktop Menu -->
+        <div class="hidden lg:flex items-center justify-between text-sm border-t border-[#236350] pt-2.5 text-gray-100 w-full">
+          
+          <!-- Links de Navegação Principal -->
+          <nav class="flex items-center gap-6 font-medium">
+            <a href="/" class="hover:text-amber-300 transition-colors">Início</a>
+            <a href="#" class="hover:text-amber-300 transition-colors">Categorias</a>
+            <a href="#" class="hover:text-amber-300 transition-colors">Lotes</a>
+            <a href="#" class="hover:text-amber-300 transition-colors">Demandas</a>
+          </nav>
+
+          <!-- Ações do Usuário / Autenticação -->
+          <div class="flex items-center gap-6">
             @auth
-            <li>
-              <a href="{{ route('chat') }}" class="is-drawer-close:tooltip is-drawer-close:tooltip-right text-white hover:bg-[#1B4D3E]" data-tip="Mensagens">
-                <span class="material-symbols-outlined">forum</span>
-                <span class="is-drawer-close:hidden">Mensagens</span>
+              <a href="{{ route('chat') }}" class="flex items-center gap-1.5 hover:text-amber-300 transition-colors">
+                <span class="material-symbols-outlined text-lg">forum</span>
+                <span>Mensagens</span>
               </a>
-            </li>
-            <li>
-              <a href="{{ route('profile.edit') }}" class="is-drawer-close:tooltip is-drawer-close:tooltip-right text-white hover:bg-[#1B4D3E]" data-tip="Configurações">
-                <span class="material-symbols-outlined">settings</span>
-                <span class="is-drawer-close:hidden">Configurações</span>
-              </a>
-            </li>
-            <li>
-              <a href="{{ route('profile.edit') }}" class="is-drawer-close:tooltip is-drawer-close:tooltip-right text-white hover:bg-[#1B4D3E]" data-tip="Configurações">
-                <span class="material-symbols-outlined">patient_list</span>
-                <span class="is-drawer-close:hidden">Virar Fornecedor</span>
-              </a>
-            </li>
 
-            <!-- Botão de sair -->
-            <li class="mt-auto hover:bg-[#1B4D3E] rounded-sm">
-              <form method="POST" action="{{ route('logout') }}" class="w-full">
-                @csrf
-                <button type="submit"
-                class="w-full text-white is-drawer-close:tooltip is-drawer-close:tooltip-right inline-flex items-center"
-                data-tip="Sair">
-                  <span class="material-symbols-outlined">logout</span>
-                  <span class="is-drawer-close:hidden font-semibold mx-2">Sair</span>
-                </button>
-              </form>
-            </li>
+              <a href="{{ route('profile.edit') }}" class="flex items-center gap-1.5 hover:text-amber-300 transition-colors">
+                <span class="material-symbols-outlined text-lg">patient_list</span>
+                <span>Virar Fornecedor</span>
+              </a>
+
+              <!-- Menu do Usuário Logado -->
+              <div class="dropdown dropdown-end">
+                <div tabindex="0" role="button" class="flex items-center gap-2 cursor-pointer hover:text-amber-300 transition-colors">
+                  <div class="w-7 h-7 rounded-full border border-emerald-300 overflow-hidden bg-white text-gray-700 flex items-center justify-center shrink-0">
+                    @if(auth()->user()->imagem)
+                      <img src="{{ Storage::url(auth()->user()->imagem) }}" alt="Perfil" class="w-full h-full object-cover">
+                    @else
+                      <span class="material-symbols-outlined text-xl">account_circle</span>
+                    @endif
+                  </div>
+                  <span class="font-semibold max-w-[120px] truncate">{{ auth()->user()->nome }}</span>
+                </div>
+                
+                <ul tabindex="0" class="dropdown-content menu bg-white text-gray-800 rounded-box z-50 w-48 p-2 shadow-lg mt-2">
+                  <li>
+                    <a href="{{ route('profile.edit') }}" class="flex items-center gap-2">
+                      <span class="material-symbols-outlined text-base">settings</span>
+                      Configurações
+                    </a>
+                  </li>
+                  <li>
+                    <form method="POST" action="{{ route('logout') }}" class="w-full">
+                      @csrf
+                      <button type="submit" class="w-full flex items-center gap-2 text-red-600 hover:bg-red-50 rounded-md p-2">
+                        <span class="material-symbols-outlined text-base">logout</span>
+                        Sair
+                      </button>
+                    </form>
+                  </li>
+                </ul>
+              </div>
             @endauth
 
             @guest
-            <li>
-              <a href="{{ route('login') }}" class="text-white is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Entrar">
-                <span class="material-symbols-outlined">account_circle</span>
-                <span class="is-drawer-close:hidden">Entrar / Cadastrar</span>
-              </a>
-            </li>
+              <div class="flex items-center gap-3">
+                <a href="{{ route('register') }}" class="hover:text-amber-300 transition-colors">Crie a sua conta</a>
+                <span class="text-emerald-300">|</span>
+                <a href="{{ route('login') }}" class="hover:text-amber-300 transition-colors font-semibold">Entre</a>
+              </div>
             @endguest
-          </ul>
+          </div>
+
         </div>
+
+        <!-- Menu Desplegável Mobile/Tablet -->
+        <div x-show="menuMobileAberto" x-cloak x-transition class="lg:hidden flex flex-col gap-3 border-t border-[#236350] pt-3 text-sm">
+          <nav class="flex flex-col gap-2 font-medium">
+            <a href="/" class="hover:bg-[#236350] p-2 rounded-md">Início</a>
+            <a href="#" class="hover:bg-[#236350] p-2 rounded-md">Categorias</a>
+            <a href="#" class="hover:bg-[#236350] p-2 rounded-md">Lotes</a>
+            <a href="#" class="hover:bg-[#236350] p-2 rounded-md">Demandas</a>
+          </nav>
+
+          <div class="border-t border-[#236350] pt-2 flex flex-col gap-2">
+            @auth
+              <a href="{{ route('chat') }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
+                <span class="material-symbols-outlined">forum</span>
+                <span>Mensagens</span>
+              </a>
+              <a href="{{ route('profile.edit') }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
+                <span class="material-symbols-outlined">patient_list</span>
+                <span>Virar Fornecedor</span>
+              </a>
+              <a href="{{ route('profile.edit') }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
+                <span class="material-symbols-outlined">settings</span>
+                <span>Configurações</span>
+              </a>
+              <form method="POST" action="{{ route('logout') }}" class="w-full">
+                @csrf
+                <button type="submit" class="w-full flex items-center gap-2 text-red-300 p-2 hover:bg-[#236350] rounded-md">
+                  <span class="material-symbols-outlined">logout</span>
+                  <span>Sair</span>
+                </button>
+              </form>
+            @endauth
+
+            @guest
+              <div class="flex flex-col gap-2 p-2">
+                <a href="{{ route('login') }}" class="btn bg-[#236350] hover:bg-[#123228] text-white btn-sm border-none w-full">Entre</a>
+                <a href="{{ route('register') }}" class="btn btn-outline text-white hover:bg-[#236350] btn-sm w-full">Crie a sua conta</a>
+              </div>
+            @endguest
+          </div>
+        </div>
+
       </div>
-    </div>
+    </header>
+
+    <!-- Conteúdo Principal com espaçamento responsivo -->
+    <main class="flex-1 w-full px-4 sm:px-6 lg:px-10 py-6">
+      @yield('conteudo')
+    </main>
+
   </body>
 </html>
