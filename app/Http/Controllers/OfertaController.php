@@ -23,11 +23,7 @@ class OfertaController extends Controller
         $fornecedor = auth()->user()->fornecedor;
 
         if (!$fornecedor) {
-            return redirect()
-                ->route('fornecedores.create')
-                ->with(
-                    'sucesso',
-                    'Você precisa cadastrar um fornecedor antes de cadastrar ofertas.'
+            return redirect()->route('fornecedores.create')->with('sucesso', 'Você precisa cadastrar um fornecedor antes de cadastrar ofertas.'
                 );
         }
 

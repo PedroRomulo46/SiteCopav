@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@yield('title', 'Meu Marketplace')</title>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&icon_names=search,arrow_right_alt,account_circle,forum,home,arrow_back,palette,settings,patient_list,logout,shopping_cart,menu,close&display=block" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&icon_names=search,arrow_right_alt,account_circle,forum,home,arrow_back,palette,settings,patient_list,logout,shopping_cart,menu,expand_more,close&display=block" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
@@ -72,9 +72,21 @@
           <!-- Links de Navegação Principal -->
           <nav class="flex items-center gap-6 font-medium">
             <a href="/" class="hover:text-amber-300 transition-colors">Início</a>
-            <a href="#" class="hover:text-amber-300 transition-colors">Categorias</a>
             <a href="#" class="hover:text-amber-300 transition-colors">Lotes</a>
             <a href="#" class="hover:text-amber-300 transition-colors">Demandas</a>
+            <!-- Dropdown Categorias (Corrigido) -->
+            <div class="dropdown relative">
+              <div tabindex="0" role="button" class="flex items-center gap-1 hover:text-amber-300 transition-colors cursor-pointer py-1">
+                <span>Categorias</span>
+                <span class="material-symbols-outlined text-base">expand_more</span>
+              </div>
+              <ul tabindex="0" class="dropdown-content menu bg-white text-gray-800 rounded-box z-50 w-52 p-2 shadow-xl mt-1 border border-gray-100">
+                <li><a href="#" class="hover:bg-emerald-50 hover:text-[#1B4D3E] font-medium">Grãos e Cereais</a></li>
+                <li><a href="#" class="hover:bg-emerald-50 hover:text-[#1B4D3E] font-medium">Frutas e Hortaliças</a></li>
+                <li><a href="#" class="hover:bg-emerald-50 hover:text-[#1B4D3E] font-medium">Fertilizantes Agrícolas</a></li>
+                <li><a href="#" class="hover:bg-emerald-50 hover:text-[#1B4D3E] font-medium">Maquinários</a></li>
+              </ul>
+            </div>
           </nav>
 
           <!-- Ações do Usuário / Autenticação -->
@@ -100,7 +112,7 @@
               <!-- Menu do Usuário Logado -->
               <div class="dropdown dropdown-end">
                 <div tabindex="0" role="button" class="flex items-center gap-2 cursor-pointer hover:text-amber-300 transition-colors">
-                  <div class="w-7 h-7 rounded-full border border-emerald-300 overflow-hidden bg-white text-gray-700 flex items-center justify-center shrink-0">
+                  <div class="w-7 h-7 rounded-full overflow-hidden bg-white text-gray-700 flex items-center justify-center shrink-0">
                     @if(auth()->user()->imagem)
                       <img src="{{ Storage::url(auth()->user()->imagem) }}" alt="Perfil" class="w-full h-full object-cover">
                     @else
@@ -120,7 +132,7 @@
                   <li>
                     <form method="POST" action="{{ route('logout') }}" class="w-full">
                       @csrf
-                      <button type="submit" class="w-full flex items-center gap-2 text-red-600 hover:bg-red-50 rounded-md p-2">
+                      <button type="submit" class="w-full flex items-center gap-2 text-red-600 rounded-md p-2">
                         <span class="material-symbols-outlined text-base">logout</span>
                         Sair
                       </button>
@@ -133,7 +145,7 @@
             @guest
               <div class="flex items-center gap-3">
                 <a href="{{ route('register') }}" class="hover:text-amber-300 transition-colors">Crie a sua conta</a>
-                <span class="text-emerald-300">|</span>
+                <span class="text-slate-300">|</span>
                 <a href="{{ route('login') }}" class="hover:text-amber-300 transition-colors font-semibold">Entre</a>
               </div>
             @endguest
@@ -145,7 +157,6 @@
         <div x-show="menuMobileAberto" x-cloak x-transition class="lg:hidden flex flex-col gap-3 border-t border-[#236350] pt-3 text-sm">
           <nav class="flex flex-col gap-2 font-medium">
             <a href="/" class="hover:bg-[#236350] p-2 rounded-md">Início</a>
-            <a href="#" class="hover:bg-[#236350] p-2 rounded-md">Categorias</a>
             <a href="#" class="hover:bg-[#236350] p-2 rounded-md">Lotes</a>
             <a href="#" class="hover:bg-[#236350] p-2 rounded-md">Demandas</a>
           </nav>
@@ -171,9 +182,10 @@
                 <span class="material-symbols-outlined">settings</span>
                 <span>Configurações</span>
               </a>
+
               <form method="POST" action="{{ route('logout') }}" class="w-full">
                 @csrf
-                <button type="submit" class="w-full flex items-center gap-2 text-red-300 p-2 hover:bg-[#236350] rounded-md">
+                <button type="submit" class="w-full flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
                   <span class="material-symbols-outlined">logout</span>
                   <span>Sair</span>
                 </button>

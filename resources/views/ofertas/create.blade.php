@@ -3,7 +3,7 @@
 
 @section('conteudo')
 
-<div class="text-gray-500 mx-4 mt-2">
+<div class="text-gray-500 mx-1 mt-1">
     <a href="{{ route('home') }}" class="inline-flex items-center gap-1 hover:text-gray-700">
         <span class="material-symbols-outlined">arrow_back</span>
         Voltar para os produtos
@@ -13,7 +13,7 @@
 <div class="max-w-4xl mx-auto my-6 p-6 bg-white rounded-lg shadow-md">
     <h1 class="text-2xl font-bold mb-6 text-gray-800">Cadastrar Nova Oferta</h1>
 
-    {{-- Bloco correto para exibição de erros de validação --}}
+    {{-- Bloco para exibição de erros de validação --}}
     @if ($errors->any())
         <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700">
             <p class="font-bold">Atenção! Corrija os erros abaixo:</p>

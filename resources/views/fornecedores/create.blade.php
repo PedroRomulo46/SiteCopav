@@ -1,95 +1,123 @@
-<h1>Cadastrar-se como Fornecedor</h1>
+@extends('layouts.layout')
+@section('title', 'Cadastrar como fornecedor')
 
-<form action="{{ route('fornecedores.store') }}" method="POST">
-    @csrf
+@section('conteudo')
 
-    <div>
-        <label>Nome da empresa:</label>
-        <input
-            type="text"
-            name="nome"
-            value="{{ old('nome') }}"
-            required
-        >
-    </div>
+<div class="text-gray-500 mx-1 mt-1">
+    <a href="{{ route('home') }}" class="inline-flex items-center gap-1 hover:text-gray-700">
+        <span class="material-symbols-outlined">arrow_back</span>
+        Voltar para os produtos
+    </a>
+</div>
 
-    <br>
+<div class="max-w-4xl mx-auto my-6 p-6 bg-white rounded-lg shadow-md">
+    <h1 class="text-2xl font-bold mb-6 text-gray-800">Cadastrar-se como fornecedor</h1>
 
-    <div>
-        <label>Documento:</label>
-        <input
-            type="text"
-            name="documento"
-            value="{{ old('documento') }}"
-            required
-        >
-    </div>
+    {{-- Bloco para exibição de erros de validação --}}
+    @if ($errors->any())
+        <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700">
+            <p class="font-bold">Atenção! Corrija os erros abaixo:</p>
+            <ul class="mt-2 list-disc list-inside text-sm">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
-    <br>
+    <form action="{{ route('fornecedores.store') }}" method="POST" class="space-y-4">
+        @csrf
 
-    <div>
-        <label>Telefone:</label>
-        <input
-            type="text"
-            name="telefone"
-            value="{{ old('telefone') }}"
-            required
-        >
-    </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-    <br>
+            {{-- Nome da empresa --}}
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Nome da empresa:</label>
+                <input
+                    type="text"
+                    name="nome"
+                    value="{{ old('nome') }}"
+                    required
+                    class="p-3 w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+            </div>
 
-    <div>
-        <label>Descrição:</label>
-        <textarea name="descricao">{{ old('descricao') }}</textarea>
-    </div>
+            {{-- Documento --}}
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Documento (CPF/CNPJ):</label>
+                <input
+                    type="text"
+                    name="documento"
+                    value="{{ old('documento') }}"
+                    required
+                    class="p-3 w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+            </div>
 
-    <br>
+            {{-- Telefone --}}
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Telefone:</label>
+                <input
+                    type="text"
+                    name="telefone"
+                    value="{{ old('telefone') }}"
+                    required
+                    class="p-3 w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+            </div>
 
-    <div>
-        <label>Endereço:</label>
-        <input
-            type="text"
-            name="endereco"
-            value="{{ old('endereco') }}"
-            required
-        >
-    </div>
+            {{-- Cidade --}}
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Cidade:</label>
+                <input
+                    type="text"
+                    name="cidade"
+                    value="{{ old('cidade') }}"
+                    required
+                    class="p-3 w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+            </div>
 
-    <br>
+            {{-- Estado --}}
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Estado (UF):</label>
+                <input
+                    type="text"
+                    name="estado"
+                    value="{{ old('estado') }}"
+                    maxlength="2"
+                    required
+                    placeholder="Ex: CE"
+                    class="p-3 w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 uppercase">
+            </div>
 
-    <div>
-        <label>Cidade:</label>
-        <input
-            type="text"
-            name="cidade"
-            value="{{ old('cidade') }}"
-            required
-        >
-    </div>
+            {{-- Endereço --}}
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Endereço:</label>
+                <input
+                    type="text"
+                    name="endereco"
+                    value="{{ old('endereco') }}"
+                    required
+                    class="p-3 w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+            </div>
 
-    <br>
+            {{-- Descrição --}}
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Descrição:</label>
+                <textarea 
+                    name="descricao" 
+                    rows="3" 
+                    class="p-3 w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">{{ old('descricao') }}</textarea>
+            </div>
 
-    <div>
-        <label>Estado:</label>
-        <input
-            type="text"
-            name="estado"
-            value="{{ old('estado') }}"
-            maxlength="2"
-            required
-        >
-    </div>
+        </div>
 
-    <br>
+        <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+            <a href="{{ route('ofertas.index') }}" class="text-gray-600 hover:text-gray-900">
+                Cancelar
+            </a>
+            <button type="submit" class="bg-[#236350] hover:bg-[#1B4D3E] text-white px-5 py-2 rounded-md transition-colors">
+                Cadastrar como fornecedor
+            </button>
+        </div>
+    </form>
+</div>
 
-    <button type="submit">
-        Cadastrar como fornecedor
-    </button>
-</form>
-
-<br>
-
-<a href="{{ route('dashboard') }}">
-    Voltar
-</a>
+@endsection

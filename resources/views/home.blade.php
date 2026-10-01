@@ -16,10 +16,8 @@
   <div class="lg:col-span-5 h-fit p-4 rounded-2xl flex flex-col gap-4" style="background-color: #123228;">
     
     @auth
-      <a href="{{ route('ofertas.create') }}" class="w-full">
-        <button class="btn text-white bg-[#236350] hover:bg-[#1B4D3E] w-full border-none text-lg py-8 rounded-xl shadow-inner">
-          Cadastrar Nova Oferta +
-        </button>
+      <a href="{{ route('ofertas.create') }}" class="btn text-white bg-[#236350] hover:bg-[#1B4D3E] w-full border-none text-lg p-8 rounded-xl shadow-inner text-center flex items-center justify-center">
+        Cadastrar Nova Oferta +
       </a>
     @endauth
 
