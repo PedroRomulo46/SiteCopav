@@ -54,17 +54,12 @@ Route::middleware('auth')->group(function () {
     Route::delete('/ofertas/{oferta}', [OfertaController::class, 'destroy'])->name('ofertas.destroy');
 
     // Outros Recursos
-    Route::resource('fornecedores', FornecedorController::class)
-    ->parameters([
-        'fornecedores' => 'fornecedor',
-    ]);
+    Route::resource('fornecedores', FornecedorController::class)->parameters(['fornecedores' => 'fornecedor',]);
     Route::resource('demandas', DemandaController::class);
     Route::resource('ofertas-diretas', OfertaDiretaController::class);
 
     // Negociações
-    Route::resource('negociacoes', NegociacaoController::class)->parameters([
-        'negociacoes' => 'negociacao'
-    ]);
+    Route::resource('negociacoes', NegociacaoController::class)->parameters(['negociacoes' => 'negociacao']);
 
     // Propostas
     Route::get('/negociacoes/{negociacao}/propostas/create', [PropostaController::class, 'create'])->name('propostas.create');
@@ -75,11 +70,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::resource('produtos', ProdutoController::class)
-    ->except(['index', 'show'])
-    ->parameters([
-        'produtos' => 'produto',
-    ]);
+    Route::resource('produtos', ProdutoController::class)->except(['index', 'show'])->parameters(['produtos' => 'produto',]);
 
 });
 
