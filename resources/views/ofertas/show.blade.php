@@ -3,14 +3,14 @@
 
 @section('conteudo')
 
-<div class="text-gray-500 mx-4 mt-2">
+<div class="text-gray-500 mx-1 mt-1">
     <a href="{{ route('home') }}" class="inline-flex gap-1 items-center hover:text-gray-700">
         <span class="material-symbols-outlined">arrow_back</span>
         Voltar para os produtos
     </a>
 </div>
 
-<div class="bg-white min-h-screen p-4 md:p-8">
+<div class="bg-slate-50 min-h-screen p-4 md:p-8">
     <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         <!-- Coluna 1: Imagem do Produto (5 colunas) -->
