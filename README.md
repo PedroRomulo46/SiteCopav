@@ -16,8 +16,6 @@ Antes de começar, certifique-se de ter instalado em sua máquina:
 - [Node.js](https://nodejs.org/) (+ NPM)
 - [Laragon](https://laragon.org/) ou outro ambiente de servidor MySQL local
 
----
-
 ## Passo a Passo para Instalação
 
 Passo a passo para clonar e rodar o projeto em seu ambiente local:
