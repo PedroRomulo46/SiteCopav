@@ -17,29 +17,61 @@ class PropostaController extends Controller
             'cliente'
         ]);
 
-        $usuarios = User::whereIn('id', [
-            $negociacao->cliente_id,
-            $negociacao->oferta->fornecedor->user_id
-        ])->get();
+        // Verifica se o usuário logado participa desta negociação
+        $usuario = auth()->user();
 
-        return view('propostas.create', compact('negociacao', 'usuarios'));
+        $participa = (
+            $usuario->id === $negociacao->cliente_id ||
+            $usuario->id === $negociacao->oferta->fornecedor->user_id
+        );
+
+        if (!$participa) {
+            abort(403);
+        }
+
+        return view(
+            'propostas.create',
+            compact('negociacao')
+        );
     }
 
-    public function store(Request $request)
+   public function store(Request $request)
     {
         $dados = $request->validate([
             'negociacao_id' => 'required|exists:negociacoes,id',
-            'usuario_id' => 'required|exists:users,id',
             'valor' => 'required|numeric|min:0',
             'quantidade' => 'nullable|numeric|min:0',
             'observacao' => 'nullable|string',
-            'status' => 'required|in:pendente,aceita,recusada',
         ]);
+
+        $negociacao = Negociacao::with('oferta.fornecedor')
+            ->findOrFail($dados['negociacao_id']);
+
+        $usuario = $request->user();
+
+        // Verifica se o usuário participa da negociação
+        $participa = (
+            $usuario->id === $negociacao->cliente_id ||
+            $usuario->id === $negociacao->oferta->fornecedor->user_id
+        );
+
+        if (!$participa) {
+            abort(403);
+        }
+
+        // O usuário da proposta vem do login
+        $dados['usuario_id'] = $usuario->id;
+
+        // Toda proposta nova começa como pendente
+        $dados['status'] = 'pendente';
 
         Proposta::create($dados);
 
         return redirect()
-            ->route('negociacoes.show', $dados['negociacao_id'])
-            ->with('sucesso', 'Proposta enviada com sucesso!');
+            ->route('negociacoes.show', $negociacao)
+            ->with(
+                'sucesso',
+                'Proposta enviada com sucesso!'
+            );
     }
 } 

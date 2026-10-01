@@ -85,10 +85,17 @@
                 <span>Mensagens</span>
               </a>
 
-              <a href="{{ route('profile.edit') }}" class="flex items-center gap-1.5 hover:text-amber-300 transition-colors">
-                <span class="material-symbols-outlined text-lg">patient_list</span>
-                <span>Virar Fornecedor</span>
-              </a>
+                @if(!auth()->user()->fornecedor)
+                  <a href="{{ route('fornecedores.create') }}" class="flex items-center gap-1.5 hover:text-amber-300 transition-colors">
+                      <span class="material-symbols-outlined text-lg">patient_list</span>
+                      <span>Virar Fornecedor</span>
+                  </a>
+              @else
+                  <a href="{{ route('fornecedores.show', auth()->user()->fornecedor) }}" class="flex items-center gap-1.5 hover:text-amber-300 transition-colors">
+                      <span class="material-symbols-outlined text-lg">patient_list</span>
+                      <span>Meu Fornecedor</span>
+                  </a>
+              @endif
 
               <!-- Menu do Usuário Logado -->
               <div class="dropdown dropdown-end">
@@ -149,10 +156,17 @@
                 <span class="material-symbols-outlined">forum</span>
                 <span>Mensagens</span>
               </a>
-              <a href="{{ route('profile.edit') }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
-                <span class="material-symbols-outlined">patient_list</span>
-                <span>Virar Fornecedor</span>
-              </a>
+              @if(!auth()->user()->fornecedor)
+                <a href="{{ route('fornecedores.create') }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
+                    <span class="material-symbols-outlined">patient_list</span>
+                    <span>Virar Fornecedor</span>
+                </a>
+            @else
+                <a href="{{ route('fornecedores.show', auth()->user()->fornecedor) }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
+                    <span class="material-symbols-outlined">patient_list</span>
+                    <span>Meu Fornecedor</span>
+                </a>
+            @endif
               <a href="{{ route('profile.edit') }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
                 <span class="material-symbols-outlined">settings</span>
                 <span>Configurações</span>

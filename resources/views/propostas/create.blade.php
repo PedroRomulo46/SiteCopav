@@ -32,28 +32,6 @@
         value="{{ $negociacao->id }}"
     >
 
-    <div>
-        <label>Usuário:</label>
-
-        <select name="usuario_id" required>
-
-            <option value="">
-                Selecione o usuário
-            </option>
-
-            @foreach($usuarios as $usuario)
-
-                <option value="{{ $usuario->id }}">
-                    {{ $usuario->nome }}
-                    -
-                    {{ $usuario->user_type }}
-                </option>
-
-            @endforeach
-
-        </select>
-    </div>
-
     <br>
 
     <div>
