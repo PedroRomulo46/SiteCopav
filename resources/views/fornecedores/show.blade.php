@@ -45,7 +45,7 @@
 )
 
     <a href="{{ route('fornecedores.edit', $fornecedor) }}">
-        Editar fornecedor
+        Editar Detalhes
     </a>
 
     <br><br>
@@ -58,7 +58,7 @@
         @method('DELETE')
 
         <button type="submit">
-            Excluir fornecedor
+            Excluir cadastro de fornecedor
         </button>
     </form>
 

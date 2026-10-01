@@ -45,15 +45,13 @@ class FornecedorController extends Controller
         ]);
 
         $dados['user_id'] = $request->user()->id;
-        $dados['status'] = 'pendente';
+        $dados['status'] = 'ativo';
 
         Fornecedor::create($dados);
 
         return redirect()
-            ->route('fornecedores.index')
-            ->with(
-                'sucesso',
-                'Fornecedor cadastrado com sucesso! Aguarde a aprovação.'
+            ->route('ofertas.create') // Estava "fornecedores.index"
+            ->with('sucesso', 'Fornecedor cadastrado com sucesso! Agora você pode criar sua oferta.'
             );
     }
 

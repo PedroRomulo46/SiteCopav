@@ -53,6 +53,9 @@ Route::middleware('auth')->group(function () {
     Route::put('/ofertas/{oferta}', [OfertaController::class, 'update'])->name('ofertas.update');
     Route::delete('/ofertas/{oferta}', [OfertaController::class, 'destroy'])->name('ofertas.destroy');
 
+    // Criação de Categorias
+    Route::resource('categorias', CategoriaController::class)->except(['index', 'show']);
+
     // Outros Recursos
     Route::resource('fornecedores', FornecedorController::class)->parameters(['fornecedores' => 'fornecedor',]);
     Route::resource('demandas', DemandaController::class);

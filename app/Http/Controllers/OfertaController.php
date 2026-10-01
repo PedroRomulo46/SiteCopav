@@ -28,17 +28,12 @@ class OfertaController extends Controller
         }
 
         if ($fornecedor->status !== 'ativo') {
-            return redirect()
-                ->route('fornecedores.show', $fornecedor)
-                ->with(
-                    'sucesso',
-                    'Seu fornecedor ainda não está ativo.'
-                );
+            return redirect()->route('fornecedores.show', $fornecedor)->with('sucesso', 'Seu fornecedor ainda não está ativo.');
         }
 
-        $produtos = Produto::where('fornecedor_id', $fornecedor->id)
-            ->with('categoria')
-            ->get();
+        // filtro de id de produto comentado 
+        // $produtos = Produto::where('fornecedor_id', $fornecedor->id)->with('categoria')->get();
+        $produtos = Produto::with('categoria')->get();
 
         return view(
             'ofertas.create',
