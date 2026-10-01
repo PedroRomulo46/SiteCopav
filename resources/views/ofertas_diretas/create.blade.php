@@ -31,25 +31,6 @@
     <br>
 
     <div>
-        <label>Fornecedor:</label>
-
-        <select name="fornecedor_id" required>
-            <option value="">Selecione o fornecedor</option>
-
-            @foreach($fornecedores as $fornecedor)
-                <option
-                    value="{{ $fornecedor->id }}"
-                    {{ old('fornecedor_id') == $fornecedor->id ? 'selected' : '' }}
-                >
-                    {{ $fornecedor->nome }}
-                </option>
-            @endforeach
-        </select>
-    </div>
-
-    <br>
-
-    <div>
         <label>Quantidade que consegue fornecer:</label>
 
         <input

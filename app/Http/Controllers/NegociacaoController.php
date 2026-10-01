@@ -22,31 +22,41 @@ class NegociacaoController extends Controller
 
     public function create()
     {
-        $ofertas = Oferta::with([
-            'produto',
-            'fornecedor'
-        ])
-        ->where('status', 'publicada')
-        ->get();
+        $ofertas = Oferta::with(['produto', 'fornecedor'])
+            ->where('status', 'publicada')
+            ->get();
 
-        $clientes = User::where('user_type', 'cliente')->get();
-
-        return view('negociacoes.create', compact('ofertas', 'clientes'));
+        return view(
+            'negociacoes.create',
+            compact('ofertas')
+        );
     }
 
     public function store(Request $request)
     {
         $dados = $request->validate([
             'oferta_id' => 'required|exists:ofertas,id',
-            'cliente_id' => 'required|exists:users,id',
             'status' => 'required|in:pendente,em_negociacao',
         ]);
+
+        $oferta = Oferta::where('id', $dados['oferta_id'])
+            ->where('status', 'publicada')
+            ->first();
+
+        if (!$oferta) {
+            abort(403);
+        }
+
+        $dados['cliente_id'] = $request->user()->id;
 
         Negociacao::create($dados);
 
         return redirect()
             ->route('negociacoes.index')
-            ->with('sucesso', 'Negociação criada com sucesso!');
+            ->with(
+                'sucesso',
+                'Negociação criada com sucesso!'
+            );
     }
 
     public function show(Negociacao $negociacao)

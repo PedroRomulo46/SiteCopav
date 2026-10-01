@@ -61,13 +61,30 @@ class DemandaController extends Controller
 
     public function edit(Demanda $demanda)
     {
+        if (
+            auth()->id() !== $demanda->cliente_id &&
+            auth()->user()->user_type !== 'admin'
+        ) {
+            abort(403);
+        }
+
         $categorias = Categoria::all();
 
-        return view('demandas.edit', compact('demanda', 'categorias'));
+        return view(
+            'demandas.edit',
+            compact('demanda', 'categorias')
+        );
     }
 
     public function update(Request $request, Demanda $demanda)
     {
+        if (
+            auth()->id() !== $demanda->cliente_id &&
+            auth()->user()->user_type !== 'admin'
+        ) {
+            abort(403);
+        }
+
         $dados = $request->validate([
             'categoria_id' => 'required|exists:categorias,id',
             'nome_produto' => 'required|string|max:255',
@@ -89,6 +106,13 @@ class DemandaController extends Controller
 
     public function destroy(Demanda $demanda)
     {
+        if (
+            auth()->id() !== $demanda->cliente_id &&
+            auth()->user()->user_type !== 'admin'
+        ) {
+            abort(403);
+        }
+
         $demanda->delete();
 
         return redirect()

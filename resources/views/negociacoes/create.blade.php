@@ -37,28 +37,6 @@
     <br>
 
     <div>
-        <label>Cliente:</label>
-
-        <select name="cliente_id" required>
-
-            <option value="">
-                Selecione o cliente
-            </option>
-
-            @foreach($clientes as $cliente)
-
-                <option value="{{ $cliente->id }}">
-                    {{ $cliente->nome }}
-                </option>
-
-            @endforeach
-
-        </select>
-    </div>
-
-    <br>
-
-    <div>
         <label>Status:</label>
 
         <select name="status" required>
