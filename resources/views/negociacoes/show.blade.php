@@ -59,7 +59,6 @@
     <div class="bg-white rounded-lg shadow-md p-6">
 
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-gray-200 pb-4 mb-6 gap-2">
-
             <div>
                 <span class="text-xs font-semibold uppercase tracking-wider text-gray-500">
                     Negociação
@@ -69,13 +68,11 @@
                     {{ $negociacao->oferta->produto->nome }}
                 </h1>
             </div>
-
             <div>
                 <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-emerald-100 text-emerald-800 capitalize">
                     {{ $negociacao->status }}
                 </span>
             </div>
-
         </div>
 
         {{-- Grid de Informações Principais --}}
@@ -105,38 +102,26 @@
                 <span class="block text-xs font-medium text-gray-500 uppercase">
                     Quantidade da Oferta
                 </span>
-
                 <span class="text-base font-semibold text-gray-800">
-
                     @if(strtolower($negociacao->oferta->unidade) === 'saca')
-
                         {{ number_format($negociacao->oferta->quantidade, 0, ',', '.') }}
-
                     @else
-
                         {{ fmod($negociacao->oferta->quantidade, 1) == 0
                             ? number_format($negociacao->oferta->quantidade, 0, ',', '.')
                             : number_format($negociacao->oferta->quantidade, 2, ',', '.') }}
-
                     @endif
-
                     {{ $negociacao->oferta->unidade }}
-
                 </span>
             </div>
-
             <div class="p-3 bg-gray-50 rounded-md border border-gray-100">
                 <span class="block text-xs font-medium text-gray-500 uppercase">
                     Valor da Oferta
                 </span>
-
                 <span class="text-base font-semibold text-gray-800">
                     R$ {{ number_format($negociacao->oferta->valor, 2, ',', '.') }}
                 </span>
             </div>
-
         </div>
-
     </div>
 
 
@@ -161,7 +146,6 @@
                     <span class="material-symbols-outlined text-base">
                         add
                     </span>
-
                     Fazer proposta
 
                 </a>
@@ -226,52 +210,34 @@
                                 <span class="text-gray-900">
 
                                     @if(isset($proposta->quantidade))
-
                                         @if(strtolower($negociacao->oferta->unidade) === 'saca')
-
                                             {{ number_format($proposta->quantidade, 0, ',', '.') }}
-
                                         @else
-
                                             {{ fmod($proposta->quantidade, 1) == 0
                                                 ? number_format($proposta->quantidade, 0, ',', '.')
                                                 : number_format($proposta->quantidade, 2, ',', '.') }}
-
                                         @endif
-
                                         {{ $negociacao->oferta->unidade }}
 
                                     @else
-
                                         Não informada
-
                                     @endif
-
                                 </span>
-
                             </div>
-
                         </div>
-
 
                         {{-- Observação --}}
                         <div class="mt-3 pt-3 border-t border-gray-100 text-sm">
-
                             <strong class="text-gray-600 block mb-1">
                                 Observação:
                             </strong>
-
                             <p class="text-gray-700 bg-gray-50 p-2.5 rounded border border-gray-100 text-xs sm:text-sm">
                                 {{ $proposta->observacao ?? 'Sem observação' }}
                             </p>
 
                         </div>
 
-
-                        {{-- ================================================= --}}
                         {{-- BOTÕES DE ACEITAR / RECUSAR                       --}}
-                        {{-- ================================================= --}}
-
                         @if(
                             auth()->id() === $negociacao->oferta->fornecedor->user_id &&
                             $proposta->status === 'pendente'
@@ -291,76 +257,52 @@
 
                                     @csrf
                                     @method('PATCH')
-
                                     <button
                                         type="submit"
-                                        class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
-                                    >
+                                        class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
                                         Aceitar proposta
                                     </button>
-
                                 </form>
-
 
                                 {{-- Recusar --}}
                                 <form
                                     action="{{ route('propostas.recusar', $proposta) }}"
-                                    method="POST"
-                                >
+                                    method="POST">
 
                                     @csrf
                                     @method('PATCH')
 
                                     <button
                                         type="submit"
-                                        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
-                                    >
+                                        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
                                         Recusar proposta
                                     </button>
-
                                 </form>
-
                             </div>
-
                         @endif
-
                     </div>
-
                 @endforeach
-
             </div>
-
         @else
-
             <div class="text-center py-8 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-
                 <span class="material-symbols-outlined text-gray-400 text-4xl mb-2">
                     inbox
                 </span>
-
                 <p class="text-gray-500 font-medium">
                     Nenhuma proposta foi realizada até o momento.
                 </p>
-
             </div>
-
         @endif
-
 
         {{-- Botões de Rodapé --}}
         <div class="flex items-center justify-start mt-6 pt-4 border-t border-gray-200">
-
             <a
                 href="{{ route('negociacoes.index') }}"
-                class="text-gray-600 hover:text-gray-900 text-sm font-medium"
-            >
+                class="text-gray-600 hover:text-gray-900 text-sm font-medium">
                 Voltar para as negociações
             </a>
-
         </div>
-
     </div>
-
 </div>
 
 {{-- POP-UP DE CONFIRMAÇÃO --}}

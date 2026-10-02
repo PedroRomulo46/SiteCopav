@@ -3,100 +3,66 @@
 
 @section('conteudo')
 
-<div class="text-gray-500 mx-1 mt-1">
-    <a
-        href="{{ route('produtos.index') }}"
-        class="inline-flex items-center gap-1 hover:text-gray-700"
-    >
-        <span class="material-symbols-outlined">
-            arrow_back
-        </span>
-
-        Voltar para produtos
+<div class="mb-4">
+    <a href="{{ route('produtos.index') }}" class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-[#236350] transition-colors">
+        <span class="material-symbols-outlined text-lg">arrow_back</span>
+        Voltar para a página inicial
     </a>
 </div>
 
-
 <div class="max-w-5xl mx-auto my-6">
-
     <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-
         <div class="grid grid-cols-1 md:grid-cols-2">
 
             {{-- Imagem --}}
             <div class="bg-gray-100 min-h-[350px]">
-
-                @if($produto->imagem)
-
-                    <img
-                        src="{{ asset('storage/' . $produto->imagem) }}"
-                        alt="{{ $produto->nome }}"
-                        class="w-full h-full min-h-[350px] object-cover"
-                    >
-
-                @else
-
-                    <div class="w-full min-h-[350px] flex items-center justify-center text-gray-300">
-
-                        <span class="material-symbols-outlined text-8xl">
-                            image
-                        </span>
-
-                    </div>
-
-                @endif
-
+                <img
+                    src="{{ $produto->imagem 
+                        ? (str_contains($produto->imagem, 'assets/') 
+                            ? asset($produto->imagem) 
+                            : asset('storage/' . str_replace('public/', '', $produto->imagem))) 
+                        : asset('assets/milho.png') }}"
+                    alt="{{ $produto->nome ?? 'Imagem do produto' }}"
+                    class="w-full h-full min-h-[350px] object-cover"
+                    onerror="this.onerror=null; this.src='{{ asset('assets/milho.png') }}';"
+                />
             </div>
-
 
             {{-- Informações --}}
             <div class="p-6 md:p-8 flex flex-col">
 
                 {{-- Categoria --}}
                 <div class="mb-3">
-
                     <span class="inline-block text-xs font-semibold text-[#236350] bg-green-50 px-3 py-1 rounded-full">
                         {{ $produto->categoria->nome ?? 'Sem categoria' }}
                     </span>
-
                 </div>
-
 
                 {{-- Nome --}}
                 <h1 class="text-3xl font-bold text-gray-800">
                     {{ $produto->nome }}
                 </h1>
 
-
                 {{-- Descrição --}}
                 <div class="mt-5">
-
                     <h2 class="text-sm font-semibold text-gray-500 uppercase">
                         Descrição
                     </h2>
-
                     <p class="text-gray-700 mt-2 leading-relaxed">
                         {{ $produto->descricao ?? 'Nenhuma descrição cadastrada.' }}
                     </p>
-
                 </div>
-
 
                 {{-- Informações --}}
                 <div class="mt-6 border-t border-gray-100 pt-5 space-y-4">
-
                     <div class="flex justify-between items-center">
-
                         <span class="text-gray-500">
                             Unidade
                         </span>
-
                         <span class="font-semibold text-gray-800">
                             {{ $produto->unidade }}
                         </span>
-
                     </div>
-
 
                     <div class="flex justify-between items-center">
 

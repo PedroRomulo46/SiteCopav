@@ -25,8 +25,7 @@
        {{-- Meus produtos --}}
       <a
         href="{{ route('produtos.index') }}"
-        class="btn text-white bg-[#236350] hover:bg-[#1B4D3E] w-full border-none text-lg p-6 rounded-xl shadow-md text-center flex items-center justify-center"
-      >
+        class="btn text-white bg-[#236350] hover:bg-[#1B4D3E] w-full border-none text-lg p-6 rounded-xl shadow-md text-center flex items-center justify-center">
         Meus Produtos
       </a>
       
@@ -62,14 +61,16 @@
 
       <!-- Aba 1: Meus Lotes -->
       <div x-show="abaAtiva === 'lotes'" class="flex flex-col gap-3 mt-2">
-        @forelse($ofertas as $oferta)
+        @forelse($ofertas->take(5) as $oferta)
         <div class="flex items-start gap-3 p-3 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-[0_0_20px_2px_rgba(0,0,0,0.15)] transition-shadow">
           <img
-              class="w-20 h-20 rounded-lg object-cover shrink-0"
-              src="{{ $oferta->produto->imagem
-                  ? asset('storage/' . $oferta->produto->imagem)
-                  : asset('assets/milho.png') }}"
-              alt="{{ $oferta->produto->nome ?? 'Produto' }}"
+            class="w-20 h-20 rounded-lg object-cover shrink-0"
+            src="{{ $oferta->produto->imagem 
+                ? (str_contains($oferta->produto->imagem, 'assets/') 
+                    ? asset($oferta->produto->imagem) 
+                    : asset('storage/' . $oferta->produto->imagem))
+                : asset('assets/milho.png') }}"
+            alt="{{ $oferta->produto->nome ?? 'Produto' }}"
           />
           <div class="flex flex-col justify-between grow self-stretch text-xs">
             <div>
@@ -88,6 +89,15 @@
         @empty
           <p class="text-gray-500 text-sm text-center py-4">Você ainda não possui lotes cadastrados.</p>
         @endforelse
+
+        {{-- Botão Ver Mais --}}
+        @if($ofertas->count() > 5)
+        <div class="flex justify-center mt-2">
+          <a href="{{ route('ofertas.index') }}" class="btn btn-outline text-[#236350] border-[#236350] hover:bg-[#236350] hover:text-white w-full btn-sm rounded-md">
+            Ver mais lotes
+          </a>
+        </div>
+        @endif
       </div>
 
       <!-- Aba 2: Demandas -->
@@ -125,11 +135,14 @@
         <div class="bg-white shadow-md hover:shadow-[0_0_20px_2px_rgba(0,0,0,0.15)] p-3 rounded-2xl flex flex-col justify-between h-full transition-all border border-gray-100">
           <div>
             <img
-                class="w-full h-48 object-cover rounded-xl mb-3"
-                src="{{ $item->produto->imagem
-                    ? asset('storage/' . $item->produto->imagem)
-                    : asset('assets/milho.png') }}"
-                alt="{{ $item->produto->nome ?? 'Produto' }}"/>
+              class="w-full h-48 object-cover rounded-xl mb-3"
+              src="{{ $item->produto->imagem 
+                  ? (str_contains($item->produto->imagem, 'assets/') 
+                      ? asset($item->produto->imagem) 
+                      : asset('storage/' . $item->produto->imagem))
+                  : asset('assets/milho.png') }}"
+              alt="{{ $item->produto->nome ?? 'Produto' }}"
+            />
             <h2 class="font-bold text-gray-800 line-clamp-1">{{ $item->produto->nome ?? 'Sem nome' }}</h2>
             <p class="text-xs text-gray-400 mt-1 line-clamp-2">{{ $item->produto->descricao ?? '' }}</p>
           </div>

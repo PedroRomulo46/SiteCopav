@@ -3,16 +3,10 @@
 
 @section('conteudo')
 
-<div class="text-gray-500 mx-1 mt-1">
-    <a
-        href="{{ route('home') }}"
-        class="inline-flex items-center gap-1 hover:text-gray-700"
-    >
-        <span class="material-symbols-outlined">
-            arrow_back
-        </span>
-
-        Voltar para o início
+<div class="mb-4">
+    <a href="{{ route('home') }}" class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-[#236350] transition-colors">
+        <span class="material-symbols-outlined text-lg">arrow_back</span>
+        Voltar para a página inicial
     </a>
 </div>
 
@@ -66,27 +60,16 @@
 
                     {{-- Imagem --}}
                     <div class="w-full h-48 bg-gray-100">
-
-                        @if($produto->imagem)
-
-                            <img
-                                src="{{ asset('storage/' . $produto->imagem) }}"
-                                alt="{{ $produto->nome }}"
-                                class="w-full h-full object-cover"
-                            >
-
-                        @else
-
-                            <div class="w-full h-full flex items-center justify-center text-gray-400">
-
-                                <span class="material-symbols-outlined text-6xl">
-                                    image
-                                </span>
-
-                            </div>
-
-                        @endif
-
+                        <img
+                            src="{{ $produto->imagem 
+                                ? (str_contains($produto->imagem, 'assets/') 
+                                    ? asset($produto->imagem) 
+                                    : asset('storage/' . str_replace('public/', '', $produto->imagem))) 
+                                : asset('assets/milho.png') }}"
+                            alt="{{ $produto->nome ?? 'Imagem do produto' }}"
+                            class="w-full h-full object-cover"
+                            onerror="this.onerror=null; this.src='{{ asset('assets/milho.png') }}';"
+                        />
                     </div>
 
 
