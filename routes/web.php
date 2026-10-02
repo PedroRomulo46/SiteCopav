@@ -72,10 +72,7 @@ Route::middleware('auth')->group(function () {
         [PropostaController::class, 'aceitar']
     )->name('propostas.aceitar');
 
-    Route::patch(
-        '/propostas/{proposta}/recusar',
-        [PropostaController::class, 'recusar']
-    )->name('propostas.recusar');
+    Route::patch('/propostas/{proposta}/recusar',[PropostaController::class, 'recusar'])->name('propostas.recusar');
 
     // Perfil
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

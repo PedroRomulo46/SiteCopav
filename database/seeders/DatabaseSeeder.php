@@ -61,6 +61,7 @@ class DatabaseSeeder extends Seeder
             'unidade' => 'Saca (60kg)',
             'categoria_id' => $categoria->id,
             'fornecedor_id' => $fornecedorJoao->id,
+            'imagem' => 'assets/milho.png',
         ]);
 
         $p2 = Produto::create([
@@ -69,6 +70,7 @@ class DatabaseSeeder extends Seeder
             'unidade' => 'Saca (60kg)',
             'categoria_id' => $categoria->id,
             'fornecedor_id' => $fornecedorCopav->id,
+            'imagem' => 'assets/cafe.png',
         ]);
 
         $p3 = Produto::create([
@@ -77,14 +79,16 @@ class DatabaseSeeder extends Seeder
             'unidade' => 'Saca (60kg)',
             'categoria_id' => $categoria->id,
             'fornecedor_id' => $fornecedorJoao->id,
+            'imagem' => 'assets/maca.png',
         ]);
 
         $p4 = Produto::create([
-            'nome' => 'Romãs',
-            'descricao' => 'Romãs saborosas direto do Ceará.',
+            'nome' => 'Nutriente de solo',
+            'descricao' => 'Nutriente especializado para produção de folhas e floração.',
             'unidade' => 'Saca (60kg)',
             'categoria_id' => $categoria->id,
             'fornecedor_id' => $fornecedorCopav->id,
+            'imagem' => 'assets/nutriente.png',
         ]);
         
         // 5. Cria Ofertas com valor e status compatível com o ENUM

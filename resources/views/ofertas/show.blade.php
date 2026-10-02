@@ -13,7 +13,6 @@
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
 
-
     {{-- Exibição de Alertas de Sucesso / Erro --}}
     @if(session('success'))
         <div class="mb-6 p-4 bg-emerald-50 border-l-4 border-emerald-600 text-emerald-800 rounded-r-md shadow-sm flex items-center gap-2">
@@ -36,7 +35,11 @@
             <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                 <img
                     class="w-full h-[380px] sm:h-[450px] object-cover rounded-lg"
-                    src="{{ $produto->imagem ? asset('storage/' . $produto->imagem) : asset('assets/milho.png') }}"
+                    src="{{ $produto->imagem 
+                        ? (str_contains($produto->imagem, 'assets/') 
+                            ? asset($produto->imagem) 
+                            : asset('storage/' . str_replace('public/', '', $produto->imagem))) 
+                        : asset('assets/milho.png') }}"
                     alt="{{ $produto->nome ?? 'Imagem do produto' }}"
                 />
             </div>
