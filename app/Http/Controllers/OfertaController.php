@@ -66,13 +66,7 @@ class OfertaController extends Controller
             'status' => 'required|in:rascunho,publicada,encerrada,cancelada',
         ]);
 
-        $produto = Produto::where('id', $dados['produto_id'])
-            ->where('fornecedor_id', $fornecedor->id)
-            ->first();
 
-        if (!$produto) {
-            abort(403);
-        }
 
         $dados['fornecedor_id'] = $fornecedor->id;
 
