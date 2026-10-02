@@ -32,7 +32,7 @@
         
         <!-- Coluna 1: Imagem do Produto -->
         <div class="lg:col-span-5 lg:sticky lg:top-6">
-            <div class="bg-white p-3 border border-gray-200 shadow-sm overflow-hidden">
+            <div class="bg-white p-3 overflow-hidden">
                 <img
                     class="w-full h-[380px] sm:h-[450px] object-cover rounded-lg"
                     src="{{ $produto->imagem 
