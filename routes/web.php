@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\FornecedorController;
@@ -16,91 +15,58 @@ use App\Http\Controllers\ChatController;
 
 /*
 |--------------------------------------------------------------------------
-| ROTAS PÚBLICAS
+| ROTAS PÚBLICAS (Visitantes e Autenticados)
 |--------------------------------------------------------------------------
 */
 
-// Página inicial
+// Apenas a Home e Categorias são públicas
 Route::get('/', [HomeController::class, 'index'])->name('home');
-
-// Visualização de Categorias e Produtos (Públicos)
 Route::resource('categorias', CategoriaController::class)->only(['index', 'show']);
-Route::get('/produtos', [ProdutoController::class, 'index'])->name('produtos.index');
-
-// Visualização de Ofertas (Públicas)
-Route::get('/ofertas', [OfertaController::class, 'index'])->name('ofertas.index');
 
 /*
 |--------------------------------------------------------------------------
-| ROTAS PROTEGIDAS (Exigem Login)
+| ROTAS PROTEGIDAS (Exigem Login obrigatoriamente)
 |--------------------------------------------------------------------------
 */
 
 Route::middleware('auth')->group(function () {
-    
-    // Dashboard (Redireciona para home)
+
     Route::get('/dashboard', function () {
         return redirect()->route('home');
     })->middleware('verified')->name('dashboard');
 
-    // Página de Chat
+    // Lotes / Ofertas (Restrito a usuários logados)
+    Route::resource('ofertas', OfertaController::class);
+
+    // Demandas (Restrito a usuários logados)
+    Route::resource('demandas', DemandaController::class);
+
+    // Produtos
+    Route::resource('produtos', ProdutoController::class)->parameters(['produtos' => 'produto']);
+    Route::get('/meus-produtos', [ProdutoController::class, 'meusProdutos'])->name('produtos.meus');
+
+    // Chat
     Route::get('/chat', [ChatController::class, 'index'])->name('chat');
 
-    // Criação/Ações de Ofertas (Obrigatório vir antes da rota pública de show /{oferta})
-    Route::get('/ofertas/create', [OfertaController::class, 'create'])->name('ofertas.create');
-    Route::post('/ofertas', [OfertaController::class, 'store'])->name('ofertas.store');
-    Route::get('/ofertas/{oferta}/edit', [OfertaController::class, 'edit'])->name('ofertas.edit');
-    Route::put('/ofertas/{oferta}', [OfertaController::class, 'update'])->name('ofertas.update');
-    Route::delete('/ofertas/{oferta}', [OfertaController::class, 'destroy'])->name('ofertas.destroy');
-
-    // Criação de Categorias
+    // Categorias (Ações administrativas)
     Route::resource('categorias', CategoriaController::class)->except(['index', 'show']);
 
-    // Outros Recursos
-    Route::resource('fornecedores', FornecedorController::class)->parameters(['fornecedores' => 'fornecedor',]);
-    Route::resource('demandas', DemandaController::class);
+    // Recursos de Fornecedor e Negociações
+    Route::resource('fornecedores', FornecedorController::class)->parameters(['fornecedores' => 'fornecedor']);
     Route::resource('ofertas-diretas', OfertaDiretaController::class);
-
-    // Negociações
     Route::resource('negociacoes', NegociacaoController::class)->parameters(['negociacoes' => 'negociacao']);
     
-
     // Propostas
     Route::get('/negociacoes/{negociacao}/propostas/create', [PropostaController::class, 'create'])->name('propostas.create');
     Route::post('/propostas', [PropostaController::class, 'store'])->name('propostas.store');
-     Route::patch(
-        '/propostas/{proposta}/aceitar',
-        [PropostaController::class, 'aceitar']
-    )->name('propostas.aceitar');
-
-    Route::patch(
-        '/propostas/{proposta}/recusar',
-        [PropostaController::class, 'recusar']
-    )->name('propostas.recusar');
-    Route::get(
-        '/ofertas/{oferta}/propostas',
-        [NegociacaoController::class, 'propostasOferta']
-    )->name('ofertas.propostas');
+    Route::patch('/propostas/{proposta}/aceitar', [PropostaController::class, 'aceitar'])->name('propostas.aceitar');
+    Route::patch('/propostas/{proposta}/recusar', [PropostaController::class, 'recusar'])->name('propostas.recusar');
+    Route::get('/ofertas/{oferta}/propostas', [NegociacaoController::class, 'propostasOferta'])->name('ofertas.propostas');
 
     // Perfil
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-    Route::resource('produtos', ProdutoController::class)->except(['index', 'show'])->parameters(['produtos' => 'produto',]);
-
-    Route::get('/meus-produtos', [ProdutoController::class, 'meusProdutos'])
-    ->name('produtos.meus');
 });
-
-//show separado para não confundir o método com parâmetro
-Route::get('/produtos/{produto}', [ProdutoController::class, 'show'])->name('produtos.show');
-Route::get('/ofertas/{oferta}', [OfertaController::class, 'show'])->name('ofertas.show');
-
-/*
-|--------------------------------------------------------------------------
-| Autenticação do Breeze
-|--------------------------------------------------------------------------
-*/
 
 require __DIR__.'/auth.php';
