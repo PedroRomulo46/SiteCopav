@@ -69,6 +69,45 @@
 
         <hr>
 
+        @if(
+            auth()->id() === $negociacao->oferta->fornecedor->user_id &&
+            $proposta->status === 'pendente'
+        )
+            <div class="flex gap-2 mt-3">
+
+                <form
+                    action="{{ route('propostas.aceitar', $proposta) }}"
+                    method="POST"
+                >
+                    @csrf
+                    @method('PATCH')
+
+                    <button
+                        type="submit"
+                        class="bg-green-600 text-white px-4 py-2 rounded"
+                    >
+                        Aceitar proposta
+                    </button>
+                </form>
+
+                <form
+                    action="{{ route('propostas.recusar', $proposta) }}"
+                    method="POST"
+                >
+                    @csrf
+                    @method('PATCH')
+
+                    <button
+                        type="submit"
+                        class="bg-red-600 text-white px-4 py-2 rounded"
+                    >
+                        Recusar proposta
+                    </button>
+                </form>
+
+            </div>
+        @endif
+
     @endforeach
 
 @else

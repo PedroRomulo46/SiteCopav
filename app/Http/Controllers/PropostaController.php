@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Negociacao;
 use App\Models\Proposta;
-use App\Models\User;
 use Illuminate\Http\Request;
 
 class PropostaController extends Controller
@@ -17,7 +16,6 @@ class PropostaController extends Controller
             'cliente'
         ]);
 
-        // Verifica se o usuário logado participa desta negociação
         $usuario = auth()->user();
 
         $participa = (
@@ -35,7 +33,7 @@ class PropostaController extends Controller
         );
     }
 
-   public function store(Request $request)
+    public function store(Request $request)
     {
         $dados = $request->validate([
             'negociacao_id' => 'required|exists:negociacoes,id',
@@ -49,7 +47,6 @@ class PropostaController extends Controller
 
         $usuario = $request->user();
 
-        // Verifica se o usuário participa da negociação
         $participa = (
             $usuario->id === $negociacao->cliente_id ||
             $usuario->id === $negociacao->oferta->fornecedor->user_id
@@ -59,10 +56,7 @@ class PropostaController extends Controller
             abort(403);
         }
 
-        // O usuário da proposta vem do login
         $dados['usuario_id'] = $usuario->id;
-
-        // Toda proposta nova começa como pendente
         $dados['status'] = 'pendente';
 
         Proposta::create($dados);
@@ -74,4 +68,80 @@ class PropostaController extends Controller
                 'Proposta enviada com sucesso!'
             );
     }
-} 
+
+    public function aceitar(Proposta $proposta)
+    {
+        $proposta->load([
+            'negociacao.oferta.fornecedor'
+        ]);
+
+        $usuario = auth()->user();
+
+        // Apenas o fornecedor pode aceitar a proposta
+        if (
+            !$proposta->negociacao->oferta->fornecedor ||
+            $proposta->negociacao->oferta->fornecedor->user_id !== $usuario->id
+        ) {
+            abort(403);
+        }
+
+        // Só pode aceitar uma proposta pendente
+        if ($proposta->status !== 'pendente') {
+            return back()->with(
+                'erro',
+                'Esta proposta já foi processada.'
+            );
+        }
+
+        $proposta->update([
+            'status' => 'aceita'
+        ]);
+
+        $proposta->negociacao->update([
+            'status' => 'aceita'
+        ]);
+
+        return redirect()
+            ->route('negociacoes.show', $proposta->negociacao)
+            ->with(
+                'sucesso',
+                'Proposta aceita com sucesso!'
+            );
+    }
+
+    public function recusar(Proposta $proposta)
+    {
+        $proposta->load([
+            'negociacao.oferta.fornecedor'
+        ]);
+
+        $usuario = auth()->user();
+
+        // Apenas o fornecedor pode recusar a proposta
+        if (
+            !$proposta->negociacao->oferta->fornecedor ||
+            $proposta->negociacao->oferta->fornecedor->user_id !== $usuario->id
+        ) {
+            abort(403);
+        }
+
+        // Só pode recusar uma proposta pendente
+        if ($proposta->status !== 'pendente') {
+            return back()->with(
+                'erro',
+                'Esta proposta já foi processada.'
+            );
+        }
+
+        $proposta->update([
+            'status' => 'recusada'
+        ]);
+
+        return redirect()
+            ->route('negociacoes.show', $proposta->negociacao)
+            ->with(
+                'sucesso',
+                'Proposta recusada.'
+            );
+    }
+}

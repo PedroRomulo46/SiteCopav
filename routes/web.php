@@ -64,6 +64,15 @@ Route::middleware('auth')->group(function () {
     // Propostas
     Route::get('/negociacoes/{negociacao}/propostas/create', [PropostaController::class, 'create'])->name('propostas.create');
     Route::post('/propostas', [PropostaController::class, 'store'])->name('propostas.store');
+     Route::patch(
+        '/propostas/{proposta}/aceitar',
+        [PropostaController::class, 'aceitar']
+    )->name('propostas.aceitar');
+
+    Route::patch(
+        '/propostas/{proposta}/recusar',
+        [PropostaController::class, 'recusar']
+    )->name('propostas.recusar');
 
     // Perfil
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
