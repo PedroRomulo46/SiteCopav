@@ -11,13 +11,43 @@ class NegociacaoController extends Controller
 {
     public function index()
     {
-        $negociacoes = Negociacao::with([
-            'oferta.produto',
-            'oferta.fornecedor',
-            'cliente'
-        ])->get();
+        $usuario = auth()->user();
 
-        return view('negociacoes.index', compact('negociacoes'));
+        if ($usuario->user_type === 'fornecedor') {
+
+            $fornecedor = $usuario->fornecedor;
+
+            if (!$fornecedor) {
+                abort(403);
+            }
+
+            $negociacoes = Negociacao::whereHas('oferta', function ($query) use ($fornecedor) {
+                $query->where('fornecedor_id', $fornecedor->id);
+            })
+            ->with([
+                'oferta.produto',
+                'oferta.fornecedor',
+                'cliente',
+                'propostas.usuario'
+            ])
+            ->get();
+
+        } else {
+
+            $negociacoes = Negociacao::where('cliente_id', $usuario->id)
+                ->with([
+                    'oferta.produto',
+                    'oferta.fornecedor',
+                    'cliente',
+                    'propostas.usuario'
+                ])
+                ->get();
+        }
+
+        return view(
+            'negociacoes.index',
+            compact('negociacoes')
+        );
     }
 
     public function create()

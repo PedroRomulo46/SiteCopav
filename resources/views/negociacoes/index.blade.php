@@ -4,9 +4,11 @@
     <p>{{ session('sucesso') }}</p>
 @endif
 
-<a href="{{ route('negociacoes.create') }}">
-    Nova negociação
-</a>
+@if(auth()->user()->user_type !== 'fornecedor')
+    <a href="{{ route('negociacoes.create') }}">
+        Nova negociação
+    </a>
+@endif
 
 <hr>
 

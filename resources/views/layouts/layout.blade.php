@@ -92,20 +92,28 @@
           <div class="flex items-center gap-6">
             @auth
 
-              {{--
+              <a href="{{ route('negociacoes.index') }}"
+                class="flex items-center gap-1.5 hover:text-amber-300 transition-colors">
+                  <span class="material-symbols-outlined text-lg">forum</span>
+                  <span>Minhas negociações</span>
+              </a>
+
+              {{-- 
                 <a href="{{ route('chat') }}" class="flex items-center gap-1.5 hover:text-amber-300 transition-colors">
                   <span class="material-symbols-outlined text-lg">forum</span>
                   <span>Mensagens</span>
                 </a>
               --}}
 
-                @if(!auth()->user()->fornecedor)
-                  <a href="{{ route('fornecedores.create') }}" class="flex items-center gap-1.5 hover:text-amber-300 transition-colors">
+              @if(!auth()->user()->fornecedor)
+                  <a href="{{ route('fornecedores.create') }}"
+                    class="flex items-center gap-1.5 hover:text-amber-300 transition-colors">
                       <span class="material-symbols-outlined text-lg">patient_list</span>
                       <span>Virar Fornecedor</span>
                   </a>
               @else
-                  <a href="{{ route('fornecedores.show', auth()->user()->fornecedor) }}" class="flex items-center gap-1.5 hover:text-amber-300 transition-colors">
+                  <a href="{{ route('fornecedores.show', auth()->user()->fornecedor) }}"
+                    class="flex items-center gap-1.5 hover:text-amber-300 transition-colors">
                       <span class="material-symbols-outlined text-lg">patient_list</span>
                       <span>Meu cadastro</span>
                   </a>
@@ -164,29 +172,32 @@
           </nav>
 
           <div class="border-t border-[#236350] pt-2 flex flex-col gap-2">
-            @auth
+          @auth
 
-              {{--
-                <a href="{{ route('chat') }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
+              <a href="{{ route('negociacoes.index') }}"
+                class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
                   <span class="material-symbols-outlined">forum</span>
-                  <span>Mensagens</span>
-                </a>
-              --}}
+                  <span>Minhas negociações</span>
+              </a>
 
               @if(!auth()->user()->fornecedor)
-                <a href="{{ route('fornecedores.create') }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
-                    <span class="material-symbols-outlined">patient_list</span>
-                    <span>Virar Fornecedor</span>
-                </a>
-            @else
-                <a href="{{ route('fornecedores.show', auth()->user()->fornecedor) }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
-                    <span class="material-symbols-outlined">patient_list</span>
-                    <span>Meu Fornecedor</span>
-                </a>
-            @endif
-              <a href="{{ route('profile.edit') }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
-                <span class="material-symbols-outlined">settings</span>
-                <span>Configurações</span>
+                  <a href="{{ route('fornecedores.create') }}"
+                    class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
+                      <span class="material-symbols-outlined">patient_list</span>
+                      <span>Virar Fornecedor</span>
+                  </a>
+              @else
+                  <a href="{{ route('fornecedores.show', auth()->user()->fornecedor) }}"
+                    class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
+                      <span class="material-symbols-outlined">patient_list</span>
+                      <span>Meu Fornecedor</span>
+                  </a>
+              @endif
+
+              <a href="{{ route('profile.edit') }}"
+                class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
+                  <span class="material-symbols-outlined">settings</span>
+                  <span>Configurações</span>
               </a>
 
               <form method="POST" action="{{ route('logout') }}" class="w-full">
