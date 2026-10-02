@@ -11,7 +11,7 @@
     </a>
 </div>
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 bg-white rounded-md">
 
     {{-- Exibição de Alertas de Sucesso / Erro --}}
     @if(session('success'))
@@ -32,7 +32,7 @@
         
         <!-- Coluna 1: Imagem do Produto -->
         <div class="lg:col-span-5 lg:sticky lg:top-6">
-            <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div class="bg-white p-3 border border-gray-200 shadow-sm overflow-hidden">
                 <img
                     class="w-full h-[380px] sm:h-[450px] object-cover rounded-lg"
                     src="{{ $produto->imagem 
@@ -165,10 +165,8 @@
                         Comprar Agora
                     </button>
                 </div>
-
             </div>
         </div>
-
     </div>
 </div>
 
