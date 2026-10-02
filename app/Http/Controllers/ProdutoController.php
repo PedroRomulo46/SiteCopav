@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Produto;
-use App\Models\Fornecedor;
 use App\Models\Categoria;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -44,6 +43,33 @@ class ProdutoController extends Controller
         );
     }
 
+ public function meusProdutos()
+{
+    $fornecedor = auth()->user()->fornecedor;
+
+    if (!$fornecedor) {
+        abort(403);
+    }
+
+    $produtos = Produto::where('fornecedor_id', $fornecedor->id)
+        ->with([
+            'fornecedor',
+            'categoria'
+        ])
+        ->get();
+
+    dd([
+        'fornecedor_logado' => $fornecedor->id,
+        'produtos' => $produtos->pluck('id'),
+        'fornecedores_dos_produtos' => $produtos->pluck('fornecedor_id'),
+    ]);
+
+    return view(
+        'produtos.meus',
+        compact('produtos')
+    );
+}
+
     public function store(Request $request)
     {
         $fornecedor = $request->user()->fornecedor;
@@ -83,7 +109,8 @@ class ProdutoController extends Controller
     {
         $produto->load([
             'fornecedor',
-            'categoria'
+            'categoria',
+            'ofertas'
         ]);
 
         return view('produtos.show', compact('produto'));
@@ -91,31 +118,83 @@ class ProdutoController extends Controller
 
     public function edit(Produto $produto)
     {
-        $fornecedores = Fornecedor::where('status', 'ativo')->get();
+        $usuario = auth()->user();
+
+        if ($usuario->user_type !== 'admin') {
+
+            $fornecedor = $usuario->fornecedor;
+
+            if (!$fornecedor || $produto->fornecedor_id !== $fornecedor->id) {
+                abort(403);
+            }
+        }
+
         $categorias = Categoria::all();
 
-        return view('produtos.edit', compact('produto', 'fornecedores', 'categorias'));
+        return view(
+            'produtos.edit',
+            compact('produto', 'categorias')
+        );
     }
 
     public function update(Request $request, Produto $produto)
     {
+        $usuario = $request->user();
+
+        // Apenas o admin pode alterar produtos de qualquer fornecedor
+        if ($usuario->user_type !== 'admin') {
+
+            $fornecedor = $usuario->fornecedor;
+
+            if (!$fornecedor || $produto->fornecedor_id !== $fornecedor->id) {
+                abort(403);
+            }
+        }
+
         $dados = $request->validate([
-            'fornecedor_id' => 'required|exists:fornecedores,id',
             'categoria_id' => 'required|exists:categorias,id',
             'nome' => 'required|string|max:255',
             'descricao' => 'nullable|string',
             'unidade' => 'required|string|max:50',
+            'imagem' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
+
+        if ($request->hasFile('imagem')) {
+
+            if ($produto->imagem) {
+                Storage::disk('public')->delete($produto->imagem);
+            }
+
+            $dados['imagem'] = $request
+                ->file('imagem')
+                ->store('produtos', 'public');
+        }
 
         $produto->update($dados);
 
         return redirect()
-            ->route('produtos.index')
+            ->route('produtos.show', $produto)
             ->with('sucesso', 'Produto atualizado com sucesso!');
     }
 
     public function destroy(Produto $produto)
     {
+        $usuario = auth()->user();
+
+        // Apenas o admin pode excluir produtos de qualquer fornecedor
+        if ($usuario->user_type !== 'admin') {
+
+            $fornecedor = $usuario->fornecedor;
+
+            if (!$fornecedor || $produto->fornecedor_id !== $fornecedor->id) {
+                abort(403);
+            }
+        }
+
+        if ($produto->imagem) {
+            Storage::disk('public')->delete($produto->imagem);
+        }
+
         $produto->delete();
 
         return redirect()

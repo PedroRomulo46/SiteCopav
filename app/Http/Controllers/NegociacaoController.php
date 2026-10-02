@@ -36,7 +36,6 @@ class NegociacaoController extends Controller
     {
         $dados = $request->validate([
             'oferta_id' => 'required|exists:ofertas,id',
-            'status' => 'required|in:pendente,em_negociacao',
         ]);
 
         $oferta = Oferta::where('id', $dados['oferta_id'])
@@ -47,15 +46,44 @@ class NegociacaoController extends Controller
             abort(403);
         }
 
-        $dados['cliente_id'] = $request->user()->id;
+        $usuario = $request->user();
 
-        Negociacao::create($dados);
+        // Impede o fornecedor de negociar a própria oferta
+        if (
+            $usuario->fornecedor &&
+            $oferta->fornecedor_id === $usuario->fornecedor->id
+        ) {
+            return back()->with(
+                'erro',
+                'Você não pode negociar sua própria oferta.'
+            );
+        }
+
+        // Verifica se já existe uma negociação para essa oferta
+        $negociacaoExistente = Negociacao::where('oferta_id', $oferta->id)
+            ->where('cliente_id', $usuario->id)
+            ->first();
+
+        if ($negociacaoExistente) {
+            return redirect()
+                ->route('negociacoes.show', $negociacaoExistente)
+                ->with(
+                    'sucesso',
+                    'Você já possui uma negociação para esta oferta.'
+                );
+        }
+
+        $negociacao = Negociacao::create([
+            'oferta_id' => $oferta->id,
+            'cliente_id' => $usuario->id,
+            'status' => 'em_negociacao',
+        ]);
 
         return redirect()
-            ->route('negociacoes.index')
+            ->route('negociacoes.show', $negociacao)
             ->with(
                 'sucesso',
-                'Negociação criada com sucesso!'
+                'Negociação iniciada com sucesso!'
             );
     }
 

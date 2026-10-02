@@ -3,6 +3,19 @@
 
 @section('conteudo')
 
+<div class="text-gray-500 mx-1 mt-1">
+    <a
+        href="{{ route('home') }}"
+        class="inline-flex items-center gap-1 hover:text-gray-700"
+    >
+        <span class="material-symbols-outlined">
+            arrow_back
+        </span>
+
+        Voltar para o início
+    </a>
+</div>
+
 <div class="max-w-7xl mx-auto">
 
     {{-- Cabeçalho --}}
@@ -128,38 +141,39 @@
                         {{-- Botões --}}
                         <div class="flex gap-2 mt-5 pt-4 border-t border-gray-100">
 
-                            <a
-                                href="{{ route('produtos.show', $produto) }}"
-                                class="flex-1 text-center bg-[#236350] hover:bg-[#1B4D3E] text-white px-3 py-2 rounded-md text-sm transition-colors"
-                            >
-                                Ver detalhes
-                            </a>
+                        <a
+                            href="{{ route('produtos.show', $produto) }}"
+                            class="flex-1 flex items-center justify-center text-center bg-[#236350] hover:bg-[#1B4D3E] text-white px-3 py-2 rounded-md text-sm transition-colors"
+                        >
+                            Ver detalhes
+                        </a>
 
-                            @auth
+                        @auth
 
-                                @if(
-                                    auth()->user()->user_type === 'admin' ||
-                                    (
-                                        auth()->user()->fornecedor &&
-                                        auth()->user()->fornecedor->id === $produto->fornecedor_id
-                                    )
+                            @if(
+                                auth()->user()->user_type === 'admin' ||
+                                (
+                                    auth()->user()->fornecedor &&
+                                    auth()->user()->fornecedor->id === $produto->fornecedor_id
                                 )
+                            )
 
-                                    <a
-                                        href="{{ route('produtos.edit', $produto) }}"
-                                        class="px-3 py-2 border border-gray-300 text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
-                                        title="Editar"
-                                    >
-                                        <span class="material-symbols-outlined text-lg">
-                                            settings
-                                        </span>
-                                    </a>
+                                <a
+                                    href="{{ route('produtos.edit', $produto) }}"
+                                    class="flex items-center justify-center w-10 h-10 border border-gray-300 text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+                                    title="Editar"
+                                >
+                                    <span class="material-symbols-outlined text-lg">
+                                        settings
+                                    </span>
+                                </a>
 
-                                @endif
+                            @endif
 
-                            @endauth
+                        @endauth
 
                         </div>
+
 
                     </div>
 

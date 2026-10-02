@@ -73,20 +73,6 @@
 
     <br>
 
-    <div>
-        <label>Status:</label>
-
-        <select name="status" required>
-
-            <option value="pendente">
-                Pendente
-            </option>
-
-        </select>
-    </div>
-
-    <br>
-
     <button type="submit">
         Enviar proposta
     </button>

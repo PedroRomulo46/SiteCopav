@@ -75,6 +75,8 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('produtos', ProdutoController::class)->except(['index', 'show'])->parameters(['produtos' => 'produto',]);
 
+    Route::get('/meus-produtos', [ProdutoController::class, 'meusProdutos'])
+    ->name('produtos.meus');
 });
 
 //show separado para não confundir o método com parâmetro

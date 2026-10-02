@@ -4,9 +4,9 @@
 @section('conteudo')
 
 <div class="text-gray-600 mx-1 mt-1">
-    <a href="{{ route('fornecedores.index') }}" class="inline-flex items-center gap-1 hover:text-gray-700">
+    <a href="{{ route('home') }}" class="inline-flex items-center gap-1 hover:text-gray-700">
         <span class="material-symbols-outlined">arrow_back</span>
-        Voltar para a lista
+        Voltar
     </a>
 </div>
 
@@ -75,11 +75,6 @@
         </div>
     </div>
 
-    <div class="flex items-center justify-between mt-8 pt-4 border-t border-gray-200">
-        <a href="{{ route('fornecedores.index') }}" class="text-gray-600 hover:text-gray-900 text-sm font-medium">
-            &larr; Voltar
-        </a>
-    </div>
 </div>
 
 @endsection
