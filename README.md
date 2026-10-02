@@ -1,27 +1,29 @@
 # Marketplace Agrícola - Copav
 
-Sistema de marketplace voltado para o agronegócio no Vale do Jaguaribe, para produtores rurais negociarem lotes, produtos e suprimentos.
+Sistema de marketplace voltado para o agronegócio no Vale do Jaguaribe, permitindo que produtores rurais negociem lotes, produtos e suprimentos de forma direta e ágil.
 
 ## Tecnologias Utilizadas
 
-- Laravel 11 / PHP 8.3
-- MySQL (Laragon)
-- Blade, Tailwind CSS (CDN), DaisyUI (CDN) e Google Material Symbols
+- **Backend:** Laravel 11 / PHP 8.3
+- **Banco de Dados:** MySQL (Laragon)
+- **Frontend:** Blade, Tailwind CSS (CDN), DaisyUI (CDN) e Google Material Symbols
 
 ## Pré-requisitos
 
-- [PHP](https://www.php.net/) >= 8.2
+Antes de começar, certifique-se de ter instalado em sua máquina:
+- [PHP](https://www.php.net/) (versão 8.2 ou superior)
 - [Composer](https://getcomposer.org/)
 - [Node.js](https://nodejs.org/) (+ NPM)
-- [Laragon](https://laragon.org/) (servidor MySQL local)
+- [Laragon](https://laragon.org/) ou outro ambiente de servidor MySQL local
 
-## Passo a Passo para Configuração do Projeto
+## Passo a Passo para Instalação
 
-Passos para fazer um novo clone do repositório:
+Passo a passo para clonar e rodar o projeto em seu ambiente local:
 
 ### 1. Clonar o repositório
+Abra o terminal e execute:
 ```bash
-git clone https://github.com/PedroRomulo46/SiteCopav
+git clone [https://github.com/PedroRomulo46/SiteCopav](https://github.com/PedroRomulo46/SiteCopav)
 cd SiteCopav
 ```
 
@@ -30,13 +32,13 @@ cd SiteCopav
 composer install
 ```
 
-### 3. Configurar as Variáveis de Ambiente
+### 3. configurar as variáveis de ambiente
 ```bash
 cp .env.example .env
 php artisan key:generate
 ```
 
-### 4. Criar e Configurar o Banco de Dados
+### 4. criar e configurar o banco de dados
 ```bash
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
@@ -46,18 +48,17 @@ DB_USERNAME=root
 DB_PASSWORD=
 ```
 
-### 5. Executar as Migrações e Popular o Banco
+### 5. executar as migrações e popular o banco
 ```bash
 php artisan migrate --seed
 ```
 
-### 6. Instalar Dependências Front-end e Gerar Build
+### 6. Gerar link para as imagens de produtos e perfis
 ```bash
-npm install
-npm run build
+php artisan storage:link
 ```
 
-### 7. Instalar Dependências Front-end e Gerar Build
+### 7. Instalar dependências front-end e gerar build
 ```bash
 npm install
 npm run build

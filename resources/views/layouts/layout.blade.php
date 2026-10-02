@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@yield('title', 'Meu Marketplace')</title>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&icon_names=search,arrow_right_alt,account_circle,forum,home,arrow_back,palette,settings,patient_list,logout,shopping_cart,menu,expand_more,close&display=block" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&icon_names=search,arrow_right_alt,account_circle,forum,home,arrow_back,palette,settings,patient_list,logout,edit,delete,shopping_cart,menu,expand_more,close,add,image,inventory_2&display=block" rel="stylesheet">    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
       [x-cloak] { display: none !important; }
@@ -58,7 +57,7 @@
           </button>
         </div>
 
-        <!-- Busca para telas muito pequenas (Mobile) -->
+        <!-- Busca para telas muito pequenas -->
         <div class="sm:hidden w-full relative flex items-center mt-1">
           <input type="text" placeholder="Buscar no marketplace..." class="input w-full bg-white text-gray-800 placeholder-gray-400 pl-3 pr-9 py-1.5 rounded-md text-xs">
           <button class="absolute right-2 text-gray-500 flex items-center">
@@ -92,10 +91,13 @@
           <!-- Ações do Usuário / Autenticação -->
           <div class="flex items-center gap-6">
             @auth
-              <a href="{{ route('chat') }}" class="flex items-center gap-1.5 hover:text-amber-300 transition-colors">
-                <span class="material-symbols-outlined text-lg">forum</span>
-                <span>Mensagens</span>
-              </a>
+
+              {{--
+                <a href="{{ route('chat') }}" class="flex items-center gap-1.5 hover:text-amber-300 transition-colors">
+                  <span class="material-symbols-outlined text-lg">forum</span>
+                  <span>Mensagens</span>
+                </a>
+              --}}
 
                 @if(!auth()->user()->fornecedor)
                   <a href="{{ route('fornecedores.create') }}" class="flex items-center gap-1.5 hover:text-amber-300 transition-colors">
@@ -105,7 +107,7 @@
               @else
                   <a href="{{ route('fornecedores.show', auth()->user()->fornecedor) }}" class="flex items-center gap-1.5 hover:text-amber-300 transition-colors">
                       <span class="material-symbols-outlined text-lg">patient_list</span>
-                      <span>Meu Fornecedor</span>
+                      <span>Meu cadastro</span>
                   </a>
               @endif
 
@@ -132,7 +134,7 @@
                   <li>
                     <form method="POST" action="{{ route('logout') }}" class="w-full">
                       @csrf
-                      <button type="submit" class="w-full flex items-center gap-2 text-red-600 rounded-md p-2">
+                      <button type="submit" class="w-full flex items-center gap-2 text-red-600 rounded-md">
                         <span class="material-symbols-outlined text-base">logout</span>
                         Sair
                       </button>
@@ -163,10 +165,14 @@
 
           <div class="border-t border-[#236350] pt-2 flex flex-col gap-2">
             @auth
-              <a href="{{ route('chat') }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
-                <span class="material-symbols-outlined">forum</span>
-                <span>Mensagens</span>
-              </a>
+
+              {{--
+                <a href="{{ route('chat') }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
+                  <span class="material-symbols-outlined">forum</span>
+                  <span>Mensagens</span>
+                </a>
+              --}}
+
               @if(!auth()->user()->fornecedor)
                 <a href="{{ route('fornecedores.create') }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
                     <span class="material-symbols-outlined">patient_list</span>

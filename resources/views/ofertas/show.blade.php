@@ -3,7 +3,7 @@
 
 @section('conteudo')
 
-<div class="text-gray-500 mx-1 mt-1">
+<div class="text-gray-600 mx-1 mt-1">
     <a href="{{ route('home') }}" class="inline-flex gap-1 items-center hover:text-gray-700">
         <span class="material-symbols-outlined">arrow_back</span>
         Voltar para os produtos
@@ -86,14 +86,49 @@
 
                 <!-- Botões de Ação -->
                 <div class="flex flex-col gap-2 mt-3">
-                    <button class="w-full bg-[#79A961] hover:bg-[#709b58] text-white text-xs font-medium py-2 px-4 rounded-full transition-colors shadow-sm">
-                        Negociar Preço
-                    </button>
-                    
-                    <button class="w-full bg-[#79A961] hover:bg-[#709b58] text-white text-xs font-medium py-2 px-4 rounded-full transition-colors shadow-sm">
-                        Comprar Agora
-                    </button>
-                </div>
+
+                @auth
+
+                    <form
+                        action="{{ route('negociacoes.store') }}"
+                        method="POST"
+                    >
+                        @csrf
+
+                        <input
+                            type="hidden"
+                            name="oferta_id"
+                            value="{{ $oferta->id }}"
+                        >
+
+                        <button
+                            type="submit"
+                            class="w-full bg-[#79A961] hover:bg-[#709b58] text-white text-xs font-medium py-2 px-4 rounded-full transition-colors shadow-sm"
+                        >
+                            Negociar Preço
+                        </button>
+                    </form>
+
+                @else
+
+                    <a
+                        href="{{ route('login') }}"
+                        class="w-full bg-[#79A961] hover:bg-[#709b58] text-white text-xs font-medium py-2 px-4 rounded-full transition-colors shadow-sm text-center"
+                    >
+                        Entrar para negociar
+                    </a>
+
+                @endauth
+
+                <button
+                    type="button"
+                    class="w-full bg-gray-300 text-gray-600 text-xs font-medium py-2 px-4 rounded-full cursor-not-allowed"
+                    disabled
+                >
+                    Comprar Agora
+                </button>
+
+            </div>
             </div>
         </div>
 

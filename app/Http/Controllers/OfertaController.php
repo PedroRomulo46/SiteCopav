@@ -28,17 +28,14 @@ class OfertaController extends Controller
         }
 
         if ($fornecedor->status !== 'ativo') {
-            return redirect()
-                ->route('fornecedores.show', $fornecedor)
-                ->with(
-                    'sucesso',
-                    'Seu fornecedor ainda não está ativo.'
-                );
+            return redirect()->route('fornecedores.show', $fornecedor)->with('sucesso', 'Seu fornecedor ainda não está ativo.');
         }
 
+        // filtro de id de produto comentado 
         $produtos = Produto::where('fornecedor_id', $fornecedor->id)
             ->with('categoria')
             ->get();
+        $produtos = Produto::with('categoria')->get();
 
         return view(
             'ofertas.create',
@@ -69,13 +66,7 @@ class OfertaController extends Controller
             'status' => 'required|in:rascunho,publicada,encerrada,cancelada',
         ]);
 
-        $produto = Produto::where('id', $dados['produto_id'])
-            ->where('fornecedor_id', $fornecedor->id)
-            ->first();
 
-        if (!$produto) {
-            abort(403);
-        }
 
         $dados['fornecedor_id'] = $fornecedor->id;
 
@@ -151,6 +142,10 @@ class OfertaController extends Controller
             'data_validade' => 'nullable|date|after_or_equal:data_inicio',
             'status' => 'required|in:rascunho,publicada,encerrada,cancelada',
         ]);
+
+        if ($dados['status'] === 'publicada') {
+            $dados['data_inicio'] = now()->toDateString();
+        }
 
         $produto = Produto::where('id', $dados['produto_id'])
             ->where('fornecedor_id', $fornecedor->id)

@@ -16,9 +16,20 @@
   <div class="lg:col-span-5 h-fit p-4 rounded-2xl flex flex-col gap-4" style="background-color: #123228;">
     
     @auth
+
+    {{-- Cadastrar nova oferta --}}
       <a href="{{ route('ofertas.create') }}" class="btn text-white bg-[#236350] hover:bg-[#1B4D3E] w-full border-none text-lg p-8 rounded-xl shadow-inner text-center flex items-center justify-center">
         Cadastrar Nova Oferta +
       </a>
+
+       {{-- Meus produtos --}}
+      <a
+        href="{{ route('produtos.index') }}"
+        class="btn text-white bg-[#1B4D3E] hover:bg-[#123228] w-full border-none text-lg p-6 rounded-xl shadow-md text-center flex items-center justify-center"
+      >
+        Meus Produtos
+      </a>
+      
     @endauth
 
     @guest

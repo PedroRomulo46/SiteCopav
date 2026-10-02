@@ -35,6 +35,8 @@ class PropostaController extends Controller
 
     public function store(Request $request)
     {
+        dd($request->all());
+
         $dados = $request->validate([
             'negociacao_id' => 'required|exists:negociacoes,id',
             'valor' => 'required|numeric|min:0',
