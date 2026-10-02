@@ -62,7 +62,7 @@
 
       <!-- Aba 1: Meus Lotes -->
       <div x-show="abaAtiva === 'lotes'" class="flex flex-col gap-3 mt-2">
-        @forelse($ofertas as $oferta)
+        @forelse($ofertas->take(5) as $oferta)
         <div class="flex items-start gap-3 p-3 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-[0_0_20px_2px_rgba(0,0,0,0.15)] transition-shadow">
           <img
               class="w-20 h-20 rounded-lg object-cover shrink-0"
@@ -88,6 +88,15 @@
         @empty
           <p class="text-gray-500 text-sm text-center py-4">Você ainda não possui lotes cadastrados.</p>
         @endforelse
+
+        {{-- Botão Ver Mais --}}
+        @if($ofertas->count() > 5)
+        <div class="flex justify-center mt-2">
+          <a href="{{ route('ofertas.index') }}" class="btn btn-outline text-[#236350] border-[#236350] hover:bg-[#236350] hover:text-white w-full btn-sm rounded-md">
+            Ver mais lotes
+          </a>
+        </div>
+        @endif
       </div>
 
       <!-- Aba 2: Demandas -->

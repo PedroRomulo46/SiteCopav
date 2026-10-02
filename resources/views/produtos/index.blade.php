@@ -3,16 +3,10 @@
 
 @section('conteudo')
 
-<div class="text-gray-500 mx-1 mt-1">
-    <a
-        href="{{ route('home') }}"
-        class="inline-flex items-center gap-1 hover:text-gray-700"
-    >
-        <span class="material-symbols-outlined">
-            arrow_back
-        </span>
-
-        Voltar para o início
+<div class="mb-4">
+    <a href="{{ route('home') }}" class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-[#236350] transition-colors">
+        <span class="material-symbols-outlined text-lg">arrow_back</span>
+        Voltar para a página inicial
     </a>
 </div>
 
