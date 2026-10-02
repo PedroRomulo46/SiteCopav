@@ -32,7 +32,9 @@ class OfertaController extends Controller
         }
 
         // filtro de id de produto comentado 
-        // $produtos = Produto::where('fornecedor_id', $fornecedor->id)->with('categoria')->get();
+        $produtos = Produto::where('fornecedor_id', $fornecedor->id)
+            ->with('categoria')
+            ->get();
         $produtos = Produto::with('categoria')->get();
 
         return view(
@@ -146,6 +148,10 @@ class OfertaController extends Controller
             'data_validade' => 'nullable|date|after_or_equal:data_inicio',
             'status' => 'required|in:rascunho,publicada,encerrada,cancelada',
         ]);
+
+        if ($dados['status'] === 'publicada') {
+            $dados['data_inicio'] = now()->toDateString();
+        }
 
         $produto = Produto::where('id', $dados['produto_id'])
             ->where('fornecedor_id', $fornecedor->id)

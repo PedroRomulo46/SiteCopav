@@ -66,6 +66,6 @@
 
 <hr>
 
-<a href="{{ route('fornecedores.index') }}">
+<a href="{{ route('home') }}">
     Voltar
 </a>
