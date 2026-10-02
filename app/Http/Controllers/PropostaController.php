@@ -18,41 +18,44 @@ class PropostaController extends Controller
 
         $usuario = auth()->user();
 
-        $participa = (
-            $usuario->id === $negociacao->cliente_id ||
-            $usuario->id === $negociacao->oferta->fornecedor->user_id
-        );
-
-        if (!$participa) {
+        // O dono da oferta não pode fazer proposta na própria oferta
+        if (
+            $negociacao->oferta->fornecedor &&
+            $negociacao->oferta->fornecedor->user_id === $usuario->id
+        ) {
             abort(403);
         }
 
-        return view(
-            'propostas.create',
-            compact('negociacao')
-        );
+        return view('propostas.create', compact('negociacao'));
     }
+
+    
 
     public function store(Request $request)
     {
         $dados = $request->validate([
             'negociacao_id' => 'required|exists:negociacoes,id',
             'valor' => 'required|numeric|min:0',
-            'quantidade' => 'nullable|numeric|min:0',
+            'quantidade' => 'required|numeric|min:0.01',
             'observacao' => 'nullable|string',
         ]);
 
-        $negociacao = Negociacao::with('oferta.fornecedor')
-            ->findOrFail($dados['negociacao_id']);
+        $negociacao = Negociacao::with([
+            'oferta.fornecedor'
+        ])->findOrFail($dados['negociacao_id']);
 
         $usuario = $request->user();
 
-        $participa = (
-            $usuario->id === $negociacao->cliente_id ||
-            $usuario->id === $negociacao->oferta->fornecedor->user_id
-        );
+        // Dono da oferta não pode fazer proposta
+        if (
+            $negociacao->oferta->fornecedor &&
+            $negociacao->oferta->fornecedor->user_id === $usuario->id
+        ) {
+            abort(403);
+        }
 
-        if (!$participa) {
+        // Garante que o usuário realmente participa da negociação
+        if ($negociacao->cliente_id !== $usuario->id) {
             abort(403);
         }
 
@@ -63,50 +66,7 @@ class PropostaController extends Controller
 
         return redirect()
             ->route('negociacoes.show', $negociacao)
-            ->with(
-                'sucesso',
-                'Proposta enviada com sucesso!'
-            );
-    }
-
-    public function aceitar(Proposta $proposta)
-    {
-        $proposta->load([
-            'negociacao.oferta.fornecedor'
-        ]);
-
-        $usuario = auth()->user();
-
-        // Apenas o fornecedor pode aceitar a proposta
-        if (
-            !$proposta->negociacao->oferta->fornecedor ||
-            $proposta->negociacao->oferta->fornecedor->user_id !== $usuario->id
-        ) {
-            abort(403);
-        }
-
-        // Só pode aceitar uma proposta pendente
-        if ($proposta->status !== 'pendente') {
-            return back()->with(
-                'erro',
-                'Esta proposta já foi processada.'
-            );
-        }
-
-        $proposta->update([
-            'status' => 'aceita'
-        ]);
-
-        $proposta->negociacao->update([
-            'status' => 'aceita'
-        ]);
-
-        return redirect()
-            ->route('negociacoes.show', $proposta->negociacao)
-            ->with(
-                'sucesso',
-                'Proposta aceita com sucesso!'
-            );
+            ->with('sucesso', 'Proposta enviada com sucesso!');
     }
 
     public function recusar(Proposta $proposta)

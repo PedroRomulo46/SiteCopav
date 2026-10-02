@@ -63,6 +63,7 @@ Route::middleware('auth')->group(function () {
 
     // Negociações
     Route::resource('negociacoes', NegociacaoController::class)->parameters(['negociacoes' => 'negociacao']);
+    
 
     // Propostas
     Route::get('/negociacoes/{negociacao}/propostas/create', [PropostaController::class, 'create'])->name('propostas.create');
@@ -76,6 +77,10 @@ Route::middleware('auth')->group(function () {
         '/propostas/{proposta}/recusar',
         [PropostaController::class, 'recusar']
     )->name('propostas.recusar');
+    Route::get(
+        '/ofertas/{oferta}/propostas',
+        [NegociacaoController::class, 'propostasOferta']
+    )->name('ofertas.propostas');
 
     // Perfil
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
