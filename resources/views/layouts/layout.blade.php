@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@yield('title', 'Meu Marketplace')</title>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&icon_names=search,inbox,currency_exchange,arrow_right_alt,account_circle,error,forum,home,arrow_back,palette,settings,patient_list,logout,edit,delete,shopping_cart,arrow_forward,warning,handshake,emoji_events,trending_up,menu,expand_more,close,add,image,format_list_bulleted,visibility,person,inventory_2,shopping_bag&display=block" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&icon_names=search,inbox,currency_exchange,check_circle,arrow_right_alt,account_circle,error,forum,home,arrow_back,palette,settings,patient_list,logout,edit,delete,shopping_cart,arrow_forward,warning,handshake,emoji_events,trending_up,menu,expand_more,close,add,image,format_list_bulleted,visibility,person,inventory_2,shopping_bag&display=block" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
       [x-cloak] { display: none !important; }
@@ -71,7 +71,7 @@
           <!-- Links de Navegação Principal -->
           <nav class="flex items-center gap-6 font-medium">
             <a href="/" class="hover:text-amber-300 transition-colors">Início</a>
-            <a href="#" class="hover:text-amber-300 transition-colors">Lotes</a>
+            <a href="{{ route('ofertas.index') }}" class="hover:text-amber-300 transition-colors">Lotes</a>
             <a href="#" class="hover:text-amber-300 transition-colors">Demandas</a>
             <!-- Dropdown Categorias (Corrigido) -->
             <div class="dropdown relative">
