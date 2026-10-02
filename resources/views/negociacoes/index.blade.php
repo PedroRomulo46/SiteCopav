@@ -4,6 +4,15 @@
 
 @section('conteudo')
 
+<div class="mb-4">
+    <a
+        href="{{ route('home') }}"
+        class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-[#236350] transition-colors">
+        <span class="material-symbols-outlined text-lg">arrow_back</span>
+        Voltar para a página iniciala
+    </a>
+</div>
+
 <div class="max-w-7xl mx-auto my-8 px-4">
 
     {{-- CABEÇALHO --}}
@@ -13,18 +22,15 @@
             <p class="text-sm font-medium text-[#236350] mb-1">
                 Painel de negociações
             </p>
-
             <h1 class="text-3xl font-bold text-gray-800">
                 Minhas ofertas
             </h1>
-
             <p class="text-gray-500 mt-1">
                 Acompanhe as propostas recebidas em suas ofertas.
             </p>
         </div>
 
     </div>
-
 
     {{-- MENSAGENS --}}
 
@@ -42,7 +48,6 @@
 
     @endif
 
-
     @if(session('erro'))
 
         <div class="mb-5 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
@@ -56,7 +61,6 @@
         </div>
 
     @endif
-
 
     @if($ofertas->count())
 
@@ -90,63 +94,38 @@
 
                 @endphp
 
-
                 {{-- CARD DA OFERTA --}}
 
                 <div class="group bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
 
                     {{-- IMAGEM --}}
-
                     <div class="relative h-44 bg-gray-100 overflow-hidden">
 
-                        @if($oferta->produto->imagem)
-
-                            <img
-                                src="{{ asset('storage/' . $oferta->produto->imagem) }}"
-                                alt="{{ $oferta->produto->nome }}"
-                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            >
-
-                        @else
-
-                            <div class="w-full h-full flex items-center justify-center">
-
-                                <span class="material-symbols-outlined text-gray-300 text-6xl">
-                                    agriculture
-                                </span>
-
-                            </div>
-
-                        @endif
-
+                        <img
+                            src="{{ $oferta->produto && $oferta->produto->imagem 
+                                ? (str_contains($oferta->produto->imagem, 'assets/') 
+                                    ? asset($oferta->produto->imagem) 
+                                    : asset('storage/' . $oferta->produto->imagem))
+                                : asset('assets/milho.png') }}"
+                            alt="{{ $oferta->produto->nome ?? 'Produto' }}"
+                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        >
 
                         {{-- NÚMERO DA OFERTA --}}
-
                         <div class="absolute top-3 left-3">
-
                             <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-sm text-xs font-semibold text-gray-700 shadow-sm">
-
                                 Oferta #{{ $oferta->id }}
-
                             </span>
-
                         </div>
 
-
                         {{-- NÚMERO DE NEGOCIAÇÕES --}}
-
                         <div class="absolute top-3 right-3">
-
                             <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#236350]/95 text-white text-xs font-medium shadow-sm">
-
                                 <span class="material-symbols-outlined text-sm">
                                     forum
                                 </span>
-
                                 {{ $negociacoes->count() }}
-
                             </span>
-
                         </div>
 
                     </div>

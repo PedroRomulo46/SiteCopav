@@ -7,8 +7,7 @@
 <div class="mb-4">
     <a
         href="{{ route('ofertas.show', $negociacao->oferta_id) }}"
-        class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-[#236350] transition-colors"
-    >
+        class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-[#236350] transition-colors">
         <span class="material-symbols-outlined text-lg">arrow_back</span>
         Voltar para o produto
     </a>
@@ -140,18 +139,14 @@
 
                 <a
                     href="{{ route('propostas.create', $negociacao) }}"
-                    class="inline-flex items-center gap-1 bg-[#236350] hover:bg-[#1B4D3E] text-white text-sm px-4 py-2 rounded-md transition-colors shadow-sm"
-                >
+                    class="inline-flex items-center gap-1 bg-[#236350] hover:bg-[#1B4D3E] text-white text-sm px-4 py-2 rounded-md transition-colors shadow-sm">
 
                     <span class="material-symbols-outlined text-base">
                         add
                     </span>
                     Fazer proposta
-
                 </a>
-
             @endif
-
         </div>
 
 
@@ -309,7 +304,7 @@
 
 <div
     id="modalConfirmarProposta"
-    class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
+    class="hidden fixed inset-0 z-50 items-center justify-center bg-black/50 px-4"
 >
 
     <div class="bg-white w-full max-w-md rounded-2xl shadow-xl overflow-hidden">
@@ -327,36 +322,26 @@
                     </span>
 
                 </div>
-
                 <div>
-
                     <h2 class="text-lg font-bold text-gray-800">
                         Confirmar proposta
                     </h2>
-
                     <p class="text-sm text-gray-500">
                         Confira os valores antes de aceitar.
                     </p>
-
                 </div>
-
             </div>
-
         </div>
 
 
         {{-- Informações --}}
 
         <div class="p-6">
-
             <div class="space-y-3">
-
                 <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-
                     <span class="text-sm text-gray-500">
                         Valor por unidade
                     </span>
-
                     <strong
                         id="modalValor"
                         class="text-gray-800"
@@ -389,31 +374,22 @@
 
                     <strong
                         id="modalTotal"
-                        class="text-lg text-[#236350]"
-                    >
+                        class="text-lg text-[#236350]">
                     </strong>
-
                 </div>
-
             </div>
 
 
             <div class="mt-4 p-3 bg-amber-50 border border-amber-100 rounded-lg">
-
                 <div class="flex gap-2">
-
                     <span class="material-symbols-outlined text-amber-600 text-lg">
                         warning
                     </span>
-
                     <p class="text-xs text-amber-800">
                         Ao aceitar, esta proposta será confirmada e a quantidade será contabilizada na oferta.
                     </p>
-
                 </div>
-
             </div>
-
         </div>
 
 
