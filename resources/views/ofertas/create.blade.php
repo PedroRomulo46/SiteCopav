@@ -3,7 +3,7 @@
 
 @section('conteudo')
 
-<div class="text-gray-500 mx-1 mt-1">
+<div class="text-gray-600 mx-1 mt-1">
     <a href="{{ route('home') }}" class="inline-flex items-center gap-1 hover:text-gray-700">
         <span class="material-symbols-outlined">arrow_back</span>
         Voltar para os produtos
@@ -94,7 +94,7 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Data de início:</label>
                 <input 
-                    type="date" 
+                    type="date"
                     name="data_inicio" 
                     value="{{ old('data_inicio') }}" 
                     class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">

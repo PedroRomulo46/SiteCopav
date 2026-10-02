@@ -3,7 +3,7 @@
 
 @section('conteudo')
 
-<div class="text-gray-500 mx-1 mt-1">
+<div class="text-gray-600 mx-1 mt-1">
     <a href="{{ route('home') }}" class="inline-flex gap-1 items-center hover:text-gray-700">
         <span class="material-symbols-outlined">arrow_back</span>
         Voltar para os produtos
