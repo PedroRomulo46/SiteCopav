@@ -43,32 +43,26 @@ class ProdutoController extends Controller
         );
     }
 
- public function meusProdutos()
-{
-    $fornecedor = auth()->user()->fornecedor;
+    public function meusProdutos()
+    {
+        $fornecedor = auth()->user()->fornecedor;
 
-    if (!$fornecedor) {
-        abort(403);
+        if (!$fornecedor) {
+            abort(403);
+        }
+
+        $produtos = Produto::where('fornecedor_id', $fornecedor->id)
+            ->with([
+                'fornecedor',
+                'categoria'
+            ])
+            ->get();
+
+        return view(
+            'produtos.meus',
+            compact('produtos')
+        );
     }
-
-    $produtos = Produto::where('fornecedor_id', $fornecedor->id)
-        ->with([
-            'fornecedor',
-            'categoria'
-        ])
-        ->get();
-
-    dd([
-        'fornecedor_logado' => $fornecedor->id,
-        'produtos' => $produtos->pluck('id'),
-        'fornecedores_dos_produtos' => $produtos->pluck('fornecedor_id'),
-    ]);
-
-    return view(
-        'produtos.meus',
-        compact('produtos')
-    );
-}
 
     public function store(Request $request)
     {

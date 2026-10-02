@@ -22,7 +22,7 @@
         <div class="flex items-center justify-between gap-2 md:gap-6 w-full">
           
           <!-- Logo -->
-          <a href="/" class="text-xl md:text-2xl font-bold tracking-wide shrink-0 whitespace-nowrap hover:opacity-90 transition-opacity">
+          <a href="{{ route('home') }}" class="text-xl md:text-2xl font-bold tracking-wide shrink-0 whitespace-nowrap hover:opacity-90 transition-opacity">
             Site Copav
           </a>
 
@@ -70,20 +70,18 @@
           
           <!-- Links de Navegação Principal -->
           <nav class="flex items-center gap-6 font-medium">
-            <a href="/" class="hover:text-amber-300 transition-colors">Início</a>
+            <a href="{{ route('home') }}" class="hover:text-amber-300 transition-colors">Início</a>
             <a href="{{ route('ofertas.index') }}" class="hover:text-amber-300 transition-colors">Lotes</a>
-            <a href="#" class="hover:text-amber-300 transition-colors">Demandas</a>
-            <!-- Dropdown Categorias (Corrigido) -->
+            <a href="{{ route('demandas.index') }}" class="hover:text-amber-300 transition-colors">Demandas</a>
+            
+            <!-- Dropdown Categorias -->
             <div class="dropdown relative">
               <div tabindex="0" role="button" class="flex items-center gap-1 hover:text-amber-300 transition-colors cursor-pointer py-1">
                 <span>Categorias</span>
                 <span class="material-symbols-outlined text-base">expand_more</span>
               </div>
               <ul tabindex="0" class="dropdown-content menu bg-white text-gray-800 rounded-box z-50 w-52 p-2 shadow-xl mt-1 border border-gray-100">
-                <li><a href="#" class="hover:bg-emerald-50 hover:text-[#1B4D3E] font-medium">Grãos e Cereais</a></li>
-                <li><a href="#" class="hover:bg-emerald-50 hover:text-[#1B4D3E] font-medium">Frutas e Hortaliças</a></li>
-                <li><a href="#" class="hover:bg-emerald-50 hover:text-[#1B4D3E] font-medium">Fertilizantes Agrícolas</a></li>
-                <li><a href="#" class="hover:bg-emerald-50 hover:text-[#1B4D3E] font-medium">Maquinários</a></li>
+                <li><a href="{{ route('categorias.index') }}" class="hover:bg-emerald-50 hover:text-[#1B4D3E] font-medium">Todas as Categorias</a></li>
               </ul>
             </div>
           </nav>
@@ -92,31 +90,21 @@
           <div class="flex items-center gap-6">
             @auth
 
-              <a href="{{ route('negociacoes.index') }}"
-                class="flex items-center gap-1.5 hover:text-amber-300 transition-colors">
-                  <span class="material-symbols-outlined text-lg">forum</span>
-                  <span>Minhas negociações</span>
+              <a href="{{ route('negociacoes.index') }}" class="flex items-center gap-1.5 hover:text-amber-300 transition-colors">
+                <span class="material-symbols-outlined text-lg">forum</span>
+                <span>Minhas negociações</span>
               </a>
 
-              {{-- 
-                <a href="{{ route('chat') }}" class="flex items-center gap-1.5 hover:text-amber-300 transition-colors">
-                  <span class="material-symbols-outlined text-lg">forum</span>
-                  <span>Mensagens</span>
-                </a>
-              --}}
-
               @if(!auth()->user()->fornecedor)
-                  <a href="{{ route('fornecedores.create') }}"
-                    class="flex items-center gap-1.5 hover:text-amber-300 transition-colors">
-                      <span class="material-symbols-outlined text-lg">patient_list</span>
-                      <span>Virar Fornecedor</span>
-                  </a>
+                <a href="{{ route('fornecedores.create') }}" class="flex items-center gap-1.5 hover:text-amber-300 transition-colors">
+                  <span class="material-symbols-outlined text-lg">patient_list</span>
+                  <span>Virar Fornecedor</span>
+                </a>
               @else
-                  <a href="{{ route('fornecedores.show', auth()->user()->fornecedor) }}"
-                    class="flex items-center gap-1.5 hover:text-amber-300 transition-colors">
-                      <span class="material-symbols-outlined text-lg">patient_list</span>
-                      <span>Meu cadastro</span>
-                  </a>
+                <a href="{{ route('fornecedores.show', auth()->user()->fornecedor) }}" class="flex items-center gap-1.5 hover:text-amber-300 transition-colors">
+                  <span class="material-symbols-outlined text-lg">patient_list</span>
+                  <span>Meu cadastro</span>
+                </a>
               @endif
 
               <!-- Menu do Usuário Logado -->
@@ -129,7 +117,7 @@
                       <span class="material-symbols-outlined text-xl">account_circle</span>
                     @endif
                   </div>
-                  <span class="font-semibold max-w-[120px] truncate">{{ auth()->user()->nome }}</span>
+                  <span class="font-semibold max-w-[120px] truncate">{{ auth()->user()->nome ?? auth()->user()->name }}</span>
                 </div>
                 
                 <ul tabindex="0" class="dropdown-content menu bg-white text-gray-800 rounded-box z-50 w-48 p-2 shadow-lg mt-2">
@@ -142,7 +130,7 @@
                   <li>
                     <form method="POST" action="{{ route('logout') }}" class="w-full">
                       @csrf
-                      <button type="submit" class="w-full flex items-center gap-2 text-red-600 rounded-md">
+                      <button type="submit" class="w-full flex items-center gap-2 text-red-600 rounded-md text-left">
                         <span class="material-symbols-outlined text-base">logout</span>
                         Sair
                       </button>
@@ -166,43 +154,39 @@
         <!-- Menu Desplegável Mobile/Tablet -->
         <div x-show="menuMobileAberto" x-cloak x-transition class="lg:hidden flex flex-col gap-3 border-t border-[#236350] pt-3 text-sm">
           <nav class="flex flex-col gap-2 font-medium">
-            <a href="/" class="hover:bg-[#236350] p-2 rounded-md">Início</a>
-            <a href="#" class="hover:bg-[#236350] p-2 rounded-md">Lotes</a>
-            <a href="#" class="hover:bg-[#236350] p-2 rounded-md">Demandas</a>
+            <a href="{{ route('home') }}" class="hover:bg-[#236350] p-2 rounded-md">Início</a>
+            <a href="{{ route('ofertas.index') }}" class="hover:bg-[#236350] p-2 rounded-md">Lotes</a>
+            <a href="{{ route('demandas.index') }}" class="hover:bg-[#236350] p-2 rounded-md">Demandas</a>
           </nav>
 
           <div class="border-t border-[#236350] pt-2 flex flex-col gap-2">
-          @auth
+            @auth
 
-              <a href="{{ route('negociacoes.index') }}"
-                class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
-                  <span class="material-symbols-outlined">forum</span>
-                  <span>Minhas negociações</span>
+              <a href="{{ route('negociacoes.index') }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
+                <span class="material-symbols-outlined">forum</span>
+                <span>Minhas negociações</span>
               </a>
 
               @if(!auth()->user()->fornecedor)
-                  <a href="{{ route('fornecedores.create') }}"
-                    class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
-                      <span class="material-symbols-outlined">patient_list</span>
-                      <span>Virar Fornecedor</span>
-                  </a>
+                <a href="{{ route('fornecedores.create') }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
+                  <span class="material-symbols-outlined">patient_list</span>
+                  <span>Virar Fornecedor</span>
+                </a>
               @else
-                  <a href="{{ route('fornecedores.show', auth()->user()->fornecedor) }}"
-                    class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
-                      <span class="material-symbols-outlined">patient_list</span>
-                      <span>Meu Fornecedor</span>
-                  </a>
+                <a href="{{ route('fornecedores.show', auth()->user()->fornecedor) }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
+                  <span class="material-symbols-outlined">patient_list</span>
+                  <span>Meu Fornecedor</span>
+                </a>
               @endif
 
-              <a href="{{ route('profile.edit') }}"
-                class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
-                  <span class="material-symbols-outlined">settings</span>
-                  <span>Configurações</span>
+              <a href="{{ route('profile.edit') }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
+                <span class="material-symbols-outlined">settings</span>
+                <span>Configurações</span>
               </a>
 
               <form method="POST" action="{{ route('logout') }}" class="w-full">
                 @csrf
-                <button type="submit" class="w-full flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
+                <button type="submit" class="w-full flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md text-left">
                   <span class="material-symbols-outlined">logout</span>
                   <span>Sair</span>
                 </button>
@@ -221,7 +205,7 @@
       </div>
     </header>
 
-    <!-- Conteúdo Principal com espaçamento responsivo -->
+    <!-- Conteúdo Principal -->
     <main class="flex-1 w-full px-4 sm:px-6 lg:px-10 py-6">
       @yield('conteudo')
     </main>

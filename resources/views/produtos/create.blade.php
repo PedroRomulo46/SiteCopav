@@ -19,7 +19,6 @@
     {{-- Bloco para exibição de erros de validação --}}
     @if ($errors->any())
         <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700">
-
             <p class="font-bold">
                 Atenção! Corrija os erros abaixo:
             </p>
@@ -29,20 +28,16 @@
                     <li>{{ $error }}</li>
                 @endforeach
             </ul>
-
         </div>
     @endif
-
 
     <form
         action="{{ route('produtos.store') }}"
         method="POST"
         enctype="multipart/form-data"
-        class="space-y-4"
-    >
+        class="space-y-4">
 
         @csrf
-
 
         {{-- Campos principais --}}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -59,10 +54,8 @@
                     value="{{ old('nome') }}"
                     placeholder="Ex: Milho Verde"
                     required
-                    class="w-full p-3 border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]"
-                >
+                    class="w-full p-3 border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">
             </div>
-
 
             {{-- Categoria --}}
             <div>
@@ -73,8 +66,7 @@
                 <select
                     name="categoria_id"
                     required
-                    class="w-full p-3 border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]"
-                >
+                    class="w-full p-3 border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">
 
                     <option value="">
                         Selecione a categoria
@@ -84,8 +76,7 @@
 
                         <option
                             value="{{ $categoria->id }}"
-                            {{ old('categoria_id') == $categoria->id ? 'selected' : '' }}
-                        >
+                            {{ old('categoria_id') == $categoria->id ? 'selected' : '' }}>
                             {{ $categoria->nome }}
                         </option>
 
@@ -93,7 +84,6 @@
 
                 </select>
             </div>
-
 
             {{-- Unidade --}}
             <div>
@@ -104,8 +94,7 @@
                 <select
                     name="unidade"
                     required
-                    class="w-full p-3 border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]"
-                >
+                    class="w-full p-3 border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">
 
                     <option value="">
                         Selecione a unidade
@@ -113,39 +102,33 @@
 
                     <option
                         value="kg"
-                        {{ old('unidade') == 'kg' ? 'selected' : '' }}
-                    >
+                        {{ old('unidade') == 'kg' ? 'selected' : '' }}>
                         Kg
                     </option>
 
                     <option
                         value="saca"
-                        {{ old('unidade') == 'saca' ? 'selected' : '' }}
-                    >
+                        {{ old('unidade') == 'saca' ? 'selected' : '' }}>
                         Saca
                     </option>
 
                     <option
                         value="unidade"
-                        {{ old('unidade') == 'unidade' ? 'selected' : '' }}
-                    >
+                        {{ old('unidade') == 'unidade' ? 'selected' : '' }}>
                         Unidade
                     </option>
 
                     <option
                         value="litro"
-                        {{ old('unidade') == 'litro' ? 'selected' : '' }}
-                    >
+                        {{ old('unidade') == 'litro' ? 'selected' : '' }}>
                         Litro
                     </option>
 
                     <option
                         value="tonelada"
-                        {{ old('unidade') == 'tonelada' ? 'selected' : '' }}
-                    >
+                        {{ old('unidade') == 'tonelada' ? 'selected' : '' }}>
                         Tonelada
                     </option>
-
                 </select>
             </div>
 
@@ -160,14 +143,12 @@
                     type="file"
                     name="imagem"
                     accept="image/jpeg,image/png,image/jpg,image/webp"
-                    class="file-input w-full border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]"
-                >
+                    class="file-input w-full border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">
 
                 <p class="text-xs text-gray-500 mt-1">
                     JPG, PNG ou WEBP. Máximo de 2 MB.
                 </p>
             </div>
-
         </div>
 
 
@@ -182,8 +163,9 @@
                 name="descricao"
                 rows="5"
                 placeholder="Descreva o produto, suas características e informações importantes..."
-                class="w-full p-3 border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]"
-            >{{ old('descricao') }}</textarea>
+                class="w-full p-3 border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">
+                {{ old('descricao') }}
+            </textarea>
 
         </div>
 
@@ -193,22 +175,17 @@
 
             <a
                 href="{{ route('produtos.index') }}"
-                class="text-gray-600 hover:text-gray-900"
-            >
+                class="text-gray-600 hover:text-gray-900">
                 Cancelar
             </a>
 
             <button
                 type="submit"
-                class="bg-[#236350] hover:bg-[#1B4D3E] text-white px-5 py-2 rounded-md transition-colors"
-            >
+                class="bg-[#236350] hover:bg-[#1B4D3E] text-white px-5 py-2 rounded-md transition-colors">
                 Cadastrar produto
             </button>
-
         </div>
-
     </form>
-
 </div>
 
 @endsection

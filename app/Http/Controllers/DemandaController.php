@@ -13,7 +13,7 @@ class DemandaController extends Controller
         $demandas = Demanda::with([
             'cliente',
             'categoria'
-        ])->get();
+        ])->latest()->get();
 
         return view('demandas.index', compact('demandas'));
     }
