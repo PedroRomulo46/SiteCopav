@@ -25,7 +25,7 @@
        {{-- Meus produtos --}}
       <a
         href="{{ route('produtos.index') }}"
-        class="btn text-white bg-[#1B4D3E] hover:bg-[#123228] w-full border-none text-lg p-6 rounded-xl shadow-md text-center flex items-center justify-center"
+        class="btn text-white bg-[#236350] hover:bg-[#1B4D3E] w-full border-none text-lg p-6 rounded-xl shadow-md text-center flex items-center justify-center"
       >
         Meus Produtos
       </a>
@@ -129,8 +129,7 @@
                 src="{{ $item->produto->imagem
                     ? asset('storage/' . $item->produto->imagem)
                     : asset('assets/milho.png') }}"
-                alt="{{ $item->produto->nome ?? 'Produto' }}"
-            />
+                alt="{{ $item->produto->nome ?? 'Produto' }}"/>
             <h2 class="font-bold text-gray-800 line-clamp-1">{{ $item->produto->nome ?? 'Sem nome' }}</h2>
             <p class="text-xs text-gray-400 mt-1 line-clamp-2">{{ $item->produto->descricao ?? '' }}</p>
           </div>
