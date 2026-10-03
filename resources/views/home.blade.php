@@ -3,7 +3,7 @@
 
 @section('conteudo')
 
-<!-- Alpine.js -->
+{{-- Script Alpine.js --}}
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
 <style>
@@ -12,17 +12,17 @@
 
 <div x-data="{ abaAtiva: 'lotes' }" class="p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 bg-[#ebeae7] min-h-screen">
 
-  <!-- Coluna Esquerda: Ações e Gestão -->
+  {{-- COLUNA ESQUERDA: Ações e Gestão --}}
   <div class="lg:col-span-5 h-fit p-4 rounded-2xl flex flex-col gap-4" style="background-color: #123228;">
     
     @auth
 
-    {{-- Cadastrar nova oferta --}}
+    {{-- Botão Cadastrar nova oferta --}}
       <a href="{{ route('ofertas.create') }}" class="btn text-white bg-[#236350] hover:bg-[#1B4D3E] w-full border-none text-lg p-8 rounded-xl shadow-inner text-center flex items-center justify-center">
         Cadastrar Nova Oferta +
       </a>
 
-       {{-- Meus produtos --}}
+       {{-- Botão Meus produtos --}}
       <a
         href="{{ route('produtos.index') }}"
         class="btn text-white bg-[#236350] hover:bg-[#1B4D3E] w-full border-none text-lg p-6 rounded-xl shadow-md text-center flex items-center justify-center">
@@ -59,7 +59,7 @@
         </button>
       </div>
 
-      <!-- Aba 1: Meus Lotes -->
+      {{-- ABA 1: Meus Lotes --}}
       <div x-show="abaAtiva === 'lotes'" class="flex flex-col gap-3 mt-2">
         @forelse($ofertas->take(5) as $oferta)
         <div class="flex items-start gap-3 p-3 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-[0_0_20px_2px_rgba(0,0,0,0.15)] transition-shadow">
@@ -100,7 +100,7 @@
         @endif
       </div>
 
-      <!-- Aba 2: Demandas -->
+      {{-- ABA 2: Demandas --}}
       <div x-show="abaAtiva === 'demandas'" x-cloak class="flex flex-col gap-3 mt-2">
         @forelse($demandas ?? [] as $demanda)
         <div class="flex items-start gap-3 p-3 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-[0_0_8px_3px_rgba(0,0,0,0.2)] transition-shadow">
@@ -125,7 +125,7 @@
     @endauth
   </div>
 
-  <!-- Coluna Direita: Vitrine de Produtos -->
+  {{-- Coluna Direita: Vitrine de Produtos --}}
   <div class="lg:col-span-7 flex flex-col gap-4 items-center">
     <h1 class="text-xl font-bold text-gray-800 self-start">Produtos que você pode se interessar...</h1>
 

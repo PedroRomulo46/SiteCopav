@@ -31,7 +31,6 @@ class OfertaController extends Controller
             return redirect()->route('fornecedores.show', $fornecedor)->with('sucesso', 'Seu fornecedor ainda não está ativo.');
         }
 
-        // filtro de id de produto comentado 
         $produtos = Produto::where('fornecedor_id', $fornecedor->id)
             ->with('categoria')
             ->get();

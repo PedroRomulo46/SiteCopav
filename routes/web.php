@@ -13,21 +13,13 @@ use App\Http\Controllers\DemandaController;
 use App\Http\Controllers\OfertaDiretaController;
 use App\Http\Controllers\ChatController;
 
-/*
-|--------------------------------------------------------------------------
-| ROTAS PÚBLICAS (Visitantes e Autenticados)
-|--------------------------------------------------------------------------
-*/
+// ROTAS PÚBLICAS (Visitantes e Autenticados)
 
 // Apenas a Home e Categorias são públicas
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::resource('categorias', CategoriaController::class)->only(['index', 'show']);
 
-/*
-|--------------------------------------------------------------------------
-| ROTAS PROTEGIDAS (Exigem Login obrigatoriamente)
-|--------------------------------------------------------------------------
-*/
+// ROTAS PROTEGIDAS (Exigem Login)
 
 Route::middleware('auth')->group(function () {
 

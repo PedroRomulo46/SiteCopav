@@ -3,6 +3,7 @@
 
 @section('conteudo')
 
+{{-- Botão de Voltar --}}
 <div class="text-gray-600 mx-1 mt-1">
     <a href="{{ route('home') }}" class="inline-flex items-center gap-1 hover:text-gray-700">
         <span class="material-symbols-outlined">arrow_back</span>
