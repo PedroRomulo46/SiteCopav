@@ -9,7 +9,7 @@ class CategoriaController extends Controller
 {
     public function index()
     {
-        $categorias = Categoria::all();
+        $categorias = Categoria::withCount('produtos')->get();
 
         return view('categorias.index', compact('categorias'));
     }
@@ -35,6 +35,9 @@ class CategoriaController extends Controller
 
     public function show(Categoria $categoria)
     {
+        // Carrega os produtos e ofertas associados
+        $categoria->load(['produtos']);
+
         return view('categorias.show', compact('categoria'));
     }
 
