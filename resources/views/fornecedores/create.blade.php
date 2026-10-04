@@ -3,6 +3,7 @@
 
 @section('conteudo')
 
+{{-- Botão de Voltar --}}
 <div class="mb-4">
     <a href="{{ route('home') }}" class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-[#236350] transition-colors">
         <span class="material-symbols-outlined text-lg">arrow_back</span>
@@ -109,6 +110,7 @@
 
         </div>
 
+        {{-- Botões de Cancelamento/Confirmação --}}
         <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
             <a href="{{ route('ofertas.index') }}" class="text-gray-600 hover:text-gray-900">
                 Cancelar

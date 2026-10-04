@@ -14,19 +14,19 @@
 
   <body class="bg-[#ebeae7] min-h-screen flex flex-col font-sans" x-data="{ menuMobileAberto: false }">
   
-    <!-- Cabeçalho Completo -->
+    {{-- Cabeçalho --}}
     <header class="bg-[#1B4D3E] text-white shadow-md w-full">
       <div class="w-full px-4 sm:px-6 lg:px-10 py-3 flex flex-col gap-3">
         
-        <!-- Linha Superior: Logo + Busca + Banner de Oferta + Botão Mobile -->
+        {{-- LINHA SUPERIOR: Logo + Busca + Banner de Oferta + Botão Mobile --}}
         <div class="flex items-center justify-between gap-2 md:gap-6 w-full">
           
-          <!-- Logo -->
+          {{-- Logo --}}
           <a href="{{ route('home') }}" class="text-xl md:text-2xl font-bold tracking-wide shrink-0 whitespace-nowrap hover:opacity-90 transition-opacity">
             Site Copav
           </a>
 
-          <!-- Busca (Visível em telas Médias e Grandes) -->
+          {{-- Busca (Visível em telas Médias e Grandes) --}}
           <div class="hidden sm:flex flex-1 max-w-2xl relative items-center">
             <input type="text" placeholder="Buscar lotes, produtos ou compradores..." class="input w-full bg-white text-gray-800 placeholder-gray-400 pl-4 pr-10 py-2 rounded-md focus:outline-none shadow-sm text-sm">
             <button class="absolute right-3 text-gray-500 hover:text-gray-700 flex items-center">
@@ -34,7 +34,7 @@
             </button>
           </div>
 
-          <!-- Banner de Oferta (Telas Grandes) -->
+          {{-- Banner de Oferta (Telas Grandes) --}}
           <div class="hidden xl:flex items-center gap-3 bg-amber-100 hover:bg-slate-700 border border-emerald-700 p-1.5 px-3 rounded-full shadow-md transition-all cursor-pointer group shrink-0">
             <span class="bg-emerald-800 group-hover:bg-amber-400 transition-colors text-white font-bold text-[10px] uppercase px-2 py-0.5 rounded-full shrink-0">
               Oferta
@@ -51,13 +51,13 @@
             </div>
           </div>
 
-          <!-- Botão Menu Hambúrguer (Mobile) -->
+          {{-- Botão Menu Hambúrguer (Mobile) --}}
           <button @click="menuMobileAberto = !menuMobileAberto" class="lg:hidden p-2 text-white hover:bg-[#236350] rounded-lg transition-colors">
             <span class="material-symbols-outlined text-2xl" x-text="menuMobileAberto ? 'close' : 'menu'">menu</span>
           </button>
         </div>
 
-        <!-- Busca para telas muito pequenas -->
+        {{-- Busca para telas muito pequenas --}}
         <div class="sm:hidden w-full relative flex items-center mt-1">
           <input type="text" placeholder="Buscar no marketplace..." class="input w-full bg-white text-gray-800 placeholder-gray-400 pl-3 pr-9 py-1.5 rounded-md text-xs">
           <button class="absolute right-2 text-gray-500 flex items-center">
@@ -65,16 +65,16 @@
           </button>
         </div>
 
-        <!-- Linha Inferior: Desktop Menu -->
+        {{-- LINHA INFERIOR: Desktop Menu --}}
         <div class="hidden lg:flex items-center justify-between text-sm border-t border-[#236350] pt-2.5 text-gray-100 w-full">
           
-          <!-- Links de Navegação Principal -->
+          {{-- Links de Navegação Principal --}}
           <nav class="flex items-center gap-6 font-medium">
             <a href="{{ route('home') }}" class="hover:text-amber-300 transition-colors">Início</a>
             <a href="{{ route('ofertas.index') }}" class="hover:text-amber-300 transition-colors">Lotes</a>
             <a href="{{ route('demandas.index') }}" class="hover:text-amber-300 transition-colors">Demandas</a>
             
-            <!-- Dropdown Categorias -->
+            {{-- Dropdown Categorias --}}
             <div class="dropdown relative">
               <div tabindex="0" role="button" class="flex items-center gap-1 hover:text-amber-300 transition-colors cursor-pointer py-1">
                 <span>Categorias</span>
@@ -86,7 +86,7 @@
             </div>
           </nav>
 
-          <!-- Ações do Usuário / Autenticação -->
+          {{-- Ações do Usuário / Autenticação --}}
           <div class="flex items-center gap-6">
             @auth
 
@@ -107,7 +107,7 @@
                 </a>
               @endif
 
-              <!-- Menu do Usuário Logado -->
+              {{-- Menu do Usuário Logado --}}
               <div class="dropdown dropdown-end">
                 <div tabindex="0" role="button" class="flex items-center gap-2 cursor-pointer hover:text-amber-300 transition-colors">
                   <div class="w-7 h-7 rounded-full overflow-hidden bg-white text-gray-700 flex items-center justify-center shrink-0">
@@ -151,7 +151,7 @@
 
         </div>
 
-        <!-- Menu Desplegável Mobile/Tablet -->
+        {{-- Menu Desplegável Mobile --}}
         <div x-show="menuMobileAberto" x-cloak x-transition class="lg:hidden flex flex-col gap-3 border-t border-[#236350] pt-3 text-sm">
           <nav class="flex flex-col gap-2 font-medium">
             <a href="{{ route('home') }}" class="hover:bg-[#236350] p-2 rounded-md">Início</a>

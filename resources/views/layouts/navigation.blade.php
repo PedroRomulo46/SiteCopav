@@ -1,9 +1,11 @@
 <nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
+
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex items-center">
-                <!-- Botão de Voltar -->
+
+                {{-- Botão de Voltar --}}
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('home') }}" class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors duration-150 font-medium">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
