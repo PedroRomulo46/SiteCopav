@@ -12,13 +12,14 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\DemandaController;
 use App\Http\Controllers\OfertaDiretaController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\AdminDashboardController;
 
 // ROTAS PÚBLICAS (Visitantes e Autenticados)
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::resource('categorias', CategoriaController::class)->only(['index', 'show']);
 
-// Faz o SHOW das ofertas ficarem públicos
-Route::get('/ofertas/{oferta}', [OfertaController::class, 'show'])->name('ofertas.show');
+// Listagem pública de ofertas
+Route::get('/ofertas', [OfertaController::class, 'index'])->name('ofertas.index');
 
 // ROTAS PROTEGIDAS (Exigem Login)
 Route::middleware('auth')->group(function () {
@@ -27,10 +28,14 @@ Route::middleware('auth')->group(function () {
         return redirect()->route('home');
     })->middleware('verified')->name('dashboard');
 
-    // Lotes / Ofertas (Restrito exceto o SHOW)
-    Route::resource('ofertas', OfertaController::class)->except(['show']);
+    // Ofertas
+    Route::get('/ofertas/create', [OfertaController::class, 'create'])->name('ofertas.create');
+    Route::post('/ofertas', [OfertaController::class, 'store'])->name('ofertas.store');
+    Route::get('/ofertas/{oferta}/edit', [OfertaController::class, 'edit'])->name('ofertas.edit');
+    Route::put('/ofertas/{oferta}', [OfertaController::class, 'update'])->name('ofertas.update');
+    Route::delete('/ofertas/{oferta}', [OfertaController::class, 'destroy'])->name('ofertas.destroy');
 
-    // Demandas (Restrito a usuários logados)
+    // Demandas
     Route::resource('demandas', DemandaController::class);
 
     // Produtos
@@ -40,7 +45,7 @@ Route::middleware('auth')->group(function () {
     // Chat
     Route::get('/chat', [ChatController::class, 'index'])->name('chat');
 
-    // Categorias (Ações administrativas)
+    // Categorias
     Route::resource('categorias', CategoriaController::class)->except(['index', 'show']);
 
     // Recursos de Fornecedor e Negociações
@@ -60,5 +65,13 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+// ROTAS EXCLUSIVAS DA EMPRESA (ADMIN)
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+});
+
+// Rota com parâmetro dinâmico em último para evitar conflitos
+Route::get('/ofertas/{oferta}', [OfertaController::class, 'show'])->name('ofertas.show');
 
 require __DIR__.'/auth.php';

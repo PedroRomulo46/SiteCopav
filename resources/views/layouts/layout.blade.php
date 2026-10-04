@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@yield('title', 'Meu Marketplace')</title>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&icon_names=search,inbox,currency_exchange,check_circle,arrow_right_alt,account_circle,error,forum,home,arrow_back,palette,settings,patient_list,logout,edit,delete,shopping_cart,arrow_forward,warning,handshake,emoji_events,trending_up,menu,expand_more,close,add,image,format_list_bulleted,visibility,person,inventory_2,shopping_bag&display=block" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=block" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
       [x-cloak] { display: none !important; }
@@ -107,6 +107,14 @@
                 </a>
               @endif
 
+              {{-- Adiciona botão de criar demanda apenas se for realmente o Admin/Empresa --}}
+              @if(auth()->user()->is_admin || auth()->user()->user_type === 'admin' || auth()->user()->email === 'copavagricola@example.com')
+                <a href="{{ route('demandas.create') }}" class="flex items-center gap-1.5 hover:text-amber-300 transition-colors">
+                  <span class="material-symbols-outlined text-lg">add_circle</span>
+                  <span>Criar Demanda</span>
+                </a>
+              @endif
+
               {{-- Menu do Usuário Logado --}}
               <div class="dropdown dropdown-end">
                 <div tabindex="0" role="button" class="flex items-center gap-2 cursor-pointer hover:text-amber-300 transition-colors">
@@ -176,6 +184,14 @@
                 <a href="{{ route('fornecedores.show', auth()->user()->fornecedor) }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
                   <span class="material-symbols-outlined">patient_list</span>
                   <span>Meu Fornecedor</span>
+                </a>
+              @endif
+
+              {{-- Adiciona botão de criar demanda apenas se for realmente o Admin/Empresa --}}
+              @if(auth()->user()->is_admin || auth()->user()->user_type === 'admin' || auth()->user()->email === 'copavagricola@example.com')
+                <a href="{{ route('demandas.create') }}" class="flex items-center gap-1.5 hover:text-amber-300 transition-colors">
+                  <span class="material-symbols-outlined text-lg">add_circle</span>
+                  <span>Criar Demanda</span>
                 </a>
               @endif
 

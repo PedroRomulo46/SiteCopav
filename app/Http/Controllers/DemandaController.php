@@ -10,10 +10,7 @@ class DemandaController extends Controller
 {
     public function index()
     {
-        $demandas = Demanda::with([
-            'cliente',
-            'categoria'
-        ])->latest()->get();
+        $demandas = Demanda::with(['cliente', 'categoria'])->latest()->get();
 
         return view('demandas.index', compact('demandas'));
     }
@@ -30,71 +27,65 @@ class DemandaController extends Controller
         $dados = $request->validate([
             'categoria_id' => 'required|exists:categorias,id',
             'nome_produto' => 'required|string|max:255',
-            'descricao' => 'nullable|string',
-            'quantidade' => 'required|numeric|min:0',
-            'unidade' => 'required|string|max:50',
+            'descricao'    => 'nullable|string',
+            'quantidade'   => 'required|numeric|min:0',
+            'unidade'      => 'required|string|max:50',
             'valor_maximo' => 'nullable|numeric|min:0',
-            'localizacao' => 'nullable|string|max:255',
-            'data_limite' => 'nullable|date',
+            'localizacao'  => 'nullable|string|max:255',
+            'data_limite'  => 'nullable|date',
         ]);
 
+        // Vincula a demanda ao usuário logado (Empresa/Cooperativa)
         $dados['cliente_id'] = auth()->id();
-        $dados['status'] = 'aberta';
+        $dados['user_id']    = auth()->id(); // Garante compatibilidade caso a tabela use user_id
+        $dados['status']     = 'aberta';
 
         Demanda::create($dados);
 
         return redirect()
             ->route('demandas.index')
-            ->with('sucesso', 'Demanda cadastrada com sucesso!');
+            ->with('sucesso', 'Demanda da empresa publicada com sucesso!');
     }
 
     public function show(Demanda $demanda)
     {
-        $demanda->load([
-            'cliente',
-            'categoria',
-            'ofertasDiretas.fornecedor'
-        ]);
+        $demanda->load(['cliente', 'categoria', 'ofertasDiretas.fornecedor']);
 
         return view('demandas.show', compact('demanda'));
     }
 
     public function edit(Demanda $demanda)
     {
-        if (
-            auth()->id() !== $demanda->cliente_id &&
-            auth()->user()->user_type !== 'admin'
-        ) {
-            abort(403);
+        $usuario = auth()->user();
+
+        // Permite se for o criador ou se for Admin/Empresa
+        if ($usuario->id !== $demanda->cliente_id && !$usuario->is_admin && $usuario->user_type !== 'admin') {
+            abort(403, 'Ação não autorizada.');
         }
 
         $categorias = Categoria::all();
 
-        return view(
-            'demandas.edit',
-            compact('demanda', 'categorias')
-        );
+        return view('demandas.edit', compact('demanda', 'categorias'));
     }
 
     public function update(Request $request, Demanda $demanda)
     {
-        if (
-            auth()->id() !== $demanda->cliente_id &&
-            auth()->user()->user_type !== 'admin'
-        ) {
-            abort(403);
+        $usuario = auth()->user();
+
+        if ($usuario->id !== $demanda->cliente_id && !$usuario->is_admin && $usuario->user_type !== 'admin') {
+            abort(403, 'Ação não autorizada.');
         }
 
         $dados = $request->validate([
             'categoria_id' => 'required|exists:categorias,id',
             'nome_produto' => 'required|string|max:255',
-            'descricao' => 'nullable|string',
-            'quantidade' => 'required|numeric|min:0',
-            'unidade' => 'required|string|max:50',
+            'descricao'    => 'nullable|string',
+            'quantidade'   => 'required|numeric|min:0',
+            'unidade'      => 'required|string|max:50',
             'valor_maximo' => 'nullable|numeric|min:0',
-            'localizacao' => 'nullable|string|max:255',
-            'data_limite' => 'nullable|date',
-            'status' => 'required|in:aberta,encerrada,cancelada',
+            'localizacao'  => 'nullable|string|max:255',
+            'data_limite'  => 'nullable|date',
+            'status'       => 'required|in:aberta,encerrada,cancelada',
         ]);
 
         $demanda->update($dados);
@@ -106,11 +97,10 @@ class DemandaController extends Controller
 
     public function destroy(Demanda $demanda)
     {
-        if (
-            auth()->id() !== $demanda->cliente_id &&
-            auth()->user()->user_type !== 'admin'
-        ) {
-            abort(403);
+        $usuario = auth()->user();
+
+        if ($usuario->id !== $demanda->cliente_id && !$usuario->is_admin && $usuario->user_type !== 'admin') {
+            abort(403, 'Ação não autorizada.');
         }
 
         $demanda->delete();
