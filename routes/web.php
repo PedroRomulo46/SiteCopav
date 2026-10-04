@@ -36,6 +36,8 @@ Route::middleware('auth')->group(function () {
     })->middleware('verified')->name('dashboard');
 
     // Lotes / Ofertas (Restrito a usuários logados)
+    Route::get('/ofertas/{oferta}/card', [OfertaController::class, 'card'])
+        ->name('ofertas.card');
     Route::resource('ofertas', OfertaController::class);
 
     // Demandas (Restrito a usuários logados)
