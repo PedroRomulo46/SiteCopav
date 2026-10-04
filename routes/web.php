@@ -14,21 +14,21 @@ use App\Http\Controllers\OfertaDiretaController;
 use App\Http\Controllers\ChatController;
 
 // ROTAS PÚBLICAS (Visitantes e Autenticados)
-
-// Apenas a Home e Categorias são públicas
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::resource('categorias', CategoriaController::class)->only(['index', 'show']);
 
-// ROTAS PROTEGIDAS (Exigem Login)
+// Faz o SHOW das ofertas ficarem públicos
+Route::get('/ofertas/{oferta}', [OfertaController::class, 'show'])->name('ofertas.show');
 
+// ROTAS PROTEGIDAS (Exigem Login)
 Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard', function () {
         return redirect()->route('home');
     })->middleware('verified')->name('dashboard');
 
-    // Lotes / Ofertas (Restrito a usuários logados)
-    Route::resource('ofertas', OfertaController::class);
+    // Lotes / Ofertas (Restrito exceto o SHOW)
+    Route::resource('ofertas', OfertaController::class)->except(['show']);
 
     // Demandas (Restrito a usuários logados)
     Route::resource('demandas', DemandaController::class);

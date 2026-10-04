@@ -34,7 +34,6 @@ class OfertaController extends Controller
         $produtos = Produto::where('fornecedor_id', $fornecedor->id)
             ->with('categoria')
             ->get();
-        $produtos = Produto::with('categoria')->get();
 
         return view(
             'ofertas.create',
