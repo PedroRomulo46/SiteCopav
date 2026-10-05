@@ -45,138 +45,33 @@
     @endif
 
     {{-- Lista de ofertas --}}
-    @if($ofertas->count())
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-            @foreach($ofertas as $oferta)
-                <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow">
+    <div
+        id="lista-ofertas"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
+    >
+        @foreach($ofertas as $oferta)
+            @include('ofertas.partials.card', [
+                'oferta' => $oferta
+            ])
+        @endforeach
+    </div>
 
-                    {{-- Imagem do produto --}}
-                    <div class="w-full h-48 bg-gray-100">
-                        <div class="w-full h-48 bg-gray-100">
-                            <img
-                                src="{{ (isset($oferta->produto) && $oferta->produto->imagem) 
-                                    ? (str_contains($oferta->produto->imagem, 'assets/') 
-                                        ? asset($oferta->produto->imagem) 
-                                        : asset('storage/' . str_replace('public/', '', $oferta->produto->imagem))) 
-                                    : asset('assets/milho.png') }}"
-                                alt="{{ $oferta->produto->nome ?? 'Produto' }}"
-                                class="w-full h-full object-cover"
-                                onerror="this.onerror=null; this.src='{{ asset('assets/milho.png') }}';">
-                        </div>
-                    </div>
+    {{-- Nenhuma oferta --}}
+    @if(!$ofertas->count())
 
-                    {{-- Conteúdo --}}
-                    <div class="p-4">
-                        {{-- Status --}}
-                        @php
-                            $statusClasses = [
-                                'rascunho' => 'text-gray-600 bg-gray-100',
-                                'publicada' => 'text-green-700 bg-green-50',
-                                'encerrada' => 'text-yellow-700 bg-yellow-50',
-                                'cancelada' => 'text-red-700 bg-red-50',
-                            ];
-                            $statusClass =
-                                $statusClasses[$oferta->status]
-                                ?? 'text-gray-600 bg-gray-100';
-                        @endphp
-                        <span class="inline-block text-xs font-semibold px-2.5 py-1 rounded-full mb-2 {{ $statusClass }}">
-                            {{ ucfirst($oferta->status) }}
-                        </span>
-
-                        {{-- Produto --}}
-                        <h2 class="text-lg font-bold text-gray-800 line-clamp-1">
-                            {{ $oferta->produto->nome ?? 'Produto não informado' }}
-                        </h2>
-
-                        {{-- Fornecedor --}}
-                        <p class="text-sm text-gray-500 mt-1 line-clamp-1">
-
-                            {{ $oferta->fornecedor->nome ?? 'Fornecedor não informado' }}
-                        </p>
-
-                        {{-- Informações --}}
-                        <div class="mt-4 space-y-2 text-sm">
-
-                            {{-- Quantidade --}}
-                            <div class="flex items-center justify-between">
-                                <span class="text-gray-500">
-                                    Quantidade
-                                </span>
-                                <span class="font-semibold text-gray-700">
-                                    {{ $oferta->quantidade }} {{ $oferta->unidade }}
-                                </span>
-                            </div>
-
-                            {{-- Valor --}}
-                            <div class="flex items-center justify-between">
-
-                                <span class="text-gray-500">
-                                    Valor
-                                </span>
-
-                                <span class="font-bold text-[#236350]">
-
-                                    R$
-                                    {{ number_format($oferta->valor, 2, ',', '.') }}
-                                </span>
-                            </div>
-
-                            {{-- Localização --}}
-                            <div class="flex items-center justify-between gap-2">
-
-                                <span class="text-gray-500">
-                                    Localização
-                                </span>
-
-                                <span class="font-semibold text-gray-700 truncate max-w-[170px]">
-
-                                    {{ $oferta->localizacao ?? 'Não informada' }}
-                                </span>
-                            </div>
-                        </div>
-
-
-                        {{-- Botões --}}
-                        <div class="flex gap-2 mt-5 pt-4 border-t border-gray-100">
-                            <a
-                                href="{{ route('ofertas.show', $oferta) }}"
-                                class="flex-1 flex items-center justify-center text-center bg-[#236350] hover:bg-[#1B4D3E] text-white px-3 py-2 rounded-md text-sm transition-colors">
-                                Ver detalhes
-                            </a>
-                            @auth
-                                @if(
-                                    auth()->user()->user_type === 'admin' ||
-                                    (
-                                        auth()->user()->fornecedor &&
-                                        auth()->user()->fornecedor->id === $oferta->fornecedor_id
-                                    )
-                                )
-                                    <a
-                                        href="{{ route('ofertas.edit', $oferta) }}"
-                                        class="flex items-center justify-center w-10 h-10 border border-gray-300 text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
-                                        title="Editar">
-                                        <span class="material-symbols-outlined text-lg">
-                                            settings
-                                        </span>
-                                    </a>
-                                @endif
-                            @endauth
-                        </div>
-                    </div>
-                </div>
-            @endforeach
-        </div>
-    @else
-
-        {{-- Nenhuma oferta --}}
-        <div class="bg-white rounded-xl shadow-md border border-gray-100 p-10 text-center">
+        <div
+            id="sem-ofertas"
+            class="bg-white rounded-xl shadow-md border border-gray-100 p-10 text-center"
+        >
 
             <span class="material-symbols-outlined text-6xl text-gray-300">
                 local_offer
             </span>
+
             <h2 class="text-xl font-bold text-gray-700 mt-4">
                 Nenhuma oferta cadastrada
             </h2>
+
             <p class="text-gray-500 text-sm mt-2">
                 Ainda não existem ofertas cadastradas no marketplace.
             </p>
@@ -184,14 +79,157 @@
             @auth
                 <a
                     href="{{ route('ofertas.create') }}"
-                    class="inline-flex items-center gap-2 mt-5 bg-[#236350] hover:bg-[#1B4D3E] text-white px-5 py-2.5 rounded-md transition-colors">
+                    class="inline-flex items-center gap-2 mt-5 bg-[#236350] hover:bg-[#1B4D3E] text-white px-5 py-2.5 rounded-md transition-colors"
+                >
                     <span class="material-symbols-outlined">
                         add
                     </span>
+
                     Cadastrar primeira oferta
                 </a>
             @endauth
+
         </div>
+
     @endif
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    window.addEventListener('load', function () {
+
+        if (!window.Echo) {
+            console.error('Echo não foi carregado.');
+            return;
+        }
+
+        window.Echo.channel('ofertas')
+            .listen('.oferta.criada', function (event) {
+
+                console.log('NOVA OFERTA RECEBIDA:', event);
+
+                const lista = document.getElementById('lista-ofertas');
+
+                if (!lista) {
+                    console.error('Lista de ofertas não encontrada.');
+                    return;
+                }
+
+                const ofertaId = event.oferta.id;
+
+                if (lista.querySelector(`[data-oferta-id="${ofertaId}"]`)) {
+                    return;
+                }
+
+                fetch(`/ofertas/${ofertaId}/card`)
+                    .then(response => {
+
+                        if (!response.ok) {
+                            throw new Error(
+                                'Erro ao carregar a nova oferta.'
+                            );
+                        }
+
+                        return response.text();
+                    })
+                    .then(html => {
+
+                        lista.insertAdjacentHTML(
+                            'afterbegin',
+                            html
+                        );
+
+                        const semOfertas =
+                            document.getElementById('sem-ofertas');
+
+                        if (semOfertas) {
+                            semOfertas.remove();
+                        }
+                    })
+                    .catch(error => {
+
+                        console.error(
+                            'Erro ao atualizar ofertas:',
+                            error
+                        );
+
+                    });
+            })
+            .listen('.oferta.excluida', function (event) {
+
+                console.log('OFERTA EXCLUÍDA:', event);
+
+                const lista = document.getElementById('lista-ofertas');
+
+                if (!lista) {
+                    return;
+                }
+
+                const card = lista.querySelector(
+                    `[data-oferta-id="${event.ofertaId}"]`
+                );
+
+                if (!card) {
+                    console.log('Card da oferta não encontrado.');
+                    return;
+                }
+
+                card.remove();
+
+                console.log('Card removido da tela.');
+
+            })
+            .listen('.oferta.atualizada', function (event) {
+
+                console.log('OFERTA ATUALIZADA:', event);
+
+                const lista = document.getElementById('lista-ofertas');
+
+                if (!lista) {
+                    return;
+                }
+
+                const ofertaId = event.oferta.id;
+
+                const cardAtual = lista.querySelector(
+                    `[data-oferta-id="${ofertaId}"]`
+                );
+
+                if (!cardAtual) {
+                    console.log('Card da oferta atualizada não encontrado.');
+                    return;
+                }
+
+                fetch(`/ofertas/${ofertaId}/card`)
+                    .then(response => {
+
+                        if (!response.ok) {
+                            throw new Error(
+                                'Erro ao carregar a oferta atualizada.'
+                            );
+                        }
+
+                        return response.text();
+                    })
+                    .then(html => {
+
+                        cardAtual.outerHTML = html;
+
+                        console.log('Card atualizado na tela.');
+
+                    })
+                    .catch(error => {
+
+                        console.error(
+                            'Erro ao atualizar card:',
+                            error
+                        );
+
+                    });
+
+            });
+
+    });
+</script>
+@endpush

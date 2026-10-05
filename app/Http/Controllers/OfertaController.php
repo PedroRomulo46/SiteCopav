@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Oferta;
 use App\Models\Produto;
+use App\Events\OfertaCriada;
+use App\Events\OfertaExcluida;
+use App\Events\OfertaAtualizada;
 use Illuminate\Http\Request;
 
 class OfertaController extends Controller
@@ -68,7 +71,9 @@ class OfertaController extends Controller
 
         $dados['fornecedor_id'] = $fornecedor->id;
 
-        Oferta::create($dados);
+        $oferta = Oferta::create($dados);
+
+        event(new OfertaCriada($oferta));
 
         return redirect()
             ->route('ofertas.index')
@@ -155,6 +160,10 @@ class OfertaController extends Controller
 
         $oferta->update($dados);
 
+        $oferta->refresh();
+
+        event(new OfertaAtualizada($oferta));
+
         return redirect()
             ->route('ofertas.index')
             ->with('sucesso', 'Oferta atualizada com sucesso!');
@@ -175,10 +184,27 @@ class OfertaController extends Controller
             abort(403);
         }
 
+        $ofertaId = $oferta->id;
+
         $oferta->delete();
+
+        event(new OfertaExcluida($ofertaId));
 
         return redirect()
             ->route('ofertas.index')
             ->with('sucesso', 'Oferta excluída com sucesso!');
+    }
+    
+    public function card(Oferta $oferta)
+    {
+        $oferta->load([
+            'fornecedor',
+            'produto'
+        ]);
+
+        return view(
+            'ofertas.partials.card',
+            compact('oferta')
+        );
     }
 }

@@ -28,12 +28,11 @@ Route::middleware('auth')->group(function () {
         return redirect()->route('home');
     })->middleware('verified')->name('dashboard');
 
-    // Ofertas
-    Route::get('/ofertas/create', [OfertaController::class, 'create'])->name('ofertas.create');
-    Route::post('/ofertas', [OfertaController::class, 'store'])->name('ofertas.store');
-    Route::get('/ofertas/{oferta}/edit', [OfertaController::class, 'edit'])->name('ofertas.edit');
-    Route::put('/ofertas/{oferta}', [OfertaController::class, 'update'])->name('ofertas.update');
-    Route::delete('/ofertas/{oferta}', [OfertaController::class, 'destroy'])->name('ofertas.destroy');
+    // Lotes / Ofertas (Restrito a usuários logados)
+    Route::get('/ofertas/{oferta}/card', [OfertaController::class, 'card'])
+      ->name('ofertas.card');
+
+    Route::resource('ofertas', OfertaController::class);
 
     // Demandas
     Route::resource('demandas', DemandaController::class);
