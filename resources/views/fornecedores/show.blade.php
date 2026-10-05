@@ -28,8 +28,7 @@
             {{-- Botões no Meio --}}
             @if(
                 auth()->id() === $fornecedor->user_id ||
-                auth()->user()->user_type === 'admin'
-            )
+                auth()->user()->user_type === 'admin')
                 <div class="flex items-center justify-center gap-3 shrink-0">
                     <a href="{{ route('fornecedores.edit', $fornecedor) }}" class="inline-flex items-center gap-1.5 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
                         <span class="material-symbols-outlined text-base">edit</span>

@@ -31,7 +31,7 @@
         </div>
     </div>
 
-    {{-- MENSAGENS --}}
+    {{-- Mensagens --}}
     @if(session('sucesso'))
         <div class="mb-5 w-full flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
             <span class="material-symbols-outlined text-lg">
@@ -80,10 +80,10 @@
                         : 0;
                 @endphp
 
-                {{-- CARD DA OFERTA --}}
+                {{-- Card da oferta --}}
                 <div class="group bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 text-left">
 
-                    {{-- IMAGEM --}}
+                    {{-- Imagem --}}
                     <div class="relative h-44 bg-gray-100 overflow-hidden">
                         <img
                             src="{{ $oferta->produto && $oferta->produto->imagem 
@@ -94,16 +94,16 @@
                             alt="{{ $oferta->produto->nome ?? 'Produto' }}"
                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
 
-                        {{-- NÚMERO DA OFERTA --}}
+                        {{-- Número da Ofertas --}}
                         <div class="absolute top-3 left-3">
                             <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-sm text-xs font-semibold text-gray-700 shadow-sm">
-                                Oferta #{{ $oferta->id }}
+                                Oferta {{ $oferta->id }}
                             </span>
                         </div>
 
-                        {{-- NÚMERO DE NEGOCIAÇÕES --}}
+                        {{-- Número de Negociações --}}
                         <div class="absolute top-3 right-3">
-                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full btn-copav text-xs font-medium shadow-sm">
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white text-xs font-medium shadow-sm">
                                 <span class="material-symbols-outlined text-sm">
                                     forum
                                 </span>
@@ -112,10 +112,10 @@
                         </div>
                     </div>
 
-                    {{-- CONTEÚDO --}}
+                    {{-- Conteúdo --}}
                     <div class="p-5 text-left">
 
-                        {{-- PRODUTO --}}
+                        {{-- Produto --}}
                         <div class="mb-4 text-left">
                             <h2 class="text-xl font-bold text-gray-800 text-left">
                                 {{ $oferta->produto->nome }}
@@ -125,7 +125,7 @@
                             </p>
                         </div>
 
-                        {{-- QUANTIDADE --}}
+                        {{-- Quantidade --}}
                         <div class="flex items-center justify-between mb-4">
                             <div class="text-left">
                                 <p class="text-xs uppercase tracking-wide font-medium text-gray-400">
@@ -154,7 +154,7 @@
                             </div>
                         </div>
 
-                        {{-- MELHOR PROPOSTA --}}
+                        {{-- Melhor Proposta --}}
                         @if($melhorValor !== null)
                             <div class="rounded-xl bg-emerald-50 border border-emerald-100 p-4 mb-4 text-left">
                                 <div class="flex items-center gap-2 mb-1">
@@ -181,7 +181,7 @@
                             </div>
                         @endif
 
-                        {{-- QUANTIDADE NEGOCIADA --}}
+                        {{-- Quantidade Negociada --}}
                         <div class="mb-4 text-left">
                             <div class="flex items-center justify-between mb-1.5">
                                 <span class="text-xs font-medium text-gray-500">
@@ -207,7 +207,7 @@
                             </div>
                         </div>
 
-                        {{-- MAIOR VALOR TOTAL --}}
+                        {{-- Maior valor total --}}
                         @if($maiorValorTotal !== null)
                             <div class="flex items-center justify-between text-sm mb-5">
                                 <span class="text-gray-500">
@@ -219,9 +219,9 @@
                             </div>
                         @endif
 
-                        {{-- BOTÃO --}}
+                        {{-- Botão ver proposta --}}
                         <a
-                            href="{{ route('ofertas.propostas', $oferta) }}"
+                            href="{{ route('negociacoes.propostas', $oferta) }}"
                             class="btn-copav flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors">
                             <span class="material-symbols-outlined text-lg">
                                 format_list_bulleted
@@ -237,7 +237,7 @@
         </div>
     @else
 
-        {{-- ESTADO VAZIO --}}
+        {{-- Estado Vazio --}}
         <div class="bg-white rounded-2xl border border-gray-200 p-12 text-center shadow-sm w-full">
             <div class="w-16 h-16 mx-auto rounded-full bg-gray-100 flex items-center justify-center">
                 <span class="material-symbols-outlined text-gray-400 text-3xl">
