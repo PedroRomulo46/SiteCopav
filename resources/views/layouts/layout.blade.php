@@ -1,27 +1,55 @@
 <!doctype html>
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@yield('title', 'Meu Marketplace')</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=block" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css"/>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
         [x-cloak] { display: none !important; }
+
+        .btn-copav {
+            background-color: #236350 !important;
+            color: #ffffff !important;
+            border: none !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+
+        .btn-copav:hover {
+            background-color: #1a493b !important;
+            color: #ffffff !important;
+        }
+        
+        /* Esconde no mobile/tablet e exibe flex no computador */
+        .menu-desktop {
+          display: none;
+        }
+        @media (min-width: 1024px) {
+          .menu-desktop {
+            display: flex !important;
+          }
+        }
     </style>
+
 </head>
 
-  <body class="bg-[#ebeae7] min-h-screen flex flex-col font-sans" x-data="{ menuMobileAberto: false }">
-  
+<body class="bg-[#ebeae7] min-h-screen flex flex-col font-sans" x-data="{ menuMobileAberto: false }">
+
     {{-- Cabeçalho --}}
     <header class="bg-[#1B4D3E] text-white shadow-md w-full">
       <div class="w-full px-4 sm:px-6 lg:px-10 py-3 flex flex-col gap-3">
         
-        {{-- LINHA SUPERIOR: Logo + Busca + Banner de Oferta + Botão Mobile --}}
+        {{-- LINHA SUPERIOR --}}
         <div class="flex items-center justify-between gap-2 md:gap-6 w-full">
           
           {{-- Logo --}}
@@ -29,7 +57,7 @@
             Site Copav
           </a>
 
-          {{-- Busca (Visível em telas Médias e Grandes) --}}
+          {{-- Busca --}}
           <div class="hidden sm:flex flex-1 max-w-2xl relative items-center">
             <input type="text" placeholder="Buscar lotes, produtos ou compradores..." class="input w-full bg-white text-gray-800 placeholder-gray-400 pl-4 pr-10 py-2 rounded-md focus:outline-none shadow-sm text-sm">
             <button class="absolute right-3 text-gray-500 hover:text-gray-700 flex items-center">
@@ -37,7 +65,7 @@
             </button>
           </div>
 
-          {{-- Banner de Oferta (Telas Grandes) --}}
+          {{-- Banner Oferta --}}
           <div class="hidden xl:flex items-center gap-3 bg-amber-100 hover:bg-slate-700 border border-emerald-700 p-1.5 px-3 rounded-full shadow-md transition-all cursor-pointer group shrink-0">
             <span class="bg-emerald-800 group-hover:bg-amber-400 transition-colors text-white font-bold text-[10px] uppercase px-2 py-0.5 rounded-full shrink-0">
               Oferta
@@ -54,22 +82,22 @@
             </div>
           </div>
 
-          {{-- Botão Menu Hambúrguer (Mobile) --}}
-          <button @click="menuMobileAberto = !menuMobileAberto" class="lg:hidden p-2 text-white hover:bg-[#236350] rounded-lg transition-colors">
+          {{-- Botão Menu Hambúrguer --}}
+          <button @click="menuMobileAberto = !menuMobileAberto" class="lg:hidden p-2 text-white hover:bg-[#236350] rounded-lg transition-colors focus:outline-none">
             <span class="material-symbols-outlined text-2xl" x-text="menuMobileAberto ? 'close' : 'menu'">menu</span>
           </button>
         </div>
 
-        {{-- Busca para telas muito pequenas --}}
+        {{-- Busca Mobile --}}
         <div class="sm:hidden w-full relative flex items-center mt-1">
-          <input type="text" placeholder="Buscar no marketplace..." class="input w-full bg-white text-gray-800 placeholder-gray-400 pl-3 pr-9 py-1.5 rounded-md text-xs">
+          <input type="text" placeholder="Buscar no marketplace..." class="input w-full bg-white text-gray-800 placeholder-gray-400 pl-3 pr-9 py-2 rounded-md text-xs">
           <button class="absolute right-2 text-gray-500 flex items-center">
             <span class="material-symbols-outlined text-lg">search</span>
           </button>
         </div>
 
-        {{-- LINHA INFERIOR: Desktop Menu --}}
-        <div class="hidden lg:flex items-center justify-between text-sm border-t border-[#236350] pt-2.5 text-gray-100 w-full">
+        {{-- LINHA INFERIOR --}}
+        <div class="menu-desktop items-center justify-between text-sm border-t border-[#236350] pt-2.5 text-gray-100 w-full">
           
           {{-- Links de Navegação Principal --}}
           <nav class="flex items-center gap-6 font-medium">
@@ -110,7 +138,6 @@
                 </a>
               @endif
 
-              {{-- Adiciona botão de criar demanda apenas se for realmente o Admin/Empresa --}}
               @if(auth()->user()->is_admin || auth()->user()->user_type === 'admin' || auth()->user()->email === 'copavagricola@example.com')
                 <a href="{{ route('demandas.create') }}" class="flex items-center gap-1.5 hover:text-amber-300 transition-colors">
                   <span class="material-symbols-outlined text-lg">add_circle</span>
@@ -164,49 +191,49 @@
 
         {{-- Menu Desplegável Mobile --}}
         <div x-show="menuMobileAberto" x-cloak x-transition class="lg:hidden flex flex-col gap-3 border-t border-[#236350] pt-3 text-sm">
-          <nav class="flex flex-col gap-2 font-medium">
+          <nav class="flex flex-col gap-1 font-medium">
             <a href="{{ route('home') }}" class="hover:bg-[#236350] p-2 rounded-md">Início</a>
             <a href="{{ route('ofertas.index') }}" class="hover:bg-[#236350] p-2 rounded-md">Lotes</a>
             <a href="{{ route('demandas.index') }}" class="hover:bg-[#236350] p-2 rounded-md">Demandas</a>
+            <a href="{{ route('categorias.index') }}" class="hover:bg-[#236350] p-2 rounded-md">Categorias</a>
           </nav>
 
-          <div class="border-t border-[#236350] pt-2 flex flex-col gap-2">
+          <div class="border-t border-[#236350] pt-2 flex flex-col gap-1">
             @auth
 
               <a href="{{ route('negociacoes.index') }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
-                <span class="material-symbols-outlined">forum</span>
+                <span class="material-symbols-outlined text-lg">forum</span>
                 <span>Minhas negociações</span>
               </a>
 
               @if(!auth()->user()->fornecedor)
                 <a href="{{ route('fornecedores.create') }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
-                  <span class="material-symbols-outlined">patient_list</span>
+                  <span class="material-symbols-outlined text-lg">patient_list</span>
                   <span>Virar Fornecedor</span>
                 </a>
               @else
                 <a href="{{ route('fornecedores.show', auth()->user()->fornecedor) }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
-                  <span class="material-symbols-outlined">patient_list</span>
+                  <span class="material-symbols-outlined text-lg">patient_list</span>
                   <span>Meu Fornecedor</span>
                 </a>
               @endif
 
-              {{-- Adiciona botão de criar demanda apenas se for realmente o Admin/Empresa --}}
               @if(auth()->user()->is_admin || auth()->user()->user_type === 'admin' || auth()->user()->email === 'copavagricola@example.com')
-                <a href="{{ route('demandas.create') }}" class="flex items-center gap-1.5 hover:text-amber-300 transition-colors">
+                <a href="{{ route('demandas.create') }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
                   <span class="material-symbols-outlined text-lg">add_circle</span>
                   <span>Criar Demanda</span>
                 </a>
               @endif
 
               <a href="{{ route('profile.edit') }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
-                <span class="material-symbols-outlined">settings</span>
+                <span class="material-symbols-outlined text-lg">settings</span>
                 <span>Configurações</span>
               </a>
 
               <form method="POST" action="{{ route('logout') }}" class="w-full">
                 @csrf
-                <button type="submit" class="w-full flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md text-left">
-                  <span class="material-symbols-outlined">logout</span>
+                <button type="submit" class="w-full flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md text-left text-red-300 hover:text-red-100">
+                  <span class="material-symbols-outlined text-lg">logout</span>
                   <span>Sair</span>
                 </button>
               </form>

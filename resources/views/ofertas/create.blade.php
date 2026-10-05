@@ -45,8 +45,7 @@
                 <select
                     name="produto_id"
                     required
-                    class="p-3 w-full border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]"
-                >
+                    class="p-3 w-full border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">
                     <option value="">
                         Selecione o produto
                     </option>
@@ -54,8 +53,7 @@
                     @foreach($produtos as $produto)
                         <option
                             value="{{ $produto->id }}"
-                            {{ old('produto_id') == $produto->id ? 'selected' : '' }}
-                        >
+                            {{ old('produto_id') == $produto->id ? 'selected' : '' }}>
                             {{ $produto->nome }}
                             -
                             {{ $produto->categoria->nome ?? 'Sem Categoria' }}
@@ -77,8 +75,7 @@
                     min="0"
                     value="{{ old('quantidade') }}"
                     required
-                    class="w-full p-3 border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]"
-                >
+                    class="w-full p-3 border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">
             </div>
 
             {{-- Valor --}}
@@ -94,8 +91,7 @@
                     min="0"
                     value="{{ old('valor') }}"
                     required
-                    class="w-full p-3 border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]"
-                >
+                    class="w-full p-3 border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">
             </div>
 
             {{-- Unidade --}}
@@ -107,23 +103,20 @@
                 <select
                     name="unidade"
                     required
-                    class="w-full p-3 border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]"
-                >
+                    class="w-full p-3 border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">
                     <option value="">
                         Selecione a unidade
                     </option>
 
                     <option
                         value="kg"
-                        {{ old('unidade') == 'kg' ? 'selected' : '' }}
-                    >
+                        {{ old('unidade') == 'kg' ? 'selected' : '' }}>
                         Kg
                     </option>
 
                     <option
                         value="saca"
-                        {{ old('unidade') == 'saca' ? 'selected' : '' }}
-                    >
+                        {{ old('unidade') == 'saca' ? 'selected' : '' }}>
                         Saca
                     </option>
                 </select>
@@ -140,8 +133,7 @@
                     name="localizacao"
                     value="{{ old('localizacao') }}"
                     placeholder="Ex: Icapuí - CE"
-                    class="p-3 w-full border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]"
-                >
+                    class="p-3 w-full border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">
             </div>
 
             {{-- Data de início --}}
@@ -156,8 +148,7 @@
                     id="data_inicio"
                     value="{{ old('data_inicio', now()->format('Y-m-d')) }}"
                     min="{{ now()->format('Y-m-d') }}"
-                    class="w-full p-3 border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]"
-                >
+                    class="w-full p-3 border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">
             </div>
 
             {{-- Data de término --}}
@@ -172,13 +163,9 @@
                     id="data_validade"
                     value="{{ old('data_validade') }}"
                     min="{{ old('data_inicio', now()->format('Y-m-d')) }}"
-                    class="w-full p-3 border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]"
-                >
+                    class="w-full p-3 border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">
             </div>
-
         </div>
-        {{-- Fim do grid --}}
-
 
         {{-- Status --}}
         <div class="mt-4">
@@ -190,19 +177,16 @@
                 name="status"
                 id="status"
                 required
-                class="w-full p-3 border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]"
-            >
+                class="w-full p-3 border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">
                 <option
                     value="rascunho"
-                    {{ old('status') == 'rascunho' ? 'selected' : '' }}
-                >
+                    {{ old('status') == 'rascunho' ? 'selected' : '' }}>
                     Rascunho
                 </option>
 
                 <option
                     value="publicada"
-                    {{ old('status', 'publicada') == 'publicada' ? 'selected' : '' }}
-                >
+                    {{ old('status', 'publicada') == 'publicada' ? 'selected' : '' }}>
                     Publicada
                 </option>
             </select>
@@ -212,22 +196,16 @@
         {{-- Botões --}}
         <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200 w-full">
 
-            <a
-                href="{{ route('ofertas.index') }}"
-                class="text-gray-600 hover:text-gray-900"
-            >
+            <a href="{{ route('ofertas.index') }}" class="text-gray-600 hover:text-gray-900 text-sm font-medium">
                 Cancelar
             </a>
 
-            <button
-                type="submit"
-                class="bg-[#236350] hover:bg-[#1B4D3E] text-white px-5 py-2 rounded-md transition-colors"
-            >
+            <button type="submit"
+                    class="px-5 py-2.5 btn-copav text-white rounded-md text-sm shadow-md transition-all cursor-pointer border-0 hover:opacity-90">
                 Cadastrar oferta
             </button>
 
         </div>
-
     </form>
 </div>
 

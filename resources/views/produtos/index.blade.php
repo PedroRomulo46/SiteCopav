@@ -3,6 +3,7 @@
 
 @section('conteudo')
 
+{{-- Botão Voltar --}}
 <div class="mb-4">
     <a href="{{ route('home') }}" class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-[#236350] transition-colors">
         <span class="material-symbols-outlined text-lg">arrow_back</span>
@@ -10,16 +11,15 @@
     </a>
 </div>
 
-<div class="max-w-7xl mx-auto">
+<div class="w-full max-w-7xl mx-auto px-2 sm:px-4">
 
     {{-- Cabeçalho --}}
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <div class="flex flex-row items-center justify-between gap-4 mb-6 text-left border-b border-gray-200 pb-4">
 
-        <div>
+        <div class="text-left">
             <h1 class="text-2xl font-bold text-gray-800">
                 Produtos
             </h1>
-
             <p class="text-sm text-gray-500 mt-1">
                 Produtos cadastrados no marketplace
             </p>
@@ -28,18 +28,15 @@
         @auth
             <a
                 href="{{ route('produtos.create') }}"
-                class="inline-flex items-center justify-center gap-2 bg-[#236350] hover:bg-[#1B4D3E] text-white px-5 py-2.5 rounded-md transition-colors shadow-sm"
-            >
+                class="btn-copav inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-md transition-colors shadow-sm shrink-0">
                 <span class="material-symbols-outlined text-xl">
                     add
                 </span>
-
                 Cadastrar produto
             </a>
         @endauth
 
     </div>
-
 
     {{-- Mensagem de sucesso --}}
     @if(session('sucesso'))

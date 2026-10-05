@@ -31,10 +31,10 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
         <!-- Coluna 1: Imagem do Produto -->
-        <div class="lg:col-span-5 lg:sticky lg:top-6">
-            <div class="bg-white p-3 overflow-hidden">
+        <div class="lg:col-span-5 lg:sticky lg:top-6 w-full">
+            <div class="bg-white p-2 rounded-xl border border-gray-100 overflow-hidden w-full h-[380px]">
                 <img
-                    class="w-full h-[380px] sm:h-[450px] object-cover rounded-lg"
+                    class="w-full h-full rounded-lg object-cover"
                     src="{{ $produto->imagem 
                         ? (str_contains($produto->imagem, 'assets/') 
                             ? asset($produto->imagem) 
@@ -59,7 +59,7 @@
             </div>
 
             <!-- Avaliações -->
-            <div class="flex items-center gap-2 py-3 px-2 rounded-lg">
+            <div class="flex items-center gap-2 py-1 px-2 rounded-lg">
                 <div class="flex items-center gap-1">
                     <span class="text-sm font-bold text-amber-400">4.6</span>
                     <div class="flex text-amber-400 text-base">
@@ -136,34 +136,40 @@
                 <hr class="border-gray-200">
 
                 <!-- Botões de Ação -->
-                <div class="flex flex-col gap-2.5">
+                <div class="flex flex-col gap-2.5 w-full">
                     @auth
-                        <form action="{{ route('negociacoes.store') }}" method="POST">
-                            @csrf
-                            <input type="hidden" name="oferta_id" value="{{ $oferta->id }}">
-                            <button
-                                type="submit"
-                                class="w-full bg-[#236350] hover:bg-[#1B4D3E] text-white text-sm font-semibold py-2.5 px-4 rounded-lg transition-all shadow-sm hover:shadow flex items-center justify-center gap-2">
-                                <span class="material-symbols-outlined">currency_exchange</span>
-                                Negociar Preço
-                            </button>
-                        </form>
+                        @if(auth()->id() !== $oferta->user_id)
+                            <form action="{{ route('negociacoes.store') }}" method="POST" class="w-full">
+                                @csrf
+                                <input type="hidden" name="oferta_id" value="{{ $oferta->id }}">
+                                <button
+                                    type="submit"
+                                    class="w-full btn-copav p-3 text-white text-sm font-semibold rounded-lg transition-all shadow-sm hover:opacity-90 items-center justify-center gap-2 cursor-pointer border-0">
+                                    <span class="material-symbols-outlined text-base">currency_exchange</span>
+                                    <span>Negociar Preço</span>
+                                </button>
+                            </form>
+                        @else
+                            <div class="text-xs text-center text-gray-500 py-2 bg-gray-100 rounded-lg">
+                                Esta oferta pertence a você.
+                            </div>
+                        @endif
                     @else
                         <a
                             href="{{ route('login') }}"
-                            class="w-full bg-[#236350] hover:bg-[#1B4D3E] text-white text-sm font-semibold py-2.5 px-4 rounded-lg transition-all shadow-sm text-center flex items-center justify-center gap-2">
+                            class="w-full text-white btn-copav text-sm font-semibold rounded-lg transition-all shadow-sm text-center items-center justify-center gap-2">
                             <span class="material-symbols-outlined text-base">login</span>
-                            Entrar para negociar
+                            <span>Entrar para negociar</span>
                         </a>
                     @endauth
 
-                    <button
+                    <a
                         type="button"
-                        class="w-full bg-gray-100 text-gray-400 text-sm font-semibold py-2.5 px-4 rounded-lg cursor-not-allowed border border-gray-200 flex items-center justify-center gap-2"
+                        class="w-full bg-gray-100 text-gray-400 text-sm py-3 font-semibold rounded-lg cursor-not-allowed border border-gray-200  flex text-center items-center  justify-center gap-2"
                         disabled>
                         <span class="material-symbols-outlined text-base">shopping_bag</span>
-                        Comprar Agora
-                    </button>
+                        <span>Comprar Agora</span>
+                    </a>
                 </div>
             </div>
         </div>

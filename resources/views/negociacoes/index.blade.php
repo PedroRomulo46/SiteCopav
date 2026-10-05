@@ -4,7 +4,7 @@
 
 @section('conteudo')
 
-{{-- Botão de Voltar --}}
+{{-- Botão Voltar --}}
 <div class="mb-4">
     <a
         href="{{ route('home') }}"
@@ -14,62 +14,49 @@
     </a>
 </div>
 
-<div class="max-w-7xl mx-auto my-8 px-4">
+<div class="w-full max-w-7xl mx-auto my-6 px-4 flex flex-col items-start text-left">
 
-    {{-- CABEÇALHO --}}
-    <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
-
-        <div>
-            <p class="text-sm font-medium text-[#236350] mb-1">
+    {{-- Cabeçalho --}}
+    <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8 w-full text-left">
+        <div class="text-left w-full">
+            <p class="text-sm font-medium text-[#236350] mb-1 text-left">
                 Painel de negociações
             </p>
-            <h1 class="text-3xl font-bold text-gray-800">
+            <h1 class="text-3xl font-bold text-gray-800 text-left">
                 Minhas ofertas
             </h1>
-            <p class="text-gray-500 mt-1">
+            <p class="text-gray-500 mt-1 text-left">
                 Acompanhe as propostas recebidas em suas ofertas.
             </p>
         </div>
-
     </div>
 
     {{-- MENSAGENS --}}
     @if(session('sucesso'))
-
-        <div class="mb-5 flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
-
+        <div class="mb-5 w-full flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
             <span class="material-symbols-outlined text-lg">
                 check_circle
             </span>
-
             {{ session('sucesso') }}
-
         </div>
-
     @endif
 
     @if(session('erro'))
-
-        <div class="mb-5 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-
+        <div class="mb-5 w-full flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
             <span class="material-symbols-outlined text-lg">
                 error
             </span>
-
             {{ session('erro') }}
-
         </div>
-
     @endif
 
     @if($ofertas->count())
 
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 w-full text-left">
 
             @foreach($ofertas as $ofertaId => $negociacoes)
 
                 @php
-
                     $oferta = $negociacoes->first()->oferta;
 
                     $propostas = $negociacoes->flatMap(function ($negociacao) {
@@ -91,15 +78,13 @@
                     $percentualAceito = $oferta->quantidade > 0
                         ? min(($quantidadeAceita / $oferta->quantidade) * 100, 100)
                         : 0;
-
                 @endphp
 
                 {{-- CARD DA OFERTA --}}
-                <div class="group bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
+                <div class="group bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 text-left">
 
                     {{-- IMAGEM --}}
                     <div class="relative h-44 bg-gray-100 overflow-hidden">
-
                         <img
                             src="{{ $oferta->produto && $oferta->produto->imagem 
                                 ? (str_contains($oferta->produto->imagem, 'assets/') 
@@ -118,7 +103,7 @@
 
                         {{-- NÚMERO DE NEGOCIAÇÕES --}}
                         <div class="absolute top-3 right-3">
-                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#236350]/95 text-white text-xs font-medium shadow-sm">
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full btn-copav text-xs font-medium shadow-sm">
                                 <span class="material-symbols-outlined text-sm">
                                     forum
                                 </span>
@@ -128,21 +113,21 @@
                     </div>
 
                     {{-- CONTEÚDO --}}
-                    <div class="p-5">
+                    <div class="p-5 text-left">
 
                         {{-- PRODUTO --}}
-                        <div class="mb-4">
-                            <h2 class="text-xl font-bold text-gray-800">
+                        <div class="mb-4 text-left">
+                            <h2 class="text-xl font-bold text-gray-800 text-left">
                                 {{ $oferta->produto->nome }}
                             </h2>
-                            <p class="text-sm text-gray-500 mt-1">
+                            <p class="text-sm text-gray-500 mt-1 text-left">
                                 {{ $oferta->fornecedor->nome }}
                             </p>
                         </div>
 
                         {{-- QUANTIDADE --}}
                         <div class="flex items-center justify-between mb-4">
-                            <div>
+                            <div class="text-left">
                                 <p class="text-xs uppercase tracking-wide font-medium text-gray-400">
                                     Oferta
                                 </p>
@@ -171,7 +156,7 @@
 
                         {{-- MELHOR PROPOSTA --}}
                         @if($melhorValor !== null)
-                            <div class="rounded-xl bg-emerald-50 border border-emerald-100 p-4 mb-4">
+                            <div class="rounded-xl bg-emerald-50 border border-emerald-100 p-4 mb-4 text-left">
                                 <div class="flex items-center gap-2 mb-1">
                                     <span class="material-symbols-outlined text-[#236350] text-lg">
                                         trending_up
@@ -181,23 +166,23 @@
                                     </span>
                                 </div>
 
-                                <p class="text-2xl font-bold text-[#236350]">
+                                <p class="text-2xl font-bold text-[#236350] text-left">
                                     R$ {{ number_format($melhorValor, 2, ',', '.') }}
                                 </p>
-                                <p class="text-xs text-gray-500 mt-0.5">
+                                <p class="text-xs text-gray-500 mt-0.5 text-left">
                                     por {{ $oferta->unidade }}
                                 </p>
                             </div>
                         @else
-                            <div class="rounded-xl bg-gray-50 border border-gray-100 p-4 mb-4">
-                                <p class="text-sm text-gray-500">
+                            <div class="rounded-xl bg-gray-50 border border-gray-100 p-4 mb-4 text-left">
+                                <p class="text-sm text-gray-500 text-left">
                                     Ainda não existem propostas para esta oferta.
                                 </p>
                             </div>
                         @endif
 
                         {{-- QUANTIDADE NEGOCIADA --}}
-                        <div class="mb-4">
+                        <div class="mb-4 text-left">
                             <div class="flex items-center justify-between mb-1.5">
                                 <span class="text-xs font-medium text-gray-500">
                                     Quantidade aceita
@@ -237,7 +222,7 @@
                         {{-- BOTÃO --}}
                         <a
                             href="{{ route('ofertas.propostas', $oferta) }}"
-                            class="flex items-center justify-center gap-2 w-full bg-[#236350] hover:bg-[#1B4D3E] text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors">
+                            class="btn-copav flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors">
                             <span class="material-symbols-outlined text-lg">
                                 format_list_bulleted
                             </span>
@@ -253,7 +238,7 @@
     @else
 
         {{-- ESTADO VAZIO --}}
-        <div class="bg-white rounded-2xl border border-gray-200 p-12 text-center shadow-sm">
+        <div class="bg-white rounded-2xl border border-gray-200 p-12 text-center shadow-sm w-full">
             <div class="w-16 h-16 mx-auto rounded-full bg-gray-100 flex items-center justify-center">
                 <span class="material-symbols-outlined text-gray-400 text-3xl">
                     forum
@@ -263,8 +248,7 @@
                 Nenhuma negociação encontrada
             </h2>
             <p class="text-sm text-gray-500 mt-1">
-                Quando suas ofertas receberem negociações,
-                elas aparecerão aqui.
+                Quando suas ofertas receberem negociações, elas aparecerão aqui.
             </p>
         </div>
     @endif
