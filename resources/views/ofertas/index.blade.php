@@ -4,20 +4,20 @@
 @section('conteudo')
 
 {{-- Botão Voltar --}}
-<div class="mb-4">
+<div class="mb-4 text-left">
     <a href="{{ route('home') }}" class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-[#236350] transition-colors">
         <span class="material-symbols-outlined text-lg">arrow_back</span>
         Voltar para a página inicial
     </a>
 </div>
 
-<div class="max-w-7xl mx-auto">
+<div class="w-full max-w-7xl mx-auto px-2 sm:px-4">
 
     {{-- Cabeçalho --}}
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <div class="flex flex-row items-center justify-between gap-4 mb-6 border-b border-gray-200 pb-4">
 
-        <div>
-            <h1 class="text-2xl font-bold text-gray-800">
+        <div class="text-left">
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">
                 Meus Lotes
             </h1>
             <p class="text-sm text-gray-500 mt-1">
@@ -28,18 +28,19 @@
         @auth
             <a
                 href="{{ route('ofertas.create') }}"
-                class="inline-flex items-center justify-center gap-2 bg-[#236350] hover:bg-[#1B4D3E] text-white px-5 py-2.5 rounded-md transition-colors shadow-sm">
+                class="btn-copav inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-md transition-colors shadow-sm shrink-0 font-medium">
                 <span class="material-symbols-outlined text-xl">
                     add
                 </span>
                 Cadastrar oferta
             </a>
         @endauth
+
     </div>
 
     {{-- Mensagem de sucesso --}}
     @if(session('sucesso'))
-        <div class="mb-6 p-4 bg-green-50 border-l-4 border-green-600 text-green-700 rounded-r-md">
+        <div class="mb-6 p-4 bg-green-50 border-l-4 border-green-600 text-green-700 rounded-r-md text-left">
             {{ session('sucesso') }}
         </div>
     @endif
@@ -47,7 +48,7 @@
     {{-- Lista de ofertas --}}
     <div
         id="lista-ofertas"
-        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
+        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
     >
         @foreach($ofertas as $oferta)
             @include('ofertas.partials.card', [
@@ -61,7 +62,7 @@
 
         <div
             id="sem-ofertas"
-            class="bg-white rounded-xl shadow-md border border-gray-100 p-10 text-center"
+            class="bg-white rounded-xl shadow-md border border-gray-100 p-10 text-center my-6"
         >
 
             <span class="material-symbols-outlined text-6xl text-gray-300">
@@ -79,7 +80,7 @@
             @auth
                 <a
                     href="{{ route('ofertas.create') }}"
-                    class="inline-flex items-center gap-2 mt-5 bg-[#236350] hover:bg-[#1B4D3E] text-white px-5 py-2.5 rounded-md transition-colors"
+                    class="btn-copav inline-flex items-center gap-2 mt-5 px-5 py-2.5 rounded-md transition-colors"
                 >
                     <span class="material-symbols-outlined">
                         add

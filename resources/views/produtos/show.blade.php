@@ -75,15 +75,12 @@
                         </span>
 
                     </div>
-
                 </div>
-
 
                 {{-- Botões --}}
                 <div class="flex gap-3 mt-auto pt-8">
 
                     @auth
-
                         @if(
                             auth()->user()->user_type === 'admin' ||
                             (
@@ -94,8 +91,7 @@
 
                             <a
                                 href="{{ route('produtos.edit', $produto) }}"
-                                class="flex-1 text-center border border-gray-300 text-gray-700 hover:bg-gray-100 px-4 py-2.5 rounded-md transition-colors"
-                            >
+                                class="flex-1 text-center border border-gray-300 text-gray-700 hover:bg-gray-100 px-4 py-2.5 rounded-md transition-colors">
                                 Editar produto
                             </a>
 
@@ -105,19 +101,13 @@
 
                     <a
                         href="{{ route('home') }}"
-                        class="flex-1 text-center bg-[#236350] hover:bg-[#1B4D3E] text-white px-4 py-2.5 rounded-md transition-colors"
-                    >
+                        class="flex-1 text-center bg-[#236350] hover:bg-[#1B4D3E] text-white px-4 py-2.5 rounded-md transition-colors">
                         Voltar para o início
                     </a>
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
-
 
     {{-- Ofertas deste produto --}}
     @if($produto->ofertas && $produto->ofertas->count())
@@ -129,18 +119,15 @@
             </h2>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-
                 @foreach($produto->ofertas as $oferta)
 
                     <a
                         href="{{ route('ofertas.show', $oferta) }}"
-                        class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 hover:shadow-md transition-shadow"
-                    >
+                        class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 hover:shadow-md transition-shadow">
 
                         <div class="flex justify-between items-start gap-3">
 
                             <div>
-
                                 <p class="font-bold text-gray-800">
                                     {{ $oferta->quantidade }} {{ $oferta->unidade }}
                                 </p>
@@ -148,35 +135,24 @@
                                 <p class="text-sm text-gray-500 mt-1">
                                     {{ $oferta->localizacao ?? 'Localização não informada' }}
                                 </p>
-
                             </div>
 
                             <span class="font-bold text-[#79A961]">
                                 R$ {{ number_format($oferta->valor, 2, ',', '.') }}
                             </span>
-
                         </div>
 
                         <div class="mt-3 text-xs text-gray-500">
-
                             Status:
-
                             <span class="font-semibold">
                                 {{ ucfirst($oferta->status) }}
                             </span>
-
                         </div>
-
                     </a>
-
                 @endforeach
-
             </div>
-
         </div>
-
     @endif
-
 </div>
 
 @endsection

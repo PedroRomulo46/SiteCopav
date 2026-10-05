@@ -110,15 +110,17 @@
 
         </div>
 
-        {{-- Botões de Cancelamento/Confirmação --}}
-        <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
-            <a href="{{ route('ofertas.index') }}" class="text-gray-600 hover:text-gray-900">
-                Cancelar
-            </a>
-            <button type="submit" class="bg-[#236350] hover:bg-[#1B4D3E] text-white px-5 py-2 rounded-md transition-colors">
-                Cadastrar como fornecedor
-            </button>
-        </div>
+        {{-- Botões de Ação --}}
+<div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+    <a href="{{ route('ofertas.index') }}" class="text-gray-600 hover:text-gray-900 text-sm font-medium">
+        Cancelar
+    </a>
+    
+    <button type="submit" 
+            class="btn-copav px-5 py-2.5 rounded-md font-semibold text-sm shadow-sm hover:opacity-90 transition-all cursor-pointer border-0">
+        Cadastrar Oferta
+    </button>
+</div>
     </form>
 </div>
 
