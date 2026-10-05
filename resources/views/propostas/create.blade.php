@@ -129,7 +129,7 @@
 
             <button
                 type="submit"
-                class="bg-[#236350] hover:bg-[#1B4D3E] text-white px-5 py-2 rounded-md transition-colors font-medium shadow-sm">
+                class="btn-copav text-white px-5 py-2 rounded-md transition-colors font-medium shadow-sm">
                 Enviar proposta
             </button>
         </div>

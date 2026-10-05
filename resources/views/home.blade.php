@@ -130,10 +130,12 @@
               {{-- Imagem --}}
               <img
                   class="w-20 h-20 object-cover rounded-lg"
-                  src="{{ $oferta->produto->imagem
-                      ? asset('storage/' . $oferta->produto->imagem)
-                      : asset('images/sem-imagem.png') }}"
-                  alt="{{ $oferta->produto->nome }}"
+                    src="{{ $oferta->produto->imagem
+                      ? (str_contains($oferta->produto->imagem, 'assets/')
+                        ? asset($oferta->produto->imagem)
+                        : asset('storage/' . $oferta->produto->imagem))
+                      : asset('assets/milho.png') }}"
+                    alt="{{ $oferta->produto->nome ?? 'Produto' }}"
               >
 
               {{-- Informações --}}
@@ -148,7 +150,7 @@
 
                   <p class="text-xs text-gray-500">
                       Expira em:
-                      {{ \Carbon\Carbon::parse($oferta->data_expiracao)->format('d/m/Y') }}
+                      {{ $oferta->data_validade ? \Carbon\Carbon::parse($oferta->data_validade)->format('d/m/Y') : 'Sem data' }}
                   </p>
 
                   {{-- Botões --}}
@@ -157,7 +159,7 @@
                       @if($negociacao)
 
                           <a
-                              href="{{ route('ofertas.propostas', $oferta->id) }}"
+                              href="{{ route('negociacoes.propostas', $oferta->id) }}"
                               class="inline-flex items-center gap-1.5 text-sm font-semibold text-[#236350] hover:text-[#174c3e] transition-colors">
                               Ver negociação
                               <span class="material-symbols-outlined text-base">
@@ -223,8 +225,6 @@
       @endforelse
     </div>
   </div>
-  @endauth
-</div>
 
   {{-- Coluna Direita: Vitrine de Produtos --}}
   <div class="lg:col-span-7 flex flex-col gap-4 items-center">
