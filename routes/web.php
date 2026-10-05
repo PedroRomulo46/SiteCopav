@@ -51,6 +51,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('fornecedores', FornecedorController::class)->parameters(['fornecedores' => 'fornecedor']);
     Route::resource('ofertas-diretas', OfertaDiretaController::class);
     Route::resource('negociacoes', NegociacaoController::class)->parameters(['negociacoes' => 'negociacao']);
+    Route::post(
+        '/negociacoes/{negociacao}/visualizada',
+        [NegociacaoController::class, 'marcarComoVisualizada']
+    )->name('negociacoes.visualizada');
     
     // Propostas
     Route::get('/negociacoes/{negociacao}/propostas/create', [PropostaController::class, 'create'])->name('propostas.create');
@@ -58,6 +62,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/propostas/{proposta}/aceitar', [PropostaController::class, 'aceitar'])->name('propostas.aceitar');
     Route::patch('/propostas/{proposta}/recusar', [PropostaController::class, 'recusar'])->name('propostas.recusar');
     Route::get('/ofertas/{oferta}/propostas', [NegociacaoController::class, 'propostasOferta'])->name('ofertas.propostas');
+    Route::get(
+        '/propostas/{proposta}/visualizar',
+        [PropostaController::class, 'visualizar']
+    )->name('propostas.visualizar');
 
     // Perfil
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

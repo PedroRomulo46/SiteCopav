@@ -11,7 +11,11 @@
     </a>
 </div>
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 bg-white rounded-md">
+<div
+    id="oferta-show"
+    data-oferta-id="{{ $oferta->id }}"
+    class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 bg-white rounded-md"
+>
 
     {{-- Exibição de Alertas de Sucesso / Erro --}}
     @if(session('success'))
@@ -69,15 +73,39 @@
                 <span class="text-xs text-gray-500">(1.889 avaliações)</span>
             </div>
 
+            <!-- Status da Oferta -->
+            <div>
+                <span
+                    id="oferta-status"
+                    class="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-semibold
+                    {{ $oferta->status === 'publicada'
+                        ? 'text-green-700 bg-green-50 border border-green-100'
+                        : ($oferta->status === 'encerrada'
+                            ? 'text-yellow-700 bg-yellow-50 border border-yellow-100'
+                            : 'text-red-700 bg-red-50 border border-red-100') }}"
+                >
+                    {{ ucfirst($oferta->status) }}
+                </span>
+            </div>
+
             <!-- Preço e Medida da Oferta -->
             <div class="space-y-1">
-                <span class="text-xs text-gray-500 uppercase tracking-wider font-semibold">Preço unitário</span>
+                <span class="text-xs text-gray-500 uppercase tracking-wider font-semibold">
+                    Preço unitário
+                </span>
+
                 <div class="flex items-baseline gap-1">
                     <span class="text-lg font-bold text-gray-700">R$</span>
-                    <span class="text-3xl sm:text-4xl font-extrabold text-gray-900">
+                    <span
+                        id="oferta-valor"
+                        class="text-3xl sm:text-4xl font-extrabold text-gray-900"
+                    >
                         {{ number_format($oferta->valor ?? 0, 2, ',', '.') }}
                     </span>
-                    <span class="text-sm font-medium text-gray-500">
+                    <span
+                        id="oferta-unidade"
+                        class="text-sm font-medium text-gray-500"
+                    >
                         / {{ $oferta->unidade ?? 'Unidade' }}
                     </span>
                 </div>
@@ -97,27 +125,41 @@
             <div class="border border-gray-200 rounded-xl p-5 flex flex-col gap-4 shadow-sm bg-white">
                 
                 <div>
-                    <span class="text-xs text-gray-500 block mb-1">Valor da oferta</span>
+                    <span class="text-xs text-gray-500 block mb-1">
+                        Valor da oferta
+                    </span>
                     <div class="text-2xl font-bold text-gray-900">
-                        R$ {{ number_format($oferta->valor ?? 0, 2, ',', '.') }}
+                        R$
+                        <span id="oferta-valor-box">
+                            {{ number_format($oferta->valor ?? 0, 2, ',', '.') }}
+                        </span>
                     </div>
                 </div>
 
                 <div class="inline-flex items-center gap-1.5 text-xs text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-md font-medium border border-emerald-100">
                     <span class="material-symbols-outlined text-sm">inventory_2</span>
+
                     <span>
-                        Em estoque: 
+                        Em estoque:
+
                         <strong>
-                            @if(isset($oferta->quantidade))
-                                @if(strtolower($oferta->unidade) === 'saca')
-                                    {{ number_format($oferta->quantidade, 0, ',', '.') }}
+                            <span id="oferta-quantidade">
+                                @if(isset($oferta->quantidade))
+                                    @if(strtolower($oferta->unidade) === 'saca')
+                                        {{ number_format($oferta->quantidade, 0, ',', '.') }}
+                                    @else
+                                        {{ fmod($oferta->quantidade, 1) == 0
+                                            ? number_format($oferta->quantidade, 0, ',', '.')
+                                            : number_format($oferta->quantidade, 2, ',', '.') }}
+                                    @endif
                                 @else
-                                    {{ fmod($oferta->quantidade, 1) == 0 ? number_format($oferta->quantidade, 0, ',', '.') : number_format($oferta->quantidade, 2, ',', '.') }}
+                                    0
                                 @endif
-                            @else
-                                0
-                            @endif
-                            {{ $oferta->unidade ?? '' }}
+                            </span>
+
+                            <span id="oferta-quantidade-unidade">
+                                {{ $oferta->unidade ?? '' }}
+                            </span>
                         </strong>
                     </span>
                 </div>
@@ -169,5 +211,158 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+    window.addEventListener('load', function () {
+
+        if (!window.Echo) {
+            console.error('Echo não foi carregado.');
+            return;
+        }
+
+        const ofertaShow = document.getElementById('oferta-show');
+
+        if (!ofertaShow) {
+            console.error('Elemento da oferta não encontrado.');
+            return;
+        }
+
+        const ofertaId = Number(ofertaShow.dataset.ofertaId);
+
+        console.log('Ouvindo atualizações da oferta:', ofertaId);
+
+        window.Echo.channel('ofertas')
+            .listen('.oferta.atualizada', function (event) {
+
+                console.log('OFERTA ATUALIZADA RECEBIDA:', event);
+
+                if (Number(event.oferta.id) !== ofertaId) {
+                    console.log('Atualização de outra oferta. Ignorando.');
+                    return;
+                }
+
+                console.log('Atualização pertence a esta oferta!');
+
+                const valor = Number(event.oferta.valor);
+
+                document.getElementById('oferta-valor').textContent =
+                    valor.toLocaleString('pt-BR', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    });
+
+                document.getElementById('oferta-valor-box').textContent =
+                    valor.toLocaleString('pt-BR', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    });
+
+                    const quantidade = Number(event.oferta.quantidade);
+
+                    let quantidadeFormatada;
+
+                    if (event.oferta.unidade?.toLowerCase() === 'saca') {
+                        quantidadeFormatada = quantidade.toLocaleString('pt-BR', {
+                            maximumFractionDigits: 0
+                        });
+                    } else {
+                        quantidadeFormatada = quantidade.toLocaleString('pt-BR', {
+                            minimumFractionDigits: quantidade % 1 === 0 ? 0 : 2,
+                            maximumFractionDigits: 2
+                        });
+                    }
+
+                    document.getElementById('oferta-quantidade').textContent =
+                        quantidadeFormatada;
+
+                    document.getElementById('oferta-quantidade-unidade').textContent =
+                        event.oferta.unidade ?? '';
+
+                    document.getElementById('oferta-unidade').textContent =
+                        '/ ' + (event.oferta.unidade ?? 'Unidade');
+
+                        const statusElemento = document.getElementById('oferta-status');
+
+                        if (statusElemento) {
+
+                            const status = event.oferta.status;
+
+                            statusElemento.textContent =
+                                status.charAt(0).toUpperCase() + status.slice(1);
+
+                            statusElemento.className =
+                                'inline-flex items-center px-3 py-1.5 rounded-md text-xs font-semibold';
+
+                            if (status === 'publicada') {
+
+                                statusElemento.classList.add(
+                                    'text-green-700',
+                                    'bg-green-50',
+                                    'border',
+                                    'border-green-100'
+                                );
+
+                            } else if (status === 'encerrada') {
+
+                                statusElemento.classList.add(
+                                    'text-yellow-700',
+                                    'bg-yellow-50',
+                                    'border',
+                                    'border-yellow-100'
+                                );
+
+                            } else {
+
+                                statusElemento.classList.add(
+                                    'text-red-700',
+                                    'bg-red-50',
+                                    'border',
+                                    'border-red-100'
+                                );
+                            }
+                        }
+            })
+
+            .listen('.oferta.excluida', function (event) {
+
+                console.log('OFERTA EXCLUÍDA RECEBIDA:', event);
+
+                if (Number(event.ofertaId) !== ofertaId) {
+                    console.log('Exclusão de outra oferta. Ignorando.');
+                    return;
+                }
+
+                console.log('Esta oferta foi excluída.');
+
+                const ofertaShow = document.getElementById('oferta-show');
+
+                ofertaShow.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-20 text-center">
+                        <span class="material-symbols-outlined text-6xl text-gray-400 mb-4">
+                            inventory_2
+                        </span>
+
+                        <h2 class="text-2xl font-bold text-gray-800 mb-2">
+                            Oferta não disponível
+                        </h2>
+
+                        <p class="text-gray-500 mb-6">
+                            Esta oferta foi excluída pelo fornecedor e não está mais disponível.
+                        </p>
+
+                        <a
+                            href="{{ route('home') }}"
+                            class="bg-[#236350] hover:bg-[#1B4D3E] text-white px-5 py-2.5 rounded-lg transition-colors"
+                        >
+                            Voltar para a página inicial
+                        </a>
+                    </div>
+                `;
+            });
+    });
+
+</script>
+@endpush
 
 @endsection

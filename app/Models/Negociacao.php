@@ -12,6 +12,7 @@ class Negociacao extends Model
         'oferta_id',
         'cliente_id',
         'status',
+        'fornecedor_visualizada_em',
     ];
 
     public function oferta()

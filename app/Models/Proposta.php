@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Events\PropostaCriada;
 
 class Proposta extends Model
 {
@@ -13,11 +14,13 @@ class Proposta extends Model
         'quantidade',
         'observacao',
         'status',
+        'visualizada_em',
     ];
 
     protected $casts = [
         'valor' => 'decimal:2',
         'quantidade' => 'decimal:2',
+        'visualizada_em' => 'datetime',
     ];
 
     public function negociacao()

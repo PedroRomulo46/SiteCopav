@@ -249,14 +249,23 @@
             <div class="divide-y divide-gray-100">
                 @foreach($propostas as $index => $proposta)
                     @php
-
                         $valorTotal =
                             $proposta->valor *
                             ($proposta->quantidade ?? 0);
-
                     @endphp
 
-                    <div class="p-6 hover:bg-gray-50 transition-colors">
+                    <div
+                        class="relative p-6 hover:bg-gray-50 transition-colors
+                        {{ is_null($proposta->visualizada_em) ? 'bg-yellow-50/30' : '' }}"
+                    >
+
+                        @if(is_null($proposta->visualizada_em))
+                            <span
+                                class="absolute top-4 right-4 w-2.5 h-2.5 rounded-full bg-yellow-400"
+                                title="Nova proposta"
+                            ></span>
+                        @endif
+
                         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
 
                             {{-- Informações do Cliente --}}
@@ -366,7 +375,7 @@
 
                                 @endif
                                 <a
-                                    href="{{ route('negociacoes.show', $proposta->negociacao_id) }}"
+                                    href="{{ route('propostas.visualizar', $proposta->id) }}"
                                     class="inline-flex items-center gap-1.5 text-sm font-semibold text-[#236350] hover:text-[#174c3e] transition-colors">
                                     Ver negociação
                                     <span class="material-symbols-outlined text-base">

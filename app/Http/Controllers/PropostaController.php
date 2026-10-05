@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Negociacao;
 use App\Models\Proposta;
 use Illuminate\Http\Request;
+use App\Events\PropostaCriada;
 
 class PropostaController extends Controller
 {
@@ -62,7 +63,15 @@ class PropostaController extends Controller
         $dados['usuario_id'] = $usuario->id;
         $dados['status'] = 'pendente';
 
-        Proposta::create($dados);
+        $proposta = Proposta::create($dados);
+
+        $proposta->load([
+            'negociacao.oferta.produto',
+            'negociacao.oferta.fornecedor',
+            'usuario',
+        ]);
+
+        event(new PropostaCriada($proposta));
 
         return redirect()
             ->route('negociacoes.show', $negociacao)
@@ -102,6 +111,40 @@ class PropostaController extends Controller
             ->with(
                 'sucesso',
                 'Proposta recusada.'
-            );
+            );      
+    }
+
+    public function visualizar(Proposta $proposta)
+    {
+        $proposta->load([
+            'negociacao.oferta.fornecedor'
+        ]);
+
+        $usuario = auth()->user();
+
+        // Apenas o fornecedor dono da oferta ou um administrador
+        // pode visualizar a proposta dessa forma.
+        if ($usuario->user_type !== 'admin') {
+            if (
+                !$usuario->fornecedor ||
+                !$proposta->negociacao->oferta->fornecedor ||
+                $proposta->negociacao->oferta->fornecedor->id !== $usuario->fornecedor->id
+            ) {
+                abort(403);
+            }
+        }
+
+        // Marca a proposta como visualizada
+        if (!$proposta->visualizada_em) {
+            $proposta->update([
+                'visualizada_em' => now(),
+            ]);
+        }
+
+        // Entra na negociação daquela proposta
+        return redirect()->route(
+            'negociacoes.show',
+            $proposta->negociacao_id
+        );
     }
 }

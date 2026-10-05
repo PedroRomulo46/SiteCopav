@@ -51,61 +51,153 @@
   @auth
   <div class="bg-white rounded-xl p-4 flex flex-col gap-3 shadow-md" x-data="{ abaAtiva: '{{ auth()->user()->fornecedor ? 'lotes' : 'demandas' }}' }">
     <div role="tablist" class="tabs tabs-border w-full flex justify-around border-b pb-2">
-      @if(auth()->user()->fornecedor)
-      <button
-        @click="abaAtiva = 'lotes'"
-        :class="{ 'tab-active font-bold text-gray-800': abaAtiva === 'lotes', 'text-gray-500': abaAtiva !== 'lotes' }"
-        class="tab transition-all pb-1">
-        Meus Lotes
-      </button>
-      @endif
-      <button
-        @click="abaAtiva = 'demandas'"
-        :class="{ 'tab-active font-bold text-gray-800': abaAtiva === 'demandas', 'text-gray-500': abaAtiva !== 'demandas' }"
-        class="tab transition-all pb-1">
-        Demandas da Empresa
-      </button>
-    </div>
 
-    {{-- ABA 1: Meus Lotes (Apenas para Empresas/Fornecedores) --}}
+      @if(auth()->user()->fornecedor)
+          <button
+              @click="abaAtiva = 'lotes'"
+              :class="{
+                  'tab-active font-bold text-gray-800': abaAtiva === 'lotes',
+                  'text-gray-500': abaAtiva !== 'lotes'
+              }"
+              class="tab transition-all pb-1 flex items-center justify-center gap-2"
+          >
+
+              <span>Minhas Ofertas</span>
+
+              @if($novasPropostas > 0)
+
+                  {{-- Indicador de novas propostas --}}
+                  <span
+                      class="rounded-full bg-yellow-400 text-gray-900 font-bold
+                            flex items-center justify-center transition-all duration-200"
+                      :class="abaAtiva === 'lotes'
+                          ? 'min-w-5 h-5 px-1.5 text-[10px]'
+                          : 'w-2 h-2'"
+                      title="{{ $novasPropostas }}
+                          {{ $novasPropostas === 1 ? 'nova proposta' : 'novas propostas' }}"
+                  >
+                      <span x-show="abaAtiva === 'lotes'">
+                          {{ $novasPropostas }}
+                      </span>
+                  </span>
+
+              @endif
+
+          </button>
+      @endif
+
+      <button
+          @click="abaAtiva = 'demandas'"
+          :class="{
+              'tab-active font-bold text-gray-800': abaAtiva === 'demandas',
+              'text-gray-500': abaAtiva !== 'demandas'
+          }"
+          class="tab transition-all pb-1 flex items-center justify-center gap-2"
+      >
+          <span>Demandas da Empresa</span>
+      </button>
+
+  </div>
+
+    {{-- ABA 1: Minhas Ofertas --}}
     @if(auth()->user()->fornecedor)
     <div x-show="abaAtiva === 'lotes'" class="flex flex-col gap-3 mt-2">
-      @forelse($ofertas->take(5) as $oferta)
-      <div class="flex items-start gap-3 p-3 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-[0_0_20px_2px_rgba(0,0,0,0.15)] transition-shadow">
-        <img
-          class="w-20 h-20 rounded-lg object-cover shrink-0"
-          src="{{ $oferta->produto->imagem 
-              ? (str_contains($oferta->produto->imagem, 'assets/') 
-                  ? asset($oferta->produto->imagem) 
-                  : asset('storage/' . $oferta->produto->imagem))
-              : asset('assets/milho.png') }}"
-          alt="{{ $oferta->produto->nome ?? 'Produto' }}"
-        />
-        <div class="flex flex-col justify-between grow self-stretch text-xs">
-          <div>
-            <h3 class="font-bold text-gray-800 text-sm">[Lote #{{ $oferta->id }}]: {{ $oferta->quantidade }} {{ $oferta->unidade }} {{ $oferta->produto->nome ?? '' }}</h3>
-            <p class="text-gray-500">
-              Expira em: {{ $oferta->data_validade ? \Carbon\Carbon::parse($oferta->data_validade)->format('d/m/Y') : 'Sem data' }}
-            </p>
+
+        @forelse($ofertas->take(5) as $oferta)
+          @php
+              $temNovaProposta = $ofertasComNovasPropostas->has($oferta->id);
+
+              $negociacaoNova = $temNovaProposta
+                  ? $ofertasComNovasPropostas->get($oferta->id)
+                  : null;
+
+              $negociacao = $negociacaoNova
+                  ?? $oferta->negociacoes->sortByDesc('id')->first();
+          @endphp
+
+          <div
+              class="relative flex items-start gap-3 p-3 bg-white rounded-xl border border-gray-100 shadow-sm transition-all
+              hover:shadow-[0_0_20px_2px_rgba(0,0,0,0.15)]"
+          >
+
+              @if($temNovaProposta)
+                  <span
+                      class="absolute top-2 right-2 w-3 h-3 rounded-full bg-yellow-400"
+                      title="Nova proposta recebida"
+                  ></span>
+              @endif
+
+              {{-- Imagem --}}
+              <img
+                  class="w-20 h-20 object-cover rounded-lg"
+                  src="{{ $oferta->produto->imagem
+                      ? asset('storage/' . $oferta->produto->imagem)
+                      : asset('images/sem-imagem.png') }}"
+                  alt="{{ $oferta->produto->nome }}"
+              >
+
+              {{-- Informações --}}
+              <div class="flex-1 min-w-0">
+
+                  <h3 class="font-bold text-sm text-gray-800">
+                      [Oferta #{{ $oferta->id }}]:
+                      {{ number_format($oferta->quantidade, 2, ',', '.') }}
+                      {{ $oferta->unidade }}
+                      {{ $oferta->produto->nome }}
+                  </h3>
+
+                  <p class="text-xs text-gray-500">
+                      Expira em:
+                      {{ \Carbon\Carbon::parse($oferta->data_expiracao)->format('d/m/Y') }}
+                  </p>
+
+                  {{-- Botões --}}
+                  <div class="flex justify-end gap-2 mt-2">
+
+                      @if($negociacao)
+
+                          <a
+                              href="{{ route('ofertas.propostas', $oferta->id) }}"
+                              class="inline-flex items-center gap-1.5 text-sm font-semibold text-[#236350] hover:text-[#174c3e] transition-colors">
+                              Ver negociação
+                              <span class="material-symbols-outlined text-base">
+                                  arrow_forward
+                              </span>
+                          </a>
+
+                      @endif
+
+                      <a
+                          href="{{ route('ofertas.show', $oferta->id) }}"
+                          class="btn bg-[#17624f] hover:bg-[#125341] text-white p-2 btn-xs sm:btn-sm rounded-md"
+                      >
+                          Ver detalhes
+                      </a>
+
+                  </div>
+
+              </div>
+
           </div>
-          <div class="flex justify-end mt-2">
-            <a href="{{ route('ofertas.show', $oferta->id) }}" class="btn bg-[#236350] hover:bg-[#1B4D3E] text-white p-2 btn-xs sm:btn-sm rounded-md">
-              Ver detalhes
-            </a>
-          </div>
-        </div>
-      </div>
+
       @empty
-        <p class="text-gray-500 text-sm text-center py-4">Você ainda não possui lotes cadastrados.</p>
+
+          <p class="text-gray-500 text-sm">
+              Você ainda não possui ofertas.
+          </p>
+
       @endforelse
 
-      @if($ofertas->count() > 5)
-      <div class="flex justify-center mt-2">
-        <a href="{{ route('ofertas.index') }}" class="btn btn-outline text-[#236350] border-[#236350] hover:bg-[#236350] hover:text-white w-full btn-sm rounded-md">
-          Ver mais lotes
-        </a>
-      </div>
-      @endif
+        @if($ofertas->count() > 5)
+            <div class="flex justify-center mt-2">
+                <a
+                    href="{{ route('ofertas.index') }}"
+                    class="btn btn-outline text-[#236350] border-[#236350] hover:bg-[#236350] hover:text-white w-full btn-sm rounded-md">
+                    Ver mais ofertas
+                </a>
+            </div>
+        @endif
+
     </div>
     @endif
 
@@ -170,4 +262,38 @@
   </div>
 
 </div>
+
+@push('scripts')
+<script>
+    window.addEventListener('load', function () {
+
+        if (!window.Echo) {
+            console.error('Echo não foi carregado.');
+            return;
+        }
+
+        @auth
+            @if(auth()->user()->fornecedor)
+
+                const fornecedorId = {{ auth()->user()->fornecedor->id }};
+
+                console.log('Escutando canal:', `fornecedor.${fornecedorId}`);
+
+                Echo.private(`fornecedor.${fornecedorId}`)
+                    .subscribed(() => {
+                        console.log('✅ CANAL PRIVADO CONECTADO:', `fornecedor.${fornecedorId}`);
+                    })
+                    .error((error) => {
+                        console.error('❌ ERRO NO CANAL PRIVADO:', error);
+                    })
+                    .listen('.proposta.criada', (event) => {
+                        console.log('🔔 NOVA PROPOSTA RECEBIDA:', event);
+                    });
+
+            @endif
+        @endauth
+
+    });
+</script>
+@endpush
 @endsection

@@ -6,6 +6,7 @@ use App\Models\Negociacao;
 use App\Models\Oferta;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Events\NegociacaoCriada;
 
 class NegociacaoController extends Controller
 {
@@ -291,6 +292,14 @@ class NegociacaoController extends Controller
         'status'     => 'em_negociacao',
     ]);
 
+    $negociacao->load([
+        'oferta.produto',
+        'oferta.fornecedor',
+        'cliente'
+    ]);
+
+    event(new NegociacaoCriada($negociacao));
+
     return redirect()
         ->route('negociacoes.show', $negociacao)
         ->with('success', 'Negociação iniciada com sucesso!');
@@ -306,6 +315,40 @@ class NegociacaoController extends Controller
         ]);
 
         return view('negociacoes.show', compact('negociacao'));
+    }
+
+    public function visualizar(Proposta $proposta)
+    {
+        $proposta->load([
+            'negociacao.oferta.fornecedor'
+        ]);
+
+        $usuario = auth()->user();
+
+        // ADMIN pode visualizar qualquer proposta
+        if ($usuario->user_type !== 'admin') {
+
+            // Somente o fornecedor dono da oferta pode visualizar
+            if (
+                !$usuario->fornecedor ||
+                !$proposta->negociacao->oferta->fornecedor ||
+                $proposta->negociacao->oferta->fornecedor->id !== $usuario->fornecedor->id
+            ) {
+                abort(403);
+            }
+        }
+
+        // Marca somente esta proposta como visualizada
+        if (!$proposta->visualizada_em) {
+            $proposta->update([
+                'visualizada_em' => now(),
+            ]);
+        }
+
+        return redirect()->route(
+            'negociacoes.show',
+            $proposta->negociacao_id
+        );
     }
 
     public function edit(Negociacao $negociacao)
@@ -328,6 +371,31 @@ class NegociacaoController extends Controller
         return redirect()
             ->route('negociacoes.index')
             ->with('sucesso', 'Negociação atualizada com sucesso!');
+    }
+
+    //marcar como vizualizada pelo fornecedor
+    public function marcarComoVisualizada(Negociacao $negociacao)
+    {
+        $usuario = auth()->user();
+
+        if ($usuario->user_type !== 'admin') {
+            if (
+                !$usuario->fornecedor ||
+                $negociacao->oferta->fornecedor_id !== $usuario->fornecedor->id
+            ) {
+                abort(403);
+            }
+        }
+
+        if (!$negociacao->fornecedor_visualizada_em) {
+            $negociacao->update([
+                'fornecedor_visualizada_em' => now(),
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+        ]);
     }
 
     public function destroy(Negociacao $negociacao)
