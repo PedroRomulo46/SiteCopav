@@ -18,15 +18,14 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
 
-            $table->enum('user_type', [
-                'cliente',
-                'fornecedor',
-                'admin'
-            ])->default('cliente');
+            $table->enum('user_type', ['cliente', 'fornecedor', 'admin'])->default('cliente');
+
+            // Coluna para definir se é admin
+            $table->boolean('is_admin')->default(false);
 
             $table->rememberToken();
-
             $table->timestamps();
+
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

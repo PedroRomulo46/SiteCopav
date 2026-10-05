@@ -12,13 +12,14 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\DemandaController;
 use App\Http\Controllers\OfertaDiretaController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\AdminDashboardController;
 
 // ROTAS PÚBLICAS (Visitantes e Autenticados)
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::resource('categorias', CategoriaController::class)->only(['index', 'show']);
 
-// Faz o SHOW das ofertas ficarem públicos
-Route::get('/ofertas/{oferta}', [OfertaController::class, 'show'])->name('ofertas.show');
+// Listagem pública de ofertas
+Route::get('/ofertas', [OfertaController::class, 'index'])->name('ofertas.index');
 
 // ROTAS PROTEGIDAS (Exigem Login)
 Route::middleware('auth')->group(function () {
@@ -27,13 +28,13 @@ Route::middleware('auth')->group(function () {
         return redirect()->route('home');
     })->middleware('verified')->name('dashboard');
 
-// Lotes / Ofertas (Restrito a usuários logados)
-Route::get('/ofertas/{oferta}/card', [OfertaController::class, 'card'])
-    ->name('ofertas.card');
+    // Lotes / Ofertas (Restrito a usuários logados)
+    Route::get('/ofertas/{oferta}/card', [OfertaController::class, 'card'])
+      ->name('ofertas.card');
 
-Route::resource('ofertas', OfertaController::class);
+    Route::resource('ofertas', OfertaController::class);
 
-    // Demandas (Restrito a usuários logados)
+    // Demandas
     Route::resource('demandas', DemandaController::class);
 
     // Produtos
@@ -43,7 +44,7 @@ Route::resource('ofertas', OfertaController::class);
     // Chat
     Route::get('/chat', [ChatController::class, 'index'])->name('chat');
 
-    // Categorias (Ações administrativas)
+    // Categorias
     Route::resource('categorias', CategoriaController::class)->except(['index', 'show']);
 
     // Recursos de Fornecedor e Negociações
@@ -63,5 +64,13 @@ Route::resource('ofertas', OfertaController::class);
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+// ROTAS EXCLUSIVAS DA EMPRESA (ADMIN)
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+});
+
+// Rota com parâmetro dinâmico em último para evitar conflitos
+Route::get('/ofertas/{oferta}', [OfertaController::class, 'show'])->name('ofertas.show');
 
 require __DIR__.'/auth.php';
