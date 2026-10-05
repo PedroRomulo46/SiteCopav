@@ -201,7 +201,7 @@
             </a>
 
             <button type="submit"
-                    class="px-5 py-2.5 btn-copav text-white rounded-md text-sm shadow-md transition-all cursor-pointer border-0 hover:opacity-90">
+                    class="p-2 btn-copav text-white rounded-md text-sm shadow-md transition-all cursor-pointer border-0 hover:opacity-90">
                 Cadastrar oferta
             </button>
 

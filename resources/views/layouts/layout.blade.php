@@ -39,6 +39,11 @@
             display: flex !important;
           }
         }
+
+        .nav-link:hover {
+          color: #fcd34d !important; /* Cor equivalente a amber-300 */
+        }
+
     </style>
 
 </head>
@@ -66,7 +71,7 @@
           </div>
 
           {{-- Banner Oferta --}}
-          <div class="hidden xl:flex items-center gap-3 bg-amber-100 hover:bg-slate-700 border border-emerald-700 p-1.5 px-3 rounded-full shadow-md transition-all cursor-pointer group shrink-0">
+          <div class="xl:flex hidden items-center gap-3 bg-amber-100 hover:bg-slate-700 border border-emerald-700 p-1.5 px-3 rounded-full shadow-md transition-all cursor-pointer group shrink-0">
             <span class="bg-emerald-800 group-hover:bg-amber-400 transition-colors text-white font-bold text-[10px] uppercase px-2 py-0.5 rounded-full shrink-0">
               Oferta
             </span>
@@ -101,9 +106,15 @@
           
           {{-- Links de Navegação Principal --}}
           <nav class="flex items-center gap-6 font-medium">
-            <a href="{{ route('home') }}" class="hover:text-amber-300 transition-colors">Início</a>
-            <a href="{{ route('ofertas.index') }}" class="hover:text-amber-300 transition-colors">Lotes</a>
-            <a href="{{ route('demandas.index') }}" class="hover:text-amber-300 transition-colors">Demandas</a>
+            <a href="{{ route('home') }}" class="nav-link transition-colors">Início</a>
+
+            {{-- Exibe Lotes e Demandas apenas para Fornecedores ou Admins --}}
+            @auth
+              @if(auth()->user()->fornecedor || auth()->user()->is_admin || auth()->user()->user_type === 'admin' || auth()->user()->email === 'copavagricola@example.com')
+                <a href="{{ route('ofertas.index') }}" class="nav-link transition-colors">Lotes</a>
+                <a href="{{ route('demandas.index') }}" class="nav-link transition-colors">Demandas</a>
+              @endif
+            @endauth
             
             {{-- Dropdown Categorias --}}
             <div class="dropdown relative">
@@ -111,8 +122,47 @@
                 <span>Categorias</span>
                 <span class="material-symbols-outlined text-base">expand_more</span>
               </div>
-              <ul tabindex="0" class="dropdown-content menu bg-white text-gray-800 rounded-box z-50 w-52 p-2 shadow-xl mt-1 border border-gray-100">
-                <li><a href="{{ route('categorias.index') }}" class="hover:bg-emerald-50 hover:text-[#1B4D3E] font-medium">Todas as Categorias</a></li>
+              
+              <ul tabindex="0" class="dropdown-content menu bg-white text-gray-800 rounded-box z-50 w-56 p-2 shadow-xl mt-1 border border-gray-100 max-h-60 overflow-y-auto">
+                
+                {{-- Condição de Acesso: Apenas Admin vê "Ver Todas" --}}
+                @auth
+                  @if(auth()->user()->is_admin || auth()->user()->user_type === 'admin' || auth()->user()->email === 'copavagricola@example.com')
+                    <li>
+                      <a href="{{ route('categorias.index') }}" class="font-bold text-[#1B4D3E] hover:bg-emerald-50">
+                        <span class="material-symbols-outlined text-base">list</span>
+                        Ver Todas
+                      </a>
+                    </li>
+                  @else
+                    <li>
+                      <a href="{{ route('categorias.create') }}" class="font-bold text-amber-700 hover:bg-amber-50">
+                        <span class="material-symbols-outlined text-base">add_circle</span>
+                        Sugerir Categoria
+                      </a>
+                    </li>
+                  @endif
+                @else
+                  <li>
+                    <a href="{{ route('categorias.create') }}" class="font-bold text-amber-700 hover:bg-amber-50">
+                      <span class="material-symbols-outlined text-base">add_circle</span>
+                      Sugerir Categoria
+                    </a>
+                  </li>
+                @endauth
+
+                <div class="divider my-1"></div>
+
+                {{-- Lista dinâmica de Categorias do Banco de Dados --}}
+                @forelse($categorias ?? [] as $categoria)
+                  <li>
+                    <a href="{{ route('categorias.show', $categoria->id) }}" class="hover:bg-emerald-50 hover:text-[#1B4D3E]">
+                      {{ $categoria->nome }}
+                    </a>
+                  </li>
+                @empty
+                  <li class="text-xs text-gray-400 p-2 text-center">Nenhuma categoria encontrada</li>
+                @endforelse
               </ul>
             </div>
           </nav>
@@ -193,9 +243,50 @@
         <div x-show="menuMobileAberto" x-cloak x-transition class="lg:hidden flex flex-col gap-3 border-t border-[#236350] pt-3 text-sm">
           <nav class="flex flex-col gap-1 font-medium">
             <a href="{{ route('home') }}" class="hover:bg-[#236350] p-2 rounded-md">Início</a>
-            <a href="{{ route('ofertas.index') }}" class="hover:bg-[#236350] p-2 rounded-md">Lotes</a>
-            <a href="{{ route('demandas.index') }}" class="hover:bg-[#236350] p-2 rounded-md">Demandas</a>
-            <a href="{{ route('categorias.index') }}" class="hover:bg-[#236350] p-2 rounded-md">Categorias</a>
+
+            {{-- Exibe Lotes e Demandas no Mobile apenas para Fornecedores ou Admins --}}
+            @auth
+              @if(auth()->user()->fornecedor || auth()->user()->is_admin || auth()->user()->user_type === 'admin' || auth()->user()->email === 'copavagricola@example.com')
+                <a href="{{ route('ofertas.index') }}" class="hover:bg-[#236350] p-2 rounded-md">Lotes</a>
+                <a href="{{ route('demandas.index') }}" class="hover:bg-[#236350] p-2 rounded-md">Demandas</a>
+              @endif
+            @endauth
+
+            {{-- Dropdown Categorias Mobile --}}
+            <div x-data="{ openCat: false }">
+              <button @click="openCat = !openCat" class="flex items-center justify-between w-full p-2 hover:bg-[#236350] rounded-md text-left">
+                <span>Categorias</span>
+                <span class="material-symbols-outlined text-sm" x-text="openCat ? 'expand_less' : 'expand_more'">expand_more</span>
+              </button>
+              
+              <div x-show="openCat" x-cloak class="pl-4 flex flex-col gap-1 mt-1">
+                
+                @auth
+                  @if(auth()->user()->is_admin || auth()->user()->user_type === 'admin' || auth()->user()->email === 'copavagricola@example.com')
+                    <a href="{{ route('categorias.index') }}" class="p-1.5 text-xs text-amber-300 hover:bg-[#236350] rounded font-semibold flex items-center gap-1">
+                      <span class="material-symbols-outlined text-sm">list</span>
+                      Ver Todas
+                    </a>
+                  @else
+                    <a href="{{ route('categorias.create') }}" class="p-1.5 text-xs text-amber-300 hover:bg-[#236350] rounded font-semibold flex items-center gap-1">
+                      <span class="material-symbols-outlined text-sm">add_circle</span>
+                      Sugerir Categoria
+                    </a>
+                  @endif
+                @else
+                  <a href="{{ route('categorias.create') }}" class="p-1.5 text-xs text-amber-300 hover:bg-[#236350] rounded font-semibold flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">add_circle</span>
+                    Sugerir Categoria
+                  </a>
+                @endauth
+
+                @foreach($categorias ?? [] as $categoria)
+                  <a href="{{ route('categorias.show', $categoria->id) }}" class="p-1.5 text-xs hover:bg-[#236350] rounded">
+                    {{ $categoria->nome }}
+                  </a>
+                @endforeach
+              </div>
+            </div>
           </nav>
 
           <div class="border-t border-[#236350] pt-2 flex flex-col gap-1">
@@ -242,7 +333,7 @@
             @guest
               <div class="flex flex-col gap-2 p-2">
                 <a href="{{ route('login') }}" class="btn bg-[#236350] hover:bg-[#123228] text-white btn-sm border-none w-full">Entre</a>
-                <a href="{{ route('register') }}" class="btn btn-outline text-white hover:bg-[#236350] btn-sm w-full">Crie a sua conta</a>
+                <a href="{{ route('register') }}" class="btn bg-[#236350] hover:bg-[#123228] text-white btn-sm border-none w-full">Crie a sua conta</a>
               </div>
             @endguest
           </div>

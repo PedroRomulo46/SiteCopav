@@ -10,8 +10,7 @@
     <div class="mb-6">
         <a
             href="{{ route('ofertas.index') }}"
-            class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-[#236350] transition-colors"
-        >
+            class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-[#236350] transition-colors">
             <span class="material-symbols-outlined text-lg">
                 arrow_back
             </span>
