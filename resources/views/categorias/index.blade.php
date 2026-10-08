@@ -1,10 +1,13 @@
 @extends('layouts.layout')
 
+@section('title', 'Categorias')
+
 @section('conteudo')
 
 {{-- Botão Voltar --}}
 <div class="mb-4">
-    <a href="{{ route('demandas.index') }}" class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-[#1B4D3E] transition-colors">
+    <a href="{{ route('demandas.index') }}"
+    class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-[#1B4D3E] transition-colors">
         <span class="material-symbols-outlined text-lg">arrow_back</span>
         Voltar para a página inicial
     </a>
