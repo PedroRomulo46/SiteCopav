@@ -163,11 +163,22 @@
                                 <div class="flex items-center gap-3">
                                     {{-- Identificação/Autor da proposta alinhado à esquerda --}}
                                     <div class="flex items-center gap-1.5 text-gray-700 font-semibold">
-                                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z">
+                                            </path>
                                         </svg>
-                                        <span>{{ $proposta->tipo_usuario ?? 'Fornecedor' }}</span>
+
+                                        <span>
+                                            {{ $proposta->usuario->nome ?? 'Usuário' }}
+                                        </span>
                                     </div>
+
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full
+                                                text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
+                                        {{ $proposta->usuario->user_type === 'cliente' ? 'Cliente' : 'Fornecedor' }}
+                                    </span>
 
                                     {{-- Badge de Status da Proposta ao lado do autor --}}
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Negociacao;
 use App\Models\Oferta;
 use App\Models\User;
+use App\Models\Proposta;
 use Illuminate\Http\Request;
 use App\Events\NegociacaoCriada;
 
@@ -41,18 +42,9 @@ class NegociacaoController extends Controller
                             'fornecedor_id',
                             $usuario->fornecedor->id
                         );
-
                     });
                 }
-
-            })
-            ->with([
-                'oferta.produto',
-                'oferta.fornecedor',
-                'cliente',
-                'propostas.usuario'
-            ])
-            ->get();
+            })->with(['oferta.produto', 'oferta.fornecedor', 'cliente', 'propostas.usuario'])->get();
         }
 
         // Agrupa as negociações pela oferta
@@ -78,45 +70,19 @@ class NegociacaoController extends Controller
     {
         $usuario = auth()->user();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Verificar se o usuário pode visualizar as propostas
-        |--------------------------------------------------------------------------
-        */
-
-        // ADMIN pode visualizar tudo
+        // Apenas ADMIN ou o fornecedor dono da oferta
+        // podem visualizar as propostas recebidas.
         if ($usuario->user_type !== 'admin') {
 
-            $podeVisualizar = false;
-
-            // É o fornecedor dono da oferta?
             if (
-                $usuario->fornecedor &&
-                $oferta->fornecedor_id === $usuario->fornecedor->id
+                !$usuario->fornecedor ||
+                $oferta->fornecedor_id !== $usuario->fornecedor->id
             ) {
-                $podeVisualizar = true;
-            }
-
-            // Participa de alguma negociação dessa oferta?
-            if (
-                Negociacao::where('oferta_id', $oferta->id)
-                    ->where('cliente_id', $usuario->id)
-                    ->exists()
-            ) {
-                $podeVisualizar = true;
-            }
-
-            if (!$podeVisualizar) {
                 abort(403);
             }
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Buscar negociações e propostas
-        |--------------------------------------------------------------------------
-        */
-
+        // Buscar negociações e propostas
         $negociacoes = Negociacao::where('oferta_id', $oferta->id)
             ->with([
                 'cliente',
@@ -137,12 +103,7 @@ class NegociacaoController extends Controller
 
             });
 
-        /*
-        |--------------------------------------------------------------------------
-        | Filtro por status
-        |--------------------------------------------------------------------------
-        */
-
+        // Filtro por status
         $status = $request->query('status', 'todas');
 
         if (in_array($status, [
@@ -307,14 +268,34 @@ class NegociacaoController extends Controller
 
     public function show(Negociacao $negociacao)
     {
-        $negociacao->load([
-            'oferta.produto',
-            'oferta.fornecedor',
-            'cliente',
-            'propostas.usuario'
-        ]);
+    $usuario = auth()->user();
 
+    $negociacao->load([
+        'oferta.produto',
+        'oferta.fornecedor',
+        'cliente',
+        'propostas.usuario'
+    ]);
+
+    // Admin pode ver qualquer negociação
+    if ($usuario->user_type === 'admin') {
         return view('negociacoes.show', compact('negociacao'));
+    }
+
+    // Cliente só pode ver suas próprias negociações
+    if ($negociacao->cliente_id === $usuario->id) {
+        return view('negociacoes.show', compact('negociacao'));
+    }
+
+    // Fornecedor só pode ver negociações das suas ofertas
+    if (
+        $usuario->fornecedor &&
+        $negociacao->oferta->fornecedor_id === $usuario->fornecedor->id
+    ) {
+        return view('negociacoes.show', compact('negociacao'));
+    }
+
+    abort(403);
     }
 
     public function visualizar(Proposta $proposta)
