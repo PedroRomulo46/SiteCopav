@@ -44,21 +44,26 @@
 
                 <select
                     name="produto_id"
+                    id="produto_id"
                     required
+                    onchange="verificarCriarProduto(this)"
                     class="p-3 w-full border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">
                     <option value="">
                         Selecione o produto
                     </option>
 
-                    @foreach($produtos as $produto)
+                    @forelse($produtos as $produto)
                         <option
                             value="{{ $produto->id }}"
                             {{ old('produto_id') == $produto->id ? 'selected' : '' }}>
                             {{ $produto->nome }}
-                            -
-                            {{ $produto->categoria->nome ?? 'Sem Categoria' }}
+                            - {{ $produto->categoria->nome ?? 'Sem Categoria' }}
                         </option>
-                    @endforeach
+                    @empty
+                        <option value="__criar_produto__">
+                            + Criar produto
+                        </option>
+                    @endforelse
                 </select>
             </div>
 
@@ -220,11 +225,15 @@
     function atualizarDataInicio() {
 
         if (status.value === 'publicada') {
-
             dataInicio.value = hoje;
             dataInicio.min = hoje;
-
             dataValidade.min = hoje;
+        }
+    }
+
+    function verificarCriarProduto(select) {
+        if (select.value === '__criar_produto__') {
+            window.location.href = "{{ route('produtos.create') }}";
         }
     }
 

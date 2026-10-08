@@ -43,7 +43,7 @@
 
     {{-- Cartão Principal do Formulário --}}
     <div class="max-w-6xl mx-auto bg-white rounded-xl border border-gray-100 shadow-sm p-6 sm:p-8">
-        <form action="{{ route('demandas.store') }}" method="POST" class="space-y-6">
+        <form action="{{ route('demandas.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
             @csrf
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -82,6 +82,29 @@
                         required 
                     />
                 </div>
+            </div>
+
+            {{-- Imagem da Demanda --}}
+            <div class="form-control w-full">
+                <label class="label font-semibold text-gray-700">
+                    <span class="label-text flex items-center gap-1.5 font-medium">
+                        <span class="material-symbols-outlined text-[#1B4D3E] text-lg">
+                            image
+                        </span>
+                        Imagem da demanda
+                    </span>
+                </label>
+
+                <input
+                    type="file"
+                    name="imagem"
+                    accept="image/jpeg,image/png,image/jpg,image/webp"
+                    class="file-input file-input-bordered w-full bg-gray-50/50"
+                >
+
+                <p class="text-xs text-gray-500 mt-1">
+                    JPG, PNG ou WEBP. Máximo de 2 MB.
+                </p>
             </div>
 
             {{-- Descrição --}}

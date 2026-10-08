@@ -11,36 +11,34 @@ class ProdutoController extends Controller
 {
     public function index()
     {
+    $usuario = auth()->user();
+
+    // Administrador pode visualizar todos os produtos
+    if ($usuario->user_type === 'admin') {
         $produtos = Produto::with([
             'fornecedor',
             'categoria'
-        ])->get();
-
-        return view('produtos.index', compact('produtos'));
-    }
-
-    public function create()
-    {
-        $fornecedor = auth()->user()->fornecedor;
+        ])
+        ->orderBy('nome')
+        ->get();
+    } else {
+        // Fornecedor visualiza somente os produtos que ele criou
+        $fornecedor = $usuario->fornecedor;
 
         if (!$fornecedor) {
-            return redirect()
-                ->route('fornecedores.create')
-                ->with('sucesso', 'Você precisa cadastrar um fornecedor antes de cadastrar produtos.');
+            abort(403);
         }
 
-        if ($fornecedor->status !== 'ativo') {
-            return redirect()
-                ->route('fornecedores.show', $fornecedor)
-                ->with('sucesso', 'Seu fornecedor ainda não está ativo.');
-        }
+        $produtos = Produto::where('fornecedor_id', $fornecedor->id)
+            ->with([
+                'fornecedor',
+                'categoria'
+            ])
+            ->orderBy('nome')
+            ->get();
+    }
 
-        $categorias = Categoria::all();
-
-        return view(
-            'produtos.create',
-            compact('categorias')
-        );
+    return view('produtos.index', compact('produtos'));
     }
 
     public function meusProdutos()
@@ -62,6 +60,36 @@ class ProdutoController extends Controller
             'produtos.meus',
             compact('produtos')
         );
+    }
+
+    public function create()
+    {
+    $fornecedor = auth()->user()->fornecedor;
+
+    if (!$fornecedor) {
+        return redirect()
+            ->route('fornecedores.create')
+            ->with(
+                'sucesso',
+                'Você precisa cadastrar um fornecedor antes de cadastrar produtos.'
+            );
+    }
+
+    if ($fornecedor->status !== 'ativo') {
+        return redirect()
+            ->route('fornecedores.show', $fornecedor)
+            ->with(
+                'sucesso',
+                'Seu fornecedor ainda não está ativo.'
+            );
+    }
+
+    $categorias = Categoria::orderBy('nome')->get();
+
+    return view(
+        'produtos.create',
+        compact('categorias')
+    );
     }
 
     public function store(Request $request)

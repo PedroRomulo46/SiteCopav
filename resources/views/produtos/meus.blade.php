@@ -20,7 +20,7 @@
 
         <a
             href="{{ route('produtos.create') }}"
-            class="inline-flex items-center gap-2 bg-[#236350] hover:bg-[#1B4D3E] text-white px-5 py-2.5 rounded-md transition-colors"
+            class="inline-flex items-center gap-2 btn-copav text-white px-5 py-2.5 rounded-md transition-colors"
         >
             <span class="material-symbols-outlined">
                 add

@@ -144,13 +144,13 @@
                   @endif
                 @else
                   <li>
-                    <a href="{{ route('categorias.create') }}" class="font-bold text-amber-700 hover:bg-amber-50">
+                    <a href="{{ route('login') }}" class="font-bold text-amber-700 hover:bg-amber-50">
                       <span class="material-symbols-outlined text-base">add_circle</span>
                       Sugerir Categoria
                     </a>
                   </li>
-                @endauth
-
+                  @endauth
+                  
                 <div class="divider my-1"></div>
 
                 {{-- Lista dinâmica de Categorias do Banco de Dados --}}

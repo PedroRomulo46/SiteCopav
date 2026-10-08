@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Demanda;
 use App\Models\Categoria;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class DemandaController extends Controller
 {
@@ -24,27 +25,35 @@ class DemandaController extends Controller
 
     public function store(Request $request)
     {
-        $dados = $request->validate([
-            'categoria_id' => 'required|exists:categorias,id',
-            'nome_produto' => 'required|string|max:255',
-            'descricao'    => 'nullable|string',
-            'quantidade'   => 'required|numeric|min:0',
-            'unidade'      => 'required|string|max:50',
-            'valor_maximo' => 'nullable|numeric|min:0',
-            'localizacao'  => 'nullable|string|max:255',
-            'data_limite'  => 'nullable|date',
-        ]);
+    $dados = $request->validate([
+        'categoria_id' => 'required|exists:categorias,id',
+        'nome_produto' => 'required|string|max:255',
+        'descricao'    => 'nullable|string',
+        'quantidade'   => 'required|numeric|min:0',
+        'unidade'      => 'required|string|max:50',
+        'valor_maximo' => 'nullable|numeric|min:0',
+        'localizacao'  => 'nullable|string|max:255',
+        'data_limite'  => 'nullable|date',
+        'imagem'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+    ]);
 
-        // Vincula a demanda ao usuário logado (Empresa/Cooperativa)
-        $dados['cliente_id'] = auth()->id();
-        $dados['user_id']    = auth()->id(); // Garante compatibilidade caso a tabela use user_id
-        $dados['status']     = 'aberta';
+    // Vincula a demanda ao usuário logado
+    $dados['cliente_id'] = auth()->id();
+    $dados['user_id']    = auth()->id();
+    $dados['status']     = 'aberta';
 
-        Demanda::create($dados);
+    // Salva a imagem
+    if ($request->hasFile('imagem')) {
+        $dados['imagem'] = $request
+            ->file('imagem')
+            ->store('demandas', 'public');
+    }
 
-        return redirect()
-            ->route('demandas.index')
-            ->with('sucesso', 'Demanda da empresa publicada com sucesso!');
+    Demanda::create($dados);
+
+    return redirect()
+        ->route('demandas.index')
+        ->with('sucesso', 'Demanda da empresa publicada com sucesso!');
     }
 
     public function show(Demanda $demanda)

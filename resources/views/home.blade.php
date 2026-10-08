@@ -22,19 +22,19 @@
         class="lg:col-span-5 h-fit p-4 rounded-2xl flex flex-col gap-4"
         style="background-color: #123228;">
 
-        {{-- 1. BLOCO SUPERIOR - AÇÕES --}}
+        {{-- BLOCO SUPERIOR - AÇÕES --}}
         @auth
             @if(auth()->user()->fornecedor)
 
                 {{-- Botões exclusivos para Fornecedores --}}
                 <a
                     href="{{ route('ofertas.create') }}"
-                    class="btn text-white bg-[#236350] hover:bg-[#1B4D3E] w-full border-none text-lg p-8 rounded-xl shadow-inner text-center flex items-center justify-center">
+                    class="text-white btn-copav w-full border-none text-lg p-5 rounded-xl shadow-inner text-center flex items-center justify-center">
                     Cadastrar Nova Oferta +
                 </a>
                 <a
                     href="{{ route('produtos.index') }}"
-                    class="btn text-white bg-[#236350] hover:bg-[#1B4D3E] w-full border-none text-lg p-6 rounded-xl shadow-md text-center flex items-center justify-center">
+                    class="text-white btn-copav w-full border-none text-lg p-5 rounded-xl shadow-md text-center flex items-center justify-center">
                     Meus Produtos
                 </a>
             @else
@@ -50,7 +50,7 @@
                     <div class="flex justify-center mt-2">
                         <a
                             href="{{ route('fornecedores.create') }}"
-                            class="btn bg-[#236350] hover:bg-[#1B4D3E] text-white btn-sm px-4 rounded-md">
+                            class="btn-copav text-white btn-sm px-4 rounded-md">
                             Virar Fornecedor
                         </a>
                     </div>
@@ -71,19 +71,19 @@
                 <div class="flex gap-2 justify-center mt-2">
                     <a
                         href="{{ route('login') }}"
-                        class="btn bg-[#236350] hover:bg-[#1B4D3E] text-white btn-sm px-4 rounded-md">
+                        class="btn-copav text-white btn-sm px-4 rounded-md">
                         Entrar
                     </a>
                     <a
                         href="{{ route('register') }}"
-                        class="btn btn-outline border border-gray-400 text-gray-700 hover:bg-gray-100 btn-sm px-4 rounded-md">
+                        class="btn-outline border border-gray-400 text-gray-700 hover:bg-gray-100 btn-sm px-4 rounded-md">
                         Cadastrar
                     </a>
                 </div>
               </div>
         @endguest
 
-        {{-- 2. BLOCO INFERIOR - USUÁRIOS AUTENTICADOS --}}
+        {{-- BLOCO INFERIOR - USUÁRIOS AUTENTICADOS --}}
         @auth
             <div
                 class="bg-white rounded-xl p-4 flex flex-col gap-3 shadow-md"
@@ -214,7 +214,7 @@
 
                                         <a
                                             href="{{ route('ofertas.show', $oferta->id) }}"
-                                            class="btn bg-[#17624f] hover:bg-[#125341] text-white p-2 btn-xs sm:btn-sm rounded-md">
+                                            class="btn-copav text-white p-2 btn-xs sm:btn-sm rounded-md">
                                             Ver detalhes
                                         </a>
                                     </div>
@@ -251,37 +251,107 @@
                         {{-- CARD DA DEMANDA --}}
                         <div
                             class="flex items-start gap-3 p-3 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-[0_0_8px_3px_rgba(0,0,0,0.2)] transition-shadow">
+
+                            {{-- IMAGEM --}}
                             <img
                                 class="w-20 h-20 rounded-lg object-cover shrink-0"
-                                src="{{ asset('assets/milho.png') }}"
-                                alt="Demanda">
+                                src="{{ $demanda->imagem
+                                    ? (
+                                        str_contains($demanda->imagem, 'assets/')
+                                        ? asset($demanda->imagem)
+                                        : asset('storage/' . str_replace('public/', '', $demanda->imagem))
+                                    )
+                                    : asset('assets/milho.png') }}"
+                                alt="{{ $demanda->nome_produto ?? 'Demanda' }}"
+                                onerror="this.onerror=null; this.src='{{ asset('assets/milho.png') }}';">
 
-                            <div class="flex flex-col justify-between grow self-stretch text-xs">
-                                <div>
-                                    <h3 class="font-bold text-gray-800 text-sm">
-                                        [Demanda #{{ $demanda->id }}]:
-                                        {{ $demanda->titulo ?? 'Solicitação de Compra' }}
-                                    </h3>
+                            {{-- CONTEÚDO --}}
+                            <div class="flex-1 min-w-0">
 
-                                    <p class="text-gray-500">
-                                        Status:
-                                        {{ $demanda->status ?? 'Aberta' }}
+                                {{-- TÍTULO --}}
+                                <h3 class="font-bold text-gray-800 text-sm leading-tight">
+                                    [Demanda #{{ $demanda->id }}]:
+                                    {{ $demanda->nome_produto }}
+                                </h3>
+
+                                {{-- DESCRIÇÃO --}}
+                                @if($demanda->descricao)
+                                    <p class="text-xs text-gray-500 mt-1 truncate">
+                                        {{ $demanda->descricao }}
                                     </p>
+                                @endif
+
+                                {{-- INFORMAÇÕES --}}
+                                <div class="grid grid-cols-2 gap-x-6 mt-1 text-xs leading-4 text-gray-500">
+
+                                    <p>
+                                        Quantidade:
+                                        <strong class="text-gray-700">
+                                            {{ number_format($demanda->quantidade, 2, ',', '.') }}
+                                            {{ $demanda->unidade }}
+                                        </strong>
+                                    </p>
+
+                                    @if($demanda->valor_maximo !== null)
+                                        <p>
+                                            Valor máximo:
+                                            <strong class="text-gray-700">
+                                                R$ {{ number_format($demanda->valor_maximo, 2, ',', '.') }}
+                                            </strong>
+                                        </p>
+                                    @else
+                                        <p></p>
+                                    @endif
+
+                                    @if($demanda->localizacao)
+                                        <p>
+                                            Localização:
+                                            <strong class="text-gray-700">
+                                                {{ $demanda->localizacao }}
+                                            </strong>
+                                        </p>
+                                    @else
+                                        <p></p>
+                                    @endif
+
+                                    @if($demanda->data_limite)
+                                        <p>
+                                            Prazo:
+                                            <strong class="text-gray-700">
+                                                {{ \Carbon\Carbon::parse($demanda->data_limite)->format('d/m/Y') }}
+                                            </strong>
+                                        </p>
+                                    @else
+                                        <p></p>
+                                    @endif
+
+                                    <p>
+                                        Status:
+                                        <strong class="text-gray-700">
+                                            {{ ucfirst($demanda->status ?? 'aberta') }}
+                                        </strong>
+                                    </p>
+
                                 </div>
 
-                                <div class="flex justify-end mt-2">
-                                    <button
-                                        class="btn bg-[#236350] hover:bg-[#1B4D3E] text-white p-2 btn-xs sm:btn-sm rounded-md">
+                                {{-- BOTÃO --}}
+                                <div class="flex justify-end mt-1">
+                                    <a
+                                        href="{{ route('demandas.show', $demanda->id) }}"
+                                        class="btn-copav text-white px-3 py-1.5 text-xs rounded-md">
                                         Enviar Proposta
-                                    </button>
+                                    </a>
                                 </div>
+
                             </div>
                         </div>
+
                     @empty
                         <p class="text-gray-500 text-sm text-center py-4">
                             Nenhuma demanda corporativa aberta no momento.
                         </p>
                     @endforelse
+
                 </div>
             </div>
         @endauth

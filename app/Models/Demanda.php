@@ -17,6 +17,7 @@ class Demanda extends Model
         'localizacao',
         'data_limite',
         'status',
+        'imagem',
     ];
 
     protected $casts = [
