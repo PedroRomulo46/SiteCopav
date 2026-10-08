@@ -118,7 +118,7 @@
             
             {{-- Dropdown Categorias --}}
             <div class="dropdown relative">
-              <div tabindex="0" role="button" class="flex items-center gap-1 hover:text-amber-300 transition-colors cursor-pointer py-1">
+              <div tabindex="0" role="button" class="flex items-center gap-1 nav-link transition-colors cursor-pointer py-1">
                 <span>Categorias</span>
                 <span class="material-symbols-outlined text-base">expand_more</span>
               </div>
@@ -171,25 +171,25 @@
           <div class="flex items-center gap-6">
             @auth
 
-              <a href="{{ route('negociacoes.index') }}" class="flex items-center gap-1.5 hover:text-amber-300 transition-colors">
+              <a href="{{ route('negociacoes.index') }}" class="flex items-center gap-1.5 nav-link transition-colors">
                 <span class="material-symbols-outlined text-lg">forum</span>
                 <span>Minhas negociações</span>
               </a>
 
               @if(!auth()->user()->fornecedor)
-                <a href="{{ route('fornecedores.create') }}" class="flex items-center gap-1.5 hover:text-amber-300 transition-colors">
+                <a href="{{ route('fornecedores.create') }}" class="flex items-center gap-1.5 nav-link transition-colors">
                   <span class="material-symbols-outlined text-lg">patient_list</span>
                   <span>Virar Fornecedor</span>
                 </a>
               @else
-                <a href="{{ route('fornecedores.show', auth()->user()->fornecedor) }}" class="flex items-center gap-1.5 hover:text-amber-300 transition-colors">
+                <a href="{{ route('fornecedores.show', auth()->user()->fornecedor) }}" class="flex items-center gap-1.5 nav-link transition-colors">
                   <span class="material-symbols-outlined text-lg">patient_list</span>
                   <span>Meu cadastro</span>
                 </a>
               @endif
 
               @if(auth()->user()->is_admin || auth()->user()->user_type === 'admin' || auth()->user()->email === 'copavagricola@example.com')
-                <a href="{{ route('demandas.create') }}" class="flex items-center gap-1.5 hover:text-amber-300 transition-colors">
+                <a href="{{ route('demandas.create') }}" class="flex items-center gap-1.5 nav-link transition-colors">
                   <span class="material-symbols-outlined text-lg">add_circle</span>
                   <span>Criar Demanda</span>
                 </a>
@@ -197,7 +197,7 @@
 
               {{-- Menu do Usuário Logado --}}
               <div class="dropdown dropdown-end">
-                <div tabindex="0" role="button" class="flex items-center gap-2 cursor-pointer hover:text-amber-300 transition-colors">
+                <div tabindex="0" role="button" class="flex items-center gap-2 cursor-pointer nav-link transition-colors">
                   <div class="w-7 h-7 rounded-full overflow-hidden bg-white text-gray-700 flex items-center justify-center shrink-0">
                     @if(auth()->user()->imagem)
                       <img src="{{ Storage::url(auth()->user()->imagem) }}" alt="Perfil" class="w-full h-full object-cover">
@@ -230,9 +230,9 @@
 
             @guest
               <div class="flex items-center gap-3">
-                <a href="{{ route('register') }}" class="hover:text-amber-300 transition-colors">Crie a sua conta</a>
+                <a href="{{ route('register') }}" class="nav-link transition-colors">Crie a sua conta</a>
                 <span class="text-slate-300">|</span>
-                <a href="{{ route('login') }}" class="hover:text-amber-300 transition-colors font-semibold">Entre</a>
+                <a href="{{ route('login') }}" class="nav-link transition-colors font-semibold">Entre</a>
               </div>
             @endguest
           </div>

@@ -219,18 +219,46 @@
                             </div>
                         @endif
 
-                        {{-- Botão ver proposta --}}
-                        <a
-                            href="{{ route('negociacoes.propostas', $oferta) }}"
-                            class="btn-copav flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors">
-                            <span class="material-symbols-outlined text-lg">
-                                format_list_bulleted
-                            </span>
-                            Ver propostas
-                            <span class="material-symbols-outlined text-base">
-                                arrow_forward
-                            </span>
-                        </a>
+                        {{-- Botão de acesso --}}
+                        @if(
+                            auth()->user()->user_type === 'admin' ||
+                            (
+                                auth()->user()->fornecedor &&
+                                auth()->user()->fornecedor->id === $oferta->fornecedor_id
+                            )
+                        )
+                            {{-- Administrador ou fornecedor dono da oferta --}}
+                            <a
+                                href="{{ route('negociacoes.propostas', $oferta) }}"
+                                class="btn-copav flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors">
+
+                                <span class="material-symbols-outlined text-lg">
+                                    format_list_bulleted
+                                </span>
+
+                                Ver propostas
+
+                                <span class="material-symbols-outlined text-base">
+                                    arrow_forward
+                                </span>
+                            </a>
+                        @else
+                            {{-- Cliente: acessa somente a própria negociação --}}
+                            <a
+                                href="{{ route('negociacoes.show', $negociacoes->first()) }}"
+                                class="btn-copav flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors">
+
+                                <span class="material-symbols-outlined text-lg">
+                                    forum
+                                </span>
+
+                                Ver negociação
+
+                                <span class="material-symbols-outlined text-base">
+                                    arrow_forward
+                                </span>
+                            </a>
+                        @endif
                     </div>
                 </div>
             @endforeach
