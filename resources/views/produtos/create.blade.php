@@ -4,7 +4,7 @@
 @section('conteudo')
 
 <div class="mb-4">
-    <a href="{{ route('produtos.index') }}" class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-[#236350] transition-colors">
+    <a href="{{ route('home') }}" class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-[#236350] transition-colors">
         <span class="material-symbols-outlined text-lg">arrow_back</span>
         Voltar para a página inicial
     </a>

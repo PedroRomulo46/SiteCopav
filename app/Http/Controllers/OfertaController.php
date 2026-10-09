@@ -14,12 +14,22 @@ class OfertaController extends Controller
 {
     public function index()
     {
-        $ofertas = Oferta::with([
-            'fornecedor',
-            'produto'
-        ])->get();
+    $usuario = auth()->user();
 
-        return view('ofertas.index', compact('ofertas'));
+    // Se for administrador, exibe todas as ofertas
+    if ($usuario->user_type === 'admin') {
+        $ofertas = Oferta::with(['fornecedor', 'produto'])->get();
+    } else {
+        // Pega o ID do fornecedor vinculado ao usuário logado
+        $fornecedorId = $usuario->fornecedor->id ?? null;
+
+        // Filtra estritamente as ofertas pertencentes a esse fornecedor
+        $ofertas = Oferta::with(['fornecedor', 'produto'])
+            ->where('fornecedor_id', $fornecedorId)
+            ->get();
+    }
+
+    return view('ofertas.index', compact('ofertas'));
     }
 
     public function create()

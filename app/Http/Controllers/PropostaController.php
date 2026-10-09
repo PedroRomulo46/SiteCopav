@@ -78,6 +78,40 @@ class PropostaController extends Controller
             ->with('sucesso', 'Proposta enviada com sucesso!');
     }
 
+    public function aceitar(Proposta $proposta)
+    {
+    $proposta->load([
+        'negociacao.oferta.fornecedor'
+    ]);
+
+    $usuario = auth()->user();
+
+    // Apenas o fornecedor dono da oferta ou admin pode aceitar
+    if (
+        $usuario->user_type !== 'admin' &&
+        (!$proposta->negociacao->oferta->fornecedor || $proposta->negociacao->oferta->fornecedor->user_id !== $usuario->id)
+    ) {
+        abort(403);
+    }
+
+    // Só pode aceitar se a proposta estiver pendente
+    if ($proposta->status !== 'pendente') {
+        return back()->with('erro', 'Esta proposta já foi processada.');
+    }
+
+    // Atualiza o status da proposta para aceita
+    $proposta->update([
+        'status' => 'aceita'
+    ]);
+
+    // OPCIONAL: Atualizar o status da negociação se seu sistema exigir
+    // $proposta->negociacao->update(['status' => 'concluida']);
+
+    return redirect()
+        ->route('negociacoes.show', $proposta->negociacao)
+        ->with('sucesso', 'Proposta aceita com sucesso!');
+}
+
     public function recusar(Proposta $proposta)
     {
         $proposta->load([
