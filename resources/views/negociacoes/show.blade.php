@@ -13,7 +13,11 @@
         </a>
     </div>
 
-    <div class="max-w-4xl mx-auto my-6 space-y-6">
+    <div
+        id="negociacao-realtime"
+        data-negociacao-id="{{ $negociacao->id }}"
+        class="max-w-4xl mx-auto my-6 space-y-6"
+    >
 
         {{-- Mensagens de Feedback --}}
         @if(session('sucesso'))
@@ -136,7 +140,10 @@
                                         {{ ($proposta->usuario->user_type ?? '') === 'cliente' ? 'Cliente' : 'Fornecedor' }}
                                     </span>
 
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200 capitalize">
+                                    <span
+                                        id="status-proposta-{{ $proposta->id }}"
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200 capitalize"
+                                    >
                                         {{ $proposta->status ?? 'Pendente' }}
                                     </span>
                                 </div>
@@ -176,45 +183,55 @@
                                                     ((auth()->user()->cliente->id ?? null) === ($proposta->cliente_id ?? null));
                             @endphp
 
-                            @if($statusPendente)
-                                <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-end gap-2">
+                           @if($statusPendente)
+                                <div
+                                    id="acoes-proposta-{{ $proposta->id }}"
+                                    class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-end gap-2"
+                                >
 
                                     {{-- Se for o cliente que fez a proposta: Mostra 'Cancelar Proposta' --}}
                                     @if($ehAutorDaProposta && !$ehGerenciadorDoProduto)
+
+                                        {{-- Se for o cliente: Cancelar proposta --}}
                                         <form action="{{ route('propostas.recusar', $proposta->id) }}" method="POST">
                                             @csrf
                                             @method('PATCH')
-                                            <button 
+
+                                            <button
                                                 type="submit"
                                                 class="p-2 rounded-md text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 border border-gray-300 transition-colors">
                                                 Cancelar Proposta
                                             </button>
                                         </form>
 
-                                    {{-- Se for o fornecedor: Mostra 'Recusar' e 'Aceitar' --}}
-                                    @elseif($ehGerenciadorDoProduto)
+                                        {{-- Se for o fornecedor: Recusar e aceitar --}}
+                                        @elseif($ehGerenciadorDoProduto)
 
-                                        {{-- Formulário Recusar --}}
-                                        <form action="{{ route('propostas.recusar', $proposta->id) }}" method="POST">
-                                            @csrf
-                                            @method('PATCH')
-                                            <button 
-                                                type="submit"
-                                                class="p-2 rounded-md text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors">
-                                                Recusar Proposta
-                                            </button>
-                                        </form>
+                                            {{-- Formulário Recusar --}}
+                                            <form action="{{ route('propostas.recusar', $proposta->id) }}" method="POST">
+                                                @csrf
+                                                @method('PATCH')
 
-                                        {{-- Formulário Aceitar --}}
-                                        <form action="{{ route('propostas.aceitar', $proposta->id) }}" method="POST" onsubmit="return confirmarProposta(event, {{ $proposta->valor }}, {{ $proposta->quantidade }}, '{{ $negociacao->oferta->unidade }}')">
-                                            @csrf
-                                            @method('PATCH')
-                                            <button 
-                                                type="submit"
-                                                class="btn-copav p-2 rounded-md text-xs font-semibold text-white transition-colors">
-                                                Aceitar Proposta
-                                            </button>
-                                        </form>
+                                                <button
+                                                    type="submit"
+                                                    class="p-2 rounded-md text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors">
+                                                    Recusar Proposta
+                                                </button>
+                                            </form>
+
+                                            {{-- Formulário Aceitar --}}
+                                            <form action="{{ route('propostas.aceitar', $proposta->id) }}" method="POST"
+                                                onsubmit="return confirmarProposta(event, {{ $proposta->valor }}, {{ $proposta->quantidade }}, '{{ $negociacao->oferta->unidade }}')">
+                                                @csrf
+                                                @method('PATCH')
+
+                                                <button
+                                                    type="submit"
+                                                    class="btn-copav p-2 rounded-md text-xs font-semibold text-white transition-colors">
+                                                    Aceitar Proposta
+                                                </button>
+                                            </form>
+
                                     @endif
                                 </div>
                             @endif
@@ -361,4 +378,70 @@
             }
         });
     }
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const raiz = document.getElementById('negociacao-realtime');
+
+    if (!raiz) return;
+
+    if (!window.Echo) {
+        console.error('Echo não foi carregado na tela da negociação.');
+        return;
+    }
+
+    const negociacaoId = Number(raiz.dataset.negociacaoId);
+
+    window.Echo.private(`negociacao.${negociacaoId}`)
+        .listen('.proposta.atualizada', function (evento) {
+            const proposta = evento.proposta;
+
+            if (
+                !proposta ||
+                Number(proposta.negociacao_id) !== negociacaoId
+            ) {
+                return;
+            }
+
+            const status = document.getElementById(
+                `status-proposta-${proposta.id}`
+            );
+
+            if (status) {
+                status.textContent =
+                    proposta.status.charAt(0).toUpperCase() +
+                    proposta.status.slice(1);
+
+                status.classList.remove(
+                    'bg-gray-100',
+                    'text-gray-800',
+                    'border-gray-200'
+                );
+
+                if (proposta.status === 'aceita') {
+                    status.classList.add(
+                        'bg-green-100',
+                        'text-green-800',
+                        'border-green-200'
+                    );
+                } else if (proposta.status === 'recusada') {
+                    status.classList.add(
+                        'bg-red-100',
+                        'text-red-800',
+                        'border-red-200'
+                    );
+                }
+            }
+
+            // Remove os botões de uma proposta já processada.
+            const acoes = document.getElementById(
+                `acoes-proposta-${proposta.id}`
+            );
+
+            if (acoes) {
+                acoes.remove();
+            }
+        });
+});
 </script>

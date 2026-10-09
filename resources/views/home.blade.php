@@ -97,18 +97,6 @@
 
                         {{-- ABA MINHAS OFERTAS --}}
                         @if(auth()->user()->fornecedor)
-                        <div
-                            class="bg-white rounded-xl p-4 flex flex-col gap-3 shadow-md"
-                            x-data="{ abaAtiva: 'lotes' }">
-
-
-                    {{-- ABAS --}}
-                    <div
-                        role="tablist"
-                        class="tabs tabs-border w-full flex justify-around border-b pb-2">
-
-                        {{-- ABA MINHAS OFERTAS --}}
-                        @if(auth()->user()->fornecedor)
                         <button
                             @click="abaAtiva = 'lotes'"
                             :class="{
@@ -128,9 +116,11 @@
                                 style="{{ $novasPropostas > 0 ? 'display: flex;' : 'display: none;' }}"
                                 title="{{ $novasPropostas }} {{ $novasPropostas === 1 ? 'nova proposta' : 'novas propostas' }}">
 
-                                <span id="contador-novas-propostas">
-                                    {{ $novasPropostas }}
-                                </span>
+                            <span
+                                id="contador-novas-propostas"
+                                x-show="abaAtiva === 'lotes'"
+                            >
+                                {{ $novasPropostas }}
                             </span>
                         </button>
 
@@ -146,6 +136,7 @@
                                 Demandas da Empresa
                             </span>
                         </button>
+                    @endif
                     </div>
 
                     {{-- ABA 1: MINHAS OFERTAS --}}
@@ -360,10 +351,6 @@
                         @endforelse
                     </div>
                 </div>
-<<<<<<< HEAD
-            </div>
-=======
->>>>>>> 80a113f9c4705b8257e1c5446e78617d094a3526
             @endif
         @endauth
     </div>
@@ -504,18 +491,30 @@
                             card.appendChild(indicador);
                         }
                     }
-
-                    // Atualiza o total da aba
+ 
+                    // Atualiza o total e exibe o indicador da aba
                     const contadorGeral = document.getElementById(
                         'contador-novas-propostas'
                     );
 
-                    if (contadorGeral) {
+                    const indicadorGeral = document.getElementById(
+                        'indicador-novas-propostas'
+                    );
+
+                    if (contadorGeral && indicadorGeral) {
                         const totalAtual = Number(
                             contadorGeral.textContent.trim() || 0
                         );
 
-                        contadorGeral.textContent = totalAtual + 1;
+                        const novoTotal = totalAtual + 1;
+
+                        contadorGeral.textContent = novoTotal;
+                        indicadorGeral.style.display = 'flex';
+
+                        indicadorGeral.title =
+                            `${novoTotal} ${novoTotal === 1
+                                ? 'nova proposta'
+                                : 'novas propostas'}`;
                     }
 
                     // Reordena os cards: mais propostas primeiro.

@@ -6,6 +6,7 @@ use App\Models\Negociacao;
 use App\Models\Proposta;
 use Illuminate\Http\Request;
 use App\Events\PropostaCriada;
+use App\Events\PropostaAtualizada;
 
 class PropostaController extends Controller
 {
@@ -104,6 +105,10 @@ class PropostaController extends Controller
         'status' => 'aceita'
     ]);
 
+    $proposta->refresh();
+
+    event(new PropostaAtualizada($proposta));
+
     // OPCIONAL: Atualizar o status da negociação se seu sistema exigir
     // $proposta->negociacao->update(['status' => 'concluida']);
 
@@ -139,6 +144,10 @@ class PropostaController extends Controller
         $proposta->update([
             'status' => 'recusada'
         ]);
+
+        $proposta->refresh();
+
+        event(new PropostaAtualizada($proposta));
 
         return redirect()
             ->route('negociacoes.show', $proposta->negociacao)
