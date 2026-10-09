@@ -14,96 +14,96 @@ class OfertaController extends Controller
 {
     public function index()
     {
-    $usuario = auth()->user();
+        $usuario = auth()->user();
 
-    // Se for administrador, exibe todas as ofertas
-    if ($usuario->user_type === 'admin') {
-        $ofertas = Oferta::with(['fornecedor', 'produto'])->get();
-    } else {
-        // Pega o ID do fornecedor vinculado ao usuário logado
-        $fornecedorId = $usuario->fornecedor->id ?? null;
+        // Se for administrador, exibe todas as ofertas
+        if ($usuario->user_type === 'admin') {
+            $ofertas = Oferta::with(['fornecedor', 'produto'])->get();
+        } else {
+            // Pega o ID do fornecedor vinculado ao usuário logado
+            $fornecedorId = $usuario->fornecedor->id ?? null;
 
-        // Filtra estritamente as ofertas pertencentes a esse fornecedor
-        $ofertas = Oferta::with(['fornecedor', 'produto'])
-            ->where('fornecedor_id', $fornecedorId)
-            ->get();
-    }
+            // Filtra estritamente as ofertas pertencentes a esse fornecedor
+            $ofertas = Oferta::with(['fornecedor', 'produto'])
+                ->where('fornecedor_id', $fornecedorId)
+                ->get();
+        }
 
-    return view('ofertas.index', compact('ofertas'));
+        return view('ofertas.index', compact('ofertas'));
     }
 
     public function create()
     {
-    $fornecedor = auth()->user()->fornecedor;
+        $fornecedor = auth()->user()->fornecedor;
 
-    if (!$fornecedor) {
-        return redirect()
-            ->route('fornecedores.create')
-            ->with(
-                'sucesso',
-                'Você precisa cadastrar um fornecedor antes de cadastrar ofertas.'
-            );
-    }
+        if (!$fornecedor) {
+            return redirect()
+                ->route('fornecedores.create')
+                ->with(
+                    'sucesso',
+                    'Você precisa cadastrar um fornecedor antes de cadastrar ofertas.'
+                );
+        }
 
-    if ($fornecedor->status !== 'ativo') {
-        return redirect()
-            ->route('fornecedores.show', $fornecedor)
-            ->with(
-                'sucesso',
-                'Seu fornecedor ainda não está ativo.'
-            );
-    }
+        if ($fornecedor->status !== 'ativo') {
+            return redirect()
+                ->route('fornecedores.show', $fornecedor)
+                ->with(
+                    'sucesso',
+                    'Seu fornecedor ainda não está ativo.'
+                );
+        }
 
-    $produtos = Produto::where('fornecedor_id', $fornecedor->id)
-        ->with('categoria')
-        ->orderBy('nome')
-        ->get();
+        $produtos = Produto::where('fornecedor_id', $fornecedor->id)
+            ->with('categoria')
+            ->orderBy('nome')
+            ->get();
 
-    return view(
-        'ofertas.create',
-        compact('produtos')
-    );
+        return view(
+            'ofertas.create',
+            compact('produtos')
+        );
     }
 
     public function store(Request $request)
     {
-    $fornecedor = $request->user()->fornecedor;
+        $fornecedor = $request->user()->fornecedor;
 
-    if (!$fornecedor) {
-        abort(403);
-    }
+        if (!$fornecedor) {
+            abort(403);
+        }
 
-    if ($fornecedor->status !== 'ativo') {
-        abort(403);
-    }
+        if ($fornecedor->status !== 'ativo') {
+            abort(403);
+        }
 
-    $dados = $request->validate([
-        'produto_id' => [
-            'required',
-            Rule::exists('produtos', 'id')
-                ->where(function ($query) use ($fornecedor) {
-                    $query->where('fornecedor_id', $fornecedor->id);
-                }),
-        ],
+        $dados = $request->validate([
+            'produto_id' => [
+                'required',
+                Rule::exists('produtos', 'id')
+                    ->where(function ($query) use ($fornecedor) {
+                        $query->where('fornecedor_id', $fornecedor->id);
+                    }),
+            ],
 
-        'quantidade' => 'required|numeric|min:0',
-        'valor' => 'required|numeric|min:0',
-        'unidade' => 'required|string|max:50',
-        'localizacao' => 'nullable|string|max:255',
-        'data_inicio' => 'nullable|date',
-        'data_validade' => 'nullable|date|after_or_equal:data_inicio',
-        'status' => 'required|in:rascunho,publicada,encerrada,cancelada',
-    ]);
+            'quantidade' => 'required|numeric|min:0',
+            'valor' => 'required|numeric|min:0',
+            'unidade' => 'required|string|max:50',
+            'localizacao' => 'nullable|string|max:255',
+            'data_inicio' => 'nullable|date',
+            'data_validade' => 'nullable|date|after_or_equal:data_inicio',
+            'status' => 'required|in:rascunho,publicada,encerrada,cancelada',
+        ]);
 
-    $dados['fornecedor_id'] = $fornecedor->id;
+        $dados['fornecedor_id'] = $fornecedor->id;
 
-    $oferta = Oferta::create($dados);
+        $oferta = Oferta::create($dados);
 
-    event(new OfertaCriada($oferta));
+        event(new OfertaCriada($oferta));
 
-    return redirect()
-        ->route('ofertas.index')
-        ->with('sucesso', 'Oferta cadastrada com sucesso!');
+        return redirect()
+            ->route('ofertas.index')
+            ->with('sucesso', 'Oferta cadastrada com sucesso!');
     }
 
     public function show(Oferta $oferta)
@@ -220,7 +220,7 @@ class OfertaController extends Controller
             ->route('ofertas.index')
             ->with('sucesso', 'Oferta excluída com sucesso!');
     }
-    
+
     public function card(Oferta $oferta)
     {
         $oferta->load([

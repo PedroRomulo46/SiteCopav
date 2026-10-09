@@ -30,12 +30,12 @@
                     {{-- Botões de Ação no Topo --}}
                     <div class="flex items-center gap-2">
                         <a href="{{ route('ofertas.create') }}" 
-                           class="btn-copav text-xs sm:text-sm px-3 sm:px-4 py-2 rounded-lg font-semibold flex items-center justify-center gap-1 shadow-sm flex-1 md:flex-initial">
+                           class="btn-copav text-xs sm:text-sm px-3 sm:px-4 py-2 rounded-lg font-semibold flex items-center justify-center gap-1 shadow-sm flex-1 md:flex-initial transition-transform active:scale-95">
                             <span class="material-symbols-outlined text-base">add</span>
                             <span>Nova Oferta</span>
                         </a>
                         <a href="{{ route('produtos.index') }}" 
-                           class="bg-emerald-800 hover:bg-emerald-700 text-white text-xs sm:text-sm px-3 sm:px-4 py-2 rounded-lg font-semibold flex items-center justify-center gap-1 transition-colors flex-1 md:flex-initial">
+                           class="btn-copav text-white text-xs whitespace-nowrap sm:text-sm px-3 sm:px-4 py-2 rounded-lg font-semibold flex items-center justify-center gap-1 transition-colors duration-200 flex-1 md:flex-initial shadow-sm">
                             <span class="material-symbols-outlined text-base">inventory_2</span>
                             <span>Meus Produtos</span>
                         </a>
@@ -48,7 +48,7 @@
                         <button 
                             @click="abaAtiva = 'lotes'"
                             :class="abaAtiva === 'lotes' ? 'text-[#236350] border-b-2 border-[#236350] pb-1' : 'text-gray-400 hover:text-gray-600'"
-                            class="transition-all flex items-center gap-1.5">
+                            class="transition-colors duration-150 flex items-center gap-1.5 cursor-pointer">
                             <span>Minhas Ofertas</span>
                             @if(isset($novasPropostas) && $novasPropostas > 0)
                                 <span class="bg-amber-400 text-gray-900 text-[10px] px-1.5 py-0.2 rounded-full font-extrabold">
@@ -60,7 +60,7 @@
                         <button 
                             @click="abaAtiva = 'demandas'"
                             :class="abaAtiva === 'demandas' ? 'text-[#236350] border-b-2 border-[#236350] pb-1' : 'text-gray-400 hover:text-gray-600'"
-                            class="transition-all">
+                            class="transition-colors duration-150 cursor-pointer">
                             Demandas da Empresa
                         </button>
                     </div>
@@ -72,7 +72,7 @@
                                 $temNovaProposta = isset($ofertasComNovasPropostas) && $ofertasComNovasPropostas->has($oferta->id);
                                 $negociacao = $temNovaProposta ? $ofertasComNovasPropostas->get($oferta->id) : $oferta->negociacoes->sortByDesc('id')->first();
                             @endphp
-                            <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg border border-gray-100 text-xs gap-2">
+                            <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg border border-gray-100 text-md gap-2 transition-colors duration-150">
                                 <div class="flex items-center gap-2.5 min-w-0">
                                     <img class="w-10 h-10 object-cover rounded-md shrink-0" 
                                          src="{{ $oferta->produto->imagem ? (str_contains($oferta->produto->imagem, 'assets/') ? asset($oferta->produto->imagem) : asset('storage/' . $oferta->produto->imagem)) : asset('assets/milho.png') }}" 
@@ -88,15 +88,13 @@
                                     </div>
                                 </div>
 
-                                <div class="flex items-center gap-1 shrink-0">
-                                    @if($negociacao)
-                                        <a href="{{ route('negociacoes.propostas', $oferta->id) }}" 
-                                           class="text-[#236350] font-bold hover:underline px-2 py-1 text-[11px]">
-                                            Negociação
-                                        </a>
-                                    @endif
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <a href="{{ route('negociacoes.propostas', $oferta->id) }}" 
+                                    class="bg-slate-200 hover:bg-slate-300 font-bold px-2 py-1 rounded text-[11px] transition-colors">
+                                        Negociação
+                                    </a>
                                     <a href="{{ route('ofertas.show', $oferta->id) }}" 
-                                       class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-2.5 py-1 rounded font-medium text-[11px]">
+                                    class="btn-copav hover:text-gray-900 px-2.5 py-1 rounded font-semibold text-[11px] transition-colors duration-150">
                                         Detalhes
                                     </a>
                                 </div>
@@ -104,17 +102,27 @@
                         @empty
                             <p class="text-xs text-gray-400 text-center py-2">Você ainda não possui ofertas ativas.</p>
                         @endforelse
+
+                        {{-- Botão Ver Mais se houver mais de 3 ofertas --}}
+                        @if($ofertas->count() > 3)
+                            <div class="pt-2 text-center">
+                                <a href="{{ route('ofertas.index') }}" 
+                                   class="inline-block text-xs font-bold text-[#236350] hover:text-[#1b4d3e] hover:underline transition-colors py-1">
+                                    Ver mais ofertas
+                                </a>
+                            </div>
+                        @endif
                     </div>
 
                     <div x-show="abaAtiva === 'demandas'" x-cloak class="space-y-2">
                         @forelse($demandas->take(3) ?? [] as $demanda)
-                            <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg border border-gray-100 text-xs gap-2">
+                            <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg border border-gray-100 text-xs gap-2 transition-colors duration-150">
                                 <div class="truncate">
                                     <p class="font-bold text-gray-800 truncate">{{ $demanda->nome_produto }}</p>
                                     <p class="text-[11px] text-gray-500">{{ number_format($demanda->quantidade, 0, ',', '.') }} {{ $demanda->unidade }}</p>
                                 </div>
                                 <a href="{{ route('demandas.show', $demanda->id) }}" 
-                                   class="btn-copav text-white px-2.5 py-1 rounded text-[11px] font-semibold shrink-0">
+                                   class="btn-copav text-white px-2.5 py-1 rounded text-[11px] font-semibold shrink-0 transition-transform active:scale-95">
                                     Enviar Proposta
                                 </a>
                             </div>
@@ -131,7 +139,7 @@
                         <h2 class="font-bold text-sm sm:text-base">Deseja vender no marketplace?</h2>
                         <p class="text-xs text-emerald-200">Torne-se um fornecedor e comece a cadastrar seus lotes.</p>
                     </div>
-                    <a href="{{ route('fornecedores.create') }}" class="btn-copav text-xs px-4 py-2 rounded-lg font-bold shrink-0">
+                    <a href="{{ route('fornecedores.create') }}" class="btn-copav text-xs px-4 py-2 rounded-lg font-bold shrink-0 transition-transform active:scale-95">
                         Virar Fornecedor
                     </a>
                 </div>
@@ -147,8 +155,8 @@
                 <p class="text-xs text-emerald-200">Cadastre-se ou entre na sua conta para negociar lotes diretamente.</p>
             </div>
             <div class="flex gap-2 shrink-0">
-                <a href="{{ route('login') }}" class="btn-copav text-xs px-4 py-2 rounded-lg font-bold">Entrar</a>
-                <a href="{{ route('register') }}" class="bg-white/10 hover:bg-white/20 text-white text-xs px-4 py-2 rounded-lg font-bold">Cadastrar</a>
+                <a href="{{ route('login') }}" class="btn-copav text-xs px-4 py-2 rounded-lg font-bold transition-transform active:scale-95">Entrar</a>
+                <a href="{{ route('register') }}" class="bg-white/10 hover:bg-white/20 text-white text-xs px-4 py-2 rounded-lg font-bold transition-colors duration-150">Cadastrar</a>
             </div>
         </div>
     @endguest
@@ -162,12 +170,12 @@
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-4">
             @forelse($produtos as $item)
                 <a href="{{ route('ofertas.show', $item->id) }}" class="group block h-full">
-                    <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200 overflow-hidden flex flex-col h-full">
+                    <div class="bg-white rounded-xl shadow-sm group-hover:shadow-lg transition-all duration-300 border border-gray-200 overflow-hidden flex flex-col h-full group-hover:-translate-y-0.5">
                         
                         {{-- Imagem --}}
                         <div class="w-full aspect-square bg-gray-100 overflow-hidden relative">
                             <img 
-                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ease-out"
                                 src="{{ $item->produto->imagem 
                                     ? (str_contains($item->produto->imagem, 'assets/') ? asset($item->produto->imagem) : asset('storage/' . $item->produto->imagem)) 
                                     : asset('assets/milho.png') }}"
@@ -177,7 +185,7 @@
                         {{-- Detalhes do card --}}
                         <div class="p-2.5 sm:p-3 flex flex-col flex-1 justify-between gap-1.5">
                             <div>
-                                <h2 class="font-medium text-xs sm:text-sm text-gray-800 line-clamp-2 leading-tight group-hover:text-[#236350] transition-colors">
+                                <h2 class="font-medium text-xs sm:text-sm text-gray-800 line-clamp-2 leading-tight group-hover:text-[#236350] transition-colors duration-150">
                                     {{ $item->produto->nome ?? 'Sem nome' }}
                                 </h2>
                                 @if($item->produto->descricao)
