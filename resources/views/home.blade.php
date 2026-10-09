@@ -8,454 +8,205 @@
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
 <style>
-    [x-cloak] {
-        display: none !important;
-    }
+    [x-cloak] { display: none !important; }
 </style>
 
-<div
+<div 
     x-data="{ abaAtiva: 'lotes' }"
-    class="p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 bg-[#ebeae7] min-h-screen">
+    class="w-full max-w-7xl mx-auto px-2 sm:px-4 py-4 space-y-6 bg-[#ebeae7] min-h-screen">
 
-    {{-- COLUNA ESQUERDA: AÇÕES E GESTÃO --}}
-    <div
-        class="lg:col-span-5 h-fit p-4 rounded-2xl flex flex-col gap-4"
-        style="background-color: #123228;">
-
-        {{-- BLOCO SUPERIOR - AÇÕES --}}
-        @auth
+    {{-- Painel do fornecedor --}}
+    @auth
+        <div class="bg-[#123228] text-white p-3 sm:p-5 rounded-2xl shadow-md">
+            
+            {{-- Se for fornecedor --}}
             @if(auth()->user()->fornecedor)
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-3 pb-3 border-b border-emerald-800">
+                    <div>
+                        <span class="text-xs text-white font-semibold uppercase tracking-wider block">Painel do Fornecedor</span>
+                        <h2 class="text-base sm:text-lg font-bold">Gestão dos seus Lotes</h2>
+                    </div>
 
-                {{-- Botões exclusivos para Fornecedores --}}
-                <a
-                    href="{{ route('ofertas.create') }}"
-                    class="text-white btn-copav w-full border-none text-lg p-5 rounded-xl shadow-inner text-center flex items-center justify-center">
-                    Cadastrar Nova Oferta +
-                </a>
-                <a
-                    href="{{ route('produtos.index') }}"
-                    class="text-white btn-copav w-full border-none text-lg p-5 rounded-xl shadow-md text-center flex items-center justify-center">
-                    Meus Produtos
-                </a>
-            @else
-
-                {{-- Card de expansão para cliente comum --}}
-                <div class="bg-white p-6 rounded-xl text-center flex flex-col gap-3 shadow-md">
-                    <h2 class="font-bold text-gray-800 text-base">
-                        Deseja expandir seus negócios?
-                    </h2>
-                    <p class="text-xs text-gray-600">
-                        Torne-se um fornecedor para começar a cadastrar lotes e gerenciar produtos.
-                    </p>
-                    <div class="flex justify-center mt-2">
-                        <a
-                            href="{{ route('fornecedores.create') }}"
-                            class="btn-copav text-white btn-sm px-4 rounded-md">
-                            Virar Fornecedor
+                    {{-- Botões de Ação no Topo --}}
+                    <div class="flex items-center gap-2">
+                        <a href="{{ route('ofertas.create') }}" 
+                           class="btn-copav text-xs sm:text-sm px-3 sm:px-4 py-2 rounded-lg font-semibold flex items-center justify-center gap-1 shadow-sm flex-1 md:flex-initial">
+                            <span class="material-symbols-outlined text-base">add</span>
+                            <span>Nova Oferta</span>
+                        </a>
+                        <a href="{{ route('produtos.index') }}" 
+                           class="bg-emerald-800 hover:bg-emerald-700 text-white text-xs sm:text-sm px-3 sm:px-4 py-2 rounded-lg font-semibold flex items-center justify-center gap-1 transition-colors flex-1 md:flex-initial">
+                            <span class="material-symbols-outlined text-base">inventory_2</span>
+                            <span>Meus Produtos</span>
                         </a>
                     </div>
                 </div>
-            @endif
-        @endauth
 
-        {{-- USUÁRIO NÃO AUTENTICADO --}}
-        @guest
-
-            <div class="bg-white p-6 rounded-xl text-center flex flex-col gap-3 shadow-md">
-                <h2 class="font-bold text-gray-800 text-base">
-                    Quer vender no marketplace?
-                </h2>
-                <p class="text-xs text-gray-600">
-                    Acesse sua conta ou cadastre-se para criar lotes e enviar propostas.
-                </p>
-                <div class="flex gap-2 justify-center mt-2">
-                    <a
-                        href="{{ route('login') }}"
-                        class="btn-copav text-white btn-sm px-4 rounded-md">
-                        Entrar
-                    </a>
-                    <a
-                        href="{{ route('register') }}"
-                        class="btn-outline border border-gray-400 text-gray-700 hover:bg-gray-100 btn-sm px-4 rounded-md">
-                        Cadastrar
-                    </a>
-                </div>
-              </div>
-        @endguest
-
-        {{-- BLOCO INFERIOR - APENAS PARA FORNECEDORES --}}
-        @auth
-            @if(auth()->user()->fornecedor)
-                <div
-                    class="bg-white rounded-xl p-4 flex flex-col gap-3 shadow-md"
-                    x-data="{ abaAtiva: 'lotes' }">
-
-                    {{-- ABAS --}}
-                    <div
-                        role="tablist"
-                        class="tabs tabs-border w-full flex justify-around border-b pb-2">
-
-                        {{-- ABA MINHAS OFERTAS --}}
-                        <button
+                {{-- Abas de gestão --}}
+                <div class="bg-white rounded-xl p-3 text-gray-800 shadow-inner">
+                    <div class="flex items-center border-b border-gray-200 pb-2 mb-3 gap-4 text-xs sm:text-sm font-bold">
+                        <button 
                             @click="abaAtiva = 'lotes'"
-                            :class="{
-                                'tab-active font-bold text-gray-800': abaAtiva === 'lotes',
-                                'text-gray-500': abaAtiva !== 'lotes'
-                            }"
-                            class="tab transition-all pb-1 flex items-center justify-center gap-2">
-                            <span>
-                                Minhas Ofertas
-                            </span>
-
+                            :class="abaAtiva === 'lotes' ? 'text-[#236350] border-b-2 border-[#236350] pb-1' : 'text-gray-400 hover:text-gray-600'"
+                            class="transition-all flex items-center gap-1.5">
+                            <span>Minhas Ofertas</span>
                             @if(isset($novasPropostas) && $novasPropostas > 0)
-                                <span
-                                    class="rounded-full bg-yellow-400 text-gray-900 font-bold flex items-center justify-center transition-all duration-200"
-                                    :class="abaAtiva === 'lotes'
-                                        ? 'min-w-5 h-5 px-1.5 text-[10px]'
-                                        : 'w-2 h-2'"
-                                    title="{{ $novasPropostas }} {{ $novasPropostas === 1 ? 'nova proposta' : 'novas propostas' }}">
-                                    <span x-show="abaAtiva === 'lotes'">
-                                        {{ $novasPropostas }}
-                                    </span>
+                                <span class="bg-amber-400 text-gray-900 text-[10px] px-1.5 py-0.2 rounded-full font-extrabold">
+                                    {{ $novasPropostas }}
                                 </span>
                             @endif
                         </button>
 
-                        {{-- ABA DEMANDAS --}}
-                        <button
+                        <button 
                             @click="abaAtiva = 'demandas'"
-                            :class="{
-                                'tab-active font-bold text-gray-800': abaAtiva === 'demandas',
-                                'text-gray-500': abaAtiva !== 'demandas'
-                            }"
-                            class="tab transition-all pb-1 flex items-center justify-center gap-2">
-                            <span>
-                                Demandas da Empresa
-                            </span>
+                            :class="abaAtiva === 'demandas' ? 'text-[#236350] border-b-2 border-[#236350] pb-1' : 'text-gray-400 hover:text-gray-600'"
+                            class="transition-all">
+                            Demandas da Empresa
                         </button>
                     </div>
 
-                    {{-- ABA 1: MINHAS OFERTAS --}}
-                    <div
-                        x-show="abaAtiva === 'lotes'"
-                        class="flex flex-col gap-3 mt-2">
-
-                        @forelse($ofertas->take(5) as $oferta)
+                    {{-- Conteúdo das abas --}}
+                    <div x-show="abaAtiva === 'lotes'" class="space-y-2">
+                        @forelse($ofertas->take(3) as $oferta)
                             @php
-                                $temNovaProposta =
-                                    isset($ofertasComNovasPropostas)
-                                    && $ofertasComNovasPropostas->has($oferta->id);
-                                $negociacaoNova =
-                                    $temNovaProposta
-                                    ? $ofertasComNovasPropostas->get($oferta->id)
-                                    : null;
-                                $negociacao =
-                                    $negociacaoNova
-                                    ?? $oferta->negociacoes->sortByDesc('id')->first();
+                                $temNovaProposta = isset($ofertasComNovasPropostas) && $ofertasComNovasPropostas->has($oferta->id);
+                                $negociacao = $temNovaProposta ? $ofertasComNovasPropostas->get($oferta->id) : $oferta->negociacoes->sortByDesc('id')->first();
                             @endphp
-
-                            {{-- CARD DA OFERTA --}}
-                            <div
-                                class="relative flex items-start gap-3 p-3 bg-white rounded-xl border border-gray-100 shadow-sm transition-all hover:shadow-[0_0_20px_2px_rgba(0,0,0,0.15)]">
-
-                                {{-- Indicador de nova proposta --}}
-                                @if($temNovaProposta)
-                                    <span
-                                        class="absolute top-2 right-2 w-3 h-3 rounded-full bg-yellow-400"
-                                        title="Nova proposta recebida"
-                                    ></span>
-                                @endif
-
-                                {{-- Imagem do produto --}}
-                                <img
-                                    class="w-20 h-20 object-cover rounded-lg shrink-0"
-                                    src="{{ $oferta->produto->imagem
-                                        ? (
-                                            str_contains($oferta->produto->imagem, 'assets/')
-                                            ? asset($oferta->produto->imagem)
-                                            : asset('storage/' . $oferta->produto->imagem)
-                                        )
-                                        : asset('assets/milho.png') }}"
-                                    alt="{{ $oferta->produto->nome ?? 'Produto' }}">
-
-                                {{-- Informações --}}
-                                <div class="flex-1 min-w-0">
-                                    <h3 class="font-bold text-sm text-gray-800">
-                                        [Oferta #{{ $oferta->id }}]:
-                                        {{ number_format($oferta->quantidade, 2, ',', '.') }}
-                                        {{ $oferta->unidade }}
-                                        {{ $oferta->produto->nome ?? '' }}
-                                    </h3>
-
-                                    <p class="text-xs text-gray-500">
-                                        Expira em:
-                                        {{ $oferta->data_validade
-                                            ? \Carbon\Carbon::parse($oferta->data_validade)->format('d/m/Y')
-                                            : 'Sem data'
-                                        }}
-                                    </p>
-
-                                    {{-- Botões --}}
-                                    <div class="flex justify-end gap-2 mt-2">
-                                        @if($negociacao)
-                                            <a
-                                                href="{{ route('negociacoes.propostas', $oferta->id) }}"
-                                                class="inline-flex items-center gap-1.5 text-sm font-semibold text-[#236350] hover:text-[#174c3e] transition-colors">
-                                                Ver negociação
-                                                <span class="material-symbols-outlined text-base">
-                                                    arrow_forward
-                                                </span>
-                                            </a>
-                                        @endif
-
-                                        <a
-                                            href="{{ route('ofertas.show', $oferta->id) }}"
-                                            class="btn-copav text-white p-2 btn-xs sm:btn-sm rounded-md">
-                                            Ver detalhes
-                                        </a>
+                            <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg border border-gray-100 text-xs gap-2">
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    <img class="w-10 h-10 object-cover rounded-md shrink-0" 
+                                         src="{{ $oferta->produto->imagem ? (str_contains($oferta->produto->imagem, 'assets/') ? asset($oferta->produto->imagem) : asset('storage/' . $oferta->produto->imagem)) : asset('assets/milho.png') }}" 
+                                         alt="{{ $oferta->produto->nome ?? 'Produto' }}">
+                                    
+                                    <div class="truncate">
+                                        <p class="font-bold text-gray-800 truncate">
+                                            #{{ $oferta->id }} - {{ $oferta->produto->nome ?? '' }}
+                                        </p>
+                                        <p class="text-[11px] text-gray-500">
+                                            {{ number_format($oferta->quantidade, 0, ',', '.') }} {{ $oferta->unidade }}
+                                        </p>
                                     </div>
                                 </div>
-                            </div>
 
+                                <div class="flex items-center gap-1 shrink-0">
+                                    @if($negociacao)
+                                        <a href="{{ route('negociacoes.propostas', $oferta->id) }}" 
+                                           class="text-[#236350] font-bold hover:underline px-2 py-1 text-[11px]">
+                                            Negociação
+                                        </a>
+                                    @endif
+                                    <a href="{{ route('ofertas.show', $oferta->id) }}" 
+                                       class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-2.5 py-1 rounded font-medium text-[11px]">
+                                        Detalhes
+                                    </a>
+                                </div>
+                            </div>
                         @empty
-                            <p class="text-gray-500 text-sm text-center py-4">
-                                Você ainda não possui ofertas.
-                            </p>
+                            <p class="text-xs text-gray-400 text-center py-2">Você ainda não possui ofertas ativas.</p>
                         @endforelse
-
-                        {{-- Ver mais ofertas --}}
-                        @if($ofertas->count() > 5)
-                            <div class="flex justify-center mt-2">
-                                <a
-                                    href="{{ route('ofertas.index') }}"
-                                    class="btn-copav w-full btn-sm rounded-md">
-                                    Ver mais ofertas
-                                </a>
-                            </div>
-                        @endif
                     </div>
 
-                    {{-- ABA 2: DEMANDAS --}}
-                    <div
-                        x-show="abaAtiva === 'demandas'"
-                        x-cloak
-                        class="flex flex-col gap-3 mt-2">
-
-                        @forelse($demandas ?? [] as $demanda)
-
-                            {{-- CARD DA DEMANDA --}}
-                            <div
-                                class="flex items-start gap-3 p-3 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-[0_0_8px_3px_rgba(0,0,0,0.2)] transition-shadow">
-
-                                {{-- Imagem --}}
-                                <img
-                                    class="w-20 h-20 rounded-lg object-cover shrink-0"
-                                    src="{{ $demanda->imagem
-                                        ? (
-                                            str_contains($demanda->imagem, 'assets/')
-                                            ? asset($demanda->imagem)
-                                            : asset('storage/' . str_replace('public/', '', $demanda->imagem))
-                                        )
-                                        : asset('assets/milho.png') }}"
-                                    alt="{{ $demanda->nome_produto ?? 'Demanda' }}"
-                                    onerror="this.onerror=null; this.src='{{ asset('assets/milho.png') }}';">
-
-                                {{-- Conteúdo --}}
-                                <div class="flex-1 min-w-0">
-
-                                    {{-- Título --}}
-                                    <h3 class="font-bold text-gray-800 text-sm leading-tight">
-                                        [Demanda #{{ $demanda->id }}]:
-                                        {{ $demanda->nome_produto }}
-                                    </h3>
-
-                                    {{-- Descrição --}}
-                                    @if($demanda->descricao)
-                                        <p class="text-xs text-gray-500 mt-1 truncate">
-                                            {{ $demanda->descricao }}
-                                        </p>
-                                    @endif
-
-                                    {{-- Informações --}}
-                                    <div class="grid grid-cols-2 gap-x-6 mt-1 text-xs leading-4 text-gray-500">
-                                        <p>
-                                            Quantidade:
-                                            <strong class="text-gray-700">
-                                                {{ number_format($demanda->quantidade, 2, ',', '.') }}
-                                                {{ $demanda->unidade }}
-                                            </strong>
-                                        </p>
-
-                                        @if($demanda->valor_maximo !== null)
-                                            <p>
-                                                Valor máximo:
-                                                <strong class="text-gray-700">
-                                                    R$ {{ number_format($demanda->valor_maximo, 2, ',', '.') }}
-                                                </strong>
-                                            </p>
-                                        @else
-                                            <p></p>
-                                        @endif
-
-                                        @if($demanda->localizacao)
-                                            <p>
-                                                Localização:
-                                                <strong class="text-gray-700">
-                                                    {{ $demanda->localizacao }}
-                                                </strong>
-                                            </p>
-                                        @else
-                                            <p></p>
-                                        @endif
-
-                                        @if($demanda->data_limite)
-                                            <p>
-                                                Prazo:
-                                                <strong class="text-gray-700">
-                                                    {{ \Carbon\Carbon::parse($demanda->data_limite)->format('d/m/Y') }}
-                                                </strong>
-                                            </p>
-                                        @else
-                                            <p></p>
-                                        @endif
-
-                                        <p>
-                                            Status:
-                                            <strong class="text-gray-700">
-                                                {{ ucfirst($demanda->status ?? 'aberta') }}
-                                            </strong>
-                                        </p>
-                                    </div>
-
-                                    {{-- Botão Enviar Propost --}}
-                                    <div class="flex justify-end mt-1">
-                                        <a
-                                            href="{{ route('demandas.show', $demanda->id) }}"
-                                            class="btn-copav text-white px-3 py-1.5 text-xs rounded-md">
-                                            Enviar Proposta
-                                        </a>
-                                    </div>
+                    <div x-show="abaAtiva === 'demandas'" x-cloak class="space-y-2">
+                        @forelse($demandas->take(3) ?? [] as $demanda)
+                            <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg border border-gray-100 text-xs gap-2">
+                                <div class="truncate">
+                                    <p class="font-bold text-gray-800 truncate">{{ $demanda->nome_produto }}</p>
+                                    <p class="text-[11px] text-gray-500">{{ number_format($demanda->quantidade, 0, ',', '.') }} {{ $demanda->unidade }}</p>
                                 </div>
+                                <a href="{{ route('demandas.show', $demanda->id) }}" 
+                                   class="btn-copav text-white px-2.5 py-1 rounded text-[11px] font-semibold shrink-0">
+                                    Enviar Proposta
+                                </a>
                             </div>
                         @empty
-                            <p class="text-gray-500 text-sm text-center py-4">
-                                Nenhuma demanda corporativa aberta no momento.
-                            </p>
+                            <p class="text-xs text-gray-400 text-center py-2">Nenhuma demanda corporativa aberta.</p>
                         @endforelse
                     </div>
                 </div>
-            @endif
-        @endauth
-    </div>
 
-{{-- COLUNA DIREITA: VITRINE DE PRODUTOS --}}
-    <div class="lg:col-span-7 flex flex-col gap-4 items-center">
-        <h1 class="text-xl font-bold text-gray-800 self-start">
+            {{-- Se for cliente comum --}}
+            @else
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+                    <div>
+                        <h2 class="font-bold text-sm sm:text-base">Deseja vender no marketplace?</h2>
+                        <p class="text-xs text-emerald-200">Torne-se um fornecedor e comece a cadastrar seus lotes.</p>
+                    </div>
+                    <a href="{{ route('fornecedores.create') }}" class="btn-copav text-xs px-4 py-2 rounded-lg font-bold shrink-0">
+                        Virar Fornecedor
+                    </a>
+                </div>
+            @endif
+        </div>
+    @endauth
+
+    {{-- Usuário guest --}}
+    @guest
+        <div class="bg-[#123228] text-white p-4 rounded-2xl shadow-md flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+            <div>
+                <h2 class="font-bold text-sm sm:text-base">Quer comprar ou vender produtos agrícolas?</h2>
+                <p class="text-xs text-emerald-200">Cadastre-se ou entre na sua conta para negociar lotes diretamente.</p>
+            </div>
+            <div class="flex gap-2 shrink-0">
+                <a href="{{ route('login') }}" class="btn-copav text-xs px-4 py-2 rounded-lg font-bold">Entrar</a>
+                <a href="{{ route('register') }}" class="bg-white/10 hover:bg-white/20 text-white text-xs px-4 py-2 rounded-lg font-bold">Cadastrar</a>
+            </div>
+        </div>
+    @endguest
+
+    {{-- Vitrine de produtos --}}
+    <div class="space-y-3">
+        <h1 class="text-lg sm:text-xl font-bold text-gray-800">
             Produtos que você pode se interessar...
         </h1>
-        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 w-full">
-            @forelse($produtos as $item)
-                <a href="{{ route('ofertas.show', $item->id) }}"
-                    class="block h-full group">
-                    <div
-                        class="bg-white shadow-md hover:shadow-[0_0_20px_2px_rgba(0,0,0,0.15)] p-3 rounded-2xl flex flex-col justify-between h-full transition-all border border-gray-100">
-                        <div>
 
-                            {{-- IMAGEM --}}
-                            <img
-                                class="w-full h-48 object-cover rounded-xl mb-3"
-                                src="{{ $item->produto->imagem
-                                    ? (
-                                        str_contains($item->produto->imagem, 'assets/')
-                                        ? asset($item->produto->imagem)
-                                        : asset('storage/' . $item->produto->imagem)
-                                    )
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-4">
+            @forelse($produtos as $item)
+                <a href="{{ route('ofertas.show', $item->id) }}" class="group block h-full">
+                    <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200 overflow-hidden flex flex-col h-full">
+                        
+                        {{-- Imagem --}}
+                        <div class="w-full aspect-square bg-gray-100 overflow-hidden relative">
+                            <img 
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                src="{{ $item->produto->imagem 
+                                    ? (str_contains($item->produto->imagem, 'assets/') ? asset($item->produto->imagem) : asset('storage/' . $item->produto->imagem)) 
                                     : asset('assets/milho.png') }}"
                                 alt="{{ $item->produto->nome ?? 'Produto' }}">
-
-                            {{-- NOME --}}
-                            <h2 class="font-bold text-gray-800 line-clamp-1">
-                                {{ $item->produto->nome ?? 'Sem nome' }}
-                            </h2>
-
-                            {{-- DESCRIÇÃO --}}
-                            <p class="text-xs text-gray-400 mt-1 line-clamp-2">
-                                {{ $item->produto->descricao ?? '' }}
-                            </p>
                         </div>
 
-                        {{-- PREÇO / UNIDADE --}}
-                        <div class="mt-3 flex justify-between items-center">
-                            <span class="text-xs text-gray-500">
-                                Unidade:
-                                {{ $item->unidade }}
-                            </span>
-                            <span class="text-md font-bold text-[#79A961]">
-                                R${{ number_format($item->valor ?? 0, 2, ',', '.') }}
-                            </span>
-                        </div>
+                        {{-- Detalhes do card --}}
+                        <div class="p-2.5 sm:p-3 flex flex-col flex-1 justify-between gap-1.5">
+                            <div>
+                                <h2 class="font-medium text-xs sm:text-sm text-gray-800 line-clamp-2 leading-tight group-hover:text-[#236350] transition-colors">
+                                    {{ $item->produto->nome ?? 'Sem nome' }}
+                                </h2>
+                                @if($item->produto->descricao)
+                                    <p class="text-[11px] text-gray-400 line-clamp-1 mt-0.5">
+                                        {{ $item->produto->descricao }}
+                                    </p>
+                                @endif
+                            </div>
 
-                        {{-- BOTÃO COM CONTRASTE CORRIGIDO NO HOVER --}}
-                        <div class="mt-2 w-full text-emerald-700 border border-emerald-600 group-hover:bg-emerald-700 group-hover:!text-white text-center py-1.5 rounded-md text-xs font-semibold transition-colors">
-                            Ver detalhes
+                            <div class="pt-1 border-t border-gray-100">
+                                <span class="text-[10px] sm:text-xs text-gray-400 block uppercase font-medium">
+                                    {{ $item->unidade }}
+                                </span>
+                                <span class="text-sm sm:text-base font-extrabold text-[#1B4D3E]">
+                                    R$ {{ number_format($item->valor ?? 0, 2, ',', '.') }}
+                                </span>
+                            </div>
                         </div>
 
                     </div>
                 </a>
             @empty
-                <p class="text-gray-500 col-span-full text-center py-6">
-                    Nenhum lote disponível no mercado.
+                <p class="text-gray-500 col-span-full text-center py-8 text-xs sm:text-sm">
+                    Nenhum produto cadastrado até o momento.
                 </p>
             @endforelse
         </div>
     </div>
+
 </div>
 
-{{-- SCRIPTS --}}
-@push('scripts')
-
-<script>
-    window.addEventListener('load', function () {
-        if (!window.Echo) {
-            console.error('Echo não foi carregado.');
-            return;
-        }
-        @auth
-            @if(auth()->user()->fornecedor)
-                const fornecedorId =
-                    {{ auth()->user()->fornecedor->id }};
-
-                console.log(
-                    'Escutando canal:',
-                    `fornecedor.${fornecedorId}`
-                );
-                Echo
-                    .private(`fornecedor.${fornecedorId}`)
-                    .subscribed(() => {
-
-                        console.log(
-                            '✅ CANAL PRIVADO CONECTADO:',
-                            `fornecedor.${fornecedorId}`
-                        );
-                    })
-                    .error((error) => {
-
-                        console.error(
-                            '❌ ERRO NO CANAL PRIVADO:',
-                            error
-                        );
-                    })
-                    .listen('.proposta.criada', (event) => {
-
-                        console.log(
-                            '🔔 NOVA PROPOSTA RECEBIDA:',
-                            event
-                        );
-                    });
-            @endif
-        @endauth
-    });
-</script>
-
-@endpush
 @endsection

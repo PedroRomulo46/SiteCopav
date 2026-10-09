@@ -216,13 +216,18 @@
                     </a>
                   </li>
                   <li>
-                    <form method="POST" action="{{ route('logout') }}" class="w-full">
+                    {{-- Formulário invisível --}}
+                    <form id="logout-form" method="POST" action="{{ route('logout') }}" class="hidden">
                       @csrf
-                      <button type="submit" class="w-full flex items-center gap-2 text-red-600 rounded-md text-left">
-                        <span class="material-symbols-outlined text-base">logout</span>
-                        Sair
-                      </button>
                     </form>
+
+                    {{-- Link idêntico ao de Configurações --}}
+                    <a href="#" 
+                      onclick="event.preventDefault(); document.getElementById('logout-form').submit();" 
+                      class="flex items-center gap-2 text-red-600 hover:bg-red-50 hover:text-red-700">
+                      <span class="material-symbols-outlined text-base">logout</span>
+                      Sair
+                    </a>
                   </li>
                 </ul>
               </div>
