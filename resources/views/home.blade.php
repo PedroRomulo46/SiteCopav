@@ -82,18 +82,20 @@
                 </div>
               </div>
         @endguest
-
-        {{-- BLOCO INFERIOR - USUÁRIOS AUTENTICADOS --}}
+        
+        {{-- BLOCO INFERIOR - FORNECEDORES E ADMINISTRADORES --}}
         @auth
-            <div
-                class="bg-white rounded-xl p-4 flex flex-col gap-3 shadow-md"
-                x-data="{ abaAtiva: '{{ auth()->user()->fornecedor ? 'lotes' : 'demandas' }}' }">
+            @if(auth()->user()->user_type !== 'cliente')
+                <div
+                    class="bg-white rounded-xl p-4 flex flex-col gap-3 shadow-md"
+                    x-data="{ abaAtiva: '{{ auth()->user()->fornecedor ? 'lotes' : 'demandas' }}' }">
 
                 {{-- ABAS --}}
                 <div
                     role="tablist"
                     class="tabs tabs-border w-full flex justify-around border-b pb-2">
 
+                    
                     {{-- ABA MINHAS OFERTAS --}}
                     @if(auth()->user()->fornecedor)
                         <button
@@ -103,22 +105,22 @@
                                 'text-gray-500': abaAtiva !== 'lotes'
                             }"
                             class="tab transition-all pb-1 flex items-center justify-center gap-2">
-                            <span>
-                                Minhas Ofertas
-                            </span>
 
-                            @if(isset($novasPropostas) && $novasPropostas > 0)
-                                <span
-                                    class="rounded-full bg-yellow-400 text-gray-900 font-bold flex items-center justify-center transition-all duration-200"
-                                    :class="abaAtiva === 'lotes'
-                                        ? 'min-w-5 h-5 px-1.5 text-[10px]'
-                                        : 'w-2 h-2'"
-                                    title="{{ $novasPropostas }} {{ $novasPropostas === 1 ? 'nova proposta' : 'novas propostas' }}">
-                                    <span x-show="abaAtiva === 'lotes'">
-                                        {{ $novasPropostas }}
-                                    </span>
+                            <span>Minhas Ofertas</span>
+
+                            <span
+                                id="indicador-novas-propostas"
+                                class="rounded-full bg-yellow-400 text-gray-900 font-bold items-center justify-center transition-all duration-200"
+                                :class="abaAtiva === 'lotes'
+                                    ? 'min-w-5 h-5 px-1.5 text-[10px]'
+                                    : 'w-2 h-2'"
+                                style="{{ $novasPropostas > 0 ? 'display: flex;' : 'display: none;' }}"
+                                title="{{ $novasPropostas }} {{ $novasPropostas === 1 ? 'nova proposta' : 'novas propostas' }}">
+
+                                <span id="contador-novas-propostas">
+                                    {{ $novasPropostas }}
                                 </span>
-                            @endif
+                            </span>
                         </button>
                     @endif
 
@@ -143,30 +145,33 @@
                         class="flex flex-col gap-3 mt-2">
 
                         @forelse($ofertas->take(5) as $oferta)
+                        
                             @php
-                                $temNovaProposta =
-                                    isset($ofertasComNovasPropostas)
-                                    && $ofertasComNovasPropostas->has($oferta->id);
-                                $negociacaoNova =
-                                    $temNovaProposta
-                                    ? $ofertasComNovasPropostas->get($oferta->id)
-                                    : null;
-                                $negociacao =
-                                    $negociacaoNova
-                                    ?? $oferta->negociacoes->sortByDesc('id')->first();
+                                $quantidadeNovasPropostas = $ofertasComNovasPropostas->get($oferta->id, 0);
+
+                                $temNovaProposta = $quantidadeNovasPropostas > 0;
+
+                                $negociacao = $oferta->negociacoes
+                                    ->sortByDesc('id')
+                                    ->first();
                             @endphp
 
                             {{-- CARD DA OFERTA --}}
                             <div
-                                class="relative flex items-start gap-3 p-3 bg-white rounded-xl border border-gray-100 shadow-sm transition-all hover:shadow-[0_0_20px_2px_rgba(0,0,0,0.15)]">
+                                class="card-oferta-fornecedor relative flex items-start gap-3 p-3 bg-white rounded-xl border border-gray-100 shadow-sm transition-all hover:shadow-[0_0_20px_2px_rgba(0,0,0,0.15)]"
+                                data-oferta-id="{{ $oferta->id }}"
+                                data-novas-propostas="{{ $quantidadeNovasPropostas }}"
+                            >
 
-                                {{-- Indicador de nova proposta --}}
-                                @if($temNovaProposta)
-                                    <span
-                                        class="absolute top-2 right-2 w-3 h-3 rounded-full bg-yellow-400"
-                                        title="Nova proposta recebida"
-                                    ></span>
-                                @endif
+                                
+                            {{-- Contador de propostas não visualizadas --}}
+                            <span
+                                class="contador-propostas-oferta absolute top-2 right-2 min-w-6 h-6 px-1 rounded-full bg-yellow-400 text-gray-900 text-xs font-bold items-center justify-center shadow-sm"
+                                style="{{ $quantidadeNovasPropostas > 0 ? 'display: flex;' : 'display: none;' }}"
+                                title="{{ $quantidadeNovasPropostas }} {{ $quantidadeNovasPropostas === 1 ? 'nova proposta' : 'novas propostas' }}"
+                            >
+                                {{ $quantidadeNovasPropostas }}
+                            </span>
 
                                 {{-- IMAGEM DO PRODUTO --}}
                                 <img
@@ -354,6 +359,7 @@
 
                 </div>
             </div>
+            @endif
         @endauth
     </div>
 
@@ -416,51 +422,119 @@
     </div>
 </div>
 
+
 {{-- SCRIPTS --}}
 @push('scripts')
-
 <script>
     window.addEventListener('load', function () {
         if (!window.Echo) {
             console.error('Echo não foi carregado.');
             return;
         }
+
         @auth
             @if(auth()->user()->fornecedor)
-                const fornecedorId =
-                    {{ auth()->user()->fornecedor->id }};
+                const fornecedorId = {{ auth()->user()->fornecedor->id }};
 
-                console.log(
-                    'Escutando canal:',
-                    `fornecedor.${fornecedorId}`
-                );
-                Echo
-                    .private(`fornecedor.${fornecedorId}`)
-                    .subscribed(() => {
+                const canal = window.Echo.private(`fornecedor.${fornecedorId}`);
 
-                        console.log(
-                            '✅ CANAL PRIVADO CONECTADO:',
-                            `fornecedor.${fornecedorId}`
+                console.log('Escutando canal:', `fornecedor.${fornecedorId}`);
+
+                canal.subscribed(() => {
+                    console.log('✅ Canal privado conectado:', `fornecedor.${fornecedorId}`);
+                });
+
+                canal.error((error) => {
+                    console.error('❌ Erro no canal privado:', error);
+                });
+
+                canal.listen('.proposta.criada', (event) => {
+                    console.log('🔔 Nova proposta recebida:', event);
+
+                    const proposta = event.proposta;
+
+                    if (!proposta || !proposta.negociacao) {
+                        console.warn('Evento recebido sem os dados da negociação.');
+                        return;
+                    }
+
+                    const ofertaId = Number(proposta.negociacao.oferta_id);
+
+                    if (!ofertaId) {
+                        console.warn('Não foi possível identificar a oferta.');
+                        return;
+                    }
+
+                    const card = document.querySelector(
+                        `.card-oferta-fornecedor[data-oferta-id="${ofertaId}"]`
+                    );
+
+                    // Atualiza o card apenas se ele estiver na lista atual.
+                    if (!card) {
+                        console.info(
+                            'A oferta não está entre os cards exibidos:',
+                            ofertaId
                         );
-                    })
-                    .error((error) => {
+                    } else {
+                        const contador = card.querySelector('.contador-propostas-oferta');
 
-                        console.error(
-                            '❌ ERRO NO CANAL PRIVADO:',
-                            error
-                        );
-                    })
-                    .listen('.proposta.criada', (event) => {
+                        if (contador) {
+                            const quantidadeAtual = Number(card.dataset.novasPropostas || 0);
+                            const novaQuantidade = quantidadeAtual + 1;
 
-                        console.log(
-                            '🔔 NOVA PROPOSTA RECEBIDA:',
-                            event
+                            card.dataset.novasPropostas = novaQuantidade;
+                            contador.textContent = novaQuantidade;
+                            contador.style.display = 'flex';
+}
+
+                        // Indicador visual de nova atividade
+                        if (!card.querySelector('.indicador-proposta-recente')) {
+                            const indicador = document.createElement('span');
+                            indicador.className = 'indicador-proposta-recente';
+                            indicador.setAttribute('aria-label', 'Nova proposta recebida');
+                            card.appendChild(indicador);
+                        }
+                    }
+
+                    // Atualiza o total da aba
+                    const contadorGeral = document.getElementById(
+                        'contador-novas-propostas'
+                    );
+
+                    if (contadorGeral) {
+                        const totalAtual = Number(
+                            contadorGeral.textContent.trim() || 0
                         );
-                    });
+
+                        contadorGeral.textContent = totalAtual + 1;
+                    }
+
+                    // Reordena os cards: mais propostas primeiro.
+                    const lista = card?.parentElement;
+
+                    if (lista) {
+                        const cards = Array.from(
+                            lista.querySelectorAll('.card-oferta-fornecedor')
+                        );
+
+                        cards.sort((a, b) => {
+                            const totalA = Number(a.dataset.novasPropostas || 0);
+                            const totalB = Number(b.dataset.novasPropostas || 0);
+
+                            if (totalA !== totalB) {
+                                return totalB - totalA;
+                            }
+
+                            return Number(b.dataset.ofertaId) -
+                                   Number(a.dataset.ofertaId);
+                        });
+
+                        cards.forEach(item => lista.appendChild(item));
+                    }
+                });
             @endif
         @endauth
     });
 </script>
-
 @endpush
 @endsection

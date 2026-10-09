@@ -2,62 +2,79 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Produto;
 use App\Models\Oferta;
 use App\Models\Demanda;
-use App\Models\Negociacao;
-use Illuminate\Http\Request;
+use App\Models\Proposta;
 
 class HomeController extends Controller
 {
     public function index()
     {
-        // 1. Vitrine de Ofertas Globais
+        $usuario = auth()->user();
+
+        // 1. Vitrine pública de ofertas
         $produtos = Oferta::with(['produto', 'fornecedor'])
             ->latest()
             ->take(9)
             ->get();
 
-        // 2. Lotes do Usuário Logado
-        $ofertas = (auth()->check() && auth()->user()->fornecedor)
-            ? Oferta::with([
-                'produto',
-                'negociacoes'
-            ])
-                ->where('fornecedor_id', auth()->user()->fornecedor->id)
+        // 2. Ofertas do fornecedor logado
+        $ofertas = ($usuario && $usuario->fornecedor)
+            ? Oferta::with(['produto', 'negociacoes'])
+                ->where('fornecedor_id', $usuario->fornecedor->id)
                 ->latest()
                 ->get()
             : collect();
 
-        // 3. Novas propostas recebidas pelo fornecedor
+        // 3. Propostas pendentes ainda não visualizadas
         $novasPropostas = 0;
         $ofertasComNovasPropostas = collect();
 
-        if (auth()->check() && auth()->user()->fornecedor) {
+        if ($usuario && $usuario->fornecedor) {
+            $fornecedorId = $usuario->fornecedor->id;
 
-            $fornecedorId = auth()->user()->fornecedor->id;
-
-            $negociacoesComNovasPropostas = Negociacao::with('oferta')
-                ->whereNull('fornecedor_visualizada_em')
-                ->whereHas('oferta', function ($query) use ($fornecedorId) {
+            $propostasNaoVisualizadas = Proposta::whereNull('visualizada_em')
+                ->where('status', 'pendente')
+                ->whereHas('negociacao.oferta', function ($query) use ($fornecedorId) {
                     $query->where('fornecedor_id', $fornecedorId);
                 })
-                ->whereHas('propostas', function ($query) {
-                    $query->where('status', 'pendente');
-                })
+                ->with('negociacao')
                 ->get();
 
-            $novasPropostas = $negociacoesComNovasPropostas->count();
+            // Quantidade total de propostas não visualizadas
+            $novasPropostas = $propostasNaoVisualizadas->count();
 
-            $ofertasComNovasPropostas =
-                $negociacoesComNovasPropostas->keyBy('oferta_id');
+            // Quantidade de propostas não visualizadas por oferta
+            $ofertasComNovasPropostas = $propostasNaoVisualizadas
+                ->groupBy(function ($proposta) {
+                    return $proposta->negociacao->oferta_id;
+                })
+                ->map(function ($propostas) {
+                    return $propostas->count();
+                });
+
+                                
+                $ofertas = $ofertas->sort(function ($a, $b) use ($ofertasComNovasPropostas) {
+                    $novasA = $ofertasComNovasPropostas->get($a->id, 0);
+                    $novasB = $ofertasComNovasPropostas->get($b->id, 0);
+
+                    // Mais propostas não visualizadas primeiro
+                    if ($novasA !== $novasB) {
+                        return $novasB <=> $novasA;
+                    }
+
+                    // Em caso de empate, oferta mais recente primeiro
+                    return $b->id <=> $a->id;
+                })->values();
+
         }
 
-        // 4. Demandas da Empresa
-        if (
-            auth()->check() &&
-            (auth()->user()->is_admin ||
-             auth()->user()->user_type === 'admin')
+        // 4. Demandas: clientes não recebem esta lista na Home
+        if ($usuario && $usuario->user_type === 'cliente') {
+            $demandas = collect();
+        } elseif (
+            $usuario &&
+            ($usuario->is_admin || $usuario->user_type === 'admin')
         ) {
             $demandas = Demanda::latest()->get();
         } else {

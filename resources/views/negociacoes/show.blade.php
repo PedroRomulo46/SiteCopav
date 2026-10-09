@@ -382,15 +382,14 @@
     }
 
     // Fecha clicando fora do modal
-    document
-        .getElementById('modalConfirmarProposta')
-        .addEventListener('click', function(event) {
+const modalConfirmarProposta = document.getElementById('modalConfirmarProposta');
 
-            if (event.target === this) {
-
-                fecharModalProposta();
-
-            }
-        });
+if (modalConfirmarProposta) {
+    modalConfirmarProposta.addEventListener('click', function(event) {
+        if (event.target === this) {
+            fecharModalProposta();
+        }
+    });
+}
 
 </script>
