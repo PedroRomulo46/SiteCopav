@@ -83,19 +83,19 @@
               </div>
         @endguest
 
-        {{-- BLOCO INFERIOR - USUÁRIOS AUTENTICADOS --}}
+        {{-- BLOCO INFERIOR - APENAS PARA FORNECEDORES --}}
         @auth
-            <div
-                class="bg-white rounded-xl p-4 flex flex-col gap-3 shadow-md"
-                x-data="{ abaAtiva: '{{ auth()->user()->fornecedor ? 'lotes' : 'demandas' }}' }">
-
-                {{-- ABAS --}}
+            @if(auth()->user()->fornecedor)
                 <div
-                    role="tablist"
-                    class="tabs tabs-border w-full flex justify-around border-b pb-2">
+                    class="bg-white rounded-xl p-4 flex flex-col gap-3 shadow-md"
+                    x-data="{ abaAtiva: 'lotes' }">
 
-                    {{-- ABA MINHAS OFERTAS --}}
-                    @if(auth()->user()->fornecedor)
+                    {{-- ABAS --}}
+                    <div
+                        role="tablist"
+                        class="tabs tabs-border w-full flex justify-around border-b pb-2">
+
+                        {{-- ABA MINHAS OFERTAS --}}
                         <button
                             @click="abaAtiva = 'lotes'"
                             :class="{
@@ -120,24 +120,22 @@
                                 </span>
                             @endif
                         </button>
-                    @endif
 
-                    {{-- ABA DEMANDAS --}}
-                    <button
-                        @click="abaAtiva = 'demandas'"
-                        :class="{
-                            'tab-active font-bold text-gray-800': abaAtiva === 'demandas',
-                            'text-gray-500': abaAtiva !== 'demandas'
-                        }"
-                        class="tab transition-all pb-1 flex items-center justify-center gap-2">
-                        <span>
-                            Demandas da Empresa
-                        </span>
-                    </button>
-                </div>
+                        {{-- ABA DEMANDAS --}}
+                        <button
+                            @click="abaAtiva = 'demandas'"
+                            :class="{
+                                'tab-active font-bold text-gray-800': abaAtiva === 'demandas',
+                                'text-gray-500': abaAtiva !== 'demandas'
+                            }"
+                            class="tab transition-all pb-1 flex items-center justify-center gap-2">
+                            <span>
+                                Demandas da Empresa
+                            </span>
+                        </button>
+                    </div>
 
-                {{-- ABA 1: MINHAS OFERTAS --}}
-                @if(auth()->user()->fornecedor)
+                    {{-- ABA 1: MINHAS OFERTAS --}}
                     <div
                         x-show="abaAtiva === 'lotes'"
                         class="flex flex-col gap-3 mt-2">
@@ -168,7 +166,7 @@
                                     ></span>
                                 @endif
 
-                                {{-- IMAGEM DO PRODUTO --}}
+                                {{-- Imagem do produto --}}
                                 <img
                                     class="w-20 h-20 object-cover rounded-lg shrink-0"
                                     src="{{ $oferta->produto->imagem
@@ -180,7 +178,7 @@
                                         : asset('assets/milho.png') }}"
                                     alt="{{ $oferta->produto->nome ?? 'Produto' }}">
 
-                                {{-- INFORMAÇÕES --}}
+                                {{-- Informações --}}
                                 <div class="flex-1 min-w-0">
                                     <h3 class="font-bold text-sm text-gray-800">
                                         [Oferta #{{ $oferta->id }}]:
@@ -197,14 +195,12 @@
                                         }}
                                     </p>
 
-                                    {{-- BOTÕES --}}
+                                    {{-- Botões --}}
                                     <div class="flex justify-end gap-2 mt-2">
                                         @if($negociacao)
-
                                             <a
                                                 href="{{ route('negociacoes.propostas', $oferta->id) }}"
                                                 class="inline-flex items-center gap-1.5 text-sm font-semibold text-[#236350] hover:text-[#174c3e] transition-colors">
-
                                                 Ver negociação
                                                 <span class="material-symbols-outlined text-base">
                                                     arrow_forward
@@ -227,7 +223,7 @@
                             </p>
                         @endforelse
 
-                        {{-- VER MAIS OFERTAS --}}
+                        {{-- Ver mais ofertas --}}
                         @if($ofertas->count() > 5)
                             <div class="flex justify-center mt-2">
                                 <a
@@ -238,136 +234,129 @@
                             </div>
                         @endif
                     </div>
-                @endif
 
-                {{-- ABA 2: DEMANDAS --}}
-                <div
-                    x-show="abaAtiva === 'demandas'"
-                    @if(auth()->user()->fornecedor) x-cloak @endif
-                    class="flex flex-col gap-3 mt-2">
+                    {{-- ABA 2: DEMANDAS --}}
+                    <div
+                        x-show="abaAtiva === 'demandas'"
+                        x-cloak
+                        class="flex flex-col gap-3 mt-2">
 
-                    @forelse($demandas ?? [] as $demanda)
+                        @forelse($demandas ?? [] as $demanda)
 
-                        {{-- CARD DA DEMANDA --}}
-                        <div
-                            class="flex items-start gap-3 p-3 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-[0_0_8px_3px_rgba(0,0,0,0.2)] transition-shadow">
+                            {{-- CARD DA DEMANDA --}}
+                            <div
+                                class="flex items-start gap-3 p-3 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-[0_0_8px_3px_rgba(0,0,0,0.2)] transition-shadow">
 
-                            {{-- IMAGEM --}}
-                            <img
-                                class="w-20 h-20 rounded-lg object-cover shrink-0"
-                                src="{{ $demanda->imagem
-                                    ? (
-                                        str_contains($demanda->imagem, 'assets/')
-                                        ? asset($demanda->imagem)
-                                        : asset('storage/' . str_replace('public/', '', $demanda->imagem))
-                                    )
-                                    : asset('assets/milho.png') }}"
-                                alt="{{ $demanda->nome_produto ?? 'Demanda' }}"
-                                onerror="this.onerror=null; this.src='{{ asset('assets/milho.png') }}';">
+                                {{-- Imagem --}}
+                                <img
+                                    class="w-20 h-20 rounded-lg object-cover shrink-0"
+                                    src="{{ $demanda->imagem
+                                        ? (
+                                            str_contains($demanda->imagem, 'assets/')
+                                            ? asset($demanda->imagem)
+                                            : asset('storage/' . str_replace('public/', '', $demanda->imagem))
+                                        )
+                                        : asset('assets/milho.png') }}"
+                                    alt="{{ $demanda->nome_produto ?? 'Demanda' }}"
+                                    onerror="this.onerror=null; this.src='{{ asset('assets/milho.png') }}';">
 
-                            {{-- CONTEÚDO --}}
-                            <div class="flex-1 min-w-0">
+                                {{-- Conteúdo --}}
+                                <div class="flex-1 min-w-0">
 
-                                {{-- TÍTULO --}}
-                                <h3 class="font-bold text-gray-800 text-sm leading-tight">
-                                    [Demanda #{{ $demanda->id }}]:
-                                    {{ $demanda->nome_produto }}
-                                </h3>
+                                    {{-- Título --}}
+                                    <h3 class="font-bold text-gray-800 text-sm leading-tight">
+                                        [Demanda #{{ $demanda->id }}]:
+                                        {{ $demanda->nome_produto }}
+                                    </h3>
 
-                                {{-- DESCRIÇÃO --}}
-                                @if($demanda->descricao)
-                                    <p class="text-xs text-gray-500 mt-1 truncate">
-                                        {{ $demanda->descricao }}
-                                    </p>
-                                @endif
-
-                                {{-- INFORMAÇÕES --}}
-                                <div class="grid grid-cols-2 gap-x-6 mt-1 text-xs leading-4 text-gray-500">
-
-                                    <p>
-                                        Quantidade:
-                                        <strong class="text-gray-700">
-                                            {{ number_format($demanda->quantidade, 2, ',', '.') }}
-                                            {{ $demanda->unidade }}
-                                        </strong>
-                                    </p>
-
-                                    @if($demanda->valor_maximo !== null)
-                                        <p>
-                                            Valor máximo:
-                                            <strong class="text-gray-700">
-                                                R$ {{ number_format($demanda->valor_maximo, 2, ',', '.') }}
-                                            </strong>
+                                    {{-- Descrição --}}
+                                    @if($demanda->descricao)
+                                        <p class="text-xs text-gray-500 mt-1 truncate">
+                                            {{ $demanda->descricao }}
                                         </p>
-                                    @else
-                                        <p></p>
                                     @endif
 
-                                    @if($demanda->localizacao)
+                                    {{-- Informações --}}
+                                    <div class="grid grid-cols-2 gap-x-6 mt-1 text-xs leading-4 text-gray-500">
                                         <p>
-                                            Localização:
+                                            Quantidade:
                                             <strong class="text-gray-700">
-                                                {{ $demanda->localizacao }}
+                                                {{ number_format($demanda->quantidade, 2, ',', '.') }}
+                                                {{ $demanda->unidade }}
                                             </strong>
                                         </p>
-                                    @else
-                                        <p></p>
-                                    @endif
 
-                                    @if($demanda->data_limite)
+                                        @if($demanda->valor_maximo !== null)
+                                            <p>
+                                                Valor máximo:
+                                                <strong class="text-gray-700">
+                                                    R$ {{ number_format($demanda->valor_maximo, 2, ',', '.') }}
+                                                </strong>
+                                            </p>
+                                        @else
+                                            <p></p>
+                                        @endif
+
+                                        @if($demanda->localizacao)
+                                            <p>
+                                                Localização:
+                                                <strong class="text-gray-700">
+                                                    {{ $demanda->localizacao }}
+                                                </strong>
+                                            </p>
+                                        @else
+                                            <p></p>
+                                        @endif
+
+                                        @if($demanda->data_limite)
+                                            <p>
+                                                Prazo:
+                                                <strong class="text-gray-700">
+                                                    {{ \Carbon\Carbon::parse($demanda->data_limite)->format('d/m/Y') }}
+                                                </strong>
+                                            </p>
+                                        @else
+                                            <p></p>
+                                        @endif
+
                                         <p>
-                                            Prazo:
+                                            Status:
                                             <strong class="text-gray-700">
-                                                {{ \Carbon\Carbon::parse($demanda->data_limite)->format('d/m/Y') }}
+                                                {{ ucfirst($demanda->status ?? 'aberta') }}
                                             </strong>
                                         </p>
-                                    @else
-                                        <p></p>
-                                    @endif
+                                    </div>
 
-                                    <p>
-                                        Status:
-                                        <strong class="text-gray-700">
-                                            {{ ucfirst($demanda->status ?? 'aberta') }}
-                                        </strong>
-                                    </p>
-
+                                    {{-- Botão Enviar Propost --}}
+                                    <div class="flex justify-end mt-1">
+                                        <a
+                                            href="{{ route('demandas.show', $demanda->id) }}"
+                                            class="btn-copav text-white px-3 py-1.5 text-xs rounded-md">
+                                            Enviar Proposta
+                                        </a>
+                                    </div>
                                 </div>
-
-                                {{-- BOTÃO --}}
-                                <div class="flex justify-end mt-1">
-                                    <a
-                                        href="{{ route('demandas.show', $demanda->id) }}"
-                                        class="btn-copav text-white px-3 py-1.5 text-xs rounded-md">
-                                        Enviar Proposta
-                                    </a>
-                                </div>
-
                             </div>
-                        </div>
-
-                    @empty
-                        <p class="text-gray-500 text-sm text-center py-4">
-                            Nenhuma demanda corporativa aberta no momento.
-                        </p>
-                    @endforelse
-
+                        @empty
+                            <p class="text-gray-500 text-sm text-center py-4">
+                                Nenhuma demanda corporativa aberta no momento.
+                            </p>
+                        @endforelse
+                    </div>
                 </div>
-            </div>
+            @endif
         @endauth
     </div>
 
 {{-- COLUNA DIREITA: VITRINE DE PRODUTOS --}}
-
     <div class="lg:col-span-7 flex flex-col gap-4 items-center">
         <h1 class="text-xl font-bold text-gray-800 self-start">
             Produtos que você pode se interessar...
         </h1>
         <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 w-full">
             @forelse($produtos as $item)
-                <a
-                    href="{{ route('ofertas.show', $item->id) }}"
-                    class="block h-full">
+                <a href="{{ route('ofertas.show', $item->id) }}"
+                    class="block h-full group">
                     <div
                         class="bg-white shadow-md hover:shadow-[0_0_20px_2px_rgba(0,0,0,0.15)] p-3 rounded-2xl flex flex-col justify-between h-full transition-all border border-gray-100">
                         <div>
@@ -405,6 +394,12 @@
                                 R${{ number_format($item->valor ?? 0, 2, ',', '.') }}
                             </span>
                         </div>
+
+                        {{-- BOTÃO COM CONTRASTE CORRIGIDO NO HOVER --}}
+                        <div class="mt-2 w-full text-emerald-700 border border-emerald-600 group-hover:bg-emerald-700 group-hover:!text-white text-center py-1.5 rounded-md text-xs font-semibold transition-colors">
+                            Ver detalhes
+                        </div>
+
                     </div>
                 </a>
             @empty
