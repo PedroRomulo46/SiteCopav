@@ -137,7 +137,7 @@
                 <div class="flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
                     <div>
                         <h2 class="font-bold text-sm sm:text-base">Deseja vender no marketplace?</h2>
-                        <p class="text-xs text-emerald-200">Torne-se um fornecedor e comece a cadastrar seus lotes.</p>
+                        <p class="text-xs text-white">Torne-se um fornecedor e comece a cadastrar seus lotes.</p>
                     </div>
                     <a href="{{ route('fornecedores.create') }}" class="btn-copav text-xs px-4 py-2 rounded-lg font-bold shrink-0 transition-transform active:scale-95">
                         Virar Fornecedor
@@ -152,7 +152,7 @@
         <div class="bg-[#123228] text-white p-4 rounded-2xl shadow-md flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
             <div>
                 <h2 class="font-bold text-sm sm:text-base">Quer comprar ou vender produtos agrícolas?</h2>
-                <p class="text-xs text-emerald-200">Cadastre-se ou entre na sua conta para negociar lotes diretamente.</p>
+                <p class="text-xs text-white">Cadastre-se ou entre na sua conta para negociar lotes diretamente.</p>
             </div>
             <div class="flex gap-2 shrink-0">
                 <a href="{{ route('login') }}" class="btn-copav text-xs px-4 py-2 rounded-lg font-bold transition-transform active:scale-95">Entrar</a>

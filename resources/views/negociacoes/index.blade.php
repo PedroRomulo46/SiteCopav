@@ -154,31 +154,33 @@
                             </div>
                         </div>
 
-                        {{-- Melhor Proposta --}}
-                        @if($melhorValor !== null)
-                            <div class="rounded-xl bg-emerald-50 border border-emerald-100 p-4 mb-4 text-left">
-                                <div class="flex items-center gap-2 mb-1">
-                                    <span class="material-symbols-outlined text-[#236350] text-lg">
-                                        trending_up
-                                    </span>
-                                    <span class="text-xs font-semibold uppercase tracking-wide text-[#236350]">
-                                        Melhor valor por unidade
-                                    </span>
-                                </div>
+                        @if ($is_dono)
+                            {{-- Melhor Proposta --}}
+                            @if($melhorValor !== null)
+                                <div class="rounded-xl bg-emerald-50 border border-emerald-100 p-4 mb-4 text-left">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="material-symbols-outlined text-[#236350] text-lg">
+                                            trending_up
+                                        </span>
+                                        <span class="text-xs font-semibold uppercase tracking-wide text-[#236350]">
+                                            Melhor valor por unidade
+                                        </span>
+                                    </div>
 
-                                <p class="text-2xl font-bold text-[#236350] text-left">
-                                    R$ {{ number_format($melhorValor, 2, ',', '.') }}
-                                </p>
-                                <p class="text-xs text-gray-500 mt-0.5 text-left">
-                                    por {{ $oferta->unidade }}
-                                </p>
-                            </div>
-                        @else
-                            <div class="rounded-xl bg-gray-50 border border-gray-100 p-4 mb-4 text-left">
-                                <p class="text-sm text-gray-500 text-left">
-                                    Ainda não existem propostas para esta oferta.
-                                </p>
-                            </div>
+                                    <p class="text-2xl font-bold text-[#236350] text-left">
+                                        R$ {{ number_format($melhorValor, 2, ',', '.') }}
+                                    </p>
+                                    <p class="text-xs text-gray-500 mt-0.5 text-left">
+                                        por {{ $oferta->unidade }}
+                                    </p>
+                                </div>
+                            @else
+                                <div class="rounded-xl bg-gray-50 border border-gray-100 p-4 mb-4 text-left">
+                                    <p class="text-sm text-gray-500 text-left">
+                                        Ainda não existem propostas para esta oferta.
+                                    </p>
+                                </div>
+                            @endif
                         @endif
 
                         {{-- Quantidade Negociada --}}

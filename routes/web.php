@@ -62,10 +62,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/propostas/{proposta}/aceitar', [PropostaController::class, 'aceitar'])->name('propostas.aceitar');
     Route::patch('/propostas/{proposta}/recusar', [PropostaController::class, 'recusar'])->name('propostas.recusar');
     Route::get('/ofertas/{oferta}/propostas', [NegociacaoController::class, 'propostasOferta'])->name('negociacoes.propostas');
-    Route::get(
-        '/propostas/{proposta}/visualizar',
-        [PropostaController::class, 'visualizar']
-    )->name('propostas.visualizar');
+    Route::get('/propostas/{proposta}/visualizar', [PropostaController::class, 'visualizar'])->name('propostas.visualizar');
 
     // Perfil
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
