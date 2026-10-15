@@ -1,17 +1,6 @@
 @extends('layouts.layout')
 
-@section('title', 'Criar categoria')
-
 @section('conteudo')
-
-{{-- Botão de Voltar --}}
-<div class="mb-4">
-    <a href="{{ route('home') }}" class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-[#236350] transition-colors">
-        <span class="material-symbols-outlined text-lg">arrow_back</span>
-        Voltar para a página inicial
-    </a>
-</div>
-
 <div class="max-w-2xl mx-auto my-10 p-6 bg-white rounded-xl shadow-md border border-gray-100">
 
   {{-- Cabeçalho --}}
@@ -22,9 +11,14 @@
       </div>
       <div>
         <h1 class="text-2xl font-bold text-gray-800">Cadastrar Categoria</h1>
-        <p class="text-xs text-gray-500">Adicione uma nova categoria ao sistema</p>
+        <p class="text-xs text-gray-500">Adicione uma nova categoria de livros ao sistema</p>
       </div>
     </div>
+
+    <a href="{{ route('categorias.index') }}" class="btn btn-ghost btn-sm text-gray-600 hover:text-[#1B4D3E] flex items-center gap-1">
+      <span class="material-symbols-outlined text-lg">arrow_back</span>
+      Voltar
+    </a>
   </div>
 
   {{-- Exibição de Erros de Validação --}}
@@ -49,8 +43,7 @@
     {{-- Campo Nome --}}
     <div class="form-control">
       <label for="nome" class="label text-sm font-medium text-gray-700">
-        <span class="label-text font-semibold">Nome da Categoria</span>
-          <span class="text-red-500">*</span>
+        <span class="label-text font-semibold">Nome da Categoria <span class="text-red-500">*</span></span>
       </label>
       <div class="relative">
         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
@@ -61,8 +54,8 @@
           id="nome"
           name="nome"
           value="{{ old('nome') }}"
-          placeholder="Digite o nome da sua categoria..."
-          class="input input-bordered w-full focus:border-[#1B4D3E] focus:ring-1 focus:ring-[#1B4D3E] @error('nome') input-error @enderror"
+          placeholder="Ex: Ficção Científica, Romance, Biografia..."
+          class="input input-bordered w-full pl-10 focus:border-[#1B4D3E] focus:ring-1 focus:ring-[#1B4D3E] @error('nome') input-error @enderror"
           required
         >
       </div>
@@ -80,7 +73,7 @@
         id="descricao"
         name="descricao"
         rows="4"
-        placeholder="Breve descrição sobre esta categoria..."
+        placeholder="Breve descrição sobre os livros pertencentes a esta categoria..."
         class="textarea textarea-bordered w-full focus:border-[#1B4D3E] focus:ring-1 focus:ring-[#1B4D3E] @error('descricao') textarea-error @enderror"
       >{{ old('descricao') }}</textarea>
       @error('descricao')

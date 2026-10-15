@@ -6,10 +6,10 @@
 
 {{-- Botão Voltar --}}
 <div class="mb-4">
-    <a href="{{ route('negociacoes.vendas') }}"
+    <a href="{{ route('negociacoes.index') }}"
        class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-[#236350] transition-colors mb-4">
         <span class="material-symbols-outlined text-lg">arrow_back</span>
-        Voltar para minhas vendas
+        Minhas ofertas
     </a>
 </div>
 
@@ -163,7 +163,7 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
 
-                            {{-- ESQUERDA: Dados do Fornecedor (Ocupa 4 colunas) --}}
+                            {{-- 1. ESQUERDA: Dados do Fornecedor (Ocupa 4 colunas) --}}
                             <div class="md:col-span-4 flex items-center gap-3.5 text-left">
                                 <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
                                     <span class="material-symbols-outlined text-gray-600">person</span>
@@ -189,7 +189,7 @@
                                 </div>
                             </div>
 
-                            {{-- CENTRO: Quantidade, Valor Unitário e Valor Total (Ocupa 5 colunas) --}}
+                            {{-- 2. CENTRO: Quantidade, Valor Unitário e Valor Total (Ocupa 5 colunas) --}}
                             <div class="md:col-span-5 grid grid-cols-3 gap-2 text-left py-2 md:py-0">
                                 <div>
                                     <p class="text-xs text-gray-400 font-medium">Quantidade</p>
@@ -224,7 +224,7 @@
                                 </div>
                             </div>
 
-                            {{-- DIREITA: Status e Botão Ver Negociação (Ocupa 3 colunas) --}}
+                            {{-- 3. DIREITA: Status e Botão Ver Negociação (Ocupa 3 colunas) --}}
                             <div class="md:col-span-3 flex flex-col md:items-end justify-center gap-1.5 text-left md:text-right">
                                 @if($proposta->status === 'pendente')
                                     <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-700 bg-amber-100 px-3 py-1 rounded-full w-fit">

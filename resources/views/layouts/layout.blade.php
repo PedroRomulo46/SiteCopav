@@ -179,18 +179,10 @@
           <div class="flex items-center gap-6">
             @auth
 
-              <a href="{{ route('negociacoes.compras') }}" class="flex items-center gap-1.5 nav-link transition-colors">
+              <a href="{{ route('negociacoes.index') }}" class="flex items-center gap-1.5 nav-link transition-colors">
                 <span class="material-symbols-outlined text-lg">forum</span>
-                <span>Minhas Compras</span>
+                <span>Minhas negociações</span>
               </a>
-
-              {{-- @if para aparecer somente para fornecedores/admin --}}
-              @if (auth()->user()->is_admin || auth()->user()->fornecedor)
-                <a href="{{ route('negociacoes.vendas') }}" class="flex items-center gap-1.5 nav-link transition-colors">
-                  <span class="material-symbols-outlined text-lg">local_mall</span>
-                  <span>Minhas Vendas</span>
-                </a> 
-              @endif
 
               @if(!auth()->user()->fornecedor)
                 <a href="{{ route('fornecedores.create') }}" class="flex items-center gap-1.5 nav-link transition-colors">
@@ -200,7 +192,7 @@
               @else
                 <a href="{{ route('fornecedores.show', auth()->user()->fornecedor) }}" class="flex items-center gap-1.5 nav-link transition-colors">
                   <span class="material-symbols-outlined text-lg">patient_list</span>
-                  <span>Menu Fornecedor</span>
+                  <span>Meu cadastro</span>
                 </a>
               @endif
 
@@ -232,18 +224,13 @@
                     </a>
                   </li>
                   <li>
-                    {{-- Formulário invisível --}}
-                    <form id="logout-form" method="POST" action="{{ route('logout') }}" class="hidden">
+                    <form method="POST" action="{{ route('logout') }}" class="w-full">
                       @csrf
+                      <button type="submit" class="w-full flex items-center gap-2 text-red-600 rounded-md text-left">
+                        <span class="material-symbols-outlined text-base">logout</span>
+                        Sair
+                      </button>
                     </form>
-
-                    {{-- Link idêntico ao de Configurações --}}
-                    <a href="#" 
-                      onclick="event.preventDefault(); document.getElementById('logout-form').submit();" 
-                      class="flex items-center gap-2 text-red-600 hover:bg-red-50 hover:text-red-700">
-                      <span class="material-symbols-outlined text-base">logout</span>
-                      Sair
-                    </a>
                   </li>
                 </ul>
               </div>
@@ -274,7 +261,7 @@
             @endauth
 
             {{-- Dropdown Categorias Mobile --}}
-            <div x-data="{ openCat: false }" class="hover:bg-[#236350] rounded-md">
+            <div x-data="{ openCat: false }">
               <button @click="openCat = !openCat" class="flex items-center justify-between w-full p-2 hover:bg-[#236350] rounded-md text-left">
                 <span>Categorias</span>
                 <span class="material-symbols-outlined text-sm" x-text="openCat ? 'expand_less' : 'expand_more'">expand_more</span>
@@ -284,18 +271,18 @@
                 
                 @auth
                   @if(auth()->user()->is_admin || auth()->user()->user_type === 'admin' || auth()->user()->email === 'copavagricola@example.com')
-                    <a href="{{ route('categorias.index') }}" class="p-1.5 text-xs nav-link:hover hover:bg-[#236350] rounded font-semibold flex items-center gap-1">
+                    <a href="{{ route('categorias.index') }}" class="p-1.5 text-xs text-amber-300 hover:bg-[#236350] rounded font-semibold flex items-center gap-1">
                       <span class="material-symbols-outlined text-sm">list</span>
                       Ver Todas
                     </a>
                   @else
-                    <a href="{{ route('categorias.create') }}" class="p-1.5 text-xs nav-link:hover hover:bg-[#236350] rounded font-semibold flex items-center gap-1">
+                    <a href="{{ route('categorias.create') }}" class="p-1.5 text-xs text-amber-300 hover:bg-[#236350] rounded font-semibold flex items-center gap-1">
                       <span class="material-symbols-outlined text-sm">add_circle</span>
                       Sugerir Categoria
                     </a>
                   @endif
                 @else
-                  <a href="{{ route('categorias.create') }}" class="p-1.5 text-xs nav-link:hover hover:bg-[#236350] rounded font-semibold flex items-center gap-1">
+                  <a href="{{ route('categorias.create') }}" class="p-1.5 text-xs text-amber-300 hover:bg-[#236350] rounded font-semibold flex items-center gap-1">
                     <span class="material-symbols-outlined text-sm">add_circle</span>
                     Sugerir Categoria
                   </a>
@@ -313,18 +300,10 @@
           <div class="border-t border-[#236350] pt-2 flex flex-col gap-1">
             @auth
 
-              <a href="{{ route('negociacoes.compras') }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
+              <a href="{{ route('negociacoes.index') }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
                 <span class="material-symbols-outlined text-lg">forum</span>
-                <span>Minhas Compras</span>
+                <span>Minhas negociações</span>
               </a>
-
-              {{-- @if para aparecer somente para fornecedores/admin --}}
-              @if (auth()->user()->is_admin || auth()->user()->fornecedor)
-                <a href="{{ route('negociacoes.vendas') }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
-                  <span class="material-symbols-outlined text-lg">local_mall</span>
-                  <span>Minhas Vendas</span>
-                </a> 
-              @endif
 
               @if(!auth()->user()->fornecedor)
                 <a href="{{ route('fornecedores.create') }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
@@ -334,7 +313,7 @@
               @else
                 <a href="{{ route('fornecedores.show', auth()->user()->fornecedor) }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
                   <span class="material-symbols-outlined text-lg">patient_list</span>
-                  <span>Menu Fornecedor</span>
+                  <span>Meu Fornecedor</span>
                 </a>
               @endif
 
@@ -350,9 +329,9 @@
                 <span>Configurações</span>
               </a>
 
-              <form method="POST" action="{{ route('logout') }}" class="w-full hover:bg-[#236350] rounded-md">
+              <form method="POST" action="{{ route('logout') }}" class="w-full">
                 @csrf
-                <button type="submit" class="w-full flex items-center gap-2 p-2 text-left">
+                <button type="submit" class="w-full flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md text-left text-red-300 hover:text-red-100">
                   <span class="material-symbols-outlined text-lg">logout</span>
                   <span>Sair</span>
                 </button>
