@@ -74,7 +74,7 @@
                             @endphp
                             <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg border border-gray-100 text-md gap-2 transition-colors duration-150">
                                 <div class="flex items-center gap-2.5 min-w-0">
-                                    <img class="w-10 h-10 object-cover rounded-md shrink-0" 
+                                    <img class="w-12 h-12 object-cover rounded-md shrink-0" 
                                          src="{{ $oferta->produto->imagem ? (str_contains($oferta->produto->imagem, 'assets/') ? asset($oferta->produto->imagem) : asset('storage/' . $oferta->produto->imagem)) : asset('assets/milho.png') }}" 
                                          alt="{{ $oferta->produto->nome ?? 'Produto' }}">
                                     
@@ -183,7 +183,7 @@
                         </div>
 
                         {{-- Detalhes do card --}}
-                        <div class="p-2.5 sm:p-3 flex flex-col flex-1 justify-between gap-1.5">
+                        <div class="p-2.5 sm:p-3 flex flex-col flex-1 justify-between gap-1.5 hover:shadow-2xl">
                             <div>
                                 <h2 class="font-medium text-xs sm:text-sm text-gray-800 line-clamp-2 leading-tight group-hover:text-[#236350] transition-colors duration-150">
                                     {{ $item->produto->nome ?? 'Sem nome' }}

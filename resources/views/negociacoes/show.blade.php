@@ -3,15 +3,44 @@
 
 @section('conteudo')
 
-    {{-- Botão Voltar --}}
-    <div class="mb-4">
-        <a
-            href="{{ route('ofertas.show', $negociacao->oferta_id) }}"
-            class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-[#236350] transition-colors">
-            <span class="material-symbols-outlined text-lg">arrow_back</span>
-            Voltar para o produto
-        </a>
-    </div>
+{{-- Breadcrumbs com setas garantidas via ícone --}}
+<nav class="flex items-center text-sm mb-6 text-gray-600" aria-label="Breadcrumb">
+    <ol class="inline-flex items-center space-x-2">
+        {{-- Item 1: Início --}}
+        <li>
+            <a href="{{ route('home') }}" class="hover:text-[#236350] transition-colors">
+                Início
+            </a>
+        </li>
+
+        @php
+            $usuario = auth()->user();
+            $is_Cliente = $usuario && $negociacao->cliente_id === $usuario->id;
+        @endphp
+
+        {{-- Item 2: Compras ou Vendas --}}
+        <li class="flex items-center space-x-2">
+            <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
+            @if($is_Cliente)
+                <a href="{{ route('negociacoes.compras') }}" class="hover:text-[#236350] transition-colors">
+                    Minhas Compras
+                </a>
+            @else
+                <a href="{{ route('negociacoes.vendas') }}" class="hover:text-[#236350] transition-colors">
+                    Minhas Vendas
+                </a>
+            @endif
+        </li>
+
+        {{-- Item 3: Página Atual --}}
+        <li class="flex items-center space-x-2">
+            <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
+            <span class="font-semibold text-gray-800">
+                Negociação #{{ $negociacao->id }}
+            </span>
+        </li>
+    </ol>
+</nav>
 
     <div class="max-w-4xl mx-auto my-6 space-y-6">
 

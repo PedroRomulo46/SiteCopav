@@ -50,7 +50,7 @@ class NegociacaoController extends Controller
         // Agrupa as negociações pela oferta
         $ofertas = $negociacoes->groupBy('oferta_id');
 
-        return view('negociacoes.index', compact('ofertas'));
+        return view('negociacoes.compras', compact('ofertas'));
     }
 
     public function create()

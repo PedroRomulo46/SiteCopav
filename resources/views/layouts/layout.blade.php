@@ -266,7 +266,7 @@
             @endauth
 
             {{-- Dropdown Categorias Mobile --}}
-            <div x-data="{ openCat: false }">
+            <div x-data="{ openCat: false }" class="hover:bg-[#236350] rounded-md">
               <button @click="openCat = !openCat" class="flex items-center justify-between w-full p-2 hover:bg-[#236350] rounded-md text-left">
                 <span>Categorias</span>
                 <span class="material-symbols-outlined text-sm" x-text="openCat ? 'expand_less' : 'expand_more'">expand_more</span>
@@ -276,18 +276,18 @@
                 
                 @auth
                   @if(auth()->user()->is_admin || auth()->user()->user_type === 'admin' || auth()->user()->email === 'copavagricola@example.com')
-                    <a href="{{ route('categorias.index') }}" class="p-1.5 text-xs text-amber-300 hover:bg-[#236350] rounded font-semibold flex items-center gap-1">
+                    <a href="{{ route('categorias.index') }}" class="p-1.5 text-xs nav-link:hover hover:bg-[#236350] rounded font-semibold flex items-center gap-1">
                       <span class="material-symbols-outlined text-sm">list</span>
                       Ver Todas
                     </a>
                   @else
-                    <a href="{{ route('categorias.create') }}" class="p-1.5 text-xs text-amber-300 hover:bg-[#236350] rounded font-semibold flex items-center gap-1">
+                    <a href="{{ route('categorias.create') }}" class="p-1.5 text-xs nav-link:hover hover:bg-[#236350] rounded font-semibold flex items-center gap-1">
                       <span class="material-symbols-outlined text-sm">add_circle</span>
                       Sugerir Categoria
                     </a>
                   @endif
                 @else
-                  <a href="{{ route('categorias.create') }}" class="p-1.5 text-xs text-amber-300 hover:bg-[#236350] rounded font-semibold flex items-center gap-1">
+                  <a href="{{ route('categorias.create') }}" class="p-1.5 text-xs nav-link:hover hover:bg-[#236350] rounded font-semibold flex items-center gap-1">
                     <span class="material-symbols-outlined text-sm">add_circle</span>
                     Sugerir Categoria
                   </a>
@@ -312,7 +312,7 @@
 
               {{-- @if para aparecer somente para fornecedores/admin --}}
               @if (auth()->user()->is_admin || auth()->user()->fornecedor)
-                <a href="{{ route('negociacoes.vendas') }}" class="flex items-center gap-1.5 nav-link transition-colors">
+                <a href="{{ route('negociacoes.vendas') }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
                   <span class="material-symbols-outlined text-lg">local_mall</span>
                   <span>Minhas Vendas</span>
                 </a> 
@@ -342,9 +342,9 @@
                 <span>Configurações</span>
               </a>
 
-              <form method="POST" action="{{ route('logout') }}" class="w-full">
+              <form method="POST" action="{{ route('logout') }}" class="w-full hover:bg-[#236350] rounded-md">
                 @csrf
-                <button type="submit" class="w-full flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md text-left text-red-300 hover:text-red-100">
+                <button type="submit" class="w-full flex items-center gap-2 p-2 text-left">
                   <span class="material-symbols-outlined text-lg">logout</span>
                   <span>Sair</span>
                 </button>

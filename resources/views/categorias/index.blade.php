@@ -56,9 +56,6 @@
                             <h2 class="text-xl font-semibold text-gray-800 hover:text-[#1B4D3E] transition-colors">
                                 {{ $categoria->nome }}
                             </h2>
-                            <span class="badge bg-emerald-50 text-[#1B4D3E] border-emerald-200 text-xs py-2 px-2.5 font-medium">
-                                ID #{{ $categoria->id }}
-                            </span>
                         </div>
 
                         <p class="text-sm text-gray-600 line-clamp-3">

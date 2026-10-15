@@ -71,7 +71,7 @@
                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
 
                         {{-- Badge de Status da Negociação --}}
-                        <div class="absolute top-3 right-3">
+                        <div class="absolute top-3 left-3">
                             @if($minhaPropostaAceita)
                                 <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-600 text-white text-xs font-semibold shadow-sm">
                                     <span class="material-symbols-outlined text-sm">check_circle</span>

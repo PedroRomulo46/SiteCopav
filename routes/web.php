@@ -16,10 +16,13 @@ use App\Http\Controllers\AdminDashboardController;
 
 // ROTAS PÚBLICAS (Visitantes e Autenticados)
 Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::resource('categorias', CategoriaController::class)->only(['index', 'show']);
 
 // Listagem pública de ofertas
 Route::get('/ofertas', [OfertaController::class, 'index'])->name('ofertas.index');
+
+// Categorias (Protegido ou gerido no controlador)
+//Route::resource('categorias', CategoriaController::class)->except(['index', 'show']);
+Route::resource('categorias', CategoriaController::class);
 
 // ROTAS PROTEGIDAS (Exigem Login)
 Route::middleware('auth')->group(function () {
@@ -41,10 +44,7 @@ Route::middleware('auth')->group(function () {
 
     // Chat
     Route::get('/chat', [ChatController::class, 'index'])->name('chat');
-
-    // Categorias
-    Route::resource('categorias', CategoriaController::class)->except(['index', 'show']);
-
+    
     // Recursos de Fornecedor e Negociações
     Route::resource('fornecedores', FornecedorController::class)->parameters(['fornecedores' => 'fornecedor']);
     Route::resource('ofertas-diretas', OfertaDiretaController::class);
@@ -70,7 +70,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// ROTAS EXCLUSIVAS DA EMPRESA (ADMIN)
+// Rotas exclusivas da empresa (ADMIN)
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 });

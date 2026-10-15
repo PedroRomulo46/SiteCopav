@@ -6,10 +6,10 @@
 
 {{-- Botão Voltar --}}
 <div class="mb-4">
-    <a href="{{ route('negociacoes.index') }}"
+    <a href="{{ route('negociacoes.vendas') }}"
        class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-[#236350] transition-colors mb-4">
         <span class="material-symbols-outlined text-lg">arrow_back</span>
-        Minhas ofertas
+        Voltar para minhas vendas
     </a>
 </div>
 
