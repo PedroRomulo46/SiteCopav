@@ -1,5 +1,5 @@
 @extends('layouts.layout')
-@section('title', 'Lotes cadastrados')
+@section('title', 'Ofertas')
 
 @section('conteudo')
 

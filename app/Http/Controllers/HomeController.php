@@ -53,18 +53,20 @@ class HomeController extends Controller
                     return $propostas->count();
                 });
 
-            $ofertas = $ofertas->sort(function ($a, $b) use ($ofertasComNovasPropostas) {
-                $novasA = $ofertasComNovasPropostas->get($a->id, 0);
-                $novasB = $ofertasComNovasPropostas->get($b->id, 0);
+                                
+                $ofertas = $ofertas->sort(function ($a, $b) use ($ofertasComNovasPropostas) {
+                    $novasA = $ofertasComNovasPropostas->get($a->id, 0);
+                    $novasB = $ofertasComNovasPropostas->get($b->id, 0);
 
-                // Mais propostas não visualizadas primeiro
-                if ($novasA !== $novasB) {
-                    return $novasB <=> $novasA;
-                }
+                    // Mais propostas não visualizadas primeiro
+                    if ($novasA !== $novasB) {
+                        return $novasB <=> $novasA;
+                    }
 
-                // Em caso de empate, oferta mais recente primeiro
-                return $b->id <=> $a->id;
-            })->values();
+                    // Em caso de empate, oferta mais recente primeiro
+                    return $b->id <=> $a->id;
+                })->values();
+
         }
 
         // 4. Demandas: clientes não recebem esta lista na Home
