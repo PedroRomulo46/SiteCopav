@@ -16,17 +16,18 @@ use App\Http\Controllers\AdminDashboardController;
 
 // ROTAS PÚBLICAS (Visitantes e Autenticados)
 Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::resource('categorias', CategoriaController::class)->only(['index', 'show']);
 
 // Listagem pública de ofertas
 Route::get('/ofertas', [OfertaController::class, 'index'])->name('ofertas.index');
 
+// Categorias (Protegido ou gerido no controlador)
+//Route::resource('categorias', CategoriaController::class)->except(['index', 'show']);
+Route::resource('categorias', CategoriaController::class);
+
 // ROTAS PROTEGIDAS (Exigem Login)
 Route::middleware('auth')->group(function () {
 
-    Route::get('/dashboard', function () {
-        return redirect()->route('home');
-    })->middleware('verified')->name('dashboard');
+    Route::get('/dashboard', function () {return redirect()->route('home');})->middleware('verified')->name('dashboard');
 
     // Lotes / Ofertas (Restrito a usuários logados)
     Route::get('/ofertas/{oferta}/card', [OfertaController::class, 'card'])
@@ -47,18 +48,17 @@ Route::middleware('auth')->group(function () {
 
     // Chat
     Route::get('/chat', [ChatController::class, 'index'])->name('chat');
-
-    // Categorias
-    Route::resource('categorias', CategoriaController::class)->except(['index', 'show']);
-
+    
     // Recursos de Fornecedor e Negociações
     Route::resource('fornecedores', FornecedorController::class)->parameters(['fornecedores' => 'fornecedor']);
     Route::resource('ofertas-diretas', OfertaDiretaController::class);
+
+    // Rotas separadas para Compras e Vendas
+    Route::get('/negociacoes/compras', [NegociacaoController::class, 'compras'])->name('negociacoes.compras');
+    Route::get('/negociacoes/vendas', [NegociacaoController::class, 'vendas'])->name('negociacoes.vendas');
     Route::resource('negociacoes', NegociacaoController::class)->parameters(['negociacoes' => 'negociacao']);
-    Route::post(
-        '/negociacoes/{negociacao}/visualizada',
-        [NegociacaoController::class, 'marcarComoVisualizada']
-    )->name('negociacoes.visualizada');
+
+    Route::post('/negociacoes/{negociacao}/visualizada', [NegociacaoController::class, 'marcarComoVisualizada'])->name('negociacoes.visualizada');
     
     // Propostas
     Route::get('/negociacoes/{negociacao}/propostas/create', [PropostaController::class, 'create'])->name('propostas.create');
@@ -70,10 +70,7 @@ Route::middleware('auth')->group(function () {
         [PropostaController::class, 'cancelar']
     )->middleware('auth')->name('propostas.cancelar');
     Route::get('/ofertas/{oferta}/propostas', [NegociacaoController::class, 'propostasOferta'])->name('negociacoes.propostas');
-    Route::get(
-        '/propostas/{proposta}/visualizar',
-        [PropostaController::class, 'visualizar']
-    )->name('propostas.visualizar');
+    Route::get('/propostas/{proposta}/visualizar', [PropostaController::class, 'visualizar'])->name('propostas.visualizar');
 
     // Perfil
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -81,7 +78,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// ROTAS EXCLUSIVAS DA EMPRESA (ADMIN)
+// Rotas exclusivas da empresa (ADMIN)
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 });
