@@ -171,10 +171,18 @@
           <div class="flex items-center gap-6">
             @auth
 
-              <a href="{{ route('negociacoes.index') }}" class="flex items-center gap-1.5 nav-link transition-colors">
+              <a href="{{ route('negociacoes.compras') }}" class="flex items-center gap-1.5 nav-link transition-colors">
                 <span class="material-symbols-outlined text-lg">forum</span>
-                <span>Minhas negociações</span>
+                <span>Minhas Compras</span>
               </a>
+
+              {{-- @if para aparecer somente para fornecedores/admin --}}
+              @if (auth()->user()->is_admin || auth()->user()->fornecedor)
+                <a href="{{ route('negociacoes.vendas') }}" class="flex items-center gap-1.5 nav-link transition-colors">
+                  <span class="material-symbols-outlined text-lg">local_mall</span>
+                  <span>Minhas Vendas</span>
+                </a> 
+              @endif
 
               @if(!auth()->user()->fornecedor)
                 <a href="{{ route('fornecedores.create') }}" class="flex items-center gap-1.5 nav-link transition-colors">
@@ -184,7 +192,7 @@
               @else
                 <a href="{{ route('fornecedores.show', auth()->user()->fornecedor) }}" class="flex items-center gap-1.5 nav-link transition-colors">
                   <span class="material-symbols-outlined text-lg">patient_list</span>
-                  <span>Meu cadastro</span>
+                  <span>Menu Fornecedor</span>
                 </a>
               @endif
 
@@ -297,10 +305,18 @@
           <div class="border-t border-[#236350] pt-2 flex flex-col gap-1">
             @auth
 
-              <a href="{{ route('negociacoes.index') }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
+              <a href="{{ route('negociacoes.compras') }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
                 <span class="material-symbols-outlined text-lg">forum</span>
-                <span>Minhas negociações</span>
+                <span>Minhas Compras</span>
               </a>
+
+              {{-- @if para aparecer somente para fornecedores/admin --}}
+              @if (auth()->user()->is_admin || auth()->user()->fornecedor)
+                <a href="{{ route('negociacoes.vendas') }}" class="flex items-center gap-1.5 nav-link transition-colors">
+                  <span class="material-symbols-outlined text-lg">local_mall</span>
+                  <span>Minhas Vendas</span>
+                </a> 
+              @endif
 
               @if(!auth()->user()->fornecedor)
                 <a href="{{ route('fornecedores.create') }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
@@ -310,7 +326,7 @@
               @else
                 <a href="{{ route('fornecedores.show', auth()->user()->fornecedor) }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
                   <span class="material-symbols-outlined text-lg">patient_list</span>
-                  <span>Meu Fornecedor</span>
+                  <span>Menu Fornecedor</span>
                 </a>
               @endif
 

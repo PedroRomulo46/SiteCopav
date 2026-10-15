@@ -107,7 +107,7 @@
                         @if($ofertas->count() > 3)
                             <div class="pt-2 text-center">
                                 <a href="{{ route('ofertas.index') }}" 
-                                   class="inline-block text-xs font-bold text-[#236350] hover:text-[#1b4d3e] hover:underline transition-colors py-1">
+                                   class="inline-block text-xs font-bold bg-slate-200 hover:bg-slate-300 p-2 text-[#236350] hover:text-[#1b4d3e] transition-colors rounded-md">
                                     Ver mais ofertas
                                 </a>
                             </div>
@@ -196,7 +196,14 @@
                             </div>
 
                             <div class="pt-1 border-t border-gray-100">
-                                <span class="text-[10px] sm:text-xs text-gray-400 block uppercase font-medium">
+                                <span class="text-[10px] sm:text-xs text-gray-500 block font-medium">
+                                    @if(strtolower($item->unidade) === 'saca')
+                                        {{ number_format($item->quantidade, 0, ',', '.') }}
+                                    @else
+                                        {{ fmod($item->quantidade, 1) == 0
+                                            ? number_format($item->quantidade, 0, ',', '.')
+                                            : number_format($item->quantidade, 2, ',', '.') }}
+                                    @endif
                                     {{ $item->unidade }}
                                 </span>
                                 <span class="text-sm sm:text-base font-extrabold text-[#1B4D3E]">
@@ -204,7 +211,6 @@
                                 </span>
                             </div>
                         </div>
-
                     </div>
                 </a>
             @empty

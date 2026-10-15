@@ -12,13 +12,13 @@ class HomeController extends Controller
 {
     public function index()
     {
-        // 1. Vitrine de Ofertas Globais
+        // Vitrine de Ofertas Globais
         $produtos = Oferta::with(['produto', 'fornecedor'])
             ->latest()
             ->take(9)
             ->get();
 
-        // 2. Lotes do Usuário Logado
+        // Lotes do Usuário Logado
         $ofertas = (auth()->check() && auth()->user()->fornecedor)
             ? Oferta::with([
                 'produto',
@@ -29,7 +29,7 @@ class HomeController extends Controller
                 ->get()
             : collect();
 
-        // 3. Novas propostas recebidas pelo fornecedor
+        // Novas propostas recebidas pelo fornecedor
         $novasPropostas = 0;
         $ofertasComNovasPropostas = collect();
 
@@ -53,7 +53,7 @@ class HomeController extends Controller
                 $negociacoesComNovasPropostas->keyBy('oferta_id');
         }
 
-        // 4. Demandas da Empresa
+        // Demandas da Empresa
         if (
             auth()->check() &&
             (auth()->user()->is_admin ||

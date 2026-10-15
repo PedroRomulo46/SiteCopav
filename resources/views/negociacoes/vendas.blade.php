@@ -1,14 +1,12 @@
 @extends('layouts.layout')
 
-@section('title', 'Minhas Negociações')
+@section('title', 'Minhas Vendas - Ofertas Publicadas')
 
 @section('conteudo')
 
 {{-- Botão Voltar --}}
 <div class="mb-4">
-    <a
-        href="{{ route('home') }}"
-        class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-[#236350] transition-colors">
+    <a href="{{ route('home') }}" class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-[#236350] transition-colors">
         <span class="material-symbols-outlined text-lg">arrow_back</span>
         Voltar para a página inicial
     </a>
@@ -20,44 +18,41 @@
     <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8 w-full text-left">
         <div class="text-left w-full">
             <p class="text-sm font-medium text-[#236350] mb-1 text-left">
-                Painel de negociações
+                Painel do Fornecedor
             </p>
             <h1 class="text-3xl font-bold text-gray-800 text-left">
-                Minhas ofertas
+                Minhas Vendas
             </h1>
             <p class="text-gray-500 mt-1 text-left">
-                Acompanhe as propostas recebidas em suas ofertas.
+                Acompanhe as propostas e negociações recebidas nos seus lotes anunciados.
             </p>
         </div>
     </div>
 
-    {{-- Mensagens --}}
+    {{-- Mensagens de Sucesso/Erro --}}
     @if(session('sucesso'))
         <div class="mb-5 w-full flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
-            <span class="material-symbols-outlined text-lg">
-                check_circle
-            </span>
+            <span class="material-symbols-outlined text-lg">check_circle</span>
             {{ session('sucesso') }}
         </div>
     @endif
 
     @if(session('erro'))
         <div class="mb-5 w-full flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-            <span class="material-symbols-outlined text-lg">
-                error
-            </span>
+            <span class="material-symbols-outlined text-lg">error</span>
             {{ session('erro') }}
         </div>
     @endif
 
-    @if($ofertas->count())
+    @if(isset($ofertas) && $ofertas->count())
 
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 w-full text-left">
 
-            @foreach($ofertas as $ofertaId => $negociacoes)
+            @foreach($ofertas as $oferta)
 
                 @php
-                    $oferta = $negociacoes->first()->oferta;
+                    // Coleta todas as propostas feitas em todas as negociações desta oferta
+                    $negociacoes = $oferta->negociacoes;
 
                     $propostas = $negociacoes->flatMap(function ($negociacao) {
                         return $negociacao->propostas;
@@ -80,7 +75,7 @@
                         : 0;
                 @endphp
 
-                {{-- Card da oferta --}}
+                {{-- Card da Oferta (Venda) --}}
                 <div class="group bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 text-left">
 
                     {{-- Imagem --}}
@@ -94,20 +89,11 @@
                             alt="{{ $oferta->produto->nome ?? 'Produto' }}"
                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
 
-                        {{-- Número da Ofertas --}}
+                        {{-- Total de Negociações/Compradores Interessados --}}
                         <div class="absolute top-3 left-3">
-                            <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-sm text-xs font-semibold text-gray-700 shadow-sm">
-                                Oferta {{ $oferta->id }}
-                            </span>
-                        </div>
-
-                        {{-- Número de Negociações --}}
-                        <div class="absolute top-3 right-3">
-                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white text-xs font-medium shadow-sm">
-                                <span class="material-symbols-outlined text-sm">
-                                    forum
-                                </span>
-                                {{ $negociacoes->count() }}
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#236350] text-white text-xs font-medium shadow-sm">
+                                <span class="material-symbols-outlined text-sm">forum</span>
+                                {{ $negociacoes->count() }} {{ $negociacoes->count() === 1 ? 'negociação' : 'negociações' }}
                             </span>
                         </div>
                     </div>
@@ -118,18 +104,18 @@
                         {{-- Produto --}}
                         <div class="mb-4 text-left">
                             <h2 class="text-xl font-bold text-gray-800 text-left">
-                                {{ $oferta->produto->nome }}
+                                {{ $oferta->produto->nome ?? 'Produto' }}
                             </h2>
                             <p class="text-sm text-gray-500 mt-1 text-left">
-                                {{ $oferta->fornecedor->nome }}
+                                Lote #{{ $oferta->id }}
                             </p>
                         </div>
 
-                        {{-- Quantidade --}}
+                        {{-- Quantidade Oferecida e Propostas --}}
                         <div class="flex items-center justify-between mb-4">
                             <div class="text-left">
                                 <p class="text-xs uppercase tracking-wide font-medium text-gray-400">
-                                    Oferta
+                                    Quantidade Total
                                 </p>
                                 <p class="font-semibold text-gray-800 mt-0.5">
                                     @if(strtolower($oferta->unidade) === 'saca')
@@ -139,14 +125,13 @@
                                             ? number_format($oferta->quantidade, 0, ',', '.')
                                             : number_format($oferta->quantidade, 2, ',', '.') }}
                                     @endif
-
                                     {{ $oferta->unidade }}
                                 </p>
                             </div>
 
                             <div class="text-right">
                                 <p class="text-xs uppercase tracking-wide font-medium text-gray-400">
-                                    Propostas
+                                    Total Propostas
                                 </p>
                                 <p class="font-semibold text-gray-800 mt-0.5">
                                     {{ $propostas->count() }}
@@ -154,40 +139,41 @@
                             </div>
                         </div>
 
-                        @if ($is_dono)
-                            {{-- Melhor Proposta --}}
-                            @if($melhorValor !== null)
-                                <div class="rounded-xl bg-emerald-50 border border-emerald-100 p-4 mb-4 text-left">
-                                    <div class="flex items-center gap-2 mb-1">
-                                        <span class="material-symbols-outlined text-[#236350] text-lg">
-                                            trending_up
-                                        </span>
-                                        <span class="text-xs font-semibold uppercase tracking-wide text-[#236350]">
-                                            Melhor valor por unidade
-                                        </span>
-                                    </div>
-
-                                    <p class="text-2xl font-bold text-[#236350] text-left">
-                                        R$ {{ number_format($melhorValor, 2, ',', '.') }}
+                        {{-- Melhor Proposta por Unidade / Alerta quando não possui propostas --}}
+                        @if($melhorValor !== null)
+                            <div class="rounded-xl bg-emerald-50 border border-emerald-100 p-4 mb-4 text-left">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="material-symbols-outlined text-[#236350] text-lg">trending_up</span>
+                                    <span class="text-xs font-semibold uppercase tracking-wide text-[#236350]">
+                                        Melhor valor por unidade
+                                    </span>
+                                </div>
+                                <p class="text-2xl font-bold text-[#236350] text-left">
+                                    R$ {{ number_format($melhorValor, 2, ',', '.') }}
+                                </p>
+                                <p class="text-xs text-gray-500 mt-0.5 text-left">
+                                    por {{ $oferta->unidade }}
+                                </p>
+                            </div>
+                        @else
+                            <div class="rounded-xl bg-amber-50 border border-amber-200 p-4 mb-4 text-left flex items-start gap-3">
+                                <span class="material-symbols-outlined text-amber-600 text-xl shrink-0 mt-0.5">info</span>
+                                <div>
+                                    <p class="text-xs font-bold text-amber-800 uppercase tracking-wide">
+                                        Sem propostas ativas
                                     </p>
-                                    <p class="text-xs text-gray-500 mt-0.5 text-left">
-                                        por {{ $oferta->unidade }}
+                                    <p class="text-xs text-amber-700 mt-0.5 leading-relaxed">
+                                        Este lote ainda não recebeu propostas de compradores.
                                     </p>
                                 </div>
-                            @else
-                                <div class="rounded-xl bg-gray-50 border border-gray-100 p-4 mb-4 text-left">
-                                    <p class="text-sm text-gray-500 text-left">
-                                        Ainda não existem propostas para esta oferta.
-                                    </p>
-                                </div>
-                            @endif
+                            </div>
                         @endif
 
-                        {{-- Quantidade Negociada --}}
+                        {{-- Quantidade Aceita/Vendida --}}
                         <div class="mb-4 text-left">
                             <div class="flex items-center justify-between mb-1.5">
                                 <span class="text-xs font-medium text-gray-500">
-                                    Quantidade aceita
+                                    Quantidade vendida
                                 </span>
                                 <span class="text-xs font-semibold text-gray-700">
                                     @if(strtolower($oferta->unidade) === 'saca')
@@ -209,78 +195,56 @@
                             </div>
                         </div>
 
-                        {{-- Maior valor total --}}
+                        {{-- Maior valor total recebido --}}
                         @if($maiorValorTotal !== null)
                             <div class="flex items-center justify-between text-sm mb-5">
-                                <span class="text-gray-500">
-                                    Maior proposta total
-                                </span>
+                                <span class="text-gray-500">Maior proposta total</span>
                                 <span class="font-bold text-gray-800">
                                     R$ {{ number_format($maiorValorTotal, 2, ',', '.') }}
                                 </span>
                             </div>
                         @endif
 
-                        {{-- Botão de acesso --}}
-                        @if(
-                            auth()->user()->user_type === 'admin' ||
-                            (
-                                auth()->user()->fornecedor &&
-                                auth()->user()->fornecedor->id === $oferta->fornecedor_id
-                            )
-                        )
-                            {{-- Administrador ou fornecedor dono da oferta --}}
-                            <a
-                                href="{{ route('negociacoes.propostas', $oferta) }}"
-                                class="btn-copav flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors">
+                        {{-- Botão: Gerenciar/Ver Propostas --}}
+                        <a
+                            href="{{ route('negociacoes.propostas', $oferta) }}"
+                            class="btn-copav flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors">
+                            <span class="material-symbols-outlined text-lg">format_list_bulleted</span>
+                            Gerenciar propostas
+                            <span class="material-symbols-outlined text-base">arrow_forward</span>
+                        </a>
 
-                                <span class="material-symbols-outlined text-lg">
-                                    format_list_bulleted
-                                </span>
-
-                                Ver propostas
-
-                                <span class="material-symbols-outlined text-base">
-                                    arrow_forward
-                                </span>
-                            </a>
-                        @else
-                            {{-- Cliente: acessa somente a própria negociação --}}
-                            <a
-                                href="{{ route('negociacoes.show', $negociacoes->first()) }}"
-                                class="btn-copav flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors">
-
-                                <span class="material-symbols-outlined text-lg">
-                                    forum
-                                </span>
-
-                                Ver negociação
-
-                                <span class="material-symbols-outlined text-base">
-                                    arrow_forward
-                                </span>
-                            </a>
-                        @endif
                     </div>
                 </div>
             @endforeach
         </div>
+
     @else
 
-        {{-- Estado Vazio --}}
-        <div class="bg-white rounded-2xl border border-gray-200 p-12 text-center shadow-sm w-full">
-            <div class="w-16 h-16 mx-auto rounded-full bg-gray-100 flex items-center justify-center">
-                <span class="material-symbols-outlined text-gray-400 text-3xl">
-                    forum
+        {{-- Estado Vazio Geral --}}
+        <div class="bg-white rounded-2xl border border-gray-200 p-12 text-center shadow-sm w-full max-w-2xl mx-auto my-8">
+            <div class="w-16 h-16 mx-auto rounded-full bg-amber-50 border border-amber-100 flex items-center justify-center">
+                <span class="material-symbols-outlined text-amber-600 text-3xl">
+                    storefront
                 </span>
             </div>
-            <h2 class="text-xl font-bold text-gray-700 mt-4">
-                Nenhuma negociação encontrada
+            
+            <h2 class="text-xl font-bold text-gray-800 mt-4">
+                Nenhuma oferta ou venda cadastrada
             </h2>
-            <p class="text-sm text-gray-500 mt-1">
-                Quando suas ofertas receberem negociações, elas aparecerão aqui.
+            
+            <p class="text-sm text-gray-500 mt-2 max-w-md mx-auto leading-relaxed">
+                Você ainda não cadastrou nenhum lote de produtos para venda no marketplace.
             </p>
+
+            <div class="mt-6">
+                <a href="{{ route('ofertas.create') }}" class="btn-copav inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-colors shadow-sm">
+                    <span class="material-symbols-outlined text-lg">add_circle</span>
+                    Cadastrar nova oferta
+                </a>
+            </div>
         </div>
+
     @endif
 
 </div>

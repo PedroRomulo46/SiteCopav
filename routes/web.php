@@ -24,9 +24,7 @@ Route::get('/ofertas', [OfertaController::class, 'index'])->name('ofertas.index'
 // ROTAS PROTEGIDAS (Exigem Login)
 Route::middleware('auth')->group(function () {
 
-    Route::get('/dashboard', function () {
-        return redirect()->route('home');
-    })->middleware('verified')->name('dashboard');
+    Route::get('/dashboard', function () {return redirect()->route('home');})->middleware('verified')->name('dashboard');
 
     // Lotes / Ofertas (Restrito a usuários logados)
     Route::get('/ofertas/{oferta}/card', [OfertaController::class, 'card'])
@@ -50,11 +48,13 @@ Route::middleware('auth')->group(function () {
     // Recursos de Fornecedor e Negociações
     Route::resource('fornecedores', FornecedorController::class)->parameters(['fornecedores' => 'fornecedor']);
     Route::resource('ofertas-diretas', OfertaDiretaController::class);
+
+    // Rotas separadas para Compras e Vendas
+    Route::get('/negociacoes/compras', [NegociacaoController::class, 'compras'])->name('negociacoes.compras');
+    Route::get('/negociacoes/vendas', [NegociacaoController::class, 'vendas'])->name('negociacoes.vendas');
     Route::resource('negociacoes', NegociacaoController::class)->parameters(['negociacoes' => 'negociacao']);
-    Route::post(
-        '/negociacoes/{negociacao}/visualizada',
-        [NegociacaoController::class, 'marcarComoVisualizada']
-    )->name('negociacoes.visualizada');
+
+    Route::post('/negociacoes/{negociacao}/visualizada', [NegociacaoController::class, 'marcarComoVisualizada'])->name('negociacoes.visualizada');
     
     // Propostas
     Route::get('/negociacoes/{negociacao}/propostas/create', [PropostaController::class, 'create'])->name('propostas.create');

@@ -298,6 +298,53 @@ class NegociacaoController extends Controller
     abort(403);
     }
 
+    public function compras()
+    {
+    $user = auth()->user();
+
+    // Negociações onde o usuário logado é o cliente que enviou propostas
+    $negociacoes = \App\Models\Negociacao::where('cliente_id', $user->id) // Ajuste para a coluna correta do cliente se necessário
+        ->with(['oferta.produto', 'oferta.fornecedor', 'propostas'])
+        ->get();
+
+    return view('negociacoes.compras', compact('negociacoes'));
+    }
+
+    public function vendas()
+    {
+    $user = auth()->user();
+
+    // Se for ADMIN: traz TODAS as ofertas cadastradas no sistema
+    if ($user->user_type === 'admin') {
+        $ofertas = \App\Models\Oferta::with([
+            'produto', 
+            'fornecedor', 
+            'negociacoes.propostas'
+        ])->get();
+
+    // Se for FORNECEDOR (possui vínculo na tabela fornecedores): traz as ofertas do fornecedor
+    } elseif ($user->fornecedor) {
+        $ofertas = \App\Models\Oferta::where('fornecedor_id', $user->fornecedor->id)
+            ->with([
+                'produto', 
+                'fornecedor', 
+                'negociacoes.propostas'
+            ])->get();
+    }
+
+    // Se for Usuário Comum que publicou ofertas diretamente
+    else {
+        $ofertas = \App\Models\Oferta::where('user_id', $user->id)
+            ->with([
+                'produto', 
+                'fornecedor', 
+                'negociacoes.propostas'
+            ])->get();
+    }
+
+    return view('negociacoes.vendas', compact('ofertas'));
+    }
+
     public function visualizar(Proposta $proposta)
     {
         $proposta->load([
@@ -350,7 +397,7 @@ class NegociacaoController extends Controller
         $negociacao->update($dados);
 
         return redirect()
-            ->route('negociacoes.index')
+            ->route('negociacoes.compras')
             ->with('sucesso', 'Negociação atualizada com sucesso!');
     }
 
@@ -384,7 +431,7 @@ class NegociacaoController extends Controller
         $negociacao->delete();
 
         return redirect()
-            ->route('negociacoes.index')
+            ->route('negociacoes.compras')
             ->with('sucesso', 'Negociação excluída com sucesso!');
     }
 }
