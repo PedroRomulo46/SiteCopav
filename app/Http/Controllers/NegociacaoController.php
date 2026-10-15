@@ -109,7 +109,8 @@ class NegociacaoController extends Controller
         if (in_array($status, [
             'pendente',
             'aceita',
-            'recusada'
+            'recusada',
+            'cancelada'
         ])) {
             $propostas = $propostas->where('status', $status);
         }
