@@ -18,10 +18,8 @@ class PropostaAtualizada implements ShouldBroadcastNow
     public function __construct(Proposta $proposta)
     {
         $this->proposta = $proposta->load([
-            'negociacao.oferta.produto',
-            'negociacao.oferta.fornecedor',
-            'negociacao.cliente',
             'usuario',
+            'negociacao.oferta',
         ]);
     }
 
@@ -30,6 +28,9 @@ class PropostaAtualizada implements ShouldBroadcastNow
         return [
             new PrivateChannel(
                 'negociacao.' . $this->proposta->negociacao_id
+            ),
+            new PrivateChannel(
+                'oferta.' . $this->proposta->negociacao->oferta_id
             ),
         ];
     }
@@ -44,10 +45,16 @@ class PropostaAtualizada implements ShouldBroadcastNow
         return [
             'proposta' => [
                 'id' => $this->proposta->id,
-                'status' => $this->proposta->status,
                 'negociacao_id' => $this->proposta->negociacao_id,
-                'valor' => $this->proposta->valor,
-                'quantidade' => $this->proposta->quantidade,
+                'oferta_id' => $this->proposta->negociacao->oferta_id,
+                'usuario_id' => $this->proposta->usuario_id,
+                'usuario_nome' => $this->proposta->usuario->nome ?? 'Usuário',
+                'usuario_tipo' => $this->proposta->usuario->user_type ?? 'cliente',
+                'valor' => (float) $this->proposta->valor,
+                'quantidade' => (float) $this->proposta->quantidade,
+                'observacao' => $this->proposta->observacao,
+                'status' => $this->proposta->status,
+                'unidade' => $this->proposta->negociacao->oferta->unidade ?? '',
             ],
         ];
     }

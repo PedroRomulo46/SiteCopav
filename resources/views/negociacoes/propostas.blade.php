@@ -48,12 +48,14 @@
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6 text-left">
                 <div class="rounded-xl bg-gray-50 border border-gray-100 p-4">
                     <p class="text-xs text-gray-500">Propostas</p>
-                    <p class="text-xl font-bold text-gray-800 mt-1">{{ $propostas->count() }}</p>
+                    <p id="contador-propostas"
+                        class="text-xl font-bold text-gray-800 mt-1">{{ $totalPropostas }}</p>
                 </div>
 
                 <div class="rounded-xl bg-emerald-50 border border-emerald-100 p-4">
                     <p class="text-xs text-emerald-700">Melhor valor</p>
-                    <p class="text-xl font-bold text-[#236350] mt-1">
+                    <p id="card-melhor-valor"
+                        class="text-xl font-bold text-[#236350] mt-1">
                         @if($melhorValor !== null)
                             R$ {{ number_format($melhorValor, 2, ',', '.') }}
                         @else
@@ -64,7 +66,7 @@
 
                 <div class="rounded-xl bg-gray-50 border border-gray-100 p-4">
                     <p class="text-xs text-gray-500">Maior proposta</p>
-                    <p class="text-xl font-bold text-gray-800 mt-1">
+                    <p id="card-maior-valor-total" class="text-xl font-bold text-gray-800 mt-1">
                         @if($maiorValorTotal !== null)
                             R$ {{ number_format($maiorValorTotal, 2, ',', '.') }}
                         @else
@@ -75,7 +77,8 @@
 
                 <div class="rounded-xl bg-gray-50 border border-gray-100 p-4">
                     <p class="text-xs text-gray-500">Quantidade aceita</p>
-                    <p class="text-xl font-bold text-gray-800 mt-1">
+                    <p id="card-quantidade-aceita"
+                        class="text-xl font-bold text-gray-800 mt-1">
                         {{ fmod($quantidadeAceita, 1) == 0
                             ? number_format($quantidadeAceita, 0, ',', '.')
                             : number_format($quantidadeAceita, 2, ',', '.') }}
@@ -97,8 +100,10 @@
                     <p class="text-sm text-gray-500 mt-0.5">Analise as propostas desta oferta.</p>
                 </div>
 
-                <span class="inline-block text-xs font-medium text-gray-600 bg-gray-100 px-3 py-1 rounded-full w-fit">
-                    {{ $propostas->count() }} {{ $propostas->count() == 1 ? 'resultado' : 'resultados' }}
+                <span id="contador-resultados"
+                    class="inline-block text-xs font-medium text-gray-600 bg-gray-100 px-3 py-1 rounded-full w-fit">
+                    {{ $propostas->count() }}
+                    {{ $propostas->count() == 1 ? 'resultado' : 'resultados' }}
                 </span>
             </div>
 
@@ -137,16 +142,23 @@
         </div>
 
         {{-- Lista de Itens --}}
-        @if($propostas->count())
-            <div class="divide-y divide-gray-100">
+        <div id="lista-propostas">
+            @if($propostas->count())
+                <div class="divide-y divide-gray-100">
                 @foreach($propostas as $index => $proposta)
                     @php
                         $valorTotal = $proposta->valor * ($proposta->quantidade ?? 0);
                     @endphp
 
-                    <div class="relative p-6 hover:bg-gray-50/60 transition-colors {{ is_null($proposta->visualizada_em) ? 'bg-yellow-50/30' : '' }}">
-                        @if(is_null($proposta->visualizada_em))
-                            <span class="absolute top-4 right-4 w-2.5 h-2.5 rounded-full bg-yellow-400" title="Nova proposta"></span>
+                    <div
+                        class="relative p-6 hover:bg-gray-50/60 transition-colors {{ is_null($proposta->visualizada_em) && $proposta->status === 'pendente' ? 'bg-yellow-50/30' : '' }}"
+                        data-proposta-id="{{ $proposta->id }}"
+                    >
+                        @if(is_null($proposta->visualizada_em) && $proposta->status === 'pendente')
+                            <span
+                                class="indicador-nova-proposta absolute top-4 right-4 w-2.5 h-2.5 rounded-full bg-yellow-400"
+                                title="Nova proposta"
+                            ></span>
                         @endif
 
                         <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
@@ -229,6 +241,10 @@
                                         <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
                                         Recusada
                                     </span>
+                                @elseif($proposta->status === 'cancelada')
+                                    <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-700 bg-gray-100 px-3 py-1 rounded-full w-fit">
+                                        Cancelada
+                                    </span>
                                 @endif
                                 <a
                                     href="{{ route('propostas.visualizar', $proposta->id) }}"
@@ -245,7 +261,7 @@
                 @endforeach
             </div>
         @else
-            <div class="p-12 text-center">
+            <div class="p-12 text-center mensagem-sem-propostas">
                 <div class="w-12 h-12 mx-auto rounded-full bg-gray-100 flex items-center justify-center">
                     <span class="material-symbols-outlined text-gray-400 text-2xl">inbox</span>
                 </div>
@@ -256,5 +272,108 @@
 
     </div>
 </div>
+
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const lista = document.getElementById('lista-propostas');
+
+    if (!lista) {
+        console.error('Lista de propostas não encontrada.');
+        return;
+    }
+
+    if (!window.Echo) {
+        console.error('Laravel Echo não foi carregado.');
+        return;
+    }
+
+    const ofertaId = {{ $oferta->id }};
+
+    
+    window.Echo.private(`oferta.${ofertaId}`)
+        .listen('.proposta.criada', function (evento) {
+            const proposta = evento.proposta;
+
+            if (!proposta || Number(proposta.oferta_id) !== Number(ofertaId)) {
+                return;
+            }
+
+            if (lista.querySelector(`[data-proposta-id="${proposta.id}"]`)) {
+                return;
+            }
+
+            fetch(`/propostas/${proposta.id}/card`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erro ao carregar o cartão da proposta.');
+                    }
+
+                    return response.text();
+                })
+                .then(html => {
+                    lista.querySelector('.mensagem-sem-propostas')?.remove();
+                    lista.insertAdjacentHTML('afterbegin', html);
+
+                    const contador = document.getElementById('contador-propostas');
+
+                    if (contador) {
+                        contador.textContent = Number(contador.textContent) + 1;
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao inserir proposta:', error);
+                });
+        })
+        .listen('.proposta.atualizada', function (evento) {
+            const proposta = evento.proposta;
+
+            if (!proposta || Number(proposta.oferta_id) !== Number(ofertaId)) {
+                return;
+            }
+
+            const cartao = lista.querySelector(
+                `[data-proposta-id="${proposta.id}"]`
+            );
+
+            if (!cartao) {
+                console.log('Cartão da proposta atualizada não encontrado:', proposta.id);
+                return;
+            }
+
+            // Busca o cartão atualizado no servidor.
+            fetch(`/propostas/${proposta.id}/card`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erro ao carregar o cartão atualizado.');
+                    }
+
+                    return response.text();
+                })
+                .then(html => {
+                    cartao.outerHTML = html;
+
+                    // Remove o indicador de nova mensagem quando a proposta
+                    // deixa de estar pendente.
+                    if (['aceita', 'recusada', 'cancelada'].includes(proposta.status)) {
+                        const indicador = document.querySelector(
+                            `[data-proposta-id="${proposta.id}"] .indicador-nova-proposta`
+                        );
+
+                        indicador?.remove();
+                    }
+                    console.log('Cartão da proposta atualizado sem recarregar a página.');
+                })
+
+                .catch(error => {
+                    console.error('Erro ao atualizar cartão:', error);
+                });
+        });
+});
+
+</script>
+
+@endpush
 
 @endsection

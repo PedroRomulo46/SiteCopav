@@ -9,6 +9,21 @@ Broadcast::channel('fornecedor.{fornecedorId}', function (User $user, $fornecedo
         && (int) $user->fornecedor->id === (int) $fornecedorId;
 });
 
+Broadcast::channel('oferta.{ofertaId}', function (User $user, $ofertaId) {
+    $oferta = \App\Models\Oferta::find($ofertaId);
+
+    if (!$oferta) {
+        return false;
+    }
+
+    if ($user->user_type === 'admin') {
+        return true;
+    }
+
+    return $user->fornecedor
+        && (int) $oferta->fornecedor_id === (int) $user->fornecedor->id;
+});
+
 Broadcast::channel('negociacao.{negociacaoId}', function (User $user, $negociacaoId) {
     $negociacao = Negociacao::with('oferta')->find($negociacaoId);
 
