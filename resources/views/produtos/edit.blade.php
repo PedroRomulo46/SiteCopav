@@ -9,7 +9,7 @@
 
         {{-- Item 1: Início --}}
         <li>
-            <a href="{{route('home')}}"" class="hover:text-[#236350] transition-colors">
+            <a href="{{route('home')}}">
                 Início
             </a>
         </li>
@@ -17,7 +17,7 @@
         {{-- Item 3: Produtos --}}
         <li>
             <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
-            <a href="{{route('produtos.index')}}"" class="hover:text-[#236350] transition-colors">
+            <a href="{{route('produtos.index')}}">
                 Produtos
             </a>
         </li>

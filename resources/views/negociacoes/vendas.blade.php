@@ -10,7 +10,7 @@
 
         {{-- Item 1: Início --}}
         <li>
-            <a href="{{route('home')}}"" class="hover:text-[#236350] transition-colors">
+            <a href="{{route('home')}}">
                 Início
             </a>
         </li>

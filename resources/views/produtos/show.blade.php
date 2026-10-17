@@ -10,7 +10,7 @@
 
         {{-- Item 1: Início --}}
         <li>
-            <a href="{{route('home')}}"" class="hover:text-[#236350] transition-colors">
+            <a href="{{route('home')}}">
                 Início
             </a>
         </li>
@@ -116,7 +116,7 @@
 
                     <a
                         href="{{ route('home') }}"
-                        class="flex-1 text-center bg-[#236350] hover:bg-[#1B4D3E] text-white px-4 py-2.5 rounded-md transition-colors">
+                        class="flex-1 text-center btn-copav text-white px-4 py-2.5 rounded-md transition-colors">
                         Voltar para o início
                     </a>
                 </div>

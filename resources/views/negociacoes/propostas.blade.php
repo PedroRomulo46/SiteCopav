@@ -10,16 +10,24 @@
 
         {{-- Item 1: Início --}}
         <li>
-            <a href="{{route('home')}}"" class="hover:text-[#236350] transition-colors">
-                Inícioo
+            <a href="{{route('home')}}">
+                Início
             </a>
         </li>
 
-        {{-- Item 2: Pégina Atual --}}
-        <li class="flex items-center space-x-2">
+        {{-- Item 2: Vendas --}}
+        <li>
+            <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
+            <a href="{{route('negociacoes.vendas')}}">
+                Minhas vendas
+            </a>
+        </li>
+
+        {{-- Item 3: Pégina Atual --}}
+        <li class="flex items-center space-x-2 hover:cursor-pointer">
             <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
             <span class="font-semibold text-gray-800">
-                Negociação #{{ $negociacao->id }}
+                {{ $oferta->produto->nome }}
             </span>
         </li>
     </ol>
