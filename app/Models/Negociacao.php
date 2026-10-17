@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Negociacao extends Model
 {
@@ -28,5 +29,10 @@ class Negociacao extends Model
     public function propostas()
     {
         return $this->hasMany(Proposta::class);
+    }
+
+    public function chat(): HasOne
+    {
+        return $this->hasOne(Chat::class, 'negociacao_id');
     }
 }

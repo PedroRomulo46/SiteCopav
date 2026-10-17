@@ -7,18 +7,10 @@ use Illuminate\Http\Request;
 
 class CategoriaController extends Controller
 {
-
-    public static function middleware(): array
-    {
-        return [
-            // Exige 'auth' para tudo, EXCETO para index e show
-            new Middleware('auth', except: ['index', 'show']),
-        ];
-    }
-
     public function index()
     {
         $categorias = Categoria::withCount('produtos')->get();
+
         return view('categorias.index', compact('categorias'));
     }
 
@@ -35,13 +27,17 @@ class CategoriaController extends Controller
         ]);
 
         Categoria::create($dados);
-        return redirect()->route('categorias.index')->with('sucesso', 'Categoria cadastrada com sucesso!');
+
+        return redirect()
+            ->route('categorias.index')
+            ->with('sucesso', 'Categoria cadastrada com sucesso!');
     }
 
     public function show(Categoria $categoria)
     {
         // Carrega os produtos e ofertas associados
         $categoria->load(['produtos']);
+
         return view('categorias.show', compact('categoria'));
     }
 
@@ -58,12 +54,18 @@ class CategoriaController extends Controller
         ]);
 
         $categoria->update($dados);
-        return redirect()->route('categorias.index')->with('sucesso', 'Categoria atualizada com sucesso!');
+
+        return redirect()
+            ->route('categorias.index')
+            ->with('sucesso', 'Categoria atualizada com sucesso!');
     }
 
     public function destroy(Categoria $categoria)
     {
         $categoria->delete();
-        return redirect()->route('categorias.index')->with('sucesso', 'Categoria excluída com sucesso!');
+
+        return redirect()
+            ->route('categorias.index')
+            ->with('sucesso', 'Categoria excluída com sucesso!');
     }
 }

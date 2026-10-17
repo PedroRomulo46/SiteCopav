@@ -32,6 +32,7 @@
         <h1 class="text-2xl font-bold text-gray-800">
             Editar oferta
         </h1>
+
         <p class="text-sm text-gray-500 mt-1">
             Atualize as informações da oferta.
         </p>
@@ -40,24 +41,29 @@
     {{-- Mensagens de erro --}}
     @if($errors->any())
         <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-r-md">
+
             <p class="font-semibold mb-2">
                 Corrija os seguintes erros:
             </p>
+
             <ul class="list-disc list-inside text-sm">
                 @foreach($errors->all() as $erro)
                     <li>{{ $erro }}</li>
                 @endforeach
             </ul>
+
         </div>
     @endif
 
     {{-- Formulário --}}
     <div class="bg-white rounded-xl shadow-md border border-gray-100 p-6">
+
         <form
             id="form-editar-oferta"
             action="{{ route('ofertas.update', $oferta) }}"
             method="POST"
-            class="space-y-6">
+            class="space-y-6"
+        >
 
             @csrf
             @method('PUT')
@@ -66,7 +72,8 @@
             <div>
                 <label
                     for="produto_id"
-                    class="block text-sm font-medium text-gray-700 mb-2">
+                    class="block text-sm font-medium text-gray-700 mb-2"
+                >
                     Produto
                 </label>
 
@@ -74,7 +81,8 @@
                     name="produto_id"
                     id="produto_id"
                     required
-                    class="w-full border border-gray-300 rounded-md px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#236350] focus:border-[#236350]">
+                    class="w-full border border-gray-300 rounded-md px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#236350] focus:border-[#236350]"
+                >
                     <option value="">
                         Selecione um produto
                     </option>
@@ -82,7 +90,8 @@
                     @foreach($produtos as $produto)
                         <option
                             value="{{ $produto->id }}"
-                            {{ old('produto_id', $oferta->produto_id) == $produto->id ? 'selected' : '' }}>
+                            {{ old('produto_id', $oferta->produto_id) == $produto->id ? 'selected' : '' }}
+                        >
                             {{ $produto->nome }}
 
                             @if($produto->categoria)
@@ -90,15 +99,18 @@
                             @endif
                         </option>
                     @endforeach
+
                 </select>
             </div>
 
             {{-- Quantidade e unidade --}}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
                 <div>
                     <label
                         for="quantidade"
-                        class="block text-sm font-medium text-gray-700 mb-2">
+                        class="block text-sm font-medium text-gray-700 mb-2"
+                    >
                         Quantidade
                     </label>
 
@@ -110,13 +122,15 @@
                         min="0"
                         step="0.01"
                         required
-                        class="w-full border border-gray-300 rounded-md px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#236350] focus:border-[#236350]">
+                        class="w-full border border-gray-300 rounded-md px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#236350] focus:border-[#236350]"
+                    >
                 </div>
 
                 <div>
                     <label
                         for="unidade"
-                        class="block text-sm font-medium text-gray-700 mb-2">
+                        class="block text-sm font-medium text-gray-700 mb-2"
+                    >
                         Unidade
                     </label>
 
@@ -128,15 +142,18 @@
                         maxlength="50"
                         required
                         placeholder="Ex.: kg, saca, tonelada"
-                        class="w-full border border-gray-300 rounded-md px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#236350] focus:border-[#236350]">
+                        class="w-full border border-gray-300 rounded-md px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#236350] focus:border-[#236350]"
+                    >
                 </div>
+
             </div>
 
             {{-- Valor --}}
             <div>
                 <label
                     for="valor"
-                    class="block text-sm font-medium text-gray-700 mb-2">
+                    class="block text-sm font-medium text-gray-700 mb-2"
+                >
                     Valor
                 </label>
 
@@ -153,7 +170,8 @@
                         min="0"
                         step="0.01"
                         required
-                        class="w-full border border-gray-300 rounded-md pl-10 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#236350] focus:border-[#236350]">
+                        class="w-full border border-gray-300 rounded-md pl-10 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#236350] focus:border-[#236350]"
+                    >
                 </div>
             </div>
 
@@ -161,7 +179,8 @@
             <div>
                 <label
                     for="localizacao"
-                    class="block text-sm font-medium text-gray-700 mb-2">
+                    class="block text-sm font-medium text-gray-700 mb-2"
+                >
                     Localização
                 </label>
 
@@ -172,7 +191,8 @@
                     value="{{ old('localizacao', $oferta->localizacao) }}"
                     maxlength="255"
                     placeholder="Ex.: Icapuí - CE"
-                    class="w-full border border-gray-300 rounded-md px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#236350] focus:border-[#236350]">
+                    class="w-full border border-gray-300 rounded-md px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#236350] focus:border-[#236350]"
+                >
             </div>
 
             {{-- Datas --}}
@@ -181,7 +201,8 @@
                 <div>
                     <label
                         for="data_inicio"
-                        class="block text-sm font-medium text-gray-700 mb-2">
+                        class="block text-sm font-medium text-gray-700 mb-2"
+                    >
                         Data de início
                     </label>
 
@@ -190,13 +211,15 @@
                         name="data_inicio"
                         id="data_inicio"
                         value="{{ old('data_inicio', $oferta->data_inicio ? \Carbon\Carbon::parse($oferta->data_inicio)->format('Y-m-d') : '') }}"
-                        class="w-full border border-gray-300 rounded-md px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#236350] focus:border-[#236350]">
+                        class="w-full border border-gray-300 rounded-md px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#236350] focus:border-[#236350]"
+                    >
                 </div>
 
                 <div>
                     <label
                         for="data_validade"
-                        class="block text-sm font-medium text-gray-700 mb-2">
+                        class="block text-sm font-medium text-gray-700 mb-2"
+                    >
                         Data de validade
                     </label>
 
@@ -205,14 +228,18 @@
                         name="data_validade"
                         id="data_validade"
                         value="{{ old('data_validade', $oferta->data_validade ? \Carbon\Carbon::parse($oferta->data_validade)->format('Y-m-d') : '') }}"
-                        class="w-full border border-gray-300 rounded-md px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#236350] focus:border-[#236350]">
+                        class="w-full border border-gray-300 rounded-md px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#236350] focus:border-[#236350]"
+                    >
                 </div>
+
             </div>
 
-            {{-- Status --}}
+                        {{-- Status --}}
+            <div>
                 <label
                     for="status"
-                    class="block text-sm font-medium text-gray-700 mb-2">
+                    class="block text-sm font-medium text-gray-700 mb-2"
+                >
                     Status
                 </label>
 
@@ -220,28 +247,33 @@
                     name="status"
                     id="status"
                     required
-                    class="w-full border border-gray-300 rounded-md px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#236350] focus:border-[#236350]">
+                    class="w-full border border-gray-300 rounded-md px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#236350] focus:border-[#236350]"
+                >
                     <option
                         value="rascunho"
-                        {{ old('status', $oferta->status) === 'rascunho' ? 'selected' : '' }}>
+                        {{ old('status', $oferta->status) === 'rascunho' ? 'selected' : '' }}
+                    >
                         Rascunho
                     </option>
 
                     <option
                         value="publicada"
-                        {{ old('status', $oferta->status) === 'publicada' ? 'selected' : '' }}>
+                        {{ old('status', $oferta->status) === 'publicada' ? 'selected' : '' }}
+                    >
                         Publicada
                     </option>
 
                     <option
                         value="encerrada"
-                        {{ old('status', $oferta->status) === 'encerrada' ? 'selected' : '' }}>
+                        {{ old('status', $oferta->status) === 'encerrada' ? 'selected' : '' }}
+                    >
                         Encerrada
                     </option>
 
                     <option
                         value="cancelada"
-                        {{ old('status', $oferta->status) === 'cancelada' ? 'selected' : '' }}>
+                        {{ old('status', $oferta->status) === 'cancelada' ? 'selected' : '' }}
+                    >
                         Cancelada
                     </option>
                 </select>
@@ -263,10 +295,12 @@
 
                 <button
                     type="submit"
-                    class="inline-flex items-center justify-center gap-2 p-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-md transition-colors">
+                    class="inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-md transition-colors"
+                >
                     <span class="material-symbols-outlined">
                         delete
                     </span>
+
                     Excluir oferta
                 </button>
             </form>
@@ -284,7 +318,7 @@
                 <button
                     type="submit"
                     form="form-editar-oferta"
-                    class="btn-copav inline-flex items-center justify-center gap-2 text-white px-5 py-2.5 rounded-md transition-colors"
+                    class="inline-flex items-center justify-center gap-2 bg-[#236350] hover:bg-[#1B4D3E] text-white px-5 py-2.5 rounded-md transition-colors"
                 >
                     <span class="material-symbols-outlined">
                         save
