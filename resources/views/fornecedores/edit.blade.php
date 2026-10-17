@@ -1,14 +1,36 @@
 @extends('layouts.layout')
-@section('title', 'Editar Fornecedor')
+@section('title', 'Editar fornecedor')
 
 @section('conteudo')
 
-<div class="text-gray-600 mx-1 mt-1">
-    <a href="{{ route('fornecedores.show', $fornecedor) }}" class="inline-flex items-center gap-1 hover:text-gray-700">
-        <span class="material-symbols-outlined">arrow_back</span>
-        Voltar para os detalhes
-    </a>
-</div>
+{{-- Breadcrumbs com setas garantidas via ícone --}}
+<nav class="flex items-center text-sm mb-6 text-gray-600" aria-label="Breadcrumb">
+    <ol class="inline-flex items-center space-x-2">
+
+        {{-- Item 1: Início --}}
+        <li>
+            <a href="{{route('home')}}"" class="hover:text-[#236350] transition-colors">
+                Início
+            </a>
+        </li>
+
+        {{-- Item 2: Menu Fornecedor --}}
+        <li>
+            <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
+            <a href="{{route('fornecedores.show', $fornecedor)}}"" class="hover:text-[#236350] transition-colors">
+                Menu fornecedor
+            </a>
+        </li>
+
+        {{-- Item 2: Pégina Atual --}}
+        <li class="flex items-center space-x-2 hover:cursor-pointer">
+            <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
+            <span class="font-semibold text-gray-800">
+                @yield('title')
+            </span>
+        </li>
+    </ol>
+</nav>
 
 <div class="max-w-4xl mx-auto my-6 p-6 bg-white rounded-lg shadow-md">
     <h1 class="text-2xl font-bold mb-6 text-gray-800">Editar Cadastro de Fornecedor</h1>
@@ -113,7 +135,7 @@
             <a href="{{ route('fornecedores.show', $fornecedor) }}" class="text-gray-600 hover:text-gray-900">
                 Cancelar
             </a>
-            <button type="submit" class="bg-[#236350] hover:bg-[#1B4D3E] text-white px-5 py-2 rounded-md transition-colors">
+            <button type="submit" class="btn-copav text-white px-5 py-2 rounded-md transition-colors">
                 Salvar alterações
             </button>
         </div>

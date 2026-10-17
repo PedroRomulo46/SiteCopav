@@ -1,14 +1,28 @@
 @extends('layouts.layout')
-@section('title', 'Cadastrar produto')
+@section('title', 'Cadastrar novo produto')
 
 @section('conteudo')
 
-<div class="mb-4">
-    <a href="{{ route('home') }}" class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-[#236350] transition-colors">
-        <span class="material-symbols-outlined text-lg">arrow_back</span>
-        Voltar para a página inicial
-    </a>
-</div>
+{{-- Breadcrumbs com setas garantidas via ícone --}}
+<nav class="flex items-center text-sm mb-6 text-gray-600" aria-label="Breadcrumb">
+    <ol class="inline-flex items-center space-x-2">
+
+        {{-- Item 1: Início --}}
+        <li>
+            <a href="{{route('home')}}"" class="hover:text-[#236350] transition-colors">
+                Início
+            </a>
+        </li>
+
+        {{-- Item 2: Pégina Atual --}}
+        <li class="flex items-center space-x-2 hover:cursor-pointer">
+            <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
+            <span class="font-semibold text-gray-800">
+                @yield('title')
+            </span>
+        </li>
+    </ol>
+</nav>
 
 <div class="max-w-4xl mx-auto my-6 p-6 bg-white rounded-lg shadow-md">
 
@@ -163,10 +177,8 @@
                 name="descricao"
                 rows="5"
                 placeholder="Descreva o produto, suas características e informações importantes..."
-                class="w-full p-3 border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">
-                {{ old('descricao') }}
-            </textarea>
-
+                class="w-full border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]"
+                >{{ old('descricao') }}</textarea>
         </div>
 
 

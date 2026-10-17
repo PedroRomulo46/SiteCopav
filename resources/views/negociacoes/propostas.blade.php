@@ -4,14 +4,26 @@
 
 @section('conteudo')
 
-{{-- Botão Voltar --}}
-<div class="mb-4">
-    <a href="{{ route('negociacoes.vendas') }}"
-       class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-[#236350] transition-colors mb-4">
-        <span class="material-symbols-outlined text-lg">arrow_back</span>
-        Voltar para minhas vendas
-    </a>
-</div>
+{{-- Breadcrumbs com setas garantidas via ícone --}}
+<nav class="flex items-center text-sm mb-6 text-gray-600" aria-label="Breadcrumb">
+    <ol class="inline-flex items-center space-x-2">
+
+        {{-- Item 1: Início --}}
+        <li>
+            <a href="{{route('home')}}"" class="hover:text-[#236350] transition-colors">
+                Inícioo
+            </a>
+        </li>
+
+        {{-- Item 2: Pégina Atual --}}
+        <li class="flex items-center space-x-2">
+            <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
+            <span class="font-semibold text-gray-800">
+                Negociação #{{ $negociacao->id }}
+            </span>
+        </li>
+    </ol>
+</nav>
 
 <div class="max-w-6xl mx-auto mb-8 px-4">
 

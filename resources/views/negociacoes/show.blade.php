@@ -6,6 +6,7 @@
 {{-- Breadcrumbs com setas garantidas via ícone --}}
 <nav class="flex items-center text-sm mb-6 text-gray-600" aria-label="Breadcrumb">
     <ol class="inline-flex items-center space-x-2">
+
         {{-- Item 1: Início --}}
         <li>
             <a href="{{ route('home') }}" class="hover:text-[#236350] transition-colors">
@@ -19,7 +20,7 @@
         @endphp
 
         {{-- Item 2: Compras ou Vendas --}}
-        <li class="flex items-center space-x-2">
+        <li class="flex items-center space-x-2 hover:cursor-pointer">
             <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
             @if($is_Cliente)
                 <a href="{{ route('negociacoes.compras') }}" class="hover:text-[#236350] transition-colors">
@@ -128,7 +129,7 @@
                     Propostas
                 </h2>
 
-                {{-- Exibe o botão 'Fazer proposta' APENAS para quem NÃO é o Dono do Produto / Admin / Fornecedor --}}
+                {{-- Exibe o botão 'Fazer proposta' APENAS para quem NÃO é o Dono do Produto / Admin / Fornecedor 
                 @php
                     $usuarioLogado = auth()->user();
                     $ehDonoDaOferta = $usuarioLogado->id === ($negociacao->oferta->fornecedor->user_id ?? null);
@@ -136,13 +137,14 @@
                 @endphp
 
                 @if(!$ehDonoDaOferta && !$ehAdminOuEmpresa)
+            --}}
                     <a
                         href="{{ route('propostas.create', $negociacao) }}"
-                        class="inline-flex items-center gap-1 bg-[#236350] hover:bg-[#1B4D3E] text-white text-sm px-4 py-2 rounded-md transition-colors shadow-sm">
+                        class="inline-flex items-center gap-1 btn-copav text-white text-sm px-4 py-2 rounded-md transition-colors shadow-sm">
                         <span class="material-symbols-outlined text-base">add</span>
                         Fazer proposta
                     </a>
-                @endif
+                {{--@endif--}}
             </div>
 
             @if($negociacao->propostas->count())
