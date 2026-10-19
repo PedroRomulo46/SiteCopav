@@ -53,6 +53,63 @@ class NegociacaoController extends Controller
         return view('negociacoes.index', compact('ofertas'));
     }
 
+    public function compras()
+    {
+    $usuario = auth()->user();
+
+    $negociacoes = Negociacao::where('cliente_id', $usuario->id)
+        ->with([
+            'oferta.produto',
+            'oferta.fornecedor',
+            'cliente',
+            'propostas.usuario',
+        ])
+        ->latest()
+        ->get();
+
+    return view('negociacoes.compras', compact('negociacoes'));
+    }
+
+    public function vendas()
+    {
+    $usuario = auth()->user();
+
+    // Somente administradores, empresa ou fornecedores.
+    $ehAdmin = $usuario->user_type === 'admin'
+        || $usuario->is_admin
+        || $usuario->email === 'copavagricola@example.com';
+
+    $ehEmpresa = $usuario->user_type === 'empresa';
+
+    if (!$ehAdmin && !$ehEmpresa && !$usuario->fornecedor) {
+        abort(403);
+    }
+
+    $consulta = Negociacao::query();
+
+    // Fornecedores veem apenas negociações dos próprios lotes.
+    // Administradores e empresa veem todas as negociações.
+    if (!$ehAdmin && !$ehEmpresa) {
+        $fornecedor = $usuario->fornecedor;
+
+        $consulta->whereHas('oferta', function ($query) use ($fornecedor) {
+            $query->where('fornecedor_id', $fornecedor->id);
+        });
+    }
+
+    $negociacoes = $consulta
+        ->with([
+            'oferta.produto',
+            'oferta.fornecedor',
+            'cliente',
+            'propostas.usuario',
+        ])
+        ->latest()
+        ->get();
+
+    return view('negociacoes.vendas', compact('negociacoes'));
+    }
+
     public function create()
     {
         $ofertas = Oferta::with(['produto', 'fornecedor'])
