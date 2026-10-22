@@ -207,14 +207,14 @@
                                 <div class="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 sm:mr-auto">
 
                                     <img
-                                        class="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded-lg shrink-0 bg-gray-100"
+                                        class="w-16 h-16 sm:w-16 sm:h-16 object-cover rounded-lg shrink-0 bg-gray-100"
                                         src="{{ $imagemProduto ? (str_contains($imagemProduto, 'assets/') ? asset($imagemProduto) : asset('storage/' . ltrim(str_replace('public/', '', $imagemProduto), '/'))) : asset('assets/milho.png') }}"
                                         alt="{{ $oferta->produto->nome ?? 'Produto' }}"
                                         onerror="this.onerror=null; this.src='{{ asset('assets/milho.png') }}';">
 
                                     <div class="min-w-0 flex-1">
                                         <h2 class="font-extrabold text-gray-800 text-sm sm:text-base truncate">
-                                            #{{ $oferta->id }} - {{ $oferta->produto->nome ?? 'Produto sem nome' }}
+                                            {{ $oferta->id }} - {{ $oferta->produto->nome ?? 'Produto sem nome' }}
                                         </h2>
 
                                         <p class="text-xs text-gray-500 mt-0.5">
@@ -222,9 +222,11 @@
                                             {{ $oferta->unidade }}
                                         </p>
 
-                                        <p class="text-[11px] text-gray-400 mt-0.5">
+                                        <p class="text-[11px] text-gray-700 mt-0.5">
                                             Validade:
-                                            {{ $oferta->data_validade ? \Carbon\Carbon::parse($oferta->data_validade)->format('d/m/Y') : 'Sem prazo definido' }}
+                                            <strong>
+                                                {{ $oferta->data_validade ? \Carbon\Carbon::parse($oferta->data_validade)->format('d/m/Y') : 'Sem prazo definido' }}
+                                            </strong>
                                         </p>
                                     </div>
                                 </div>
@@ -286,9 +288,10 @@
                                 $imagemDemanda = $demanda->imagem ?? null;
                             @endphp
 
-                            <article class="flex flex-col sm:flex-row sm:items-center gap-3 p-3 rounded-xl border border-gray-100 bg-white hover:bg-gray-50 transition-colors">
+                            <article
+                            class="flex flex-col sm:flex-row sm:items-center gap-3 p-3 rounded-xl border border-gray-100 bg-white hover:bg-gray-50 transition-colors">
 
-                                <div class="flex items-start gap-3 min-w-0 flex-1">
+                                <div class="flex items-start gap-3 min-w-0 flex-1 sm:mr-auto">
                                     <img
                                         class="w-16 h-16 sm:w-16 sm:h-16 rounded-lg object-cover shrink-0 bg-gray-100"
                                         src="{{ $imagemDemanda ? (str_contains($imagemDemanda, 'assets/') ? asset($imagemDemanda) : asset('storage/' . ltrim(str_replace('public/', '', $imagemDemanda), '/'))) : asset('assets/milho.png') }}"
