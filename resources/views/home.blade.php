@@ -495,7 +495,7 @@
                                 onerror="this.onerror=null; this.src='{{ asset('assets/milho.png') }}';">
 
                             <span class="absolute top-2 left-2 bg-white/95 text-[#236350] text-[10px] font-extrabold px-2 py-1 rounded-full shadow-sm">
-                                Lote #{{ $item->id }}
+                                Lote {{ $item->id }}
                             </span>
                         </div>
 
@@ -531,15 +531,6 @@
                             </div>
 
                             <div class="pt-2 border-t border-gray-100">
-                                <span class="text-[10px] sm:text-xs text-gray-500 block font-medium">
-                                    {{ fmod($quantidadeVitrine, 1) == 0 ? number_format($quantidadeVitrine, 0, ',', '.') : number_format($quantidadeVitrine, 2, ',', '.') }}
-                                    {{ $item->unidade ?? '' }}
-                                </span>
-
-                                <span class="text-sm sm:text-base font-extrabold text-[#1B4D3E] block mt-0.5">
-                                    R$ {{ number_format($valorVitrine, 2, ',', '.') }}
-                                </span>
-
                                 <span class="mt-2 block w-full text-center text-[11px] font-bold text-[#236350] border border-emerald-700 group-hover:bg-emerald-700 group-hover:text-white rounded-md py-1.5 transition-colors">
                                     Ver detalhes
                                 </span>

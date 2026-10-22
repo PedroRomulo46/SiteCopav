@@ -232,22 +232,34 @@
                   </div>
                   <span class="font-semibold max-w-[120px] truncate">{{ auth()->user()->nome ?? auth()->user()->name }}</span>
                 </div>
-                
-                <ul tabindex="0" class="dropdown-content menu bg-white text-gray-800 rounded-box z-50 w-48 p-2 shadow-lg mt-2">
+
+                <ul tabindex="0"
+                class="dropdown-content menu bg-white text-gray-800 rounded-box z-50 w-48 p-2 shadow-lg mt-2">
+
+                  {{-- Botão de configurações --}}
                   <li>
-                    <a href="{{ route('profile.edit') }}" class="flex items-center gap-2">
-                      <span class="material-symbols-outlined text-base">settings</span>
-                      Configurações
-                    </a>
+                      <a href="{{ route('profile.edit') }}"
+                        class="flex items-center gap-2 hover:bg-gray-300">
+                          <span class="material-symbols-outlined text-base">
+                              settings
+                          </span>
+                          Configurações
+                      </a>
                   </li>
+
+                  {{-- Botão para sair da conta --}}
                   <li>
-                    <form method="POST" action="{{ route('logout') }}" class="w-full">
-                      @csrf
-                      <button type="submit" class="w-full flex items-center gap-2 text-red-600 rounded-md text-left">
-                        <span class="material-symbols-outlined text-base">logout</span>
-                        Sair
-                      </button>
-                    </form>
+                      <form method="POST" action="{{ route('logout') }}">
+                          @csrf
+
+                          <button type="submit"
+                                  class="w-full flex items-center gap-2 text-red-600 hover:bg-red-100 rounded-md text-left">
+                              <span class="material-symbols-outlined text-base">
+                                  logout
+                              </span>
+                              Sair
+                          </button>
+                      </form>
                   </li>
                 </ul>
               </div>
@@ -288,25 +300,32 @@
                 
                 @auth
                   @if(auth()->user()->is_admin || auth()->user()->user_type === 'admin' || auth()->user()->email === 'copavagricola@example.com')
-                    <a href="{{ route('categorias.index') }}" class="p-1.5 text-xs text-amber-300 hover:bg-[#236350] rounded font-semibold flex items-center gap-1">
-                      <span class="material-symbols-outlined text-sm">list</span>
-                      Ver Todas
+                    <a
+                    href="{{ route('categorias.index') }}"
+                    class="p-1.5 text-xs text-amber-200 hover:bg-[#236350] rounded font-semibold flex items-center gap-1">
+                      - Ver Todas -
                     </a>
                   @else
-                    <a href="{{ route('categorias.create') }}" class="p-1.5 text-xs text-amber-300 hover:bg-[#236350] rounded font-semibold flex items-center gap-1">
+                    <a
+                    href="{{ route('categorias.create') }}"
+                    class="p-1.5 text-xs hover:bg-[#236350] rounded font-semibold flex items-center gap-1">
                       <span class="material-symbols-outlined text-sm">add_circle</span>
                       Sugerir Categoria
                     </a>
                   @endif
                 @else
-                  <a href="{{ route('categorias.create') }}" class="p-1.5 text-xs text-amber-300 hover:bg-[#236350] rounded font-semibold flex items-center gap-1">
+                  <a
+                  href="{{ route('categorias.create') }}"
+                  class="p-1.5 text-xs hover:bg-[#236350] rounded font-semibold flex items-center gap-1">
                     <span class="material-symbols-outlined text-sm">add_circle</span>
                     Sugerir Categoria
                   </a>
                 @endauth
 
                 @foreach($categorias ?? [] as $categoria)
-                  <a href="{{ route('categorias.show', $categoria->id) }}" class="p-1.5 text-xs hover:bg-[#236350] rounded">
+                  <a
+                  href="{{ route('categorias.show', $categoria->id) }}"
+                  class="p-1.5 text-xs hover:bg-[#236350] rounded">
                     {{ $categoria->nome }}
                   </a>
                 @endforeach
@@ -358,17 +377,26 @@
                 </a>
               @endif
 
-              <a href="{{ route('profile.edit') }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
-                <span class="material-symbols-outlined text-lg">settings</span>
-                <span>Configurações</span>
+              {{-- Botão de configurações --}}
+              <a href="{{ route('profile.edit') }}"
+                class="flex w-full items-center gap-2 p-2 rounded-md
+                        text-white hover:bg-[#236350]
+                        transition-colors duration-200">
+                  <span class="material-symbols-outlined text-lg">settings</span>
+                  <span>Configurações</span>
               </a>
 
+              {{-- Botão para sair da conta --}}
               <form method="POST" action="{{ route('logout') }}" class="w-full">
-                @csrf
-                <button type="submit" class="w-full flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md text-left text-red-300 hover:text-red-100">
-                  <span class="material-symbols-outlined text-lg">logout</span>
-                  <span>Sair</span>
-                </button>
+                  @csrf
+
+                  <button type="submit"
+                          class="flex w-full items-center gap-2 p-2 rounded-md
+                                text-left text-white hover:bg-[#236350]
+                                transition-colors duration-200">
+                      <span class="material-symbols-outlined text-lg">logout</span>
+                      <span>Sair</span>
+                  </button>
               </form>
             @endauth
 

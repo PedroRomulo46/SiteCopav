@@ -4,13 +4,13 @@
 @section('title', 'Minhas Vendas')
 
 @section('conteudo')
-<div class="w-full max-w-7xl mx-auto px-4 py-6">
+<nav class="text-sm text-gray-500 mb-5">
+    <a href="{{ route('home') }}" class="hover:text-green-800">Início</a>
+    <span class="mx-2">›</span>
+    <span class="font-semibold text-gray-800">Minhas Vendas</span>
+</nav>
 
-    <nav class="text-sm text-gray-500 mb-5">
-        <a href="{{ route('home') }}" class="hover:text-green-800">Início</a>
-        <span class="mx-2">›</span>
-        <span class="font-semibold text-gray-800">Minhas Vendas</span>
-    </nav>
+<div class="w-full max-w-7xl mx-auto px-4 py-6">
 
     <div class="mb-8">
         <p class="text-sm font-semibold text-[#236350] mb-1">
