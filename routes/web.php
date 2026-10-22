@@ -41,6 +41,8 @@ Route::middleware('auth')->group(function () {
 
     // Chat
     Route::get('/chat', [ChatController::class, 'index'])->name('chat');
+    Route::get('/chat/{negociacao}', [ChatController::class, 'show'])
+    ->name('chat.show');
 
     // Categorias
     Route::resource('categorias', CategoriaController::class)->except(['index', 'show']);

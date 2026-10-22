@@ -2,63 +2,67 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Chat;
+use App\Models\Negociacao;
 use Illuminate\Http\Request;
 
 class ChatController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         return view('chat.index');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function show(Negociacao $negociacao)
     {
-        //
-    }
+        $usuario = auth()->user();
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        $negociacao->load([
+            'cliente',
+            'oferta.fornecedor',
+        ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+        // Verifica se o usuário é administrador.
+        $ehAdmin = $usuario->user_type === 'admin';
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
+        // Verifica se é o cliente da negociação.
+        $ehCliente = (int) $negociacao->cliente_id === (int) $usuario->id;
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+        // Verifica se é o fornecedor dono da oferta.
+        $ehFornecedor = $usuario->fornecedor
+            && $negociacao->oferta
+            && (int) $negociacao->oferta->fornecedor_id
+                === (int) $usuario->fornecedor->id;
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        // Somente os participantes autorizados podem acessar.
+        if (!$ehAdmin && !$ehCliente && !$ehFornecedor) {
+            abort(403);
+        }
+
+        // O chat só pode ser aberto quando existir uma proposta aceita.
+        $temPropostaAceita = $negociacao->propostas()
+            ->where('status', 'aceita')
+            ->exists();
+
+        if (!$temPropostaAceita) {
+            return redirect()
+                ->route('negociacoes.show', $negociacao)
+                ->with('error', 'O chat será liberado quando uma proposta for aceita.');
+        }
+
+        // Cria o chat somente se ainda não existir.
+        $chat = Chat::firstOrCreate([
+            'negociacao_id' => $negociacao->id,
+        ]);
+
+        // Carrega as mensagens em ordem cronológica.
+        $chat->load([
+            'mensagens.usuario',
+        ]);
+
+        return view('chat.show', compact(
+            'chat',
+            'negociacao'
+        ));
     }
 }
