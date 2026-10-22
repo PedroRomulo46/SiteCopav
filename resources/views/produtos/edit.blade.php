@@ -18,7 +18,7 @@
         <li>
             <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
             <a href="{{route('produtos.index')}}">
-                Produtos
+                Produtos cadastrados
             </a>
         </li>
 

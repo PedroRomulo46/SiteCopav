@@ -74,7 +74,8 @@
         @if($is_Fornecedor || $is_Admin || $is_Empresa)
             <section class="bg-[#123228] text-white p-4 sm:p-6 rounded-2xl shadow-md">
 
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 pb-4 border-b border-emerald-800">
+                {{-- Painel --}}
+                <div class="flex flex-row md:flex-row md:items-center justify-between gap-4 mb-4 pb-4 border-b border-emerald-800">
                     <div>
                         @if($is_Fornecedor)
                             <span class="text-xs font-bold uppercase tracking-wider text-emerald-50">
@@ -85,7 +86,7 @@
                                 Gestão dos seus lotes
                             </h1>
 
-                            <p class="text-xs sm:text-sm text-emerald-50 mt-1">
+                            <p class="text-md sm:text-sm text-emerald-50 mt-1">
                                 Gerencie suas ofertas, acompanhe propostas e encontre oportunidades.
                             </p>
 
@@ -130,7 +131,7 @@
                     @if($is_Fornecedor)
                         <div class="flex flex-wrap items-center gap-2">
                             <a href="{{ route('ofertas.create') }}"
-                               class="btn-copav text-white text-sm px-4 py-2.5 rounded-lg font-bold flex items-center justify-center gap-1.5 shadow-sm transition-transform active:scale-95">
+                               class="btn-copav text-white text-sm px-4 py-2.5 rounded-lg font-bold flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-colors">
                                 <span class="material-symbols-outlined text-lg">add</span>
                                 Nova Oferta
                             </a>
@@ -209,16 +210,15 @@
                                     $imagemProduto = $oferta->produto->imagem ?? null;
                                 @endphp
 
-                                <article
-                                class="card-oferta-fornecedor relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-2 sm:p-3 rounded-xl border border-gray-100 bg-white hover:bg-gray-50 transition-colors w-full"                                data-oferta-id="{{ $oferta->id }}"
-                                data-novas-propostas="{{ $quantidadeNovas }}">
+                            <article
+                            class="card-oferta-fornecedor relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-2 sm:p-3 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition-colors w-full"                                data-oferta-id="{{ $oferta->id }}"
+                            data-novas-propostas="{{ $quantidadeNovas }}">
 
                                 {{-- Informações do lote --}}
                                 <div class="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 sm:mr-auto">
 
                                     <img
-                                        class="w-16 h-16 sm:w-16 sm:h-16 object-cover rounded-lg shrink-0 bg-gray-100"
-                                        class="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded-lg shrink-0 bg-gray-100"
+                                        class="w-20 h-20 sm:w-16 sm:h-16 object-cover rounded-lg shrink-0 bg-gray-100"
                                         src="{{ $imagemProduto ? (str_contains($imagemProduto, 'assets/') ? asset($imagemProduto) : asset('storage/' . ltrim(str_replace('public/', '', $imagemProduto), '/'))) : asset('assets/milho.png') }}"
                                         alt="{{ $oferta->produto->nome ?? 'Produto' }}"
                                         onerror="this.onerror=null; this.src='{{ asset('assets/milho.png') }}';">
@@ -264,7 +264,7 @@
                                     </a>
 
                                     <a href="{{ route('ofertas.show', $oferta->id) }}"
-                                    class="btn-copav text-white px-3 py-2 rounded-md font-bold text-xs whitespace-nowrap">
+                                    class="btn-copav text-white px-3 py-2 rounded-md font-bold text-xs whitespace-nowrap transition-colors">
                                         Detalhes
                                     </a>
                                 </div>
@@ -285,7 +285,7 @@
                             @if($listaOfertas->count() > 3)
                                 <div class="pt-2 text-center">
                                     <a href="{{ route('ofertas.index') }}"
-                                    class="inline-flex items-center justify-center gap-1 text-xs font-bold bg-slate-100 hover:bg-slate-200 px-4 py-2.5 text-[#236350] rounded-lg transition-colors">
+                                    class="inline-flex items-center justify-center gap-1 text-xs font-bold bg-slate-200 hover:bg-slate-300 px-4 py-2.5 text-[#236350] rounded-lg transition-colors">
                                         Ver todas as ofertas
                                         <span class="material-symbols-outlined text-sm">arrow_forward</span>
                                     </a>
@@ -310,7 +310,7 @@
 
                                 <div class="flex items-start gap-3 min-w-0 flex-1">
                                     <img
-                                        class="w-16 h-16 sm:w-16 sm:h-16 rounded-lg object-cover shrink-0 bg-gray-100"
+                                        class="w-20 h-20 sm:w-16 sm:h-16 rounded-lg object-cover shrink-0 bg-gray-100"
                                         src="{{ $imagemDemanda ? (str_contains($imagemDemanda, 'assets/') ? asset($imagemDemanda) : asset('storage/' . ltrim(str_replace('public/', '', $imagemDemanda), '/'))) : asset('assets/milho.png') }}"
                                         alt="{{ $demanda->nome_produto ?? 'Demanda' }}"
                                         onerror="this.onerror=null; this.src='{{ asset('assets/milho.png') }}';">
@@ -439,27 +439,26 @@
 
         <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
             <div class="w-full text-left">
-                <h2 class="text-lg sm:text-xl font-extrabold text-gray-800">
+                <h2 class="text-2xl sm:text-xl font-extrabold text-gray-800">
                     Produtos que você pode se interessar...
                 </h2>
 
-                <p class="text-xs sm:text-sm text-gray-500 mt-1">
+                <p class="text-md sm:text-sm text-gray-500 mt-1">
                     Explore os lotes disponíveis no marketplace.
                 </p>
             </div>
 
-            <div class="flex justify-start sm:justify-end shrink-0">
+            <div class="flex justify-end sm:justify-start shrink-0">
                 <label class="sr-only" for="ordenar-vitrine">
                     Ordenar lotes
                 </label>
 
                 {{-- Filtro de ordenação --}}
                 <select id="ordenar-vitrine"
-                    class="bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 outline-none focus:border-[#236350] focus:ring-2 focus:ring-emerald-100">
+                    class="bg-white border border-gray-200 rounded-lg px-8 py-2 text-sm text-gray-700 outline-none focus:border-[#236350] focus:ring-2 focus:ring-emerald-100">
                     <option value="recentes">Mais recentes</option>
                     <option value="menor-preco">Menor preço</option>
                     <option value="maior-preco">Maior preço</option>
-                    <option value="nome">Nome do produto</option>
                 </select>
             </div>
         </div>
