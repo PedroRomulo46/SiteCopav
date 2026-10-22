@@ -228,9 +228,12 @@
                                             {{ $oferta->id }} - {{ $oferta->produto->nome ?? 'Produto sem nome' }}
                                         </h2>
 
-                                        <p class="text-xs text-gray-500 mt-0.5">
-                                            {{ number_format($oferta->quantidade, 2, ',', '.') }}
-                                            {{ $oferta->unidade }}
+                                        <p class="text-xs text-gray-700 mt-0.5">
+                                            Unidade:
+                                            <strong>
+                                                {{ number_format($oferta->quantidade, 2, ',', '.') }}
+                                                {{ $oferta->unidade }}
+                                            </strong>
                                         </p>
 
                                         <p class="text-[11px] text-gray-700 mt-0.5">
@@ -238,18 +241,7 @@
                                             <strong>
                                                 {{ $oferta->data_validade ? \Carbon\Carbon::parse($oferta->data_validade)->format('d/m/Y') : 'Sem prazo definido' }}
                                             </strong>
-                                            #{{ $oferta->id }} - {{ $oferta->produto->nome ?? 'Produto sem nome' }}
                                         </h2>
-
-                                        <p class="text-xs text-gray-500 mt-0.5">
-                                            {{ number_format($oferta->quantidade, 2, ',', '.') }}
-                                            {{ $oferta->unidade }}
-                                        </p>
-
-                                        <p class="text-[11px] text-gray-400 mt-0.5">
-                                            Validade:
-                                            {{ $oferta->data_validade ? \Carbon\Carbon::parse($oferta->data_validade)->format('d/m/Y') : 'Sem prazo definido' }}
-                                        </p>
                                     </div>
                                 </div>
 
