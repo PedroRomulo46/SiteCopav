@@ -6,18 +6,26 @@
 
 <div class="max-w-4xl mx-auto">
 
-    {{-- Botão voltar --}}
-    <div class="mb-6">
-        <a
-            href="{{ route('ofertas.index') }}"
-            class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-[#236350] transition-colors">
-            <span class="material-symbols-outlined text-lg">
-                arrow_back
-            </span>
+{{-- Breadcrumbs com setas garantidas via ícone --}}
+<nav class="flex items-center text-sm mb-6 text-gray-600" aria-label="Breadcrumb">
+    <ol class="inline-flex items-center space-x-2">
 
-            Voltar para ofertas
-        </a>
-    </div>
+        {{-- Item 1: Início --}}
+        <li>
+            <a href="{{route('home')}}">
+                Início
+            </a>
+        </li>
+
+        {{-- Item 2: Pégina Atual --}}
+        <li class="flex items-center space-x-2 hover:cursor-pointer">
+            <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
+            <span class="font-semibold text-gray-800">
+                @yield('title')
+            </span>
+        </li>
+    </ol>
+</nav>
 
     {{-- Cabeçalho --}}
     <div class="mb-6">

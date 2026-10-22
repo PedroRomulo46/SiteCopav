@@ -1,28 +1,61 @@
 @extends('layouts.layout')
+
 @section('title', 'Detalhes da Negociação')
 
 @section('conteudo')
 
-    {{-- Botão Voltar --}}
-    <div class="mb-4">
-        <a
-            href="{{ route('ofertas.show', $negociacao->oferta_id) }}"
-            class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-[#236350] transition-colors">
-            <span class="material-symbols-outlined text-lg">arrow_back</span>
-            Voltar para o produto
-        </a>
-    </div>
+{{-- Breadcrumbs com setas garantidas via ícone --}}
+<nav class="flex items-center text-sm mb-6 text-gray-600" aria-label="Breadcrumb">
+    <ol class="inline-flex items-center space-x-2">
 
-    <div
-        id="negociacao-realtime"
-        data-negociacao-id="{{ $negociacao->id }}"
-        data-pode-gerenciar="{{ auth()->user()->user_type === 'admin' || (auth()->user()->fornecedor && $negociacao->oferta->fornecedor && auth()->user()->fornecedor->id === $negociacao->oferta->fornecedor->id) ? '1' : '0' }}"
-        data-unidade="{{ $negociacao->oferta->unidade }}"
-        data-csrf="{{ csrf_token() }}"
-        data-url-aceitar="{{ route('propostas.aceitar', ['proposta' => '__ID__']) }}"
-        data-url-recusar="{{ route('propostas.recusar', ['proposta' => '__ID__']) }}"
-        class="max-w-4xl mx-auto my-6 space-y-6"
-    >
+        {{-- Item 1: Início --}}
+        <li>
+            <a href="{{ route('home') }}">
+                Início
+            </a>
+        </li>
+
+        @php
+            $usuario = auth()->user();
+            $is_Cliente = $usuario && $negociacao->cliente_id === $usuario->id;
+        @endphp
+
+        {{-- Item 2: Compras ou Vendas --}}
+        <li class="flex items-center space-x-2 hover:cursor-pointer">
+            <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
+            @if($is_Cliente)
+                <a href="{{ route('negociacoes.compras') }}" class="hover:text-[#236350] transition-colors">
+                    Minhas Compras
+                </a>
+            @else
+                <a href="{{ route('negociacoes.vendas') }}" class="hover:text-[#236350] transition-colors">
+                    Minhas Vendas
+                </a>
+            @endif
+        </li>
+
+        {{-- Item 3: Página Atual --}}
+        <li class="flex items-center space-x-2">
+            <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
+            <span class="font-semibold text-gray-800">
+                Negociação {{ $negociacao->id }}
+            </span>
+        </li>
+    </ol>
+</nav>
+
+    <div class="max-w-4xl mx-auto my-6 space-y-6">
+
+        <div
+            id="negociacao-realtime"
+            data-negociacao-id="{{ $negociacao->id }}"
+            data-pode-gerenciar="{{ auth()->user()->user_type === 'admin' || (auth()->user()->fornecedor && $negociacao->oferta->fornecedor && auth()->user()->fornecedor->id === $negociacao->oferta->fornecedor->id) ? '1' : '0' }}"
+            data-unidade="{{ $negociacao->oferta->unidade }}"
+            data-csrf="{{ csrf_token() }}"
+            data-url-aceitar="{{ route('propostas.aceitar', ['proposta' => '__ID__']) }}"
+            data-url-recusar="{{ route('propostas.recusar', ['proposta' => '__ID__']) }}"
+            class="max-w-4xl mx-auto my-6 space-y-6"
+        >
 
         {{-- Mensagens de Feedback --}}
         @if(session('sucesso'))
@@ -108,21 +141,42 @@
                     Propostas
                 </h2>
 
-                {{-- Exibe o botão 'Fazer proposta' APENAS para quem NÃO é o Dono do Produto / Admin / Fornecedor --}}
                 @php
                     $usuarioLogado = auth()->user();
-                    $ehDonoDaOferta = $usuarioLogado->id === ($negociacao->oferta->fornecedor->user_id ?? null);
-                    $ehAdminOuEmpresa = in_array($usuarioLogado->user_type ?? '', ['admin', 'empresa', 'fornecedor']) || ($usuarioLogado->fornecedor ?? false);
+
+                    $is_DonoDaOferta = false;
+                    $is_Admin = false;
+                    $is_FornecedorDaOferta = false;
+
+                    if ($usuarioLogado) {
+                        $is_DonoDaOferta = $usuarioLogado->id === ($negociacao->oferta->user_id ?? $negociacao->oferta->fornecedor->user_id ?? null);
+                        $is_Admin = ($usuarioLogado->is_admin ?? false) || ($usuarioLogado->user_type === 'admin');
+                        $is_FornecedorDaOferta = $usuarioLogado->fornecedor && ($usuarioLogado->fornecedor->id === $negociacao->oferta->fornecedor_id);
+                    }
                 @endphp
 
-                @if(!$ehDonoDaOferta && !$ehAdminOuEmpresa)
+                {{-- Exibe o botão ou a mensagem informativa igual ao código de exemplo --}}
+                @auth
+                    @if(!$is_DonoDaOferta && !$is_Admin && !$is_FornecedorDaOferta)
+                        <a
+                            href="{{ route('propostas.create', $negociacao) }}"
+                            class="inline-flex items-center gap-1 btn-copav text-white text-sm px-4 py-2 rounded-md transition-colors shadow-sm">
+                            <span class="material-symbols-outlined text-base">add</span>
+                            Fazer proposta
+                        </a>
+                    @else
+                        <div class="text-xs text-center text-gray-500 py-2 px-4 bg-gray-100 rounded-lg">
+                            Esta oferta pertence a você.
+                        </div>
+                    @endif
+                @else
                     <a
-                        href="{{ route('propostas.create', $negociacao) }}"
-                        class="inline-flex items-center gap-1 bg-[#236350] hover:bg-[#1B4D3E] text-white text-sm px-4 py-2 rounded-md transition-colors shadow-sm">
-                        <span class="material-symbols-outlined text-base">add</span>
-                        Fazer proposta
+                        href="{{ route('login') }}"
+                        class="inline-flex items-center gap-1 btn-copav text-white text-sm px-4 py-2 rounded-md transition-colors shadow-sm">
+                        <span class="material-symbols-outlined text-base">login</span>
+                        Entrar para negociar
                     </a>
-                @endif
+                @endauth
             </div>
 
                 <div id="lista-propostas" class="space-y-4">
@@ -181,8 +235,7 @@
                             @php
                                 $statusPendente = strtolower($proposta->status ?? 'pendente') === 'pendente';
 
-                                // 1. Verifica se quem está logado é o FORNECEDOR dono da oferta ou ADMIN
-                                $ehGerenciadorDoProduto = (auth()->id() === ($negociacao->oferta->fornecedor->user_id ?? null)) ||
+                                $ehGerenciadorDoProduto = (auth()->id() === ($negociacao->oferta->user_id ?? $negociacao->oferta->fornecedor->user_id ?? null)) ||
                                                         in_array(auth()->user()->user_type ?? '', ['admin', 'empresa']);
 
                                 // 2. Verifica se o usuário logado é o CLIENTE que fez esta proposta
@@ -317,7 +370,7 @@
                 <button
                     type="button"
                     onclick="confirmarAceite()"
-                    class="btn-copav px-4 py-2 rounded-lg text-sm font-semibold text-whitetransition-colors">
+                    class="btn-copav px-4 py-2 rounded-lg text-sm font-semibold text-white transition-colors">
                     Confirmar
                 </button>
             </div>
@@ -326,7 +379,6 @@
 @endsection
 
 @push('scripts')
-
 <script>
     let formularioProposta = null;
 

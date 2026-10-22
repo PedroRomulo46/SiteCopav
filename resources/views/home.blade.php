@@ -107,6 +107,16 @@
                                 Painel da empresa
                             </span>
 
+
+                            <p class="text-xs sm:text-sm text-emerald-50 mt-1">
+                                Acompanhe as demandas e oportunidades do marketplace.
+                            </p>
+
+                        @elseif($is_Empresa)
+                            <span class="text-xs font-bold uppercase tracking-wider text-emerald-50">
+                                Painel da empresa
+                            </span>
+
                             <h1 class="text-xl sm:text-2xl font-extrabold mt-1">
                                 Gestão da empresa
                             </h1>
@@ -207,6 +217,7 @@
                                 <div class="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 sm:mr-auto">
 
                                     <img
+                                        class="w-16 h-16 sm:w-16 sm:h-16 object-cover rounded-lg shrink-0 bg-gray-100"
                                         class="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded-lg shrink-0 bg-gray-100"
                                         src="{{ $imagemProduto ? (str_contains($imagemProduto, 'assets/') ? asset($imagemProduto) : asset('storage/' . ltrim(str_replace('public/', '', $imagemProduto), '/'))) : asset('assets/milho.png') }}"
                                         alt="{{ $oferta->produto->nome ?? 'Produto' }}"
@@ -214,6 +225,19 @@
 
                                     <div class="min-w-0 flex-1">
                                         <h2 class="font-extrabold text-gray-800 text-sm sm:text-base truncate">
+                                            {{ $oferta->id }} - {{ $oferta->produto->nome ?? 'Produto sem nome' }}
+                                        </h2>
+
+                                        <p class="text-xs text-gray-500 mt-0.5">
+                                            {{ number_format($oferta->quantidade, 2, ',', '.') }}
+                                            {{ $oferta->unidade }}
+                                        </p>
+
+                                        <p class="text-[11px] text-gray-700 mt-0.5">
+                                            Validade:
+                                            <strong>
+                                                {{ $oferta->data_validade ? \Carbon\Carbon::parse($oferta->data_validade)->format('d/m/Y') : 'Sem prazo definido' }}
+                                            </strong>
                                             #{{ $oferta->id }} - {{ $oferta->produto->nome ?? 'Produto sem nome' }}
                                         </h2>
 
@@ -286,6 +310,10 @@
                                 $imagemDemanda = $demanda->imagem ?? null;
                             @endphp
 
+                            <article
+                            class="flex flex-col sm:flex-row sm:items-center gap-3 p-3 rounded-xl border border-gray-100 bg-white hover:bg-gray-50 transition-colors">
+
+                                <div class="flex items-start gap-3 min-w-0 flex-1 sm:mr-auto">
                             <article class="flex flex-col sm:flex-row sm:items-center gap-3 p-3 rounded-xl border border-gray-100 bg-white hover:bg-gray-50 transition-colors">
 
                                 <div class="flex items-start gap-3 min-w-0 flex-1">
@@ -484,6 +512,24 @@
                                 <h3 class="font-bold text-xs sm:text-sm text-gray-800 line-clamp-2 leading-tight group-hover:text-[#236350] transition-colors">
                                     {{ $nomeVitrine }}
                                 </h3>
+
+                                @if($descricaoVitrine)
+                                    <p class="text-[11px] text-gray-400 line-clamp-2 mt-1">
+                                        {{ $descricaoVitrine }}
+                                    </p>
+                                @endif
+                            </div>
+
+                            <div class="pt-2 border-t border-gray-100">
+                                <span class="text-[10px] sm:text-xs text-gray-500 block font-medium">
+                                    {{ fmod($quantidadeVitrine, 1) == 0 ? number_format($quantidadeVitrine, 0, ',', '.') : number_format($quantidadeVitrine, 2, ',', '.') }}
+                                    {{ $item->unidade ?? '' }}
+                                </span>
+
+                                <span class="text-sm sm:text-base font-extrabold text-[#1B4D3E] block mt-0.5">
+                                    R$ {{ number_format($valorVitrine, 2, ',', '.') }}
+                                </span>
+
 
                                 @if($descricaoVitrine)
                                     <p class="text-[11px] text-gray-400 line-clamp-2 mt-1">

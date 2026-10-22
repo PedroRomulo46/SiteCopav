@@ -3,13 +3,34 @@
 
 @section('conteudo')
 
-{{-- Botão de Voltar --}}
-<div class="mb-4" style="text-align: left !important;">
-    <a href="{{ route('produtos.index') }}" class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-[#236350] transition-colors">
-        <span class="material-symbols-outlined text-lg">arrow_back</span>
-        Voltar para os produtos
-    </a>
-</div>
+{{-- Breadcrumbs com setas garantidas via ícone --}}
+<nav class="flex items-center text-sm mb-6 text-gray-600" aria-label="Breadcrumb">
+    <ol class="inline-flex items-center space-x-2">
+
+        {{-- Item 1: Início --}}
+        <li>
+            <a href="{{route('home')}}">
+                Início
+            </a>
+        </li>
+
+        {{-- Item 3: Produtos --}}
+        <li>
+            <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
+            <a href="{{route('produtos.index')}}">
+                Produtos
+            </a>
+        </li>
+
+        {{-- Item 2: Pégina Atual --}}
+        <li class="flex items-center space-x-2 hover:cursor-pointer">
+            <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
+            <span class="font-semibold text-gray-800">
+                @yield('title')
+            </span>
+        </li>
+    </ol>
+</nav>
 
 
 <div class="max-w-4xl mx-auto my-6 p-6 bg-white rounded-lg shadow-md">

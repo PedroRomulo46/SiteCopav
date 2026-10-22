@@ -24,17 +24,11 @@ Route::get('/ofertas', [OfertaController::class, 'index'])->name('ofertas.index'
 // ROTAS PROTEGIDAS (Exigem Login)
 Route::middleware('auth')->group(function () {
 
-    Route::get('/dashboard', function () {
-        return redirect()->route('home');
-    })->middleware('verified')->name('dashboard');
+    Route::get('/dashboard', function () {return redirect()->route('home');})->middleware('verified')->name('dashboard');
 
     // Lotes / Ofertas (Restrito a usuários logados)
-    Route::get('/ofertas/{oferta}/card', [OfertaController::class, 'card'])
-      ->name('ofertas.card');
-    Route::get('/propostas/{proposta}/card', [
-        PropostaController::class,
-        'card'
-    ])->name('propostas.card');
+    Route::get('/ofertas/{oferta}/card', [OfertaController::class, 'card'])->name('ofertas.card');
+    Route::get('/propostas/{proposta}/card', [PropostaController::class,'card'])->name('propostas.card');
 
     Route::resource('ofertas', OfertaController::class);
 
@@ -54,26 +48,41 @@ Route::middleware('auth')->group(function () {
     // Recursos de Fornecedor e Negociações
     Route::resource('fornecedores', FornecedorController::class)->parameters(['fornecedores' => 'fornecedor']);
     Route::resource('ofertas-diretas', OfertaDiretaController::class);
-    Route::resource('negociacoes', NegociacaoController::class)->parameters(['negociacoes' => 'negociacao']);
-    Route::post(
-        '/negociacoes/{negociacao}/visualizada',
-        [NegociacaoController::class, 'marcarComoVisualizada']
-    )->name('negociacoes.visualizada');
-    
+
+    // Compras do usuário autenticado
+    Route::get('/negociacoes/compras', [NegociacaoController::class,'compras'])->name('negociacoes.compras');
+
+    // Vendas: fornecedores e administradores
+    Route::get('/negociacoes/vendas', [NegociacaoController::class,'vendas'])->name('negociacoes.vendas');
+
+    // Recurso geral de negociações — declarar apenas uma vez
+    Route::resource('negociacoes', NegociacaoController::class)
+        ->parameters(['negociacoes' => 'negociacao']);
+
+    // Marcar negociação como visualizada
+    Route::post('/negociacoes/{negociacao}/visualizada',[NegociacaoController::class, 'marcarComoVisualizada'])
+    ->name('negociacoes.visualizada');
+   
     // Propostas
-    Route::get('/negociacoes/{negociacao}/propostas/create', [PropostaController::class, 'create'])->name('propostas.create');
+    Route::get('/negociacoes/{negociacao}/propostas/create', [PropostaController::class, 'create'])
+    ->name('propostas.create');
+
     Route::post('/propostas', [PropostaController::class, 'store'])->name('propostas.store');
-    Route::patch('/propostas/{proposta}/aceitar', [PropostaController::class, 'aceitar'])->name('propostas.aceitar');
-    Route::patch('/propostas/{proposta}/recusar', [PropostaController::class, 'recusar'])->name('propostas.recusar');
-    Route::patch(
-        '/propostas/{proposta}/cancelar',
-        [PropostaController::class, 'cancelar']
-    )->middleware('auth')->name('propostas.cancelar');
-    Route::get('/ofertas/{oferta}/propostas', [NegociacaoController::class, 'propostasOferta'])->name('negociacoes.propostas');
-    Route::get(
-        '/propostas/{proposta}/visualizar',
-        [PropostaController::class, 'visualizar']
-    )->name('propostas.visualizar');
+
+    Route::patch('/propostas/{proposta}/aceitar', [PropostaController::class, 'aceitar'])
+    ->name('propostas.aceitar');
+
+    Route::patch('/propostas/{proposta}/recusar', [PropostaController::class, 'recusar'])
+    ->name('propostas.recusar');
+
+    Route::patch('/propostas/{proposta}/cancelar',[PropostaController::class, 'cancelar'])->middleware('auth')
+    ->name('propostas.cancelar');
+
+    Route::get('/ofertas/{oferta}/propostas', [NegociacaoController::class, 'propostasOferta'])
+    ->name('negociacoes.propostas');
+
+    Route::get('/propostas/{proposta}/visualizar',[PropostaController::class, 'visualizar'])
+    ->name('propostas.visualizar');
 
     // Perfil
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

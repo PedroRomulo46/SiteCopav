@@ -1,15 +1,28 @@
 @extends('layouts.layout')
-@section('title', 'Produtos')
+@section('title', 'Produtos cadastrados')
 
 @section('conteudo')
 
-{{-- Botão Voltar --}}
-<div class="mb-4">
-    <a href="{{ route('home') }}" class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-[#236350] transition-colors">
-        <span class="material-symbols-outlined text-lg">arrow_back</span>
-        Voltar para a página inicial
-    </a>
-</div>
+{{-- Breadcrumbs com setas garantidas via ícone --}}
+<nav class="flex items-center text-sm mb-6 text-gray-600" aria-label="Breadcrumb">
+    <ol class="inline-flex items-center space-x-2">
+
+        {{-- Item 1: Início --}}
+        <li>
+            <a href="{{route('home')}}">
+                Início
+            </a>
+        </li>
+
+        {{-- Item 2: Pégina Atual --}}
+        <li class="flex items-center space-x-2 hover:cursor-pointer">
+            <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
+            <span class="font-semibold text-gray-800">
+                @yield('title')
+            </span>
+        </li>
+    </ol>
+</nav>
 
 <div class="w-full max-w-7xl mx-auto px-2 sm:px-4">
 
