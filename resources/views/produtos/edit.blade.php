@@ -259,7 +259,7 @@
 
             <button
                 type="submit"
-                class="bg-[#236350] hover:bg-[#1B4D3E] text-white px-5 py-2 rounded-md transition-colors"
+                class="btn-copav text-white px-5 py-2 rounded-md transition-colors"
             >
                 Salvar alterações
             </button>

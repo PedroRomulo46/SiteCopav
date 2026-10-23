@@ -65,8 +65,16 @@
 
                 @php
                     $oferta = $negociacao->oferta;
-                    $ultimaProposta = $negociacao->propostas->last();
-                    $minhaPropostaAceita = $negociacao->propostas->where('status', 'aceita')->first();
+
+                    $minhasPropostas = $negociacao->propostas
+                        ->where('usuario_id', auth()->id());
+
+                    $ultimaProposta = $minhasPropostas->last();
+
+                    $minhaPropostaAceita = $minhasPropostas
+                        ->first(function ($proposta) {
+                            return $proposta->status === 'aceita';
+                        });
                 @endphp
 
                 {{-- Card da Compra / Negociação --}}
@@ -136,21 +144,25 @@
                             </div>
                         @endif
 
-                            {{-- Botão de negociação --}}
-                            <a
+                        <a
                             id="botao-compra-{{ $negociacao->id }}"
-                            href="{{ route('negociacoes.show', $negociacao) }}"
-                            class="btn-copav flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors">
+                            href="{{ $minhaPropostaAceita
+                                ? route('pagamentos.show', $negociacao)
+                                : route('negociacoes.show', $negociacao) }}"
+                            class="btn-copav flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors"
+                        >
                             <span class="material-symbols-outlined text-lg icone-botao-compra">
-                                forum
+                                {{ $minhaPropostaAceita ? 'payments' : 'forum' }}
                             </span>
 
                             <span class="texto-botao-compra">
-                                {{ $minhaPropostaAceita ? 'Seguir para o pagamento' : 'Ver chat / negociação' }}
+                                {{ $minhaPropostaAceita
+                                    ? 'Seguir para o pagamento'
+                                    : 'Ver chat / negociação' }}
                             </span>
 
                             <span class="material-symbols-outlined text-base">
-                                arrow_forward
+                                 arrow_forward
                             </span>
                         </a>
                     </div>
@@ -244,6 +256,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     const textoBotao = botao.querySelector(
                         '.texto-botao-compra'
                     );
+
+                    botao.href = `/negociacoes/${negociacaoId}/pagamento`;
 
                     const iconeBotao = botao.querySelector(
                         '.icone-botao-compra'

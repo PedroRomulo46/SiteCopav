@@ -13,6 +13,7 @@ use App\Http\Controllers\DemandaController;
 use App\Http\Controllers\OfertaDiretaController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\PagamentoController;
 
 // ROTAS PÚBLICAS (Visitantes e Autenticados)
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -90,6 +91,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Pagamentos
+    Route::get('/negociacoes/{negociacao}/pagamento',[PagamentoController::class, 'show'])->name('pagamentos.show');
 });
 
 // ROTAS EXCLUSIVAS DA EMPRESA (ADMIN)
