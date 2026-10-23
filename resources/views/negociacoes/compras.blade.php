@@ -70,7 +70,12 @@
                 @endphp
 
                 {{-- Card da Compra / Negociação --}}
-                <div class="group bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 text-left">
+                <div
+                    id="compra-negociacao-{{ $negociacao->id }}"
+                    data-negociacao-id="{{ $negociacao->id }}"
+                    data-status="{{ $minhaPropostaAceita ? 'aceita' : 'em_negociacao' }}"
+                    class="group bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 text-left"
+                >
 
                     {{-- Imagem --}}
                     <div class="relative h-44 bg-gray-100 overflow-hidden">
@@ -85,17 +90,19 @@
 
                         {{-- Badge de Status da Negociação --}}
                         <div class="absolute top-3 left-3">
-                            @if($minhaPropostaAceita)
-                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-600 text-white text-xs font-semibold shadow-sm">
-                                    <span class="material-symbols-outlined text-sm">check_circle</span>
-                                    Proposta Aceita
+                            <span
+                                id="status-compra-{{ $negociacao->id }}"
+                                class="status-compra inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-white text-xs font-semibold shadow-sm
+                                    {{ $minhaPropostaAceita ? 'bg-emerald-600' : 'bg-amber-500' }}"
+                            >
+                                <span class="material-symbols-outlined text-sm">
+                                    {{ $minhaPropostaAceita ? 'check_circle' : 'pending' }}
                                 </span>
-                            @else
-                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500 text-white text-xs font-semibold shadow-sm">
-                                    <span class="material-symbols-outlined text-sm">pending</span>
-                                    Em Negociação
+
+                                <span class="texto-status-compra">
+                                    {{ $minhaPropostaAceita ? 'Proposta Aceita' : 'Em Negociação' }}
                                 </span>
-                            @endif
+                            </span>
                         </div>
                     </div>
 
@@ -129,15 +136,23 @@
                             </div>
                         @endif
 
-                        {{-- Botão de Acesso Direto para o Chat de Negociação --}}
-                        <a
+                            {{-- Botão de negociação --}}
+                            <a
+                            id="botao-compra-{{ $negociacao->id }}"
                             href="{{ route('negociacoes.show', $negociacao) }}"
                             class="btn-copav flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors">
-                            <span class="material-symbols-outlined text-lg">forum</span>
-                            Ver chat / negociação
-                            <span class="material-symbols-outlined text-base">arrow_forward</span>
-                        </a>
+                            <span class="material-symbols-outlined text-lg icone-botao-compra">
+                                forum
+                            </span>
 
+                            <span class="texto-botao-compra">
+                                {{ $minhaPropostaAceita ? 'Seguir para o pagamento' : 'Ver chat / negociação' }}
+                            </span>
+
+                            <span class="material-symbols-outlined text-base">
+                                arrow_forward
+                            </span>
+                        </a>
                     </div>
                 </div>
             @endforeach
@@ -166,3 +181,86 @@
 </div>
 
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (!window.Echo) {
+        console.error('Echo não foi carregado na página Minhas Compras.');
+        return;
+    }
+
+    // Cada card acompanha o canal da sua própria negociação.
+    document.querySelectorAll('[data-negociacao-id]').forEach(function (card) {
+        const negociacaoId = Number(card.dataset.negociacaoId);
+
+        window.Echo
+            .private(`negociacao.${negociacaoId}`)
+            .listen('.proposta.atualizada', function (evento) {
+                const proposta = evento.proposta;
+
+                if (
+                    !proposta ||
+                    Number(proposta.negociacao_id) !== negociacaoId
+                ) {
+                    return;
+                }
+
+                // Só precisamos alterar o card quando a proposta for aceita.
+                if (proposta.status !== 'aceita') {
+                    return;
+                }
+
+                const status = document.getElementById(
+                    `status-compra-${negociacaoId}`
+                );
+
+                const botao = document.getElementById(
+                    `botao-compra-${negociacaoId}`
+                );
+
+                if (status) {
+                    status.classList.remove('bg-amber-500');
+                    status.classList.add('bg-emerald-600');
+
+                    const icone = status.querySelector(
+                        '.material-symbols-outlined'
+                    );
+
+                    const texto = status.querySelector(
+                        '.texto-status-compra'
+                    );
+
+                    if (icone) {
+                        icone.textContent = 'check_circle';
+                    }
+
+                    if (texto) {
+                        texto.textContent = 'Proposta Aceita';
+                    }
+                }
+
+                if (botao) {
+                    const textoBotao = botao.querySelector(
+                        '.texto-botao-compra'
+                    );
+
+                    const iconeBotao = botao.querySelector(
+                        '.icone-botao-compra'
+                    );
+
+                    if (textoBotao) {
+                        textoBotao.textContent = 'Seguir para o pagamento';
+                    }
+
+                    if (iconeBotao) {
+                        iconeBotao.textContent = 'payments';
+                    }
+                }
+
+                card.dataset.status = 'aceita';
+            });
+    });
+});
+</script>
+@endpush

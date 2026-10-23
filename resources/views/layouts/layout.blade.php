@@ -79,15 +79,15 @@
           </div>
 
           {{-- Banner Oferta --}}
-          <div class="xl:flex hidden items-center gap-3 bg-amber-100 hover:bg-slate-700 border border-emerald-700 p-1.5 px-3 rounded-full shadow-md transition-all cursor-pointer group shrink-0">
+          <div class="xl:flex items-center gap-3 bg-slate-700 hover:bg-slate-600 border border-emerald-700 p-1.5 px-3 rounded-full shadow-md transition-all cursor-pointer group shrink-0">
             <span class="bg-emerald-800 group-hover:bg-amber-400 transition-colors text-white font-bold text-[10px] uppercase px-2 py-0.5 rounded-full shrink-0">
               Oferta
             </span>
             <div class="flex items-center gap-1.5 text-xs">
-              <span class="font-bold text-black group-hover:text-white transition-colors">Café Arábica</span>
-              <span class="text-black group-hover:text-white transition-colors">|</span>
-              <span class="line-through text-[11px] text-black group-hover:text-white transition-colors">R$ 9.581,22</span>
-              <span class="font-extrabold text-sm text-emerald-800 group-hover:text-emerald-500 transition-colors">R$ 8.980,87</span>
+              <span class="font-bold text-white transition-colors">Café Arábica</span>
+              <span class="text-white transition-colors">|</span>
+              <span class="line-through text-[11px] text-white transition-colors">R$ 9.581,22</span>
+              <span class="font-extrabold text-sm text-emerald-500 transition-colors">R$ 8.980,87</span>
             </div>
             <div class="ml-auto bg-emerald-600 group-hover:bg-emerald-500 text-white text-[11px] font-semibold px-2.5 py-1 rounded-full flex items-center gap-1 transition-colors shrink-0">
               <span>Ver Oferta</span>

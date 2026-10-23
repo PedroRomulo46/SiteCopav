@@ -211,7 +211,7 @@
                                 @endphp
 
                             <article
-                            class="card-oferta-fornecedor relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-2 sm:p-3 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition-colors w-full"                                data-oferta-id="{{ $oferta->id }}"
+                            class="card-oferta-fornecedor relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-2 sm:p-3 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition-colors"                                data-oferta-id="{{ $oferta->id }}"
                             data-novas-propostas="{{ $quantidadeNovas }}">
 
                                 {{-- Informações do lote --}}
@@ -294,8 +294,11 @@
                         </div>
                     @endif
 
+                    
                     {{-- Aba de demandas --}}
-                    <div x-show="abaAtiva === 'demandas'" x-cloak class="space-y-2">
+                    <div x-show="abaAtiva === 'demandas'"
+                        x-cloak
+                        class="space-y-2">
 
                         @forelse($listaDemandas->take(3) as $demanda)
                             @php
@@ -303,30 +306,34 @@
                             @endphp
 
                             <article
-                            class="flex flex-col sm:flex-row sm:items-center gap-3 p-3 rounded-xl border border-gray-100 bg-white hover:bg-gray-50 transition-colors">
+                                class="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-2 sm:p-3 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition-colors">
 
-                                <div class="flex items-start gap-3 min-w-0 flex-1 sm:mr-auto">
-                            <article class="flex flex-col sm:flex-row sm:items-center gap-3 p-3 rounded-xl border border-gray-100 bg-white hover:bg-gray-50 transition-colors">
+                                {{-- Informações da demanda: alinhadas à esquerda --}}
+                                <div class="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 sm:mr-auto">
 
-                                <div class="flex items-start gap-3 min-w-0 flex-1">
                                     <img
-                                        class="w-20 h-20 sm:w-16 sm:h-16 rounded-lg object-cover shrink-0 bg-gray-100"
-                                        src="{{ $imagemDemanda ? (str_contains($imagemDemanda, 'assets/') ? asset($imagemDemanda) : asset('storage/' . ltrim(str_replace('public/', '', $imagemDemanda), '/'))) : asset('assets/milho.png') }}"
+                                        class="w-20 h-20 sm:w-16 sm:h-16 object-cover rounded-lg shrink-0 bg-gray-100"
+                                        src="{{ $imagemDemanda
+                                            ? (str_contains($imagemDemanda, 'assets/')
+                                                ? asset($imagemDemanda)
+                                                : asset('storage/' . ltrim(str_replace('public/', '', $imagemDemanda), '/')))
+                                            : asset('assets/milho.png') }}"
                                         alt="{{ $demanda->nome_produto ?? 'Demanda' }}"
                                         onerror="this.onerror=null; this.src='{{ asset('assets/milho.png') }}';">
 
                                     <div class="min-w-0 flex-1">
-                                        <h2 class="font-extrabold text-gray-800 text-sm sm:text-base">
+
+                                        <h2 class="font-extrabold text-gray-800 text-sm sm:text-base truncate">
                                             {{ $demanda->nome_produto ?? 'Produto solicitado' }}
                                         </h2>
 
                                         @if($demanda->descricao)
-                                            <p class="text-xs text-gray-500 mt-1 line-clamp-2">
+                                            <p class="text-xs text-gray-500 mt-0.5 line-clamp-2">
                                                 {{ $demanda->descricao }}
                                             </p>
                                         @endif
 
-                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 mt-2 text-xs text-gray-500">
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 mt-1 text-xs text-gray-500">
 
                                             <p>
                                                 Quantidade:
@@ -362,19 +369,23 @@
                                                     </strong>
                                                 </p>
                                             @endif
+
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="flex items-center justify-end gap-2 sm:shrink-0">
-                                    <span class="text-[10px] font-bold uppercase rounded-full px-2 py-1 bg-emerald-50 text-emerald-700">
+                                {{-- Status e botão: à direita no desktop --}}
+                                <div class="flex items-center justify-end gap-2 w-full sm:w-auto sm:shrink-0">
+
+                                    <span class="inline-flex items-center justify-center min-w-fit px-2 h-6 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-extrabold uppercase">
                                         {{ ucfirst($demanda->status ?? 'aberta') }}
                                     </span>
 
                                     <a href="{{ route('demandas.show', $demanda->id) }}"
-                                       class="btn-copav text-white px-2 py-2 rounded-md text-xs font-bold whitespace-nowrap">
+                                    class="btn-copav text-white px-3 py-2 rounded-md font-bold text-xs whitespace-nowrap transition-colors">
                                         Enviar proposta
                                     </a>
+
                                 </div>
                             </article>
 
@@ -383,7 +394,19 @@
                                 Nenhuma demanda corporativa aberta no momento.
                             </p>
                         @endforelse
+
+                        @if($listaDemandas->count() > 3)
+                            <div class="pt-2 text-center">
+                                <a href="{{ route('demandas.index') }}"
+                                class="inline-flex items-center justify-center gap-1 text-xs font-bold bg-slate-200 hover:bg-slate-300 px-4 py-2.5 text-[#236350] rounded-lg transition-colors">
+                                    Ver todas as demandas
+                                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                                </a>
+                            </div>
+                        @endif
+
                     </div>
+
                 </div>
             </section>
 
