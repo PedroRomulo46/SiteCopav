@@ -1,6 +1,6 @@
 @extends('layouts.layout')
 
-@section('content')
+@section('conteudo')
 <div class="max-w-4xl mx-auto px-4 py-8">
 
     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
@@ -92,3 +92,95 @@
     </div>
 </div>
 @endsection
+
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const formulario = document.getElementById('form-mensagem');
+    const campo = document.getElementById('conteudo-mensagem');
+    const lista = document.getElementById('lista-mensagens');
+    const botao = formulario.querySelector('button[type="submit"]');
+
+    const urlEnvio = @json(route('chat.mensagens.store', $negociacao));
+    const usuarioId = {{ (int) auth()->id() }};
+    const token = document.querySelector('meta[name="csrf-token"]')?.content
+        || formulario.querySelector('input[name="_token"]').value;
+
+    formulario.addEventListener('submit', async (evento) => {
+        evento.preventDefault();
+
+        const conteudo = campo.value.trim();
+
+        if (!conteudo) {
+            campo.focus();
+            return;
+        }
+
+        botao.disabled = true;
+        const textoOriginal = botao.textContent;
+        botao.textContent = 'Enviando...';
+
+        try {
+            const resposta = await fetch(urlEnvio, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': token,
+                },
+                body: JSON.stringify({ conteudo }),
+            });
+
+            const dados = await resposta.json();
+
+            if (!resposta.ok) {
+                throw new Error(
+                    dados.message || 'Não foi possível enviar a mensagem.'
+                );
+            }
+
+            const mensagem = dados.mensagem;
+
+            document.getElementById('mensagens-vazias')?.remove();
+
+            const linha = document.createElement('div');
+            linha.className = 'flex justify-end';
+
+            const balao = document.createElement('div');
+            balao.className =
+                'max-w-[80%] rounded-2xl rounded-br-sm px-4 py-3 ' +
+                'bg-[#236350] text-white';
+
+            const autor = document.createElement('p');
+            autor.className = 'text-xs font-semibold mb-1 text-white/75';
+            autor.textContent = 'Você';
+
+            const texto = document.createElement('p');
+            texto.className = 'whitespace-pre-wrap break-words';
+            texto.textContent = mensagem.conteudo;
+
+            const horario = document.createElement('p');
+            horario.className = 'text-[11px] mt-2 text-right text-white/70';
+            horario.textContent = mensagem.created_at;
+
+            balao.append(autor, texto, horario);
+            linha.appendChild(balao);
+            lista.appendChild(linha);
+
+            campo.value = '';
+            lista.scrollTop = lista.scrollHeight;
+            campo.focus();
+
+        } catch (erro) {
+            alert(erro.message || 'Erro ao enviar a mensagem.');
+        } finally {
+            botao.disabled = false;
+            botao.textContent = textoOriginal;
+        }
+    });
+
+    lista.scrollTop = lista.scrollHeight;
+});
+</script>
+@endpush
