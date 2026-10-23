@@ -460,7 +460,7 @@
     {{-- Vitrine de lotes --}}
     <section class="space-y-3">
 
-        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+        <div class="flex flex-col items-start gap-3">
             <div class="w-full text-left">
                 <h2 class="text-2xl sm:text-xl font-extrabold text-gray-800">
                     Produtos que você pode se interessar...
@@ -471,7 +471,7 @@
                 </p>
             </div>
 
-            <div class="flex justify-end sm:justify-start shrink-0">
+            <div class="flex justify-start shrink-0">
                 <label class="sr-only" for="ordenar-vitrine">
                     Ordenar lotes
                 </label>

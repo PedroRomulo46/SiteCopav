@@ -51,18 +51,9 @@
     <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
 
         {{-- Cabeçalho --}}
-        <header class="mb-7">
-            <span class="inline-flex items-center gap-2 rounded-full
-                         bg-emerald-100 text-[#236350] px-4 py-2
-                         text-xs font-bold tracking-wide">
-                <span class="material-symbols-outlined text-lg">
-                    payments
-                </span>
-                ETAPA DE COMPRA
-            </span>
-
+        <header class="mb-4">
             <h1 class="text-3xl sm:text-4xl font-bold
-                       tracking-tight text-gray-900 mt-4">
+                       tracking-tight text-gray-900">
                 Pagamento
             </h1>
 
@@ -74,31 +65,19 @@
         {{-- Card do produto --}}
         <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-5 lg:p-6 mb-6">
 
-            <div class="grid lg:grid-cols-1 md:grid-cols-[220px_minmax(0,1fr)] gap-5 lg:gap-7 items-start">
+            <div class="grid lg:grid-cols-2 md:grid-cols-[220px_minmax(0,1fr)] gap-5 lg:gap-7 items-start">
 
                 {{-- Imagem do produto --}}
                 <div class="relative w-full">
                     <img
                         src="{{ $imagemProduto }}"
                         alt="{{ $produto->nome ?? 'Produto' }}"
-                        class="w-full h-48 sm:h-44 lg:h-48
-                            object-cover rounded-xl bg-gray-100"
+                        class="w-48 h-48 sm:h-44 lg:h-48 object-cover rounded-xl bg-gray-100"
                     >
-
-                    <span class="absolute top-2 left-2 inline-flex
-                                items-center gap-1 rounded-full
-                                bg-emerald-600 text-white px-2.5 py-1.5
-                                text-xs font-semibold shadow">
-                        <span class="material-symbols-outlined text-sm">
-                            check_circle
-                        </span>
-                        Proposta aceita
-                    </span>
                 </div>
 
                 {{-- Informações do produto --}}
                 <div class="min-w-0">
-
                     <p class="flex items-center gap-2 text-xs font-bold
                             uppercase tracking-wider text-[#236350] mb-2">
                         <span class="material-symbols-outlined text-lg">

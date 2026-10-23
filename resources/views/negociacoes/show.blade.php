@@ -140,42 +140,39 @@
                 <h2 class="text-xl font-bold text-gray-800">
                     Propostas
                 </h2>
-
+                
                 @php
                     $usuarioLogado = auth()->user();
 
-                    $is_DonoDaOferta = false;
-                    $is_Admin = false;
-                    $is_FornecedorDaOferta = false;
+                    $is_ClienteDaNegociacao = $usuarioLogado
+                        && (int) $negociacao->cliente_id === (int) $usuarioLogado->id;
 
-                    if ($usuarioLogado) {
-                        $is_DonoDaOferta = $usuarioLogado->id === ($negociacao->oferta->user_id ?? $negociacao->oferta->fornecedor->user_id ?? null);
-                        $is_Admin = ($usuarioLogado->is_admin ?? false) || ($usuarioLogado->user_type === 'admin');
-                        $is_FornecedorDaOferta = $usuarioLogado->fornecedor && ($usuarioLogado->fornecedor->id === $negociacao->oferta->fornecedor_id);
-                    }
+                    $is_FornecedorDaOferta = $usuarioLogado
+                        && $usuarioLogado->fornecedor !== null
+                        && (int) $usuarioLogado->fornecedor->id
+                            === (int) $negociacao->oferta->fornecedor_id;
+
+                    $is_Admin = $usuarioLogado
+                        && $usuarioLogado->user_type === 'admin';
+
+                    // O dono comercial da oferta é o fornecedor relacionado a ela.
+                    $is_DonoDaOferta = $is_FornecedorDaOferta;
                 @endphp
 
-                {{-- Exibe o botão ou a mensagem informativa igual ao código de exemplo --}}
                 @auth
-                    @if(!$is_DonoDaOferta && !$is_Admin && !$is_FornecedorDaOferta)
+                    @if($is_ClienteDaNegociacao && !$is_FornecedorDaOferta)
                         <a
                             href="{{ route('propostas.create', $negociacao) }}"
-                            class="inline-flex items-center gap-1 btn-copav text-white text-sm px-4 py-2 rounded-md transition-colors shadow-sm">
+                            class="inline-flex items-center gap-1 btn-copav text-white text-sm px-4 py-2 rounded-md transition-colors shadow-sm"
+                        >
                             <span class="material-symbols-outlined text-base">add</span>
                             Fazer proposta
                         </a>
-                    @else
+                    @elseif($is_FornecedorDaOferta)
                         <div class="text-xs text-center text-gray-500 py-2 px-4 bg-gray-100 rounded-lg">
                             Esta oferta pertence a você.
                         </div>
                     @endif
-                @else
-                    <a
-                        href="{{ route('login') }}"
-                        class="inline-flex items-center gap-1 btn-copav text-white text-sm px-4 py-2 rounded-md transition-colors shadow-sm">
-                        <span class="material-symbols-outlined text-base">login</span>
-                        Entrar para negociar
-                    </a>
                 @endauth
             </div>
 
@@ -235,11 +232,19 @@
                             @php
                                 $statusPendente = strtolower($proposta->status ?? 'pendente') === 'pendente';
 
-                                $ehGerenciadorDoProduto = (auth()->id() === ($negociacao->oferta->user_id ?? $negociacao->oferta->fornecedor->user_id ?? null)) ||
-                                                        in_array(auth()->user()->user_type ?? '', ['admin', 'empresa']);
+                                $usuarioLogado = auth()->user();
+
+                                $is_GerenciadorDoProduto = $usuarioLogado && (
+                                    $usuarioLogado->user_type === 'admin'
+                                    || (
+                                        $usuarioLogado->fornecedor !== null
+                                        && (int) $usuarioLogado->fornecedor->id ===
+                                        (int) $negociacao->oferta->fornecedor_id
+                                    )
+                                );
 
                                 // 2. Verifica se o usuário logado é o CLIENTE que fez esta proposta
-                                $ehAutorDaProposta = (int) auth()->id() === (int) $proposta->usuario_id;
+                                $is_AutorDaProposta = (int) auth()->id() === (int) $proposta->usuario_id;
                             @endphp
 
                            @if($statusPendente)
@@ -249,7 +254,7 @@
                                 >
 
                                     {{-- Se for o cliente que fez a proposta: Mostra 'Cancelar Proposta' --}}
-                                    @if($ehAutorDaProposta && !$ehGerenciadorDoProduto)
+                                    @if($is_AutorDaProposta && !$is_GerenciadorDoProduto)
 
                                         {{-- Se for o cliente: Cancelar proposta --}}
                                         <form action="{{ route('propostas.cancelar', $proposta->id) }}" method="POST">
@@ -264,7 +269,7 @@
                                         </form>
 
                                         {{-- Se for o fornecedor: Recusar e aceitar --}}
-                                        @elseif($ehGerenciadorDoProduto)
+                                        @elseif($is_GerenciadorDoProduto)
 
                                             {{-- Formulário Recusar --}}
                                             <form action="{{ route('propostas.recusar', $proposta->id) }}" method="POST">

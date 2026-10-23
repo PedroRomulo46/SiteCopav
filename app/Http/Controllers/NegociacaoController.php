@@ -75,13 +75,13 @@ class NegociacaoController extends Controller
     $usuario = auth()->user();
 
     // Somente administradores, empresa ou fornecedores.
-    $ehAdmin = $usuario->user_type === 'admin'
+    $is_Admin = $usuario->user_type === 'admin'
         || $usuario->is_admin
         || $usuario->email === 'copavagricola@example.com';
 
-    $ehEmpresa = $usuario->user_type === 'empresa';
+    $is_Empresa = $usuario->user_type === 'empresa';
 
-    if (!$ehAdmin && !$ehEmpresa && !$usuario->fornecedor) {
+    if (!$is_Admin && !$is_Empresa && !$usuario->fornecedor) {
         abort(403);
     }
 
@@ -89,7 +89,7 @@ class NegociacaoController extends Controller
 
     // Fornecedores veem apenas negociações dos próprios lotes.
     // Administradores e empresa veem todas as negociações.
-    if (!$ehAdmin && !$ehEmpresa) {
+    if (!$is_Admin && !$is_Empresa) {
         $fornecedor = $usuario->fornecedor;
 
         $consulta->whereHas('oferta', function ($query) use ($fornecedor) {
@@ -287,10 +287,16 @@ class NegociacaoController extends Controller
 
     // Impede o fornecedor dono do lote de negociar a própria oferta
     if (
-        ($usuario->fornecedor && $oferta->fornecedor_id === $usuario->fornecedor->id) ||
-        ($usuario->id === $oferta->user_id)
+    $usuario->user_type !== 'admin'
+    && $usuario->user_type !== 'empresa'
+    && $usuario->fornecedor !== null
+    && (int) $oferta->fornecedor_id ===
+       (int) $usuario->fornecedor->id
     ) {
-        return back()->with('error', 'Você não pode negociar sua própria oferta.');
+    return back()->with(
+        'error',
+        'Você não pode negociar sua própria oferta.'
+    );
     }
 
     // Verifica se já existe uma negociação em aberto para este usuário e oferta
