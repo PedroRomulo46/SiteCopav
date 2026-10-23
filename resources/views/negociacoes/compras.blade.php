@@ -144,27 +144,28 @@
                             </div>
                         @endif
 
-                        <a
-                            id="botao-compra-{{ $negociacao->id }}"
-                            href="{{ $minhaPropostaAceita
-                                ? route('pagamentos.show', $negociacao)
-                                : route('negociacoes.show', $negociacao) }}"
-                            class="btn-copav flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors"
-                        >
-                            <span class="material-symbols-outlined text-lg icone-botao-compra">
-                                {{ $minhaPropostaAceita ? 'payments' : 'forum' }}
-                            </span>
+                        {{-- Botão de negociação --}}
+                        <div>
+                            <a
+                                id="botao-compra-{{ $negociacao->id }}"
+                                href="{{ $minhaPropostaAceita ? route('pagamentos.show', $negociacao) : route('negociacoes.show', $negociacao) }}"
+                                class="btn-copav flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors"
+                            >
+                                <span class="material-symbols-outlined text-lg icone-botao-compra">
+                                    {{ $minhaPropostaAceita ? 'payments' : 'library_books' }}
+                                </span>
 
-                            <span class="texto-botao-compra">
-                                {{ $minhaPropostaAceita
-                                    ? 'Seguir para o pagamento'
-                                    : 'Ver chat / negociação' }}
-                            </span>
+                                <span class="texto-botao-compra">
+                                    {{ $minhaPropostaAceita
+                                        ? 'Seguir para o pagamento'
+                                        : 'Ver Negociação' }}
+                                </span>
 
-                            <span class="material-symbols-outlined text-base">
-                                 arrow_forward
-                            </span>
-                        </a>
+                                <span class="material-symbols-outlined text-base">
+                                    arrow_forward
+                                </span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             @endforeach

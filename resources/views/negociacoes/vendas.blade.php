@@ -67,10 +67,6 @@
                             </strong>
                         </p>
 
-                        <p class="text-sm text-gray-500 mt-1">
-                            Lote: #{{ $oferta->id ?? '—' }}
-                        </p>
-
                         <div class="mt-4 mb-5 rounded-xl bg-gray-50 border border-gray-100 p-4">
                             <p class="text-xs uppercase tracking-wide text-gray-400 font-semibold">
                                 Última proposta
@@ -82,11 +78,13 @@
                                 </p>
                                 <p class="text-sm text-gray-500 mt-1">
                                     Quantidade:
-                                    {{ number_format($ultimaProposta->quantidade ?? 0, 0, ',', '.') }}
-                                    {{ $oferta->unidade ?? '' }}
+                                    <strong>
+                                        {{ number_format($ultimaProposta->quantidade ?? 0, 0, ',', '.') }}
+                                        {{ $oferta->unidade ?? '' }}
+                                    </strong>
                                 </p>
                                 <p class="text-sm text-gray-500 mt-1">
-                                    Situação: {{ ucfirst(str_replace('_', ' ', $ultimaProposta->status)) }}
+                                    Situação: <strong> {{ ucfirst(str_replace('_', ' ', $ultimaProposta->status)) }} </strong>
                                 </p>
                             @else
                                 <p class="text-sm text-gray-500 mt-2">
@@ -95,13 +93,16 @@
                             @endif
                         </div>
 
-                        <a
-                            href="{{ route('negociacoes.show', $negociacao) }}"
-                            class="btn-copav w-full rounded-lg px-4 py-3 gap-2 text-sm font-semibold mt-auto"
-                        >
-                            <span class="material-symbols-outlined">forum</span>
-                            Ver chat / negociação
-                        </a>
+                        {{-- Botão de negociação --}}
+                        <div>
+                            <a
+                                href="{{ route('negociacoes.show', $negociacao) }}"
+                                class="btn-copav w-full rounded-lg px-4 py-3 gap-2 text-sm font-semibold"
+                            >
+                                <span class="material-symbols-outlined">library_books</span>
+                                Ver Negociação
+                            </a>
+                        </div>
                     </div>
                 </article>
             @endforeach
