@@ -5,7 +5,7 @@
 @section('conteudo')
 
 {{-- Breadcrumbs com setas garantidas via ícone --}}
-<nav class="flex items-center text-sm mb-6 text-gray-600" aria-label="Breadcrumb">
+<nav class="flex items-center text-sm mb-4 text-gray-600" aria-label="Breadcrumb">
     <ol class="inline-flex items-center space-x-2">
 
         {{-- Item 1: Início --}}

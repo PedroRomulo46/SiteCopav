@@ -4,7 +4,7 @@
 @section('conteudo')
 
 {{-- Breadcrumbs com setas garantidas via ícone --}}
-<nav class="flex items-center text-sm mb-6 text-gray-600" aria-label="Breadcrumb">
+<nav class="flex items-center text-sm mb-4 text-gray-600" aria-label="Breadcrumb">
     <ol class="inline-flex items-center space-x-2">
 
         {{-- Item 1: Início --}}
@@ -24,17 +24,19 @@
     </ol>
 </nav>
 
-<div class="w-full max-w-7xl mx-auto px-2 sm:px-4 text-left">
-
+<div class="w-full max-w-7xl mx-auto px-6 py-6 sm:px-4 text-left">
     {{-- Cabeçalho da Página --}}
-    <div class="flex flex-row items-center justify-between gap-4 mb-6 border-b border-gray-200 pb-4">
+    <div class="flex flex-row items-center justify-between gap-4 pb-2">
         <div class="text-left">
+            <p class="text-sm font-semibold text-[#236350] mb-1">
+                Painel de Demandas
+            </p>
             <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 flex items-center gap-2">
                 <span class="material-symbols-outlined text-[#1B4D3E] text-3xl">assignment</span>
                 Demandas
             </h1>
             <p class="text-sm text-gray-500 mt-1">
-                Acompanhe e gerencie as solicitações de compra dos clientes
+                Acompanhe e gerencie as solicitações das demandas da empresa
             </p>
         </div>
     </div>
@@ -122,7 +124,6 @@
                             Ver demanda
                         </a>
                     </div>
-
                 </div>
             @endforeach
         </div>

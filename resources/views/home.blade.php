@@ -78,15 +78,11 @@
                 <div class="flex flex-row md:flex-row md:items-center justify-between gap-4 mb-4 pb-4 border-b border-emerald-800">
                     <div>
                         @if($is_Fornecedor)
-                            <span class="text-xs font-bold uppercase tracking-wider text-emerald-50">
-                                Painel do fornecedor
-                            </span>
-
-                            <h1 class="text-xl sm:text-2xl font-extrabold mt-1">
+                            <h1 class="text-lg sm:text-2xl font-extrabold mt-1">
                                 Gestão dos seus lotes
                             </h1>
 
-                            <p class="text-md sm:text-sm text-emerald-50 mt-1">
+                            <p class="text-sm text-emerald-50 mt-1">
                                 Gerencie suas ofertas, acompanhe propostas e encontre oportunidades.
                             </p>
 
@@ -137,7 +133,7 @@
                             </a>
 
                             <a href="{{ route('produtos.index') }}"
-                               class="bg-white/10 hover:bg-white/20 text-white text-sm px-4 py-2.5 rounded-lg font-bold flex items-center justify-center gap-1.5 transition-colors">
+                               class="btn-copav text-white text-sm px-4 py-2.5 rounded-lg font-bold flex items-center justify-center gap-1.5 transition-colors">
                                 <span class="material-symbols-outlined text-lg">inventory_2</span>
                                 Meus Produtos
                             </a>
@@ -153,10 +149,7 @@
                          class="flex flex-wrap items-center gap-4 sm:gap-6 border-b border-gray-200 pb-3 mb-3 text-sm font-bold">
 
                         @if($is_Fornecedor || $is_Admin || $is_Empresa)
-                            <button type="button"
-                                role="tab"
-                                @click="abaAtiva = 'lotes'"
-                                :aria-selected="abaAtiva === 'lotes'"
+                            <button type="button" role="tab" @click="abaAtiva = 'lotes'" :aria-selected="abaAtiva === 'lotes'"
                                 :class="abaAtiva === 'lotes' ? 'text-[#236350] border-b-2 border-[#236350]' : 'text-gray-400 hover:text-gray-600'"
                                 class="relative pb-2 transition-colors">
 
@@ -225,7 +218,7 @@
 
                                     <div class="min-w-0 flex-1">
                                         <h2 class="font-extrabold text-gray-800 text-sm sm:text-base truncate">
-                                            {{ $oferta->id }} - {{ $oferta->produto->nome ?? 'Produto sem nome' }}
+                                            - {{ $oferta->produto->nome ?? 'Produto sem nome' }}
                                         </h2>
 
                                         <p class="text-xs text-gray-700 mt-0.5">
@@ -411,13 +404,13 @@
             </section>
 
         @elseif($is_Cliente)
-            <section class="bg-[#123228] text-white p-4 sm:p-5 rounded-2xl shadow-md flex flex-col sm:flex-row items-center justify-between gap-3">
+            <section class="bg-[#123228] text-white p-4 sm:p-5 rounded-2xl shadow-md flex flex-row sm:flex-row items-center justify-between gap-3">
                 <div>
                     <h2 class="font-bold text-base">
                         Quer vender no marketplace?
                     </h2>
 
-                    <p class="text-sm text-emerald-50 mt-1">
+                    <p class="text-sm mt-1">
                         Torne-se um fornecedor para cadastrar lotes e gerenciar seus produtos.
                     </p>
                 </div>
@@ -515,10 +508,6 @@
                                 alt="{{ $nomeVitrine }}"
                                 loading="lazy"
                                 onerror="this.onerror=null; this.src='{{ asset('assets/milho.png') }}';">
-
-                            <span class="absolute top-2 left-2 bg-white/95 text-[#236350] text-[10px] font-extrabold px-2 py-1 rounded-full shadow-sm">
-                                Lote {{ $item->id }}
-                            </span>
                         </div>
 
                         <div class="p-2.5 sm:p-3 flex flex-col flex-1 justify-between gap-2">
@@ -543,13 +532,6 @@
                                 <span class="text-sm sm:text-base font-extrabold text-[#1B4D3E] block mt-0.5">
                                     R$ {{ number_format($valorVitrine, 2, ',', '.') }}
                                 </span>
-
-
-                                @if($descricaoVitrine)
-                                    <p class="text-[11px] text-gray-400 line-clamp-2 mt-1">
-                                        {{ $descricaoVitrine }}
-                                    </p>
-                                @endif
                             </div>
 
                             <div class="pt-2 border-t border-gray-100">

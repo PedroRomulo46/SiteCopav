@@ -5,7 +5,7 @@
 @section('conteudo')
 
 {{-- Breadcrumbs com setas garantidas via ícone --}}
-<nav class="flex items-center text-sm mb-6 text-gray-600" aria-label="Breadcrumb">
+<nav class="flex items-center text-sm mb-4 text-gray-600" aria-label="Breadcrumb">
     <ol class="inline-flex items-center space-x-2">
 
         {{-- Item 1: Início --}}
@@ -15,7 +15,7 @@
             </a>
         </li>
 
-        {{-- Item 2: Pégina Atual --}}
+        {{-- Item 2: Página Atual --}}
         <li class="flex items-center space-x-2 hover:cursor-pointer">
             <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
             <span class="font-semibold text-gray-800">
@@ -25,15 +25,15 @@
     </ol>
 </nav>
 
-<div class="w-full max-w-7xl mx-auto my-6 px-4 flex flex-col items-start text-left">
+<div class="w-full max-w-7xl mx-auto px-6 py-6 flex flex-col items-start text-left">
 
     {{-- Cabeçalho --}}
     <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8 w-full text-left">
         <div class="text-left w-full">
-            <p class="text-sm font-medium text-[#236350] mb-1 text-left">
-                Painel do Comprador
+            <p class="text-sm font-semibold text-[#236350] mb-1 text-left">
+                Painel de Compra
             </p>
-            <h1 class="text-3xl font-bold text-gray-800 text-left">
+            <h1 class="text-2xl font-bold text-gray-800 text-left">
                 Minhas Compras
             </h1>
             <p class="text-gray-500 mt-1 text-left">
