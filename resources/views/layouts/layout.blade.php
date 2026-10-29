@@ -413,11 +413,104 @@
     </header>
 
     <!-- Conteúdo Principal -->
+
     <main class="flex-1 w-full px-4 sm:px-6 lg:px-10 py-6">
       @yield('conteudo')
     </main>
 
+    {{-- Chat flutuante global do COPAV --}}
+    @auth
+        <div id="copav-chat-global"
+            class="fixed bottom-5 right-5 z-[100]"
+            x-data="{ chatAberto: false }">
+
+            {{-- Botão flutuante --}}
+            <button
+                id="copav-chat-toggle"
+                type="button"
+                @click="chatAberto = !chatAberto"
+                :aria-expanded="chatAberto.toString()"
+                aria-label="Abrir mensagens"
+                class="relative flex h-14 w-14 items-center justify-center
+                      rounded-full bg-[#236350] text-white shadow-xl
+                      transition hover:scale-105 hover:bg-[#1B4D3E]
+                      focus:outline-none focus:ring-4 focus:ring-[#236350]/30"
+            >
+                <span class="material-symbols-outlined text-3xl"
+                      x-text="chatAberto ? 'close' : 'chat'">chat</span>
+
+                {{-- Contador de mensagens não lidas: ativaremos depois --}}
+                <span id="copav-chat-contador"
+                      class="absolute -right-1 -top-1 hidden min-w-5 h-5
+                            items-center justify-center rounded-full
+                            border-2 border-white bg-red-500 px-1
+                            text-[10px] font-bold leading-none text-white">
+                    0
+                </span>
+            </button>
+
+            {{-- Janela flutuante --}}
+            <section
+                x-cloak
+                x-show="chatAberto"
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0 translate-y-3 scale-95"
+                x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                x-transition:leave-end="opacity-0 translate-y-3 scale-95"
+                class="absolute bottom-16 right-0 flex h-[min(520px,75vh)]
+                      w-[min(360px,calc(100vw-2rem))] flex-col overflow-hidden
+                      rounded-2xl border border-gray-200 bg-white shadow-2xl"
+                aria-label="Janela de mensagens"
+            >
+                {{-- Cabeçalho --}}
+                <div class="flex items-center justify-between
+                            bg-[#1B4D3E] px-4 py-4 text-white">
+                    <div>
+                        <h2 class="font-semibold">Mensagens</h2>
+                        <p class="text-xs text-white/75">
+                            Suas conversas no COPAV
+                        </p>
+                    </div>
+
+                    <a href="{{ route('chat') }}"
+                      class="rounded-lg px-2 py-1 text-sm
+                              text-white/90 transition hover:bg-white/10">
+                        Ver todas
+                    </a>
+                </div>
+
+                {{-- Conteúdo temporário --}}
+                <div class="flex flex-1 flex-col items-center justify-center
+                            px-6 py-8 text-center">
+                    <span class="material-symbols-outlined mb-3
+                                text-5xl text-[#236350]/50">
+                        forum
+                    </span>
+
+                    <p class="font-medium text-gray-700">
+                        Suas conversas aparecerão aqui
+                    </p>
+
+                    <p class="mt-2 text-sm text-gray-500">
+                        Em breve você poderá abrir uma conversa e responder
+                        sem sair da página.
+                    </p>
+
+                    <a href="{{ route('chat') }}"
+                      class="mt-5 rounded-xl bg-[#236350] px-4 py-2
+                              text-sm font-medium text-white transition
+                              hover:bg-[#1B4D3E]">
+                        Acessar conversas
+                    </a>
+                </div>
+            </section>
+        </div>
+    @endauth
+
     @stack('scripts')
+
 
   </body>
 </html>

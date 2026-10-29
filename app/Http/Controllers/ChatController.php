@@ -7,6 +7,7 @@ use App\Models\Negociacao;
 use App\Models\Mensagem;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use App\Events\MensagemEnviada;
 
 class ChatController extends Controller
 {
@@ -155,6 +156,8 @@ class ChatController extends Controller
             return $mensagem;
         });
 
+        broadcast(new MensagemEnviada($mensagem))->toOthers();
+        
         return response()->json([
             'success' => true,
             'mensagem' => [
