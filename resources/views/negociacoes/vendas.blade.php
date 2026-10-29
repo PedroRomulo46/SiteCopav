@@ -1,22 +1,37 @@
-
 @extends('layouts.layout')
 
 @section('title', 'Minhas Vendas')
 
 @section('conteudo')
-<nav class="text-sm text-gray-500 mb-5">
-    <a href="{{ route('home') }}" class="hover:text-green-800">Início</a>
-    <span class="mx-2">›</span>
-    <span class="font-semibold text-gray-800">Minhas Vendas</span>
+
+{{-- Breadcrumbs com setas garantidas via ícone --}}
+<nav class="flex items-center text-sm mb-4 text-gray-600" aria-label="Breadcrumb">
+    <ol class="inline-flex items-center space-x-2">
+
+        {{-- Item 1: Início --}}
+        <li>
+            <a href="{{route('home')}}">
+                Início
+            </a>
+        </li>
+
+        {{-- Item 2: Página Atual --}}
+        <li class="flex items-center space-x-2 hover:cursor-pointer">
+            <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
+            <span class="font-semibold text-gray-800">
+                @yield('title')
+            </span>
+        </li>
+    </ol>
 </nav>
 
-<div class="w-full max-w-7xl mx-auto px-4 py-6">
+<div class="w-full max-w-7xl mx-auto px-6 py-6">
 
     <div class="mb-8">
         <p class="text-sm font-semibold text-[#236350] mb-1">
-            Painel do Vendedor
+            Painel de venda
         </p>
-        <h1 class="text-3xl font-bold text-gray-800">
+        <h1 class="text-2xl font-bold text-gray-800">
             Minhas Vendas
         </h1>
         <p class="text-gray-500 mt-2">

@@ -129,9 +129,8 @@
                 Cancelar
             </a>
             
-            <button type="submit" class="btn-copav !px-4 !py-2 rounded-lg font-semibold text-sm shadow-md hover:opacity-90 transition-all cursor-pointer border-0 flex items-center gap-2">
-                <span class="material-symbols-outlined">globe_location_pin</span>
-                Se Cadastrar
+            <button type="submit" class="btn-copav px-4 py-2 rounded-lg font-medium text-sm shadow-md transition-all cursor-pointer border-0 flex items-center gap-2">
+                Cadastrar
             </button>
         </div>
     </form>
