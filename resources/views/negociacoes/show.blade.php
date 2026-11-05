@@ -4,6 +4,82 @@
 
 @section('conteudo')
 
+{{-- Declaração de variáveis --}}
+@php
+    $usuarioLogado = auth()->user();
+
+    // Identificação dos perfis
+    $is_Admin = $usuarioLogado
+        && (
+            $usuarioLogado->user_type === 'admin'
+            || (bool) $usuarioLogado->is_admin
+        );
+
+    $is_Empresa = $usuarioLogado
+        && $usuarioLogado->user_type === 'empresa';
+
+    // Verifica se é o cliente da negociação
+    $is_ClienteDaNegociacao = $usuarioLogado
+        && (int) $negociacao->cliente_id === (int) $usuarioLogado->id;
+
+    // Verifica se é o fornecedor responsável pela oferta
+    $fornecedorDoUsuario = $usuarioLogado?->fornecedor;
+
+    $is_DonoFornecedor = $fornecedorDoUsuario
+        && (int) $negociacao->oferta->fornecedor_id
+            === (int) $fornecedorDoUsuario->id;
+
+    // Verifica se a própria empresa é responsável pela oferta
+    // Caso ela tenha um cadastro de fornecedor vinculado.
+    $is_DonoEmpresa = $is_Empresa
+        && $fornecedorDoUsuario
+        && (int) $negociacao->oferta->fornecedor_id
+            === (int) $fornecedorDoUsuario->id;
+
+    // Proprietário da oferta
+    $is_DonoDaOferta = $is_DonoFornecedor || $is_DonoEmpresa;
+
+    // Quem pode gerenciar propostas
+    $podeGerenciarPropostas = $is_DonoDaOferta;
+
+    // Quem pode criar propostas
+    // A empresa também pode comprar de fornecedores.
+    $podeCriarProposta = $is_ClienteDaNegociacao
+        && !$is_DonoDaOferta;
+@endphp
+
+
+{{-- Container com informações do usuário --}}
+@if(auth()->check())
+    <div class="bg-yellow-100 text-black p-4 rounded-lg mb-4">
+        <p>Usuário: {{ auth()->user()->nome }}</p>
+
+        <p>Tipo: {{ auth()->user()->user_type }}</p>
+
+        <p>É administrador: {{ auth()->user()->is_admin ? 'Sim' : 'Não' }}</p>
+
+        <p>
+            ID do fornecedor:
+            {{ auth()->user()->fornecedor?->id ?? 'Não encontrado' }}
+        </p>
+
+        <p>
+            ID do fornecedor da oferta:
+            {{ $negociacao->oferta->fornecedor_id }}
+        </p>
+
+        <p>
+            É dono da oferta:
+            {{ $is_DonoDaOferta ? 'Sim' : 'Não' }}
+        </p>
+
+        <p>
+            Pode gerenciar:
+            {{ $podeGerenciarPropostas ? 'Sim' : 'Não' }}
+        </p>
+    </div>
+@endif
+
 {{-- Breadcrumbs com setas garantidas via ícone --}}
 <nav class="flex items-center text-sm mb-6 text-gray-600" aria-label="Breadcrumb">
     <ol class="inline-flex items-center space-x-2">
@@ -15,15 +91,10 @@
             </a>
         </li>
 
-        @php
-            $usuario = auth()->user();
-            $is_Cliente = $usuario && $negociacao->cliente_id === $usuario->id;
-        @endphp
-
         {{-- Item 2: Compras ou Vendas --}}
         <li class="flex items-center space-x-2 hover:cursor-pointer">
             <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
-            @if($is_Cliente)
+            @if($is_ClienteDaNegociacao)
                 <a href="{{ route('negociacoes.compras') }}" class="hover:text-[#236350] transition-colors">
                     Minhas Compras
                 </a>
@@ -49,7 +120,7 @@
         <div
             id="negociacao-realtime"
             data-negociacao-id="{{ $negociacao->id }}"
-            data-pode-gerenciar="{{ auth()->user()->user_type === 'admin' || (auth()->user()->fornecedor && $negociacao->oferta->fornecedor && auth()->user()->fornecedor->id === $negociacao->oferta->fornecedor->id) ? '1' : '0' }}"
+            data-pode-gerenciar="{{ $podeGerenciarPropostas ? '1' : '0' }}"
             data-unidade="{{ $negociacao->oferta->unidade }}"
             data-csrf="{{ csrf_token() }}"
             data-url-aceitar="{{ route('propostas.aceitar', ['proposta' => '__ID__']) }}"
@@ -140,27 +211,16 @@
                 <h2 class="text-xl font-bold text-gray-800">
                     Propostas
                 </h2>
-                
-                @php
-                    $usuarioLogado = auth()->user();
-
-                    $is_ClienteDaNegociacao = $usuarioLogado
-                        && (int) $negociacao->cliente_id === (int) $usuarioLogado->id;
-
-                    $is_FornecedorDaOferta = $usuarioLogado
-                        && $usuarioLogado->fornecedor !== null
-                        && (int) $usuarioLogado->fornecedor->id
-                            === (int) $negociacao->oferta->fornecedor_id;
-
-                    $is_Admin = $usuarioLogado
-                        && $usuarioLogado->user_type === 'admin';
-
-                    // O dono comercial da oferta é o fornecedor relacionado a ela.
-                    $is_DonoDaOferta = $is_FornecedorDaOferta;
-                @endphp
 
                 @auth
-                    @if($is_ClienteDaNegociacao && !$is_FornecedorDaOferta)
+                    @if($podeGerenciarPropostas)
+
+                        <div class="text-xs text-center text-gray-500 py-2 px-4 bg-gray-100 rounded-lg">
+                            Esta oferta pertence a você.
+                        </div>
+
+                    @elseif($podeCriarProposta)
+
                         <a
                             href="{{ route('propostas.create', $negociacao) }}"
                             class="inline-flex items-center gap-1 btn-copav text-white text-sm px-4 py-2 rounded-md transition-colors shadow-sm"
@@ -168,10 +228,7 @@
                             <span class="material-symbols-outlined text-base">add</span>
                             Fazer proposta
                         </a>
-                    @elseif($is_FornecedorDaOferta)
-                        <div class="text-xs text-center text-gray-500 py-2 px-4 bg-gray-100 rounded-lg">
-                            Esta oferta pertence a você.
-                        </div>
+
                     @endif
                 @endauth
             </div>
@@ -232,19 +289,12 @@
                             @php
                                 $statusPendente = strtolower($proposta->status ?? 'pendente') === 'pendente';
 
-                                $usuarioLogado = auth()->user();
+                                // Verifica quem criou a proposta
+                                $is_AutorDaProposta = $usuarioLogado
+                                    && (int) $usuarioLogado->id === (int) $proposta->usuario_id;
 
-                                $is_GerenciadorDoProduto = $usuarioLogado && (
-                                    $usuarioLogado->user_type === 'admin'
-                                    || (
-                                        $usuarioLogado->fornecedor !== null
-                                        && (int) $usuarioLogado->fornecedor->id ===
-                                        (int) $negociacao->oferta->fornecedor_id
-                                    )
-                                );
-
-                                // 2. Verifica se o usuário logado é o CLIENTE que fez esta proposta
-                                $is_AutorDaProposta = (int) auth()->id() === (int) $proposta->usuario_id;
+                                // Verifica quem pode gerenciar a proposta
+                                $is_GerenciadorDoProduto = $podeGerenciarPropostas;
                             @endphp
 
                            @if($statusPendente)

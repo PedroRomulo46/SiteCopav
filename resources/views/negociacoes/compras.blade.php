@@ -184,6 +184,7 @@
             <p class="text-sm text-gray-500 mt-1">
                 Você ainda não enviou propostas para ofertas. Explore os lotes disponíveis para iniciar uma negociação!
             </p>
+            {{-- Trocar rota depois --}}
             <a href="{{ route('ofertas.index') }}" class="btn-copav inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold mt-4 text-sm">
                 Explorar Lotes
             </a>
@@ -203,7 +204,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
 
-    // Cada card acompanha o canal da sua própria negociação.
+    // Cada card acompanha o canal da sua própria negociação
     document.querySelectorAll('[data-negociacao-id]').forEach(function (card) {
         const negociacaoId = Number(card.dataset.negociacaoId);
 
@@ -219,7 +220,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     return;
                 }
 
-                // Só precisamos alterar o card quando a proposta for aceita.
+                // Só precisamos alterar o card quando a proposta for aceita
                 if (proposta.status !== 'aceita') {
                     return;
                 }

@@ -16,6 +16,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_admin' => 'boolean',
         ];
     }
 
@@ -27,9 +28,10 @@ class User extends Authenticatable
         'imagem',
     ];
 
-        public function fornecedor()
+    // Relacionamento com fornecedor, inclusive para empresas.
+    public function fornecedor()
     {
-        return $this->hasOne(Fornecedor::class);
+        return $this->hasOne(Fornecedor::class, 'user_id', 'id');
     }
 
     public function demandas()
