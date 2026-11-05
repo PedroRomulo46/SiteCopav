@@ -30,6 +30,14 @@ class PropostaController extends Controller
             abort(403);
         }
 
+        // Administrador não pode fazer propostas
+        if (
+            $usuario->user_type === 'admin' ||
+            $usuario->is_admin
+        ) {
+            abort(403);
+        }
+
         return view('propostas.create', compact('negociacao'));
     }
 
@@ -49,6 +57,14 @@ class PropostaController extends Controller
         ])->findOrFail($dados['negociacao_id']);
 
         $usuario = $request->user();
+
+        // Administrador não pode enviar propostas
+        if (
+            $usuario->user_type === 'admin' ||
+            $usuario->is_admin
+        ) {
+            abort(403);
+        }
 
         // Dono da oferta não pode fazer proposta
         if (
