@@ -18,36 +18,32 @@
     $is_Empresa = $usuarioLogado
         && $usuarioLogado->user_type === 'empresa';
 
-    // Verifica se é o cliente da negociação
+    // Verifica se o usuário é o cliente da negociação
     $is_ClienteDaNegociacao = $usuarioLogado
         && (int) $negociacao->cliente_id === (int) $usuarioLogado->id;
 
-    // Verifica se é o fornecedor responsável pela oferta
+    // Recupera o cadastro de fornecedor vinculado ao usuário.
+    // A empresa também pode possuir esse cadastro.
     $fornecedorDoUsuario = $usuarioLogado?->fornecedor;
 
-    $is_DonoFornecedor = $fornecedorDoUsuario
-        && (int) $negociacao->oferta->fornecedor_id
-            === (int) $fornecedorDoUsuario->id;
-
-    // Verifica se a própria empresa é responsável pela oferta
-    // Caso ela tenha um cadastro de fornecedor vinculado.
-    $is_DonoEmpresa = $is_Empresa
+    // Verifica se a oferta pertence ao usuário.
+    $is_DonoDaOferta = $usuarioLogado
         && $fornecedorDoUsuario
         && (int) $negociacao->oferta->fornecedor_id
             === (int) $fornecedorDoUsuario->id;
 
-    // Proprietário da oferta
-    $is_DonoDaOferta = $is_DonoFornecedor || $is_DonoEmpresa;
+    // Permissões para gerenciar propostas.
+    // O proprietário sempre pode gerenciar sua oferta.
+    // O administrador pode gerenciar outras negociações,
+    // desde que não esteja participando como cliente.
+    $podeGerenciarPropostas = $is_DonoDaOferta
+        || ($is_Admin && !$is_ClienteDaNegociacao);
 
-    // Quem pode gerenciar propostas
-    $podeGerenciarPropostas = $is_DonoDaOferta;
-
-    // Quem pode criar propostas
-    // A empresa também pode comprar de fornecedores.
+    // Permissões para comprar.
+    // A empresa e o administrador também podem comprar.
     $podeCriarProposta = $is_ClienteDaNegociacao
         && !$is_DonoDaOferta;
 @endphp
-
 
 {{-- Container com informações do usuário --}}
 @if(auth()->check())
@@ -216,7 +212,11 @@
                     @if($podeGerenciarPropostas)
 
                         <div class="text-xs text-center text-gray-500 py-2 px-4 bg-gray-100 rounded-lg">
-                            Esta oferta pertence a você.
+                            @if($is_DonoDaOferta)
+                                Esta oferta pertence a você.
+                            @else
+                                Acesso Administrativo.
+                            @endif
                         </div>
 
                     @elseif($podeCriarProposta)
@@ -230,6 +230,7 @@
                         </a>
 
                     @endif
+
                 @endauth
             </div>
 
