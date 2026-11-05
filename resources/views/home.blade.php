@@ -623,12 +623,10 @@
                 canal.listen('.proposta.criada', (event) => {
                     const proposta = event.proposta;
 
-                    if (!proposta || !proposta.negociacao) return;
+                    if (!proposta || !proposta.oferta_id) return;
 
-                    const ofertaId = Number(
-                        proposta.negociacao.oferta_id
-                    );
-
+                    const ofertaId = Number(proposta.oferta_id);
+                    
                     const card = document.querySelector(
                         `.card-oferta-fornecedor[data-oferta-id="${ofertaId}"]`
                     );

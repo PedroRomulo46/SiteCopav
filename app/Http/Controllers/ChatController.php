@@ -49,6 +49,62 @@ class ChatController extends Controller
         return view('chat.index', compact('chats'));
     }
 
+    public function conversas()
+    {
+        $usuario = auth()->user();
+
+        $chats = Chat::query()
+            ->whereHas('negociacao', function ($query) use ($usuario) {
+                $query->where(function ($subQuery) use ($usuario) {
+                    $subQuery->where('cliente_id', $usuario->id)
+                        ->orWhereHas('oferta', function ($ofertaQuery) use ($usuario) {
+                            if ($usuario->fornecedor) {
+                                $ofertaQuery->where(
+                                    'fornecedor_id',
+                                    $usuario->fornecedor->id
+                                );
+                            } else {
+                                $ofertaQuery->whereRaw('1 = 0');
+                            }
+                        });
+                });
+            })
+            ->whereHas('negociacao.propostas', function ($query) {
+                $query->where('status', 'aceita');
+            })
+            ->with([
+                'negociacao.cliente',
+                'negociacao.oferta.fornecedor',
+                'mensagens' => function ($query) {
+                    $query->latest()->limit(1);
+                },
+            ])
+            ->orderByDesc('ultima_mensagem_em')
+            ->get();
+
+        $conversas = $chats->map(function ($chat) use ($usuario) {
+            $negociacao = $chat->negociacao;
+
+            $ehCliente = (int) $negociacao->cliente_id === (int) $usuario->id;
+
+            $participante = $ehCliente
+                ? $negociacao->oferta->fornecedor->nome
+                : $negociacao->cliente->nome;
+
+            $ultimaMensagem = $chat->mensagens->first();
+
+            return [
+                'chat_id' => $chat->id,
+                'negociacao_id' => $negociacao->id,
+                'participante' => $participante,
+                'ultima_mensagem' => $ultimaMensagem?->conteudo ?? 'Nenhuma mensagem ainda',
+                'url' => route('chat.show', $negociacao->id),
+            ];
+        });
+
+        return response()->json($conversas);
+    }
+
     public function show(Negociacao $negociacao)
     {
         $usuario = auth()->user();

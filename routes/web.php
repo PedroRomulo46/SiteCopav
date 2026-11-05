@@ -48,6 +48,8 @@ Route::middleware('auth')->group(function () {
         ChatController::class,
         'store'
     ])->name('chat.mensagens.store');
+    Route::get('/chat/conversas', [ChatController::class, 'conversas'])
+    ->name('chat.conversas');
 
     // Categorias
     Route::resource('categorias', CategoriaController::class)->except(['index', 'show']);

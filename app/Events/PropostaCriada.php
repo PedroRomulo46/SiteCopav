@@ -26,7 +26,7 @@ class PropostaCriada implements ShouldBroadcastNow
 
     public function broadcastOn(): array
     {
-        return [
+        $canais = [
             new PrivateChannel(
                 'negociacao.' . $this->proposta->negociacao_id
             ),
@@ -34,6 +34,16 @@ class PropostaCriada implements ShouldBroadcastNow
                 'oferta.' . $this->proposta->negociacao->oferta_id
             ),
         ];
+
+        $fornecedor = $this->proposta->negociacao->oferta->fornecedor;
+
+        if ($fornecedor) {
+            $canais[] = new PrivateChannel(
+                'fornecedor.' . $fornecedor->id
+            );
+        }
+
+        return $canais;
     }
 
     public function broadcastAs(): string
