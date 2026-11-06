@@ -278,7 +278,7 @@
                             @if($listaOfertas->count() > 3)
                                 <div class="pt-2 text-center">
                                     <a href="{{ route('ofertas.index') }}"
-                                    class="inline-flex items-center justify-center gap-1 text-xs font-bold bg-slate-200 hover:bg-slate-300 px-4 py-2.5 text-[#236350] rounded-lg transition-colors">
+                                    class="inline-flex items-center justify-center gap-1 text-xs font-bold bg-slate-200 hover:bg-slate-300 px-4 py-2.5 rounded-lg transition-colors">
                                         Ver todas as ofertas
                                         <span class="material-symbols-outlined text-sm">arrow_forward</span>
                                     </a>

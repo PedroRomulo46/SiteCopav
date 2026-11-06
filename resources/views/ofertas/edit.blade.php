@@ -4,8 +4,6 @@
 
 @section('conteudo')
 
-<div class="max-w-4xl mx-auto">
-
 {{-- Breadcrumbs com setas garantidas via ícone --}}
 <nav class="flex items-center text-sm mb-6 text-gray-600" aria-label="Breadcrumb">
     <ol class="inline-flex items-center space-x-2">
@@ -26,6 +24,8 @@
         </li>
     </ol>
 </nav>
+
+<div class="max-w-4xl mx-auto">
 
     {{-- Cabeçalho --}}
     <div class="mb-6">
@@ -129,8 +129,7 @@
                 <div>
                     <label
                         for="unidade"
-                        class="block text-sm font-medium text-gray-700 mb-2"
-                    >
+                        class="block text-sm font-medium text-gray-700 mb-2">
                         Unidade
                     </label>
 
@@ -152,8 +151,7 @@
             <div>
                 <label
                     for="valor"
-                    class="block text-sm font-medium text-gray-700 mb-2"
-                >
+                    class="block text-sm font-medium text-gray-700 mb-2">
                     Valor
                 </label>
 
@@ -218,8 +216,7 @@
                 <div>
                     <label
                         for="data_validade"
-                        class="block text-sm font-medium text-gray-700 mb-2"
-                    >
+                        class="block text-sm font-medium text-gray-700 mb-2">
                         Data de validade
                     </label>
 
@@ -231,15 +228,13 @@
                         class="w-full border border-gray-300 rounded-md px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#236350] focus:border-[#236350]"
                     >
                 </div>
-
             </div>
 
-                        {{-- Status --}}
+            {{-- Status --}}
             <div>
                 <label
                     for="status"
-                    class="block text-sm font-medium text-gray-700 mb-2"
-                >
+                    class="block text-sm font-medium text-gray-700 mb-2">
                     Status
                 </label>
 
@@ -251,38 +246,30 @@
                 >
                     <option
                         value="rascunho"
-                        {{ old('status', $oferta->status) === 'rascunho' ? 'selected' : '' }}
-                    >
+                        {{ old('status', $oferta->status) === 'rascunho' ? 'selected' : '' }}>
                         Rascunho
                     </option>
-
                     <option
                         value="publicada"
-                        {{ old('status', $oferta->status) === 'publicada' ? 'selected' : '' }}
-                    >
+                        {{ old('status', $oferta->status) === 'publicada' ? 'selected' : '' }}>
                         Publicada
                     </option>
-
                     <option
                         value="encerrada"
-                        {{ old('status', $oferta->status) === 'encerrada' ? 'selected' : '' }}
-                    >
+                        {{ old('status', $oferta->status) === 'encerrada' ? 'selected' : '' }}>
                         Encerrada
                     </option>
-
                     <option
                         value="cancelada"
-                        {{ old('status', $oferta->status) === 'cancelada' ? 'selected' : '' }}
-                    >
+                        {{ old('status', $oferta->status) === 'cancelada' ? 'selected' : '' }}>
                         Cancelada
                     </option>
                 </select>
             </div>
-
         </form>
 
-             {{-- Botões --}}
-        <div class="flex items-center justify-between gap-3 pt-4 border-t border-gray-100">
+        {{-- Botões --}}
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-4 border-t border-gray-100">
 
             {{-- Excluir à esquerda --}}
             <form
@@ -300,39 +287,33 @@
                     <span class="material-symbols-outlined">
                         delete
                     </span>
-
                     Excluir oferta
                 </button>
             </form>
 
             {{-- Cancelar e salvar à direita --}}
             <div class="flex gap-3">
-
                 <a
-                    href="{{ route('ofertas.index') }}"
-                    class="inline-flex items-center justify-center px-5 py-2.5 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
-                >
-                    Cancelar
-                </a>
-
+                href="{{ route('ofertas.index') }}"
+                class="inline-flex items-center justify-center px-2 py-2.5 gap-1.5 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                <span class="material-symbols-outlined">
+                    block
+                </span>
+                Cancelar
+            </a>
+            
                 <button
                     type="submit"
                     form="form-editar-oferta"
-                    class="inline-flex items-center justify-center gap-2 bg-[#236350] hover:bg-[#1B4D3E] text-white px-5 py-2.5 rounded-md transition-colors"
-                >
+                    class="inline-flex items-center justify-center gap-2 bg-[#236350] hover:bg-[#1B4D3E] text-white px-5 py-2.5 rounded-md transition-colors">
                     <span class="material-symbols-outlined">
-                        save
+                        upload_file
                     </span>
-
-                    Salvar alterações
+                    Salvar
                 </button>
-
             </div>
-
         </div>
-
     </form>
-
 </div>
 
 @endsection

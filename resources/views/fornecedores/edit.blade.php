@@ -8,14 +8,14 @@
     <ol class="inline-flex items-center space-x-2">
 
         {{-- Item 1: Início --}}
-        <li>
+        <li class="flex items-center">
             <a href="{{route('home')}}">
                 Início
             </a>
         </li>
 
         {{-- Item 2: Menu Fornecedor --}}
-        <li>
+        <li class="flex items-center space-x-2">
             <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
             <a href="{{route('fornecedores.show', $fornecedor)}}">
                 Menu fornecedor

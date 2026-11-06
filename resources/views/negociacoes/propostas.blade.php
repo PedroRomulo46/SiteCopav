@@ -9,14 +9,14 @@
     <ol class="inline-flex items-center space-x-2">
 
         {{-- Item 1: Início --}}
-        <li>
+        <li class="flex items-center">
             <a href="{{route('home')}}">
                 Início
             </a>
         </li>
 
-        {{-- Item 2: Vendas --}}
-        <li>
+        {{-- Consertar rota anterior --}}
+        <li class="flex items-center space-x-2">
             <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
             <a href="{{route('negociacoes.vendas')}}">
                 Minhas vendas
@@ -40,9 +40,6 @@
         <div class="p-6">
             <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 text-left">
                 <div>
-                    <span class="text-xs uppercase tracking-wider font-semibold text-[#236350]">
-                        OFERTA #{{ $oferta->id }}
-                    </span>
                     <h1 class="text-3xl font-bold text-gray-800 mt-0.5">
                         {{ $oferta->produto->nome }}
                     </h1>

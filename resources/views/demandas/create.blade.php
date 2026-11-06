@@ -6,21 +6,24 @@
 {{-- Breadcrumbs com setas garantidas via ícone --}}
 <nav class="flex items-center text-sm mb-6 text-gray-600" aria-label="Breadcrumb">
     <ol class="inline-flex items-center space-x-2">
-
-        {{-- Item 1: Início --}}
-        <li>
-            <a href="{{route('home')}}">
-                Início
-            </a>
+        
+        <!-- Item 1: Início -->
+        <li class="flex items-center">
+            <a href="{{ route('home') }}" class="hover:underline">Início</a>
         </li>
 
-        {{-- Item 2: Pégina Atual --}}
-        <li class="flex items-center space-x-2 hover:cursor-pointer">
+        <!-- Item 2: Demandas -->
+        <li class="flex items-center space-x-2">
             <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
-            <span class="font-semibold text-gray-800">
-                @yield('title')
-            </span>
+            <a href="{{ route('demandas.index') }}" class="hover:underline">Demandas</a>
         </li>
+
+        <!-- Item 3: Página Atual -->
+        <li class="flex items-center space-x-2">
+            <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
+            <span class="font-semibold text-gray-800">@yield('title')</span>
+        </li>
+
     </ol>
 </nav>
 

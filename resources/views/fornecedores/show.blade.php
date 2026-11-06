@@ -1,5 +1,5 @@
 @extends('layouts.layout')
-@section('title', 'Detalhes do Fornecedor')
+@section('title', 'Menu Fornecedor')
 
 @section('conteudo')
 
