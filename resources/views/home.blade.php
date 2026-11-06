@@ -3,7 +3,6 @@
 @section('title', 'Home')
 
 @section('conteudo')
-<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
 <style>
     [x-cloak] { display: none !important; }
@@ -471,7 +470,7 @@
 
                 {{-- Filtro de ordenação --}}
                 <select id="ordenar-vitrine"
-                    class="bg-white border border-gray-200 rounded-lg px-8 py-2 text-sm text-gray-700 outline-none focus:border-[#236350] focus:ring-2 focus:ring-emerald-100">
+                    class="bg-white border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-700 outline-none focus:border-[#236350] focus:ring-2 focus:ring-emerald-100">
                     <option value="recentes">Mais recentes</option>
                     <option value="menor-preco">Menor preço</option>
                     <option value="maior-preco">Maior preço</option>

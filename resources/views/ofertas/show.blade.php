@@ -1,4 +1,5 @@
 @extends('layouts.layout')
+
 @section('title', $produto->nome ?? 'Detalhes da Oferta')
 
 @section('conteudo')
@@ -212,7 +213,7 @@
                     @else
                         <a
                             href="{{ route('login') }}"
-                            class="w-full text-white btn-copav text-sm font-semibold rounded-lg transition-all shadow-sm text-center items-center justify-center gap-2">
+                            class="w-full btn-copav p-3 text-white btn-copav text-sm font-semibold rounded-lg transition-all shadow-sm text-center items-center justify-center gap-2">
                             <span class="material-symbols-outlined text-base">login</span>
                             <span>Entrar para negociar</span>
                         </a>
