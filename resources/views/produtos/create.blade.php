@@ -1,4 +1,5 @@
 @extends('layouts.layout')
+
 @section('title', 'Cadastrar novo produto')
 
 @section('conteudo')
