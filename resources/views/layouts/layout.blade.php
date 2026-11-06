@@ -421,30 +421,132 @@
     {{-- Chat flutuante global do COPAV --}}
     @auth
         <div id="copav-chat-global"
-            class="fixed bottom-5 right-5 z-[100]"
-            x-data="{ chatAberto: false }">
+          class="fixed bottom-5 right-5 z-[100]"
+          x-data="{
+              chatAberto: false,
 
-            {{-- Botão flutuante --}}
+              // Lista de conversas
+              conversas: [],
+              carregando: false,
+              conversasCarregadas: false,
+              erro: '',
+
+              // Conversa selecionada
+              conversaSelecionada: null,
+              mensagens: [],
+              carregandoMensagens: false,
+              erroMensagens: '',
+
+              // Usuário autenticado
+              usuarioId: {{ auth()->id() }},
+
+              async abrirChat() {
+                  this.chatAberto = !this.chatAberto;
+
+                  if (this.chatAberto && !this.conversasCarregadas) {
+                      await this.carregarConversas();
+                  }
+              },
+
+              async carregarConversas() {
+                  this.carregando = true;
+                  this.erro = '';
+
+                  try {
+                      const resposta = await fetch('{{ route('chat.conversas') }}', {
+                          headers: {
+                              'Accept': 'application/json',
+                              'X-Requested-With': 'XMLHttpRequest'
+                          }
+                      });
+
+                      if (!resposta.ok) {
+                          throw new Error('Não foi possível carregar as conversas.');
+                      }
+
+                      this.conversas = await resposta.json();
+                      this.conversasCarregadas = true;
+
+                  } catch (erro) {
+                      this.erro = erro.message;
+                  } finally {
+                      this.carregando = false;
+                  }
+              },
+
+              async abrirConversa(conversa) {
+                  this.conversaSelecionada = conversa;
+                  this.mensagens = [];
+                  this.carregandoMensagens = true;
+                  this.erroMensagens = '';
+
+                  try {
+                      const resposta = await fetch(
+                          `/chat/${conversa.negociacao_id}/mensagens`,
+                          {
+                              headers: {
+                                  'Accept': 'application/json',
+                                  'X-Requested-With': 'XMLHttpRequest'
+                              }
+                          }
+                      );
+
+                      if (!resposta.ok) {
+                          throw new Error('Não foi possível carregar as mensagens.');
+                      }
+
+                      const dados = await resposta.json();
+                      this.mensagens = dados.mensagens;
+
+                      this.$nextTick(() => {
+                          const lista = this.$refs.listaMensagens;
+
+                          if (lista) {
+                              lista.scrollTop = lista.scrollHeight;
+                          }
+                      });
+
+                  } catch (erro) {
+                      this.erroMensagens = erro.message;
+                  } finally {
+                      this.carregandoMensagens = false;
+                  }
+              },
+
+              voltarConversas() {
+                  this.conversaSelecionada = null;
+                  this.mensagens = [];
+                  this.erroMensagens = '';
+              }
+          }"
+          >
+
+           {{-- Botão flutuante --}}
             <button
                 id="copav-chat-toggle"
                 type="button"
-                @click="chatAberto = !chatAberto"
+                @click="abrirChat()"
                 :aria-expanded="chatAberto.toString()"
                 aria-label="Abrir mensagens"
-                class="relative flex h-14 w-14 items-center justify-center
-                      rounded-full bg-[#236350] text-white shadow-xl
-                      transition hover:scale-105 hover:bg-[#1B4D3E]
+                class="relative flex h-14 w-14 shrink-0 cursor-pointer select-none
+                      items-center justify-center rounded-full
+                      border-0 bg-[#236350] p-0 text-white shadow-xl
+                      transition-all duration-200
+                      hover:scale-105 hover:bg-[#1B4D3E]
                       focus:outline-none focus:ring-4 focus:ring-[#236350]/30"
             >
-                <span class="material-symbols-outlined text-3xl"
-                      x-text="chatAberto ? 'close' : 'chat'">chat</span>
+                <span
+                    class="material-symbols-outlined pointer-events-none text-3xl"
+                    x-text="chatAberto ? 'close' : 'chat'">
+                    chat
+                </span>
 
-                {{-- Contador de mensagens não lidas: ativaremos depois --}}
-                <span id="copav-chat-contador"
-                      class="absolute -right-1 -top-1 hidden min-w-5 h-5
-                            items-center justify-center rounded-full
-                            border-2 border-white bg-red-500 px-1
-                            text-[10px] font-bold leading-none text-white">
+                <span
+                    id="copav-chat-contador"
+                    class="absolute -right-1 -top-1 hidden min-w-5 h-5
+                          items-center justify-center rounded-full
+                          border-2 border-white bg-red-500 px-1
+                          text-[10px] font-bold leading-none text-white">
                     0
                 </span>
             </button>
@@ -481,29 +583,182 @@
                     </a>
                 </div>
 
-                {{-- Conteúdo temporário --}}
-                <div class="flex flex-1 flex-col items-center justify-center
-                            px-6 py-8 text-center">
-                    <span class="material-symbols-outlined mb-3
-                                text-5xl text-[#236350]/50">
-                        forum
-                    </span>
+                
+                {{-- Conteúdo da lista de conversas --}}
+                <div class="flex-1 overflow-y-auto bg-white">
 
-                    <p class="font-medium text-gray-700">
-                        Suas conversas aparecerão aqui
-                    </p>
+                    {{-- Conversa selecionada --}}
+                    <template x-if="conversaSelecionada">
+                        <div class="flex h-full flex-col">
 
-                    <p class="mt-2 text-sm text-gray-500">
-                        Em breve você poderá abrir uma conversa e responder
-                        sem sair da página.
-                    </p>
+                            {{-- Cabeçalho da conversa --}}
+                            <div class="flex items-center gap-3 border-b border-gray-200 bg-white px-4 py-3">
 
-                    <a href="{{ route('chat') }}"
-                      class="mt-5 rounded-xl bg-[#236350] px-4 py-2
-                              text-sm font-medium text-white transition
-                              hover:bg-[#1B4D3E]">
-                        Acessar conversas
-                    </a>
+                                <button
+                                    type="button"
+                                    @click="voltarConversas()"
+                                    class="rounded-full p-2 text-gray-600 transition hover:bg-gray-100"
+                                    aria-label="Voltar às conversas">
+                                    <span class="material-symbols-outlined">arrow_back</span>
+                                </button>
+
+                                <div class="flex h-10 w-10 items-center justify-center rounded-full bg-[#236350]/10 text-[#236350]">
+                                    <span class="material-symbols-outlined">person</span>
+                                </div>
+
+                                <div class="min-w-0">
+                                    <p
+                                        class="truncate font-semibold text-gray-800"
+                                        x-text="conversaSelecionada.participante">
+                                    </p>
+                                    <p class="text-xs text-gray-500">Conversa no COPAV</p>
+                                </div>
+
+                            </div>
+
+                            {{-- Histórico de mensagens --}}
+                            <div
+                                x-ref="listaMensagens"
+                                class="flex-1 space-y-3 overflow-y-auto bg-[#efeae2] px-3 py-4">
+
+                                {{-- Carregando mensagens --}}
+                                <template x-if="carregandoMensagens">
+                                    <p class="py-6 text-center text-sm text-gray-500">
+                                        Carregando mensagens...
+                                    </p>
+                                </template>
+
+                                {{-- Erro --}}
+                                <template x-if="erroMensagens">
+                                    <p
+                                        class="py-6 text-center text-sm text-red-600"
+                                        x-text="erroMensagens">
+                                    </p>
+                                </template>
+
+                                {{-- Nenhuma mensagem --}}
+                                <template x-if="!carregandoMensagens && !erroMensagens && mensagens.length === 0">
+                                    <p class="py-6 text-center text-sm text-gray-500">
+                                        Nenhuma mensagem nesta conversa.
+                                    </p>
+                                </template>
+
+                                {{-- Mensagens --}}
+                                <template x-for="mensagem in mensagens" :key="mensagem.id">
+                                    <div
+                                        class="flex"
+                                        :class="Number(mensagem.usuario_id) === Number(usuarioId) ? 'justify-end' : 'justify-start'">
+
+                                        <div
+                                            class="max-w-[85%] rounded-xl px-3 py-2 shadow-sm"
+                                            :class="Number(mensagem.usuario_id) === Number(usuarioId)
+                                                ? 'bg-[#d9fdd3] text-gray-800'
+                                                : 'bg-white text-gray-800'">
+
+                                            <p
+                                                x-show="Number(mensagem.usuario_id) !== Number(usuarioId)"
+                                                class="mb-1 text-xs font-semibold text-[#236350]"
+                                                x-text="mensagem.nome">
+                                            </p>
+
+                                            <p
+                                                class="whitespace-pre-wrap break-words text-sm"
+                                                x-text="mensagem.conteudo">
+                                            </p>
+
+                                            <p
+                                                class="mt-1 text-right text-[10px] text-gray-500"
+                                                x-text="mensagem.created_at">
+                                            </p>
+
+                                        </div>
+                                    </div>
+                                </template>
+
+                            </div>
+                        </div>
+                    </template>
+
+                    {{-- Lista de conversas: aparece somente quando nenhuma está selecionada --}}
+                    <template x-if="!conversaSelecionada">
+                        <div class="flex h-full flex-col">
+
+                            {{-- Carregando conversas --}}
+                            <template x-if="carregando">
+                                <div class="flex h-full flex-col items-center justify-center gap-3">
+                                    <span class="loading loading-spinner loading-md text-[#236350]"></span>
+                                    <p class="text-sm text-gray-500">Carregando conversas...</p>
+                                </div>
+                            </template>
+
+                            {{-- Erro --}}
+                            <template x-if="!carregando && erro">
+                                <div class="p-6 text-center">
+                                    <p class="text-sm text-red-500" x-text="erro"></p>
+
+                                    <button
+                                        @click="carregarConversas()"
+                                        class="mt-3 text-sm font-medium text-[#236350] hover:underline">
+                                        Tentar novamente
+                                    </button>
+                                </div>
+                            </template>
+
+                            {{-- Nenhuma conversa --}}
+                            <template x-if="!carregando && !erro && conversas.length === 0 && conversasCarregadas">
+                                <div class="flex h-full flex-col items-center justify-center px-6 text-center">
+                                    <span class="material-symbols-outlined mb-3 text-5xl text-gray-300">
+                                        forum
+                                    </span>
+
+                                    <p class="font-medium text-gray-700">
+                                        Nenhuma conversa encontrada
+                                    </p>
+
+                                    <p class="mt-2 text-sm text-gray-500">
+                                        Suas conversas aparecerão aqui quando houver uma proposta aceita.
+                                    </p>
+                                </div>
+                            </template>
+
+                            {{-- Conversas disponíveis --}}
+                            <template x-if="!carregando && !erro && conversas.length > 0">
+                                <div class="overflow-y-auto">
+
+                                    <template x-for="conversa in conversas" :key="conversa.chat_id">
+                                        <div
+                                            @click="abrirConversa(conversa)"
+                                            class="flex cursor-pointer items-center gap-3 border-b border-gray-100 px-4 py-4 transition hover:bg-gray-50">
+
+                                            {{-- Avatar --}}
+                                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#236350]/10 text-[#236350]">
+                                                <span class="material-symbols-outlined text-2xl">
+                                                    person
+                                                </span>
+                                            </div>
+
+                                            {{-- Informações --}}
+                                            <div class="min-w-0 flex-1">
+                                                <p
+                                                    class="truncate font-semibold text-gray-800"
+                                                    x-text="conversa.participante">
+                                                </p>
+
+                                                <p
+                                                    class="mt-1 truncate text-sm text-gray-500"
+                                                    x-text="conversa.ultima_mensagem">
+                                                </p>
+                                            </div>
+
+                                        </div>
+                                    </template>
+
+                                </div>
+                            </template>
+
+                        </div>
+                    </template>
+
                 </div>
             </section>
         </div>

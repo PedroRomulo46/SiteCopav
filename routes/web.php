@@ -41,15 +41,18 @@ Route::middleware('auth')->group(function () {
     Route::get('/meus-produtos', [ProdutoController::class, 'meusProdutos'])->name('produtos.meus');
 
     // Chat
-    Route::get('/chat', [ChatController::class, 'index'])->name('chat');
-    Route::get('/chat/{negociacao}', [ChatController::class, 'show'])
-    ->name('chat.show');
-    Route::post('/chat/{negociacao}/mensagens', [
+    Route::get('/chat', [ChatController::class, 'index'])
+        ->name('chat');
+    Route::get('/chat/conversas', [ChatController::class, 'conversas'])    // Lista de conversas para a janela flutuante
+        ->name('chat.conversas');
+    Route::get('/chat/{negociacao}/mensagens', [        // Histórico de mensagens de uma conversa
         ChatController::class,
-        'store'
-    ])->name('chat.mensagens.store');
-    Route::get('/chat/conversas', [ChatController::class, 'conversas'])
-    ->name('chat.conversas');
+        'mensagens'
+    ])->name('chat.mensagens');
+    Route::get('/chat/{negociacao}', [ChatController::class, 'show'])    // Abrir uma conversa específica
+        ->name('chat.show');
+    Route::post('/chat/{negociacao}/mensagens', [ChatController::class, 'store'])    // Enviar mensagem
+        ->name('chat.mensagens.store');
 
     // Categorias
     Route::resource('categorias', CategoriaController::class)->except(['index', 'show']);

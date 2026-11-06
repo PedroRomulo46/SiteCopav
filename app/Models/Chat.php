@@ -12,6 +12,8 @@ class Chat extends Model
         'negociacao_id',
         'entrega_confirmada_em',
         'ultima_mensagem_em',
+        'cliente_ultima_leitura_id',
+        'fornecedor_ultima_leitura_id',
         'encerrado_em',
         'excluir_mensagens_em',
     ];
