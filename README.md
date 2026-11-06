@@ -32,13 +32,13 @@ cd SiteCopav
 composer install
 ```
 
-### 3. configurar as variáveis de ambiente
+### 3. Configurar as variáveis de ambiente
 ```bash
 cp .env.example .env
 php artisan key:generate
 ```
 
-### 4. criar e configurar o banco de dados
+### 4. Criar e configurar o banco de dados
 ```bash
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
@@ -48,7 +48,7 @@ DB_USERNAME=root
 DB_PASSWORD=
 ```
 
-### 5. executar as migrações e popular o banco
+### 5. Executar as migrações e popular o banco
 ```bash
 php artisan migrate --seed
 ```
@@ -62,4 +62,8 @@ php artisan storage:link
 ```bash
 npm install
 npm run build
+```
+### 8. Executar comendo para o site atualizar sozinho
+```bash
+composer run dev
 ```
