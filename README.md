@@ -63,7 +63,7 @@ php artisan storage:link
 npm install
 npm run build
 ```
-### 8. Executar comendo para o site atualizar sozinho
+### 8. Executar comando para o site atualizar sozinho
 ```bash
 composer run dev
 ```
