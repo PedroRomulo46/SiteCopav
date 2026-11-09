@@ -205,7 +205,6 @@ class ProdutoController extends Controller
 
         // Apenas o admin pode excluir produtos de qualquer fornecedor
         if ($usuario->user_type !== 'admin') {
-
             $fornecedor = $usuario->fornecedor;
 
             if (!$fornecedor || $produto->fornecedor_id !== $fornecedor->id) {
@@ -213,6 +212,16 @@ class ProdutoController extends Controller
             }
         }
 
+        // Impede excluir produtos que possuem ofertas vinculadas
+        if ($produto->ofertas()->exists()) {
+            return redirect()
+                ->route('produtos.edit', $produto)
+                ->withErrors([
+                    'produto' => 'Este produto não pode ser excluído porque possui ofertas vinculadas. Preserve o histórico de negociações.'
+                ]);
+        }
+
+        // Exclui a imagem somente depois das verificações
         if ($produto->imagem) {
             Storage::disk('public')->delete($produto->imagem);
         }

@@ -61,6 +61,7 @@
 
 
     <form
+        id="form-editar-produto"
         action="{{ route('produtos.update', $produto) }}"
         method="POST"
         enctype="multipart/form-data"
@@ -247,18 +248,39 @@
         </div>
 
 
+       
         {{-- Botões --}}
-        <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200 w-full">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-4 border-t border-gray-200 w-full">
 
-            <a
-                href="{{ route('produtos.show', $produto) }}"
-                class="text-gray-600 hover:text-gray-900"
-            >
-                Cancelar
-            </a>
+            <div class="flex items-center gap-4">
+                <a
+                    href="{{ route('produtos.show', $produto) }}"
+                    class="text-gray-600 hover:text-gray-900"
+                >
+                    Cancelar
+                </a>
+
+                {{-- Excluir produto --}}
+                <form
+                    action="{{ route('produtos.destroy', $produto) }}"
+                    method="POST"
+                    onsubmit="return confirm('Tem certeza de que deseja excluir este produto? Essa ação não poderá ser desfeita.');"
+                >
+                    @csrf
+                    @method('DELETE')
+
+                    <button
+                        type="submit"
+                        class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-md transition-colors"
+                    >
+                        Excluir produto
+                    </button>
+                </form>
+            </div>
 
             <button
                 type="submit"
+                form="form-editar-produto"
                 class="bg-[#236350] hover:bg-[#1B4D3E] text-white px-5 py-2 rounded-md transition-colors"
             >
                 Salvar alterações
