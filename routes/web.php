@@ -103,6 +103,7 @@ Route::middleware('auth')->group(function () {
 
     // Pagamentos
     Route::get('/negociacoes/{negociacao}/pagamento',[PagamentoController::class, 'show'])->name('pagamentos.show');
+    Route::post('/negociacoes/{negociacao}/pagamento/aprovar', [PagamentoController::class, 'confirmar'])->name('pagamentos.confirmar');
 });
 
 // ROTAS EXCLUSIVAS DA EMPRESA (ADMIN)
