@@ -257,7 +257,7 @@ class ChatController extends Controller
                     'usuario_id' => $mensagem->usuario_id,
                     'nome' => $mensagem->usuario->nome ?? 'Participante',
                     'conteudo' => $mensagem->conteudo,
-                    'created_at' => $mensagem->created_at->format('d/m/Y H:i'),
+                    'created_at' => $mensagem->created_at->utc()->toISOString(),
                 ];
             });
 

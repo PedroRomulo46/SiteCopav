@@ -59,7 +59,8 @@
     });
 </script>
 
-<body class="bg-[#ebeae7] min-h-screen flex flex-col font-sans" x-data="{ menuMobileAberto: false }">
+<body class="bg-[#ebeae7] min-h-screen flex flex-col font-sans
+    @if(View::hasSection('chat_layout')) !h-screen !overflow-hidden @endif">
 
     {{-- Cabeçalho --}}
     <header class="bg-[#1B4D3E] text-white shadow-md w-full">
@@ -417,37 +418,44 @@
 
     <!-- Conteúdo Principal -->
 
-    <main class="flex-1 w-full px-4 sm:px-6 lg:px-10 py-6">
-      @yield('conteudo')
-    </main>
-
+    <main class="flex-1 min-h-0 w-full
+    @if(View::hasSection('chat_layout'))
+        overflow-hidden !p-0
+    @else
+        px-4 sm:px-6 lg:px-10 py-6
+    @endif">
+    @yield('conteudo')
+</main>
     {{-- Chat flutuante global do COPAV --}}
+    
     @auth
-        <div id="copav-chat-global"
+      <div
+          id="copav-chat-global"
           class="fixed bottom-5 right-5 z-[100]"
           x-data="{
               chatAberto: false,
-
-              // Lista de conversas
               conversas: [],
               carregando: false,
               conversasCarregadas: false,
               erro: '',
-
-              // Conversa selecionada
               conversaSelecionada: null,
               mensagens: [],
               carregandoMensagens: false,
               erroMensagens: '',
+              mensagemNova: '',
+              enviandoMensagem: false,
+              usuarioId: {{ (int) auth()->id() }},
+              csrfToken: '{{ csrf_token() }}',
+              urlConversas: '{{ route('chat.conversas') }}',
 
-              // Usuário autenticado
-              usuarioId: {{ auth()->id() }},
+              chatIdAtivo: null,
+              canaisInscritos: [],
 
-              async abrirChat() {
+              abrirChat() {
                   this.chatAberto = !this.chatAberto;
 
                   if (this.chatAberto && !this.conversasCarregadas) {
-                      await this.carregarConversas();
+                      this.carregarConversas();
                   }
               },
 
@@ -456,7 +464,7 @@
                   this.erro = '';
 
                   try {
-                      const resposta = await fetch('{{ route('chat.conversas') }}', {
+                      const resposta = await fetch(this.urlConversas, {
                           headers: {
                               'Accept': 'application/json',
                               'X-Requested-With': 'XMLHttpRequest'
@@ -470,6 +478,10 @@
                       this.conversas = await resposta.json();
                       this.conversasCarregadas = true;
 
+                      this.conversas.forEach(conversa => {
+                          this.inscreverCanal(conversa.chat_id);
+                      });
+
                   } catch (erro) {
                       this.erro = erro.message;
                   } finally {
@@ -477,11 +489,51 @@
                   }
               },
 
+              inscreverCanal(chatId) {
+                  if (!window.Echo || !chatId) return;
+
+                  chatId = Number(chatId);
+
+                  if (this.canaisInscritos.includes(chatId)) return;
+
+                  this.canaisInscritos.push(chatId);
+
+                  window.Echo.private(`chat.${chatId}`)
+                      .listen('.mensagem.enviada', mensagem => {
+                          this.receberMensagem(mensagem);
+                      });
+              },
+
+              receberMensagem(mensagem) {
+                  const conversa = this.conversas.find(
+                      item => Number(item.chat_id) === Number(mensagem.chat_id)
+                  );
+
+                  if (conversa) {
+                      conversa.ultima_mensagem = mensagem.conteudo;
+
+                      if (
+                          Number(this.chatIdAtivo) === Number(mensagem.chat_id)
+                      ) {
+                          this.adicionarMensagem(mensagem);
+                          this.rolarHistorico();
+                      } else if (
+                          Number(mensagem.usuario_id) !== this.usuarioId
+                      ) {
+                          conversa.mensagens_nao_lidas =
+                              Number(conversa.mensagens_nao_lidas || 0) + 1;
+                      }
+                  }
+              },
+
               async abrirConversa(conversa) {
                   this.conversaSelecionada = conversa;
                   this.mensagens = [];
-                  this.carregandoMensagens = true;
                   this.erroMensagens = '';
+                  this.carregandoMensagens = true;
+                  this.chatIdAtivo = conversa.chat_id;
+
+                  conversa.mensagens_nao_lidas = 0;
 
                   try {
                       const resposta = await fetch(
@@ -499,15 +551,12 @@
                       }
 
                       const dados = await resposta.json();
-                      this.mensagens = dados.mensagens;
 
-                      this.$nextTick(() => {
-                          const lista = this.$refs.listaMensagens;
+                      this.chatIdAtivo = dados.chat_id;
+                      this.inscreverCanal(dados.chat_id);
+                      this.mensagens = dados.mensagens || [];
 
-                          if (lista) {
-                              lista.scrollTop = lista.scrollHeight;
-                          }
-                      });
+                      this.$nextTick(() => this.rolarHistorico());
 
                   } catch (erro) {
                       this.erroMensagens = erro.message;
@@ -516,256 +565,355 @@
                   }
               },
 
+              adicionarMensagem(mensagem) {
+                  if (this.mensagens.some(
+                      item => Number(item.id) === Number(mensagem.id)
+                  )) {
+                      return;
+                  }
+
+                  this.mensagens.push(mensagem);
+
+                  const conversa = this.conversas.find(
+                      item => Number(item.chat_id) === Number(mensagem.chat_id)
+                  );
+
+                  if (conversa) {
+                      conversa.ultima_mensagem = mensagem.conteudo;
+                  }
+              },
+
+              async enviarMensagem() {
+                  const conteudo = this.mensagemNova.trim();
+
+                  if (
+                      !conteudo ||
+                      !this.conversaSelecionada ||
+                      this.enviandoMensagem
+                  ) {
+                      return;
+                  }
+
+                  this.enviandoMensagem = true;
+                  this.erroMensagens = '';
+
+                  try {
+                      const resposta = await fetch(
+                          `/chat/${this.conversaSelecionada.negociacao_id}/mensagens`,
+                          {
+                              method: 'POST',
+                              headers: {
+                                  'Content-Type': 'application/json',
+                                  'Accept': 'application/json',
+                                  'X-CSRF-TOKEN': this.csrfToken,
+                                  'X-Requested-With': 'XMLHttpRequest'
+                              },
+                              body: JSON.stringify({
+                                  conteudo: conteudo
+                              })
+                          }
+                      );
+
+                      const dados = await resposta.json();
+
+                      if (!resposta.ok) {
+                          throw new Error(
+                              dados.message || 'Não foi possível enviar a mensagem.'
+                          );
+                      }
+
+                      this.adicionarMensagem(dados.mensagem);
+                      this.mensagemNova = '';
+
+                      this.$nextTick(() => this.rolarHistorico());
+
+                  } catch (erro) {
+                      this.erroMensagens = erro.message;
+                  } finally {
+                      this.enviandoMensagem = false;
+                  }
+              },
+
               voltarConversas() {
                   this.conversaSelecionada = null;
+                  this.chatIdAtivo = null;
                   this.mensagens = [];
                   this.erroMensagens = '';
-              }
+              },
+
+              rolarHistorico() {
+                  const lista = this.$refs.listaMensagens;
+
+                  if (lista) {
+                      lista.scrollTop = lista.scrollHeight;
+                  }
+              },
+
+              
+            
+            formatarDataHora(data) {
+                if (!data) return '';
+
+                const dataMensagem = new Date(data);
+
+                if (isNaN(dataMensagem.getTime())) return '';
+
+                return dataMensagem.toLocaleString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                }).replace(',', ' às');
+            }
+
           }"
+          x-cloak
+      >
+          <!-- Botão flutuante -->
+          <button
+              type="button"
+              @click="abrirChat()"
+              class="relative flex h-14 w-14 items-center justify-center rounded-full bg-[#1B4D3E] text-white shadow-xl transition hover:bg-[#236350] hover:scale-105"
+              aria-label="Abrir mensagens"
           >
+              <span class="material-symbols-outlined text-3xl">chat</span>
 
-           {{-- Botão flutuante --}}
-            <button
-                id="copav-chat-toggle"
-                type="button"
-                @click="abrirChat()"
-                :aria-expanded="chatAberto.toString()"
-                aria-label="Abrir mensagens"
-                class="relative flex h-14 w-14 shrink-0 cursor-pointer select-none
-                      items-center justify-center rounded-full
-                      border-0 bg-[#236350] p-0 text-white shadow-xl
-                      transition-all duration-200
-                      hover:scale-105 hover:bg-[#1B4D3E]
-                      focus:outline-none focus:ring-4 focus:ring-[#236350]/30"
-            >
-                <span
-                    class="material-symbols-outlined pointer-events-none text-3xl"
-                    x-text="chatAberto ? 'close' : 'chat'">
-                    chat
-                </span>
+              <span
+                  x-show="conversas.some(c => Number(c.mensagens_nao_lidas || 0) > 0)"
+                  class="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-xs font-bold text-white"
+                  x-text="conversas.reduce((total, c) => total + Number(c.mensagens_nao_lidas || 0), 0)"
+              ></span>
+          </button>
 
-                <span
-                    id="copav-chat-contador"
-                    class="absolute -right-1 -top-1 hidden min-w-5 h-5
-                          items-center justify-center rounded-full
-                          border-2 border-white bg-red-500 px-1
-                          text-[10px] font-bold leading-none text-white">
-                    0
-                </span>
-            </button>
+          <!-- Janela do chat -->
+          <section
+              x-show="chatAberto"
+              x-transition
+              class="absolute bottom-16 right-0 flex h-[min(560px,75vh)] w-[min(370px,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl"
+              style="display: none;"
+          >
+              
+          <!-- Cabeçalho -->
+          <div class="flex min-h-[68px] items-center justify-between bg-[#1B4D3E] px-4 py-3 text-white">
 
-            {{-- Janela flutuante --}}
-            <section
-                x-cloak
-                x-show="chatAberto"
-                x-transition:enter="transition ease-out duration-200"
-                x-transition:enter-start="opacity-0 translate-y-3 scale-95"
-                x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                x-transition:leave="transition ease-in duration-150"
-                x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-                x-transition:leave-end="opacity-0 translate-y-3 scale-95"
-                class="absolute bottom-16 right-0 flex h-[min(520px,75vh)]
-                      w-[min(360px,calc(100vw-2rem))] flex-col overflow-hidden
-                      rounded-2xl border border-gray-200 bg-white shadow-2xl"
-                aria-label="Janela de mensagens"
-            >
-                {{-- Cabeçalho --}}
-                <div class="flex items-center justify-between
-                            bg-[#1B4D3E] px-4 py-4 text-white">
-                    <div>
-                        <h2 class="font-semibold">Mensagens</h2>
-                        <p class="text-xs text-white/75">
-                            Suas conversas no COPAV
-                        </p>
-                    </div>
+              <!-- Identificação da conversa -->
+              <div class="flex min-w-0 flex-1 items-center gap-3">
 
-                    <a href="{{ route('chat') }}"
-                      class="rounded-lg px-2 py-1 text-sm
-                              text-white/90 transition hover:bg-white/10">
-                        Ver todas
-                    </a>
-                </div>
+                  <button
+                      x-show="conversaSelecionada"
+                      @click="voltarConversas()"
+                      type="button"
+                      class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-0 bg-transparent p-0 text-white transition-colors hover:bg-white/10"
+                      aria-label="Voltar às conversas"
+                  >
+                      <span class="material-symbols-outlined text-[23px] leading-none">
+                          arrow_back
+                      </span>
+                  </button>
 
-                
-                {{-- Conteúdo da lista de conversas --}}
-                <div class="flex-1 overflow-y-auto bg-white">
+                  <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/15">
+                      <span class="material-symbols-outlined text-[23px] leading-none">
+                          forum
+                      </span>
+                  </div>
 
-                    {{-- Conversa selecionada --}}
-                    <template x-if="conversaSelecionada">
-                        <div class="flex h-full flex-col">
+                  <div class="min-w-0">
+                      <h3
+                          class="truncate font-semibold"
+                          x-text="conversaSelecionada ? conversaSelecionada.participante : 'Mensagens'"
+                      ></h3>
 
-                            {{-- Cabeçalho da conversa --}}
-                            <div class="flex items-center gap-3 border-b border-gray-200 bg-white px-4 py-3">
+                      <p
+                          class="text-xs text-white/70"
+                          x-text="conversaSelecionada ? 'Conversa' : 'Suas conversas'"
+                      ></p>
+                  </div>
+              </div>
 
-                                <button
-                                    type="button"
-                                    @click="voltarConversas()"
-                                    class="rounded-full p-2 text-gray-600 transition hover:bg-gray-100"
-                                    aria-label="Voltar às conversas">
-                                    <span class="material-symbols-outlined">arrow_back</span>
-                                </button>
+              <!-- Ações do cabeçalho -->
+              <div class="ml-3 flex shrink-0 items-center gap-1">
 
-                                <div class="flex h-10 w-10 items-center justify-center rounded-full bg-[#236350]/10 text-[#236350]">
-                                    <span class="material-symbols-outlined">person</span>
-                                </div>
+                  <a
+                      href="{{ route('chat') }}"
+                      class="flex h-9 w-9 items-center justify-center rounded-full border-0 bg-transparent text-white no-underline transition-colors hover:bg-white/10"
+                      title="Ver todas as conversas"
+                      aria-label="Ver todas as conversas"
+                  >
+                      <span class="material-symbols-outlined text-[22px] leading-none">
+                          open_in_new
+                      </span>
+                  </a>
 
-                                <div class="min-w-0">
-                                    <p
-                                        class="truncate font-semibold text-gray-800"
-                                        x-text="conversaSelecionada.participante">
-                                    </p>
-                                    <p class="text-xs text-gray-500">Conversa no COPAV</p>
-                                </div>
+                  <button
+                      type="button"
+                      @click="chatAberto = false"
+                      class="flex h-9 w-9 items-center justify-center rounded-full border-0 bg-transparent p-0 text-white transition-colors hover:bg-white/10"
+                      aria-label="Fechar chat"
+                  >
+                      <span class="material-symbols-outlined text-[23px] leading-none">
+                          close
+                      </span>
+                  </button>
 
-                            </div>
+              </div>
+          </div>
 
-                            {{-- Histórico de mensagens --}}
-                            <div
-                                x-ref="listaMensagens"
-                                class="flex-1 space-y-3 overflow-y-auto bg-[#efeae2] px-3 py-4">
 
-                                {{-- Carregando mensagens --}}
-                                <template x-if="carregandoMensagens">
-                                    <p class="py-6 text-center text-sm text-gray-500">
-                                        Carregando mensagens...
-                                    </p>
-                                </template>
+              <!-- Lista de conversas -->
+              <div
+                  x-show="!conversaSelecionada"
+                  class="flex-1 overflow-y-auto bg-gray-50"
+              >
+                  <div
+                      x-show="carregando"
+                      class="p-6 text-center text-sm text-gray-500"
+                  >
+                      Carregando conversas...
+                  </div>
 
-                                {{-- Erro --}}
-                                <template x-if="erroMensagens">
-                                    <p
-                                        class="py-6 text-center text-sm text-red-600"
-                                        x-text="erroMensagens">
-                                    </p>
-                                </template>
+                  <div
+                      x-show="erro"
+                      class="p-5 text-center text-sm text-red-600"
+                      x-text="erro"
+                  ></div>
 
-                                {{-- Nenhuma mensagem --}}
-                                <template x-if="!carregandoMensagens && !erroMensagens && mensagens.length === 0">
-                                    <p class="py-6 text-center text-sm text-gray-500">
-                                        Nenhuma mensagem nesta conversa.
-                                    </p>
-                                </template>
+                  <template x-for="conversa in conversas" :key="conversa.chat_id">
+                      <button
+                          type="button"
+                          @click="abrirConversa(conversa)"
+                          class="flex w-full items-center gap-3 border-b border-gray-100 px-4 py-4 text-left transition hover:bg-white"
+                      >
+                          <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#1B4D3E]/10 text-[#1B4D3E]">
+                              <span class="material-symbols-outlined">person</span>
+                          </div>
 
-                                {{-- Mensagens --}}
-                                <template x-for="mensagem in mensagens" :key="mensagem.id">
-                                    <div
-                                        class="flex"
-                                        :class="Number(mensagem.usuario_id) === Number(usuarioId) ? 'justify-end' : 'justify-start'">
+                          <div class="min-w-0 flex-1">
+                              <div class="flex items-center justify-between gap-2">
+                                  <span
+                                      class="truncate font-semibold text-gray-800"
+                                      x-text="conversa.participante"
+                                  ></span>
 
-                                        <div
-                                            class="max-w-[85%] rounded-xl px-3 py-2 shadow-sm"
-                                            :class="Number(mensagem.usuario_id) === Number(usuarioId)
-                                                ? 'bg-[#d9fdd3] text-gray-800'
-                                                : 'bg-white text-gray-800'">
+                                  <span
+                                      x-show="Number(conversa.mensagens_nao_lidas || 0) > 0"
+                                      class="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#236350] px-1 text-xs font-bold text-white"
+                                      x-text="conversa.mensagens_nao_lidas"
+                                  ></span>
+                              </div>
 
-                                            <p
-                                                x-show="Number(mensagem.usuario_id) !== Number(usuarioId)"
-                                                class="mb-1 text-xs font-semibold text-[#236350]"
-                                                x-text="mensagem.nome">
-                                            </p>
+                              <p
+                                  class="mt-1 truncate text-sm text-gray-500"
+                                  x-text="conversa.ultima_mensagem"
+                              ></p>
+                          </div>
+                      </button>
+                  </template>
 
-                                            <p
-                                                class="whitespace-pre-wrap break-words text-sm"
-                                                x-text="mensagem.conteudo">
-                                            </p>
+                  <div
+                      x-show="!carregando && conversas.length === 0 && !erro"
+                      class="px-5 py-12 text-center"
+                  >
+                      <span class="material-symbols-outlined text-4xl text-gray-300">forum</span>
+                      <p class="mt-2 text-sm text-gray-500">
+                          Você ainda não possui conversas.
+                      </p>
+                  </div>
+              </div>
 
-                                            <p
-                                                class="mt-1 text-right text-[10px] text-gray-500"
-                                                x-text="mensagem.created_at">
-                                            </p>
+              <!-- Conversa selecionada -->
+              <div
+                  x-show="conversaSelecionada"
+                  class="flex min-h-0 flex-1 flex-col bg-[#f5f5f0]"
+                  style="display: none;"
+              >
+                  <!-- Histórico -->
+                  <div
+                      x-ref="listaMensagens"
+                      class="flex-1 space-y-3 overflow-y-auto p-3"
+                  >
+                      <div
+                          x-show="carregandoMensagens"
+                          class="py-8 text-center text-sm text-gray-500"
+                      >
+                          Carregando mensagens...
+                      </div>
 
-                                        </div>
-                                    </div>
-                                </template>
+                      <div
+                          x-show="erroMensagens"
+                          class="rounded-lg bg-red-50 p-3 text-center text-sm text-red-600"
+                          x-text="erroMensagens"
+                      ></div>
 
-                            </div>
-                        </div>
-                    </template>
+                      <template x-for="mensagem in mensagens" :key="mensagem.id">
+                          <div
+                              class="flex"
+                              :class="Number(mensagem.usuario_id) === usuarioId ? 'justify-end' : 'justify-start'"
+                          >
+                              <div
+                                  class="max-w-[85%] rounded-2xl px-3 py-2 shadow-sm"
+                                  :class="Number(mensagem.usuario_id) === usuarioId
+                                      ? 'rounded-br-sm bg-[#d9f2df] text-gray-800'
+                                      : 'rounded-bl-sm bg-white text-gray-800'"
+                              >
+                                  <p
+                                      class="whitespace-pre-wrap break-words text-sm"
+                                      x-text="mensagem.conteudo"
+                                  ></p>
 
-                    {{-- Lista de conversas: aparece somente quando nenhuma está selecionada --}}
-                    <template x-if="!conversaSelecionada">
-                        <div class="flex h-full flex-col">
+                                  <p
+                                      class="mt-1 text-right text-[10px] font-medium text-gray-500"
+                                      x-text="formatarDataHora(mensagem.created_at)"
+                                  ></p>
+                              </div>
+                          </div>
+                      </template>
 
-                            {{-- Carregando conversas --}}
-                            <template x-if="carregando">
-                                <div class="flex h-full flex-col items-center justify-center gap-3">
-                                    <span class="loading loading-spinner loading-md text-[#236350]"></span>
-                                    <p class="text-sm text-gray-500">Carregando conversas...</p>
-                                </div>
-                            </template>
+                      <div
+                          x-show="!carregandoMensagens && mensagens.length === 0 && !erroMensagens"
+                          class="py-8 text-center text-sm text-gray-400"
+                      >
+                          Nenhuma mensagem ainda. Inicie a conversa!
+                      </div>
+                  </div>
 
-                            {{-- Erro --}}
-                            <template x-if="!carregando && erro">
-                                <div class="p-6 text-center">
-                                    <p class="text-sm text-red-500" x-text="erro"></p>
+                  <!-- Formulário de envio -->
+                  <form
+                      @submit.prevent="enviarMensagem()"
+                      class="flex shrink-0 items-end gap-2 border-t border-gray-200 bg-white p-3"
+                  >
+                      <textarea
+                          x-model="mensagemNova"
+                          @keydown.enter="if (!$event.shiftKey) { $event.preventDefault(); enviarMensagem(); }"
+                          rows="1"
+                          maxlength="5000"
+                          placeholder="Digite sua mensagem..."
+                          class="max-h-24 min-h-[42px] flex-1 resize-none rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm outline-none transition focus:border-[#236350] focus:ring-1 focus:ring-[#236350]"
+                      ></textarea>
 
-                                    <button
-                                        @click="carregarConversas()"
-                                        class="mt-3 text-sm font-medium text-[#236350] hover:underline">
-                                        Tentar novamente
-                                    </button>
-                                </div>
-                            </template>
+                      <button
+                          type="submit"
+                          :disabled="!mensagemNova.trim() || enviandoMensagem"
+                          class="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-xl bg-[#236350] text-white transition hover:bg-[#1B4D3E] disabled:cursor-not-allowed disabled:opacity-40"
+                          aria-label="Enviar mensagem"
+                      >
+                          <span
+                              x-show="!enviandoMensagem"
+                              class="material-symbols-outlined"
+                          >send</span>
 
-                            {{-- Nenhuma conversa --}}
-                            <template x-if="!carregando && !erro && conversas.length === 0 && conversasCarregadas">
-                                <div class="flex h-full flex-col items-center justify-center px-6 text-center">
-                                    <span class="material-symbols-outlined mb-3 text-5xl text-gray-300">
-                                        forum
-                                    </span>
-
-                                    <p class="font-medium text-gray-700">
-                                        Nenhuma conversa encontrada
-                                    </p>
-
-                                    <p class="mt-2 text-sm text-gray-500">
-                                        Suas conversas aparecerão aqui quando houver uma proposta aceita.
-                                    </p>
-                                </div>
-                            </template>
-
-                            {{-- Conversas disponíveis --}}
-                            <template x-if="!carregando && !erro && conversas.length > 0">
-                                <div class="overflow-y-auto">
-
-                                    <template x-for="conversa in conversas" :key="conversa.chat_id">
-                                        <div
-                                            @click="abrirConversa(conversa)"
-                                            class="flex cursor-pointer items-center gap-3 border-b border-gray-100 px-4 py-4 transition hover:bg-gray-50">
-
-                                            {{-- Avatar --}}
-                                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#236350]/10 text-[#236350]">
-                                                <span class="material-symbols-outlined text-2xl">
-                                                    person
-                                                </span>
-                                            </div>
-
-                                            {{-- Informações --}}
-                                            <div class="min-w-0 flex-1">
-                                                <p
-                                                    class="truncate font-semibold text-gray-800"
-                                                    x-text="conversa.participante">
-                                                </p>
-
-                                                <p
-                                                    class="mt-1 truncate text-sm text-gray-500"
-                                                    x-text="conversa.ultima_mensagem">
-                                                </p>
-                                            </div>
-
-                                        </div>
-                                    </template>
-
-                                </div>
-                            </template>
-
-                        </div>
-                    </template>
-
-                </div>
-            </section>
-        </div>
+                          <span
+                              x-show="enviandoMensagem"
+                              class="material-symbols-outlined animate-spin"
+                          >progress_activity</span>
+                      </button>
+                  </form>
+              </div>
+          </section>
+      </div>
     @endauth
+
 
     @stack('scripts')
 

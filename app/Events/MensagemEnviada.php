@@ -41,8 +41,7 @@ class MensagemEnviada implements ShouldBroadcastNow
             'usuario_id' => $this->mensagem->usuario_id,
             'nome' => $this->mensagem->usuario->nome ?? 'Participante',
             'conteudo' => $this->mensagem->conteudo,
-            'created_at' => $this->mensagem->created_at
-                ->format('d/m/Y H:i'),
+            'created_at' => $this->mensagem->created_at->utc()->toISOString(),
         ];
     }
 }
