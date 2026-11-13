@@ -73,14 +73,13 @@
             Site Copav
           </a>
 
-          {{-- Busca --}}
-          <div class="hidden sm:flex flex-1 max-w-2xl relative items-center">
-            <input type="text" placeholder="Buscar lotes, produtos ou compradores..." class="input w-full bg-white text-gray-800 placeholder-gray-400 pl-4 pr-10 py-2 rounded-md focus:outline-none shadow-sm text-sm">
-            <button class="absolute right-3 text-gray-500 hover:text-gray-700 flex items-center">
-              <span class="material-symbols-outlined text-xl">search</span>
-            </button>
-          </div>
-
+          {{-- Busca Desktop --}}
+          <form action="{{ route('buscar') }}" method="GET" class="hidden sm:flex flex-1 max-w-2xl relative items-center">
+              <input type="text" name="q" value="{{ request('q') }}" placeholder="Buscar lotes, produtos ou compradores..." class="input w-full bg-white text-gray-800 placeholder-gray-400 pl-4 pr-10 py-2 rounded-md focus:outline-none shadow-sm text-sm">
+              <button type="submit" class="absolute right-3 text-gray-500 hover:text-gray-700 flex items-center">
+                  <span class="material-symbols-outlined text-xl">search</span>
+              </button>
+          </form>
           {{-- Banner Oferta
           <div class="xl:flex hidden items-center gap-3 bg-slate-700 hover:bg-slate-600 border border-emerald-700 p-1.5 px-3 rounded-full shadow-md transition-all cursor-pointer group shrink-0">
             <span class="bg-emerald-800 group-hover:bg-amber-400 transition-colors text-white font-bold text-[10px] uppercase px-2 py-0.5 rounded-full shrink-0">
@@ -106,12 +105,12 @@
         </div>
 
         {{-- Busca Mobile --}}
-        <div class="sm:hidden w-full relative flex items-center mt-1">
-          <input type="text" placeholder="Buscar no marketplace..." class="input w-full bg-white text-gray-800 placeholder-gray-400 pl-3 pr-9 py-2 rounded-md text-xs">
-          <button class="absolute right-2 text-gray-500 flex items-center">
-            <span class="material-symbols-outlined text-lg">search</span>
-          </button>
-        </div>
+        <form action="{{ route('buscar') }}" method="GET" class="sm:hidden w-full relative flex items-center mt-1">
+            <input type="text" name="q" value="{{ request('q') }}" placeholder="Buscar no marketplace..." class="input w-full bg-white text-gray-800 placeholder-gray-400 pl-3 pr-9 py-2 rounded-md text-xs">
+            <button type="submit" class="absolute right-2 text-gray-500 flex items-center">
+                <span class="material-symbols-outlined text-lg">search</span>
+            </button>
+        </form>
 
         {{-- LINHA INFERIOR --}}
         <div class="menu-desktop items-center justify-between text-sm border-t border-[#236350] pt-2.5 text-gray-100 w-full">
@@ -234,7 +233,7 @@
                       <span class="material-symbols-outlined text-xl">account_circle</span>
                     @endif
                   </div>
-                  <span class="font-semibold max-w-[120px] truncate">{{ auth()->user()->nome ?? auth()->user()->name }}</span>
+                  <span class="font-semibold max-w-120px truncate">{{ auth()->user()->nome ?? auth()->user()->name }}</span>
                 </div>
 
                 <ul tabindex="0"
@@ -424,7 +423,7 @@
     {{-- Chat flutuante global do COPAV --}}
     @auth
         <div id="copav-chat-global"
-          class="fixed bottom-5 right-5 z-[100]"
+          class="fixed bottom-5 right-5 z-100"
           x-data="{
               chatAberto: false,
 
@@ -665,7 +664,7 @@
                                             </p>
 
                                             <p
-                                                class="whitespace-pre-wrap break-words text-sm"
+                                                class="whitespace-pre-wrap wrap-break-words text-sm"
                                                 x-text="mensagem.conteudo">
                                             </p>
 

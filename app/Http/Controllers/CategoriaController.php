@@ -33,10 +33,15 @@ class CategoriaController extends Controller
             ->with('sucesso', 'Categoria cadastrada com sucesso!');
     }
 
-    public function show(Categoria $categoria)
+   public function show(Categoria $categoria)
     {
-        // Carrega os produtos e ofertas associados
-        $categoria->load(['produtos']);
+        // Carrega os produtos, suas ofertas com status publicada e o fornecedor
+        $categoria->load([
+            'produtos.ofertas' => function ($query) {
+                $query->where('status', 'publicada');
+            },
+            'produtos.fornecedor'
+        ]);
 
         return view('categorias.show', compact('categoria'));
     }
