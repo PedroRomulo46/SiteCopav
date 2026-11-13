@@ -42,7 +42,7 @@
     </span>
 
     <span class="font-semibold text-gray-800">
-        Pagamento
+        Verificar Pagamento
     </span>
 </nav>
 
@@ -53,7 +53,7 @@
         <header class="mb-4">
             <h1 class="text-3xl sm:text-4xl font-bold
                        tracking-tight text-gray-900">
-                Pagamento
+                Verificar Pagamento
             </h1>
 
             <p class="text-gray-500 mt-2 text-sm sm:text-base">
@@ -359,7 +359,7 @@
                     sm:justify-between">
 
             <a
-                href="{{ route('negociacoes.compras', $negociacao) }}"
+                href="{{ route('negociacoes.compras') }}"
                 class="flex items-center justify-center gap-2 rounded-xl
                        border border-gray-300 bg-white px-5 py-3
                        text-sm font-semibold text-gray-700
@@ -374,7 +374,7 @@
             <form action="{{ route('pagamentos.confirmar', $negociacao) }}" method="POST">
                 @csrf
                 <button type="submit" class="flex items-center justify-center gap-2 rounded-xl bg-[#236350] px-5 py-3 text-sm font-semibold text-white hover:bg-[#194b3c] transition-colors w-full">
-                    <span class="material-symbols-outlined text-lg">shopping_bag</span>
+                    <span class="material-symbols-outlined text-lg">paid</span>
                     Efetuar pagamento
                 </button>
             </form>

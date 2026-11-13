@@ -44,8 +44,11 @@ class PagamentoController extends Controller
 
     public function confirmar(Request $request, Negociacao $negociacao)
     {
-        // 1. Validação de segurança idêntica ao método show
-        $negociacao->load('propostas');
+        $negociacao->load([
+            'oferta.produto',
+            'oferta.fornecedor',
+            'propostas.usuario',
+        ]);
         
         $propostaAceita = $negociacao->propostas->first(function ($proposta) {
             return $proposta->status === 'aceita'
@@ -54,31 +57,20 @@ class PagamentoController extends Controller
 
         abort_unless($propostaAceita, 403);
 
-        // 2. Atualiza o status para aprovado/pago no banco de dados
-        // Exemplo (ajuste conforme os campos da sua tabela):
+        // Atualiza o status da negociação para pago no banco
         $negociacao->update(['status' => 'pago']);
 
-        // 3. Redireciona de volta com uma mensagem de sucesso
-        return redirect()->route('pagamentos.show', $negociacao)
-            ->with('sucesso', 'Pagamento simulado com sucesso!');
-    }
+        $oferta = $negociacao->oferta;
+        $valorUnitario = (float) $propostaAceita->valor;
+        $quantidade = (float) $propostaAceita->quantidade;
+        $valorTotal = $valorUnitario * $quantidade;
 
-    public function simularPagamento(Request $request, Negociacao $negociacao)
-    {
-        // Garante a mesma segurança para a ação de pagar
-        $negociacao->load('propostas');
-        
-        $propostaAceita = $negociacao->propostas->first(function ($proposta) {
-            return $proposta->status === 'aceita'
-                && (int) $proposta->usuario_id === (int) auth()->id();
-        });
-
-        abort_unless($propostaAceita, 403);
-
-        $negociacao->update(['status' => 'pago']);
-
-        // Redireciona de volta com uma mensagem de sucesso
-        return redirect()->route('negociacoes.show', $negociacao->id)
-            ->with('sucesso', 'Pagamento simulado com sucesso! Transação aprovada.');
+        // Retorna a view de sucesso/confirmação do pagamento
+        return view('pagamentos.confirmar', compact(
+            'negociacao',
+            'propostaAceita',
+            'oferta',
+            'valorTotal'
+        ));
     }
 }

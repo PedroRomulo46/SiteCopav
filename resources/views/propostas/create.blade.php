@@ -4,7 +4,7 @@
 @section('conteudo')
 
 {{-- Breadcrumbs com setas garantidas via ícone --}}
-<nav class="flex items-center text-sm mb-6 text-gray-600" aria-label="Breadcrumb">
+<nav class="flex flex-wrap items-center gap-2 text-sm mb-7">
     <ol class="inline-flex items-center space-x-2">
 
         {{-- Item 1: Início --}}
@@ -22,7 +22,7 @@
             </a>
         </li>
 
-        {{-- Item 2: Pégina Atual --}}
+        {{-- Item 2: Página Atual --}}
         <li class="flex items-center space-x-2 hover:cursor-pointer">
             <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
             <span class="font-semibold text-gray-800">
