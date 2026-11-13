@@ -14,6 +14,7 @@ use App\Http\Controllers\OfertaDiretaController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\PagamentoController;
+use App\Http\Controllers\BuscaController;
 
 // ROTAS PÚBLICAS (Visitantes e Autenticados)
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -21,6 +22,8 @@ Route::resource('categorias', CategoriaController::class)->only(['index', 'show'
 
 // Listagem pública de ofertas
 Route::get('/ofertas', [OfertaController::class, 'index'])->name('ofertas.index');
+
+Route::get('/buscar', [BuscaController::class, 'index'])->name('buscar');
 
 // ROTAS PROTEGIDAS (Exigem Login)
 Route::middleware('auth')->group(function () {
