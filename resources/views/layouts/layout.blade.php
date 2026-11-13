@@ -123,7 +123,7 @@
             {{-- Exibe Lotes e Demandas apenas para Fornecedores ou Admins --}}
             @auth
               @if(auth()->user()->fornecedor || auth()->user()->is_admin || auth()->user()->user_type === 'admin' || auth()->user()->email === 'copavagricola@example.com')
-                <a href="{{ route('ofertas.index') }}" class="nav-link transition-colors">Lotes</a>
+                <a href="{{ route('ofertas.index') }}" class="nav-link transition-colors">Ofertas</a>
                 <a href="{{ route('demandas.index') }}" class="nav-link transition-colors">Demandas</a>
               @endif
             @endauth
@@ -287,7 +287,7 @@
             {{-- Exibe Lotes e Demandas no Mobile apenas para Fornecedores ou Admins --}}
             @auth
               @if(auth()->user()->fornecedor || auth()->user()->is_admin || auth()->user()->user_type === 'admin' || auth()->user()->email === 'copavagricola@example.com')
-                <a href="{{ route('ofertas.index') }}" class="hover:bg-[#236350] p-2 rounded-md">Lotes</a>
+                <a href="{{ route('ofertas.index') }}" class="hover:bg-[#236350] p-2 rounded-md">Ofertas</a>
                 <a href="{{ route('demandas.index') }}" class="hover:bg-[#236350] p-2 rounded-md">Demandas</a>
               @endif
             @endauth

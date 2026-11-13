@@ -77,8 +77,8 @@
                 <div class="flex flex-row md:flex-row md:items-center justify-between gap-4 mb-4 pb-4 border-b border-emerald-800">
                     <div>
                         @if($is_Fornecedor)
-                            <h1 class="text-lg sm:text-2xl font-extrabold mt-1">
-                                Gestão dos seus lotes
+                            <h1 class="text-lg sm:text-2xl font-bold mt-1">
+                                Gestão de Ofertas
                             </h1>
 
                             <p class="text-sm text-emerald-50 mt-1">
@@ -216,8 +216,8 @@
                                         onerror="this.onerror=null; this.src='{{ asset('assets/milho.png') }}';">
 
                                     <div class="min-w-0 flex-1">
-                                        <h2 class="font-extrabold text-gray-800 text-sm sm:text-base truncate">
-                                            - {{ $oferta->produto->nome ?? 'Produto sem nome' }}
+                                        <h2 class="font-bold text-gray-800 text-sm sm:text-base truncate">
+                                            {{ $oferta->produto->nome ?? 'Produto sem nome' }}
                                         </h2>
 
                                         <p class="text-xs text-gray-700 mt-0.5">
@@ -454,7 +454,7 @@
 
         <div class="flex flex-col items-start gap-3">
             <div class="w-full text-left">
-                <h2 class="text-2xl sm:text-xl font-extrabold text-gray-800">
+                <h2 class="text-2xl sm:text-xl font-bold text-gray-800">
                     Produtos que você pode se interessar...
                 </h2>
 

@@ -30,11 +30,8 @@
     {{-- Cabeçalho --}}
     <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8 w-full text-left">
         <div class="text-left w-full">
-            <p class="text-sm font-semibold text-[#236350] mb-1 text-left">
-                Painel de Compra
-            </p>
             <h1 class="text-2xl font-bold text-gray-800 text-left">
-                Minhas Compras
+                Painel de Compras
             </h1>
             <p class="text-gray-500 mt-1 text-left">
                 Acompanhe as propostas enviadas e o andamento das suas negociações com fornecedores.

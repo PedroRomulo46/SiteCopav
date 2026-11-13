@@ -58,6 +58,7 @@ class NegociacaoController extends Controller
     $usuario = auth()->user();
 
     $negociacoes = Negociacao::where('cliente_id', $usuario->id)
+    ->whereHas('propostas') // Garante que só traz negociações com pelo menos uma proposta enviada
         ->with([
             'oferta.produto',
             'oferta.fornecedor',
@@ -172,12 +173,7 @@ class NegociacaoController extends Controller
             $propostas = $propostas->where('status', $status);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Ordenação
-        |--------------------------------------------------------------------------
-        */
-
+        // Ordenação
         $ordenar = $request->query('ordenar', 'valor_total');
 
         switch ($ordenar) {
@@ -218,12 +214,7 @@ class NegociacaoController extends Controller
 
         $propostas = $propostas->values();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Estatísticas
-        |--------------------------------------------------------------------------
-        */
-
+        // Estatísticas
         $todasPropostas = $negociacoes->flatMap(function ($negociacao) {
             return $negociacao->propostas;
         });
