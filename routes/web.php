@@ -43,16 +43,22 @@ Route::middleware('auth')->group(function () {
     // Chat
     Route::get('/chat', [ChatController::class, 'index'])
         ->name('chat');
-    Route::get('/chat/conversas', [ChatController::class, 'conversas'])    // Lista de conversas para a janela flutuante
+
+    // Lista de conversas para a janela flutuante
+    Route::get('/chat/conversas', [ChatController::class, 'conversas'])
         ->name('chat.conversas');
-    Route::get('/chat/{negociacao}/mensagens', [        // Histórico de mensagens de uma conversa
-        ChatController::class,
-        'mensagens'
-    ])->name('chat.mensagens');
-    Route::get('/chat/{negociacao}', [ChatController::class, 'show'])    // Abrir uma conversa específica
+
+    // Histórico de mensagens de uma conversa
+    Route::get('/chat/{negociacao}/mensagens', [ChatController::class, 'mensagens'])
+        ->name('chat.mensagens');
+
+    // Abrir uma conversa específica
+    Route::get('/chat/{negociacao}', [ChatController::class, 'show'])
         ->name('chat.show');
-    Route::post('/chat/{negociacao}/mensagens', [ChatController::class, 'store'])    // Enviar mensagem
-        ->name('chat.mensagens.store');
+        
+    // Enviar mensagem
+    Route::post('/chat/{negociacao}/mensagens', [ChatController::class, 'store'])
+        ->name('chat.mensagens.store'); 
 
     // Categorias
     Route::resource('categorias', CategoriaController::class)->except(['index', 'show']);
@@ -103,14 +109,12 @@ Route::middleware('auth')->group(function () {
 
     // Pagamentos
     Route::get('/negociacoes/{negociacao}/pagamento',[PagamentoController::class, 'show'])->name('pagamentos.show');
+    Route::post('/negociacoes/{negociacao}/pagamento/aprovar', [PagamentoController::class, 'confirmar'])->name('pagamentos.confirmar');
 });
 
 // ROTAS EXCLUSIVAS DA EMPRESA (ADMIN)
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 });
-
-// Rota com parâmetro dinâmico em último para evitar conflitos
-Route::get('/ofertas/{oferta}', [OfertaController::class, 'show'])->name('ofertas.show');
 
 require __DIR__.'/auth.php';

@@ -160,10 +160,6 @@
                                         ? 'Seguir para o pagamento'
                                         : 'Ver Negociação' }}
                                 </span>
-
-                                <span class="material-symbols-outlined text-base">
-                                    arrow_forward
-                                </span>
                             </a>
                         </div>
                     </div>

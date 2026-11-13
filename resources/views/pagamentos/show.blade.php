@@ -42,7 +42,7 @@
     </span>
 
     <span class="font-semibold text-gray-800">
-        Pagamento
+        Verificar Pagamento
     </span>
 </nav>
 
@@ -53,7 +53,7 @@
         <header class="mb-4">
             <h1 class="text-3xl sm:text-4xl font-bold
                        tracking-tight text-gray-900">
-                Pagamento
+                Verificar Pagamento
             </h1>
 
             <p class="text-gray-500 mt-2 text-sm sm:text-base">
@@ -354,27 +354,12 @@
             </aside>
         </div>
 
-        {{-- Aviso --}}
-        <div class="mt-6 flex items-start gap-3 rounded-xl
-                    border border-amber-200 bg-amber-50 p-4">
-            <span class="material-symbols-outlined
-                         text-amber-600 text-xl shrink-0">
-                info
-            </span>
-
-            <p class="text-sm text-amber-900 leading-relaxed">
-                <strong>Prévia do pedido:</strong>
-                nenhum pagamento foi realizado ou confirmado nesta tela.
-                A cobrança real depende da integração de um meio de pagamento.
-            </p>
-        </div>
-
         {{-- Ações --}}
         <div class="mt-6 flex flex-col-reverse sm:flex-row gap-3
                     sm:justify-between">
 
             <a
-                href="{{ route('negociacoes.show', $negociacao) }}"
+                href="{{ route('negociacoes.compras') }}"
                 class="flex items-center justify-center gap-2 rounded-xl
                        border border-gray-300 bg-white px-5 py-3
                        text-sm font-semibold text-gray-700
@@ -383,23 +368,17 @@
                 <span class="material-symbols-outlined text-lg">
                     arrow_back
                 </span>
-                Voltar ao chat
+                Voltar à página de compras
             </a>
 
-            <a
-                href="{{ route('negociacoes.compras') }}"
-                class="flex items-center justify-center gap-2 rounded-xl
-                       bg-[#236350] px-5 py-3 text-sm font-semibold
-                       text-white hover:bg-[#194b3c] transition-colors"
-            >
-                <span class="material-symbols-outlined text-lg">
-                    shopping_bag
-                </span>
-                Minhas compras
-            </a>
-
+            <form action="{{ route('pagamentos.confirmar', $negociacao) }}" method="POST">
+                @csrf
+                <button type="submit" class="flex items-center justify-center gap-2 rounded-xl bg-[#236350] px-5 py-3 text-sm font-semibold text-white hover:bg-[#194b3c] transition-colors w-full">
+                    <span class="material-symbols-outlined text-lg">paid</span>
+                    Efetuar pagamento
+                </button>
+            </form>
         </div>
-
     </main>
 </div>
 
