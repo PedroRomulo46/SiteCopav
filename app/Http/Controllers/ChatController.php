@@ -136,27 +136,27 @@ class ChatController extends Controller
         return response()->json($conversas);
     }
 
-        private function marcarComoLida(
-            Chat $chat,
-            Negociacao $negociacao,
-            $usuario
-        ): void {
-            $ultimaMensagemId = $chat->mensagens()->max('id');
+    private function marcarComoLida(
+        Chat $chat,
+        Negociacao $negociacao,
+        $usuario
+    ): void {
+        $ultimaMensagemId = $chat->mensagens()->max('id');
 
-            if (!$ultimaMensagemId) {
-                return;
-            }
-
-            $ehCliente = (int) $negociacao->cliente_id === (int) $usuario->id;
-
-            $campo = $ehCliente
-                ? 'cliente_ultima_leitura_id'
-                : 'fornecedor_ultima_leitura_id';
-
-            $chat->forceFill([
-                $campo => $ultimaMensagemId,
-            ])->save();
+        if (!$ultimaMensagemId) {
+            return;
         }
+
+        $ehCliente = (int) $negociacao->cliente_id === (int) $usuario->id;
+
+        $campo = $ehCliente
+            ? 'cliente_ultima_leitura_id'
+            : 'fornecedor_ultima_leitura_id';
+
+        $chat->forceFill([
+            $campo => $ultimaMensagemId,
+        ])->save();
+    }
 
     public function show(Negociacao $negociacao)
     {
