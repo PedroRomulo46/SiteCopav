@@ -50,7 +50,7 @@
         
         <!-- Coluna 1: Imagem do Produto -->
         <div class="lg:col-span-5 lg:sticky lg:top-6 w-full">
-            <div class="bg-white p-2 rounded-xl border border-gray-100 overflow-hidden w-full h-[380px]">
+            <div class="bg-white p-2 rounded-xl border border-gray-100 overflow-hidden w-full h-380px">
                 <img
                     class="w-full h-full rounded-lg object-cover"
                     src="{{ $produto->imagem 
@@ -112,7 +112,7 @@
                     <span class="text-lg font-bold text-gray-700">R$</span>
                     <span
                         id="oferta-valor"
-                        class="text-3xl sm:text-4xl font-extrabold text-gray-900"
+                        class="text-3xl sm:text-4xl font-bold text-gray-900"
                     >
                         {{ number_format($oferta->valor ?? 0, 2, ',', '.') }}
                     </span>

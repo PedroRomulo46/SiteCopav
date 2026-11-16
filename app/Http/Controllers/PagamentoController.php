@@ -60,6 +60,10 @@ class PagamentoController extends Controller
         // Atualiza o status da negociação para pago no banco
         $negociacao->update(['status' => 'pago']);
 
+        // DISPARA O EVENTO PARA O WEBSOCKET (REVERB / ECHO)
+        // Substitua 'PagamentoAprovado' pelo nome da classe do seu evento real
+        event(new \App\Events\PagamentoAprovado($negociacao));
+
         $oferta = $negociacao->oferta;
         $valorUnitario = (float) $propostaAceita->valor;
         $quantidade = (float) $propostaAceita->quantidade;

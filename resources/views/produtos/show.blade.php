@@ -30,7 +30,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2">
 
             {{-- Imagem --}}
-            <div class="bg-gray-100 min-h-[350px]">
+            <div class="bg-gray-100 min-h-350px]">
                 <img
                     src="{{ $produto->imagem 
                         ? (str_contains($produto->imagem, 'assets/') 
@@ -38,7 +38,7 @@
                             : asset('storage/' . str_replace('public/', '', $produto->imagem))) 
                         : asset('assets/milho.png') }}"
                     alt="{{ $produto->nome ?? 'Imagem do produto' }}"
-                    class="w-full h-full min-h-[350px] object-cover"
+                    class="w-full h-full min-h-350px object-cover"
                     onerror="this.onerror=null; this.src='{{ asset('assets/milho.png') }}';"
                 />
             </div>

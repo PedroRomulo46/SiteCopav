@@ -46,7 +46,7 @@
         <div id="lista-mensagens"
              data-chat-id="{{ $chat->id }}"
              class="px-4 sm:px-7 py-6 space-y-5 bg-[#F8FAF9]
-                    min-h-[350px] h-[52vh] max-h-[600px] overflow-y-auto">
+                    min-h-350px h-[52vh] max-h-600px overflow-y-auto">
 
             @forelse ($chat->mensagens as $mensagem)
                 @php
@@ -66,7 +66,7 @@
                             {{ $minhaMensagem ? 'Você' : ($mensagem->usuario->nome ?? 'Participante') }}
                         </p>
 
-                        <p class="whitespace-pre-wrap break-words text-sm leading-relaxed">{{ $mensagem->conteudo }}</p>
+                        <p class="whitespace-pre-wrap wrap-break-words text-sm leading-relaxed">{{ $mensagem->conteudo }}</p>
 
                         <p class="text-[11px] mt-2 text-right
                             {{ $minhaMensagem ? 'text-white/70' : 'text-gray-400' }}">
@@ -118,7 +118,7 @@
                     type="submit"
                     class="inline-flex items-center justify-center gap-2 rounded-xl
                            bg-[#236350] hover:bg-[#1B4D3E] text-white
-                           font-semibold px-4 sm:px-5 py-3 min-h-[48px]
+                           font-semibold px-4 sm:px-5 py-3 min-h-48px
                            transition disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                     <span id="texto-botao">Enviar</span>

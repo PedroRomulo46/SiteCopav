@@ -45,63 +45,55 @@
         && !$is_DonoDaOferta;
 @endphp
 
-{{-- Container com informações do usuário --}}
-@if(auth()->check())
-    <div class="bg-yellow-100 text-black p-4 rounded-lg mb-4">
-        <p>Usuário: {{ auth()->user()->nome }}</p>
-
-        <p>Tipo: {{ auth()->user()->user_type }}</p>
-
-        <p>É administrador: {{ auth()->user()->is_admin ? 'Sim' : 'Não' }}</p>
-
-        <p>
-            ID do fornecedor:
-            {{ auth()->user()->fornecedor?->id ?? 'Não encontrado' }}
-        </p>
-
-        <p>
-            ID do fornecedor da oferta:
-            {{ $negociacao->oferta->fornecedor_id }}
-        </p>
-
-        <p>
-            É dono da oferta:
-            {{ $is_DonoDaOferta ? 'Sim' : 'Não' }}
-        </p>
-
-        <p>
-            Pode gerenciar:
-            {{ $podeGerenciarPropostas ? 'Sim' : 'Não' }}
-        </p>
-    </div>
-@endif
-
-{{-- Breadcrumbs com setas garantidas via ícone --}}
+{{-- Breadcrumbs Dinâmicos --}}
 <nav class="flex items-center text-sm mb-6 text-gray-600" aria-label="Breadcrumb">
     <ol class="inline-flex items-center space-x-2">
-
         {{-- Item 1: Início --}}
         <li>
-            <a href="{{ route('home') }}">
+            <a href="{{ route('home') }}" class="hover:text-[#236350]">
                 Início
             </a>
         </li>
 
-        {{-- Item 2: Compras ou Vendas --}}
-        <li class="flex items-center space-x-2 hover:cursor-pointer">
-            <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
-            @if($is_ClienteDaNegociacao)
+        {{-- Item Intermediário Dinâmico baseado no contexto ou origem --}}
+        @php
+            $veioDeCompras = str_contains(url()->previous(), 'compras');
+            $veioDeVendas = str_contains(url()->previous(), 'vendas');
+            $veioDeOferta = str_contains(url()->previous(), 'ofertas');
+        @endphp
+
+        @if($veioDeCompras)
+            <li class="flex items-center space-x-2">
+                <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
                 <a href="{{ route('negociacoes.compras') }}" class="hover:text-[#236350] transition-colors">
                     Minhas Compras
                 </a>
-            @else
+            </li>
+        @elseif($veioDeVendas)
+            <li class="flex items-center space-x-2">
+                <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
                 <a href="{{ route('negociacoes.vendas') }}" class="hover:text-[#236350] transition-colors">
                     Minhas Vendas
                 </a>
-            @endif
-        </li>
+            </li>
+        @elseif($veioDeOferta)
+            <li class="flex items-center space-x-2">
+                <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
+                <a href="{{ url()->previous() }}" class="hover:text-[#236350] transition-colors">
+                    {{ $negociacao->oferta->produto->nome }}
+                </a>
+            </li>
+        @else
+            {{-- Fallback padrão caso venha de URL direta --}}
+            <li class="flex items-center space-x-2">
+                <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
+                <a href="{{ $is_ClienteDaNegociacao ? route('negociacoes.compras') : route('negociacoes.vendas') }}" class="hover:text-[#236350] transition-colors">
+                    {{ $is_ClienteDaNegociacao ? 'Minhas Compras' : 'Minhas Vendas' }}
+                </a>
+            </li>
+        @endif
 
-        {{-- Item 3: Página Atual --}}
+        {{-- Item Atual --}}
         <li class="flex items-center space-x-2">
             <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
             <span class="font-semibold text-gray-800">
@@ -358,14 +350,6 @@
                         </div>
                     @endforelse
                 </div>
-
-            {{-- Botões de Rodapé --}}
-            <div class="flex items-center justify-start mt-6 pt-4 border-t border-gray-200">
-                <a
-                    href="{{ route('negociacoes.index') }}"
-                    class="text-gray-600 hover:text-gray-900 text-sm font-medium">
-                    Voltar para as negociações
-                </a>
             </div>
         </div>
     </div>

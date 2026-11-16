@@ -25,7 +25,8 @@ return new class extends Migration
                 'aceita',
                 'recusada',
                 'concluida',
-                'cancelada'
+                'cancelada',
+                'pago'
             ])->default('pendente');
 
             $table->timestamps();
