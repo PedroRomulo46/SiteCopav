@@ -110,6 +110,9 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    // Logística
+    Route::get('/compras/{negociacao}/encomenda', [App\Http\Controllers\CompraController::class, 'encomenda'])->name('compras.encomenda');
+
     // Pagamentos
     Route::get('/negociacoes/{negociacao}/pagamento',[PagamentoController::class, 'show'])->name('pagamentos.show');
     Route::post('/negociacoes/{negociacao}/pagamento/aprovar', [PagamentoController::class, 'confirmar'])->name('pagamentos.confirmar');

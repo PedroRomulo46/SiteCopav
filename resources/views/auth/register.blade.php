@@ -7,7 +7,7 @@
             <x-input-label for="nome" :value="__('Nome')"/>
             <x-text-input
                 id="nome"
-                class="block mt-1 w-full"
+                class="block mt-1 py-2 w-full text-base"
                 type="text"
                 name="nome"
                 :value="old('nome')"
@@ -17,7 +17,7 @@
             />
             <x-input-error
                 :messages="$errors->get('nome')"
-                class="mt-2"
+                class="mt-1"
             />
         </div>
         <!-- E-mail -->
@@ -25,7 +25,7 @@
             <x-input-label for="email" :value="__('E-mail')"/>
             <x-text-input
                 id="email"
-                class="block mt-1 w-full"
+                class="block mt-1 py-2 w-full text-base"
                 type="email"
                 name="email"
                 :value="old('email')"
@@ -43,7 +43,7 @@
 
             <x-text-input
                 id="password"
-                class="block mt-1 w-full"
+                class="block mt-1 py-2 w-full text-base"
                 type="password"
                 name="password"
                 required
@@ -59,7 +59,7 @@
             <x-input-label for="password_confirmation" :value="__('Confirmar senha')"/>
             <x-text-input
                 id="password_confirmation"
-                class="block mt-1 w-full"
+                class="block mt-1 py-2 w-full text-base"
                 type="password"
                 name="password_confirmation"
                 required

@@ -77,6 +77,42 @@ class DatabaseSeeder extends Seeder
             'fornecedor_id' => $fornecedorCopav->id,
             'imagem'        => 'assets/nutriente.png',
         ]);
+
+        $p5 = Produto::create([
+            'nome'          => 'Trator John Deere Séries 3036EN',
+            'descricao'     => 'Trator compacto destinado a cultura de café, horticultura e fruticultura (3 cilindros, 1.6 Diesel).',
+            'unidade'       => '1200 (Kg)',
+            'categoria_id'  => $catMaquinario->id,
+            'fornecedor_id' => $fornecedorCopav->id,
+            'imagem'        => 'assets/trator.jpg',
+        ]);
+
+        $p6 = Produto::create([
+            'nome'          => 'Tomates Frescos',
+            'descricao'     => 'Tomates recem colhidos, muito frescos.',
+            'unidade'       => '80 (Kg)',
+            'categoria_id'  => $catFrutas->id,
+            'fornecedor_id' => $fornecedorCopav->id,
+            'imagem'        => 'assets/tomate.png',
+        ]);
+
+        $p7 = Produto::create([
+            'nome'          => 'Feijões da Fazenda Belém',
+            'descricao'     => 'Feijões bonitos e plantados na lendária fazenda belém.',
+            'unidade'       => '120 (Kg)',
+            'categoria_id'  => $catGraos->id,
+            'fornecedor_id' => $fornecedorCopav->id,
+            'imagem'        => 'assets/feijao.png',
+        ]);
+
+        $p8 = Produto::create([
+            'nome'          => 'Drone Agricola',
+            'descricao'     => 'Drone especializado para pulverização.',
+            'unidade'       => '25 (Kg)',
+            'categoria_id'  => $catMaquinario->id,
+            'fornecedor_id' => $fornecedorCopav->id,
+            'imagem'        => 'assets/drone.png',
+        ]);
         
         // 4. Cria Ofertas públicas
         Oferta::create([
@@ -114,6 +150,46 @@ class DatabaseSeeder extends Seeder
             'fornecedor_id' => $fornecedorCopav->id,
             'quantidade'    => 50,
             'valor'         => 60.00,
+            'unidade'       => 'Sacas',
+            'status'        => 'publicada',
+            'data_validade' => now()->addDays(30),
+        ]);
+
+        Oferta::create([
+            'produto_id'    => $p5->id,
+            'fornecedor_id' => $fornecedorCopav->id,
+            'quantidade'    => 1,
+            'valor'         => 145000.00,
+            'unidade'       => 'S/Unidade',
+            'status'        => 'publicada',
+            'data_validade' => now()->addDays(30),
+        ]);
+
+        Oferta::create([
+            'produto_id'    => $p6->id,
+            'fornecedor_id' => $fornecedorCopav->id,
+            'quantidade'    => 50,
+            'valor'         => 800.00,
+            'unidade'       => 'Sacas',
+            'status'        => 'publicada',
+            'data_validade' => now()->addDays(30),
+        ]);
+
+        Oferta::create([
+            'produto_id'    => $p7->id,
+            'fornecedor_id' => $fornecedorCopav->id,
+            'quantidade'    => 120,
+            'valor'         => 620.00,
+            'unidade'       => 'Sacas',
+            'status'        => 'publicada',
+            'data_validade' => now()->addDays(30),
+        ]);
+
+        Oferta::create([
+            'produto_id'    => $p8->id,
+            'fornecedor_id' => $fornecedorCopav->id,
+            'quantidade'    => 1,
+            'valor'         => 120000.00,
             'unidade'       => 'Sacas',
             'status'        => 'publicada',
             'data_validade' => now()->addDays(30),

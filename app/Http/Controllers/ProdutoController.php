@@ -114,10 +114,17 @@ class ProdutoController extends Controller
 
         $dados['fornecedor_id'] = $fornecedor->id;
 
-        if ($request->hasFile('imagem')) {
-            $dados['imagem'] = $request
-                ->file('imagem')
-                ->store('produtos', 'public');
+        if ($request->hasFile('imagem') && $request->file('imagem')->isValid()) {
+            $file = $request->file('imagem');
+            $nomeArquivo = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            
+            // Move o arquivo diretamente para a pasta public/storage/produtos do projeto
+            $file->move(public_path('storage/produtos'), $nomeArquivo);
+            
+            // Salva no banco o caminho relativo que a sua view já espera ('produtos/nome.ext')
+            $dados['imagem'] = 'produtos/' . $nomeArquivo;
+        } else {
+            unset($dados['imagem']);
         }
 
         Produto::create($dados);

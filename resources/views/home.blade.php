@@ -511,12 +511,12 @@
 
                         <div class="p-2.5 sm:p-3 flex flex-col flex-1 justify-between gap-2">
                             <div>
-                                <h3 class="font-bold text-xs sm:text-sm text-gray-800 line-clamp-2 leading-tight group-hover:text-[#236350] transition-colors">
+                                <h3 class="font-bold text-xs sm:text-lg text-gray-800 line-clamp-2 leading-tight group-hover:text-[#236350] transition-colors">
                                     {{ $nomeVitrine }}
                                 </h3>
 
                                 @if($descricaoVitrine)
-                                    <p class="text-[11px] text-gray-400 line-clamp-2 mt-1">
+                                    <p class="text-[14px] text-gray-400 line-clamp-2 mt-1">
                                         {{ $descricaoVitrine }}
                                     </p>
                                 @endif

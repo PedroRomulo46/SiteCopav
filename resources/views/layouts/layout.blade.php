@@ -81,6 +81,7 @@
                   <span class="material-symbols-outlined text-xl">search</span>
               </button>
           </form>
+
           {{-- Banner Oferta
           <div class="xl:flex hidden items-center gap-3 bg-slate-700 hover:bg-slate-600 border border-emerald-700 p-1.5 px-3 rounded-full shadow-md transition-all cursor-pointer group shrink-0">
             <span class="bg-emerald-800 group-hover:bg-amber-400 transition-colors text-white font-bold text-[10px] uppercase px-2 py-0.5 rounded-full shrink-0">

@@ -6,13 +6,27 @@
 
 {{-- Breadcrumb --}}
 <nav class="flex flex-wrap items-center gap-2 text-sm mb-7" aria-label="Breadcrumb">
-    <a href="{{ route('home') }}" class="text-gray-500 hover:text-[#236350]">Início</a>
-    <span class="material-symbols-outlined text-gray-400 text-lg">chevron_right</span>
-    <a href="{{ route('negociacoes.compras') }}" class="text-gray-500 hover:text-[#236350]">Minhas Compras</a>
-    <span class="material-symbols-outlined text-gray-400 text-lg">chevron_right</span>
-    <a href="{{ route('pagamentos.show', $negociacao) }}" class="text-gray-500 hover:text-[#236350]">Verificar Pagamento</a>
-    <span class="material-symbols-outlined text-gray-400 text-lg">chevron_right</span>
-    <span class="font-semibold text-gray-800">Pagamento Aprovado</span>
+    <a href="{{ route('home') }}" class="text-gray-500 hover:text-[#236350]">
+        Início
+    </a>
+    <span class="material-symbols-outlined text-gray-400 text-lg">
+        chevron_right
+    </span>
+    <a href="{{ route('negociacoes.compras') }}" class="text-gray-500 hover:text-[#236350]">
+        Minhas Compras
+    </a>
+    <span class="material-symbols-outlined text-gray-400 text-lg">
+        chevron_right
+    </span>
+    <a href="{{ route('pagamentos.show', $negociacao) }}" class="text-gray-500 hover:text-[#236350]">
+        Verificar Pagamento
+    </a>
+    <span class="material-symbols-outlined text-gray-400 text-lg">
+        chevron_right
+    </span>
+    <span class="font-semibold text-gray-800">
+        Pagamento Aprovado
+    </span>
 </nav>
 
 <div class="min-h-[70vh] flex items-center justify-center py-8">

@@ -16,6 +16,42 @@
         <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&icon_names=search,arrow_right_alt,account_circle,forum,home,arrow_back,palette,settings,logout&display=block" rel="stylesheet">
         <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+        <style>
+        [x-cloak] { display: none !important; }
+
+        .btn-copav {
+            background-color: #236350 !important;
+            color: #ffffff !important;
+            border: none !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+
+        .btn-copav:hover {
+            background-color: #1a493b !important;
+            color: #ffffff !important;
+        }
+        
+        /* Esconde no mobile/tablet e exibe flex no computador */
+        .menu-desktop {
+          display: none;
+        }
+        @media (min-width: 1024px) {
+          .menu-desktop {
+            display: flex !important;
+          }
+        }
+
+        .nav-link:hover {
+          color: #fcd34d !important; /* Cor equivalente a amber-300 */
+        }
+
+    </style>
+
     </head>
     <body class="font-sans text-gray-900 antialiased">
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">

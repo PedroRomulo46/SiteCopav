@@ -20,7 +20,7 @@
 @endphp
 
 {{-- Breadcrumb --}}
-<nav class="flex flex-wrap items-center gap-2 text-sm mb-7"
+<nav class="flex flex-wrap items-center gap-2 text-sm mb-2"
      aria-label="Breadcrumb">
 
     <a href="{{ route('home') }}"
@@ -64,14 +64,14 @@
         {{-- Card do produto --}}
         <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-5 lg:p-6 mb-6">
 
-            <div class="grid lg:grid-cols-2 md:grid-cols-[220px_minmax(0,1fr)] gap-5 lg:gap-7 items-start">
+            <div class="grid grid-cols-1 md:grid-cols-[260px_minmax(0,1fr)] gap-6 lg:gap-8 items-center">
 
                 {{-- Imagem do produto --}}
-                <div class="relative w-full">
+                <div class="relative flex justify-center w-full">
                     <img
                         src="{{ $imagemProduto }}"
                         alt="{{ $produto->nome ?? 'Produto' }}"
-                        class="w-48 h-48 sm:h-44 lg:h-48 object-cover rounded-xl bg-gray-100"
+                        class="w-full h-56 md:h-64 object-cover rounded-xl bg-gray-100 shadow-sm"
                     >
                 </div>
 
@@ -86,7 +86,7 @@
                     </p>
 
                     <h2 class="text-xl sm:text-2xl font-bold text-gray-900
-                            break-words">
+                            wrap-break-words">
                         {{ $produto->nome ?? 'Produto' }}
                     </h2>
 
@@ -102,9 +102,10 @@
                         <div class="min-w-0">
                             <p class="text-sm text-gray-500">Vendedor</p>
 
-                            <p class="font-bold text-gray-900 break-words">
+                            {{-- Adicionar rota para perfil do fornecedor href="{{ route('perfil.fornecedor') }}" --}}
+                            <a class="font-bold text-gray-900 wrap-break-words">
                                 {{ $oferta->fornecedor->nome ?? 'Fornecedor' }}
-                            </p>
+                            </a>
                         </div>
                     </div>
 
@@ -243,7 +244,7 @@
                                 </p>
 
                                 <p class="text-2xl sm:text-3xl font-extrabold
-                                          text-[#236350] break-words">
+                                          text-[#236350] wrap-break-words">
                                     R$ {{ number_format($valorTotal, 2, ',', '.') }}
                                 </p>
                             </div>
@@ -371,13 +372,70 @@
                 Voltar à página de compras
             </a>
 
-            <form action="{{ route('pagamentos.confirmar', $negociacao) }}" method="POST">
-                @csrf
-                <button type="submit" class="flex items-center justify-center gap-2 rounded-xl bg-[#236350] px-5 py-3 text-sm font-semibold text-white hover:bg-[#194b3c] transition-colors w-full">
+            {{-- Envolvendo a área com Alpine.js para controlar o modal e o loading --}}
+            <div x-data="{ modalAberto: false, processando: false }">
+
+                {{-- Botão que abre o Modal --}}
+                <button @click="modalAberto = true" type="button" class="flex items-center justify-center gap-2 rounded-xl bg-[#236350] px-5 py-3 text-sm font-semibold text-white hover:bg-[#194b3c] transition-colors w-full shadow-sm">
                     <span class="material-symbols-outlined text-lg">paid</span>
                     Efetuar pagamento
                 </button>
-            </form>
+
+                {{-- MODAL DE CONFIRMAÇÃO E LOADING --}}
+                <div x-show="modalAberto" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs px-4" x-cloak>
+                    <div @click.outside="if (!processando) modalAberto = false" class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 text-center transform transition-all">
+                        
+                        {{-- ESTÁGIO 1: Confirmação antes de pagar --}}
+                        <template x-if="!processando">
+                            <div>
+                                <div class="w-14 h-14 bg-emerald-50 text-[#236350] rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <span class="material-symbols-outlined text-2xl">lock</span>
+                                </div>
+                                
+                                <h3 class="text-xl font-bold text-gray-900 mb-2">Confirmar Pagamento</h3>
+                                <p class="text-sm text-gray-500 mb-6">
+                                    Você está prestes a efetuar o pagamento simulado desta negociação. Deseja prosseguir com a transação?
+                                </p>
+
+                                <div class="flex gap-3">
+                                    <button @click="modalAberto = false" type="button" class="flex-1 rounded-xl border border-gray-300 bg-white py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
+                                        Cancelar
+                                    </button>
+
+                                    {{-- Dispara o loading e envia o form após 1.5s (simulando a api futura da InfinitePay) --}}
+                                    <button @click="
+                                        processando = true;
+                                        setTimeout(() => {
+                                            $refs.formPagamento.submit();
+                                        }, 1500);
+                                    " type="button" class="flex-1 rounded-xl bg-[#236350] py-2.5 text-sm font-semibold text-white hover:bg-[#194b3c] transition-colors shadow-sm">
+                                        Confirmar
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+
+                        {{-- ESTÁGIO 2: Tela de Redirecionamento / Processando (Pronto para InfinitePay) --}}
+                        <template x-if="processando">
+                            <div class="py-6">
+                                <div class="w-16 h-16 border-4 border-emerald-100 border-t-[#236350] rounded-full animate-spin mx-auto mb-4"></div>
+                                
+                                <h3 class="text-lg font-bold text-gray-900 mb-1">Processando pagamento...</h3>
+                                <p class="text-xs text-gray-500">
+                                    Comunicando com o gateway seguro. Redirecionando...
+                                </p>
+                            </div>
+                        </template>
+
+                    </div>
+                </div>
+
+                {{-- Formulário oculto real que submete para o Laravel --}}
+                <form x-ref="formPagamento" action="{{ route('pagamentos.confirmar', $negociacao) }}" method="POST" class="hidden">
+                    @csrf
+                </form>
+
+            </div>
         </div>
     </main>
 </div>
