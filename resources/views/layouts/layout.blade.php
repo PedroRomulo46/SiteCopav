@@ -60,10 +60,17 @@
 </script>
 
 <body class="bg-[#ebeae7] min-h-screen flex flex-col font-sans
-    @if(View::hasSection('chat_layout')) !h-screen !overflow-hidden @endif">
+    @if(View::hasSection('chat_layout')) h-screen overflow-hidden @endif">
 
     {{-- Cabeçalho --}}
-    <header class="bg-[#1B4D3E] text-white shadow-md w-full">
+    <header
+    x-data="{
+        menuMobileAberto: false,
+        usuarioMenuAberto: false,
+        categoriasMenuAberto: false
+    }"
+    class="bg-[#1B4D3E] text-white shadow-md w-full"
+    >
       <div class="w-full px-4 sm:px-6 lg:px-10 py-3 flex flex-col gap-3">
         
         {{-- LINHA SUPERIOR --}}
@@ -130,53 +137,104 @@
             @endauth
             
             {{-- Dropdown Categorias --}}
-            <div class="dropdown relative">
-              <div tabindex="0" role="button" class="flex items-center gap-1 nav-link transition-colors cursor-pointer py-1">
-                <span>Categorias</span>
-                <span class="material-symbols-outlined text-base">expand_more</span>
-              </div>
-              
-              <ul tabindex="0" class="dropdown-content menu bg-white text-gray-800 rounded-box z-50 w-56 p-2 shadow-xl mt-1 border border-gray-100 max-h-60 overflow-y-auto">
-                
-                {{-- Condição de Acesso: Apenas Admin vê "Ver Todas" --}}
-                @auth
-                  @if(auth()->user()->is_admin || auth()->user()->user_type === 'admin' || auth()->user()->email === 'copavagricola@example.com')
-                    <li>
-                      <a href="{{ route('categorias.index') }}" class="font-bold text-[#1B4D3E] hover:bg-emerald-50">
-                        <span class="material-symbols-outlined text-base">list</span>
-                        Ver Todas
-                      </a>
-                    </li>
-                  @else
-                    <li>
-                      <a href="{{ route('categorias.create') }}" class="font-bold text-amber-700 hover:bg-amber-50">
-                        <span class="material-symbols-outlined text-base">add_circle</span>
-                        Sugerir Categoria
-                      </a>
-                    </li>
-                  @endif
-                @else
-                  <li>
-                    <a href="{{ route('login') }}" class="font-bold text-amber-700 hover:bg-amber-50">
-                      <span class="material-symbols-outlined text-base">add_circle</span>
-                      Sugerir Categoria
-                    </a>
-                  </li>
-                  @endauth
-                  
-                <div class="divider my-1"></div>
+            <div
+                class="relative"
+                @click.outside="categoriasMenuAberto = false"
+                @keydown.escape.window="categoriasMenuAberto = false"
+            >
 
-                {{-- Lista dinâmica de Categorias do Banco de Dados --}}
-                @forelse($categorias ?? [] as $categoria)
-                  <li>
-                    <a href="{{ route('categorias.show', $categoria->id) }}" class="hover:bg-emerald-50 hover:text-[#1B4D3E]">
-                      {{ $categoria->nome }}
-                    </a>
-                  </li>
-                @empty
-                  <li class="text-xs text-gray-400 p-2 text-center">Nenhuma categoria encontrada</li>
-                @endforelse
-              </ul>
+                {{-- Botão Categorias --}}
+                <button
+                    type="button"
+                    @click="categoriasMenuAberto = !categoriasMenuAberto"
+                    :aria-expanded="categoriasMenuAberto"
+                    class="flex items-center gap-1 nav-link transition-colors cursor-pointer py-1 focus:outline-none"
+                >
+                    <span>Categorias</span>
+
+                    <span
+                        class="material-symbols-outlined text-base transition-transform duration-200"
+                        :class="categoriasMenuAberto ? 'rotate-180' : ''"
+                    >
+                        expand_more
+                    </span>
+                </button>
+
+                {{-- Conteúdo do Dropdown --}}
+                <div
+                    x-show="categoriasMenuAberto"
+                    x-cloak
+                    x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 -translate-y-2 scale-95"
+                    x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                    x-transition:leave-end="opacity-0 -translate-y-2 scale-95"
+                    class="absolute left-0 top-full mt-2 w-56 bg-white text-gray-800 rounded-xl shadow-xl border border-gray-200 p-2 z-100 max-h-60 overflow-y-auto origin-top-left"
+                >
+
+                    {{-- Condição de Acesso --}}
+                    @auth
+                        @if(auth()->user()->is_admin ||
+                            auth()->user()->user_type === 'admin' ||
+                            auth()->user()->email === 'copavagricola@example.com')
+
+                            <a
+                                href="{{ route('categorias.index') }}"
+                                @click="categoriasMenuAberto = false"
+                                class="flex items-center gap-2 px-3 py-2 rounded-md font-bold text-[#1B4D3E] hover:bg-emerald-50 transition-colors"
+                            >
+                                <span class="material-symbols-outlined text-base">list</span>
+                                Ver Todas
+                            </a>
+
+                        @else
+
+                            <a
+                                href="{{ route('categorias.create') }}"
+                                @click="categoriasMenuAberto = false"
+                                class="flex items-center gap-2 px-3 py-2 rounded-md font-bold text-amber-700 hover:bg-amber-50 transition-colors"
+                            >
+                                <span class="material-symbols-outlined text-base">add</span>
+                                Sugerir Categoria
+                            </a>
+
+                        @endif
+                    @else
+
+                        <a
+                            href="{{ route('login') }}"
+                            @click="categoriasMenuAberto = false"
+                            class="flex items-center gap-2 px-3 py-2 rounded-md font-bold text-amber-700 hover:bg-amber-50 transition-colors"
+                        >
+                            <span class="material-symbols-outlined text-base">add</span>
+                            Sugerir Categoria
+                        </a>
+
+                    @endauth
+
+                    <div class="border-t border-gray-100 my-1"></div>
+
+                    {{-- Categorias cadastradas --}}
+                    @forelse($categorias ?? [] as $categoria)
+
+                        <a
+                            href="{{ route('categorias.show', $categoria->id) }}"
+                            @click="categoriasMenuAberto = false"
+                            class="block px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-emerald-50 hover:text-[#1B4D3E] transition-colors"
+                        >
+                            {{ $categoria->nome }}
+                        </a>
+
+                    @empty
+
+                        <div class="text-xs text-gray-400 p-2 text-center">
+                            Nenhuma categoria encontrada
+                        </div>
+
+                    @endforelse
+
+                </div>
             </div>
           </nav>
 
@@ -202,7 +260,7 @@
                   <a href="{{ route('negociacoes.vendas') }}"
                     class="flex items-center gap-1.5 nav-link transition-colors">
                       <span class="material-symbols-outlined text-lg">storefront</span>
-                      <span>Minhas vendas</span>
+                      <span>Minhas Vendas</span>
                   </a>
               @endif
 
@@ -225,48 +283,112 @@
                 </a>
               @endif
 
-              {{-- Menu do Usuário Logado --}}
-              <div class="dropdown dropdown-end">
-                <div tabindex="0" role="button" class="flex items-center gap-2 cursor-pointer nav-link transition-colors">
-                  <div class="w-7 h-7 rounded-full overflow-hidden bg-white text-gray-700 flex items-center justify-center shrink-0">
-                    @if(auth()->user()->imagem)
-                      <img src="{{ Storage::url(auth()->user()->imagem) }}" alt="Perfil" class="w-full h-full object-cover">
-                    @else
-                      <span class="material-symbols-outlined text-xl">account_circle</span>
-                    @endif
-                  </div>
-                  <span class="font-semibold max-w-120px truncate">{{ auth()->user()->nome ?? auth()->user()->name }}</span>
+                {{-- Menu do Usuário Logado --}}
+                <div
+                    class="relative"
+                    @click.outside="usuarioMenuAberto = false"
+                    @keydown.escape.window="usuarioMenuAberto = false"
+                >
+
+                    {{-- Botão do usuário --}}
+                    <button
+                        type="button"
+                        @click="usuarioMenuAberto = !usuarioMenuAberto"
+                        :aria-expanded="usuarioMenuAberto"
+                        class="flex items-center gap-2 cursor-pointer nav-link transition-colors focus:outline-none"
+                    >
+
+                        <div class="w-7 h-7 rounded-full overflow-hidden bg-white text-gray-700 flex items-center justify-center shrink-0">
+
+                            @if(auth()->user()->imagem)
+                                <img
+                                    src="{{ Storage::url(auth()->user()->imagem) }}"
+                                    alt="Perfil"
+                                    class="w-full h-full object-cover"
+                                >
+                            @else
+                                <span class="material-symbols-outlined text-xl">
+                                    account_circle
+                                </span>
+                            @endif
+
+                        </div>
+
+                        <span class="font-semibold max-w-120px truncate">
+                            {{ auth()->user()->nome ?? auth()->user()->name }}
+                        </span>
+
+                        <span
+                            class="material-symbols-outlined text-base transition-transform duration-200"
+                            :class="usuarioMenuAberto ? 'rotate-180' : ''"
+                        >
+                            expand_more
+                        </span>
+
+                    </button>
+
+                    {{-- Dropdown --}}
+                    <div
+                        x-show="usuarioMenuAberto"
+                        x-cloak
+                        x-transition.origin.top.right
+                        class="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-200 p-2 z-100"
+                    >
+
+                        {{-- Perfil --}}
+                        <a
+                            href="{{ route('profile.edit') }}"
+                            class="flex items-center gap-2 w-full px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 hover:text-[#1B4D3E] transition-colors duration-150"
+                        >
+                            <span class="material-symbols-outlined text-lg">
+                                person
+                            </span>
+
+                            <span>Meu Perfil</span>
+                        </a>
+
+                        {{-- Separador --}}
+                        <div class="border-t border-gray-100 my-1"></div>
+
+                        {{-- Configurações --}}
+                        <a
+                            href="{{ route('profile.edit') }}"
+                            class="flex items-center gap-2 w-full px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 hover:text-[#1B4D3E] transition-colors duration-150"
+                        >
+                            <span class="material-symbols-outlined text-lg">
+                                settings
+                            </span>
+
+                            <span>Configurações</span>
+                        </a>
+
+                        {{-- Separador --}}
+                        <div class="border-t border-gray-100 my-1"></div>
+
+                        {{-- Sair --}}
+                        <form
+                            method="POST"
+                            action="{{ route('logout') }}"
+                            class="w-full"
+                        >
+                            @csrf
+
+                            <button
+                                type="submit"
+                                class="flex items-center gap-2 w-full px-3 py-2 rounded-md text-left text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-150 cursor-pointer"
+                            >
+                                <span class="material-symbols-outlined text-lg">
+                                    logout
+                                </span>
+
+                                <span>Sair</span>
+                            </button>
+
+                        </form>
+
+                    </div>
+
                 </div>
-
-                <ul tabindex="0"
-                class="dropdown-content menu bg-white text-gray-800 rounded-box z-50 w-48 p-2 shadow-lg mt-2">
-
-                  {{-- Botão de configurações --}}
-                  <li>
-                      <a href="{{ route('profile.edit') }}"
-                        class="flex items-center gap-2 hover:bg-gray-300">
-                          <span class="material-symbols-outlined text-base">
-                              settings
-                          </span>
-                          Configurações
-                      </a>
-                  </li>
-
-                  {{-- Botão para sair da conta --}}
-                  <li>
-                      <form method="POST" action="{{ route('logout') }}">
-                          @csrf
-
-                          <button type="submit" class="w-full flex items-center gap-2 text-red-600 hover:bg-red-100 rounded-md text-left">
-                              <span class="material-symbols-outlined text-base">
-                                  logout
-                              </span>
-                              Sair
-                          </button>
-                      </form>
-                  </li>
-                </ul>
-              </div>
             @endauth
 
             @guest
@@ -295,41 +417,62 @@
 
             {{-- Dropdown Categorias Mobile --}}
             <div x-data="{ openCat: false }">
-              <button @click="openCat = !openCat" class="flex items-center justify-between w-full p-2 hover:bg-[#236350] rounded-md text-left">
-                <span>Categorias</span>
-                <span class="material-symbols-outlined text-sm" x-text="openCat ? 'expand_less' : 'expand_more'">expand_more</span>
-              </button>
+              <button
+                    type="button"
+                    @click="openCat = !openCat"
+                    :aria-expanded="openCat"
+                    class="flex items-center justify-between w-full p-2 hover:bg-[#236350] rounded-md text-left"
+                >
+                    <span>Categorias</span>
+
+                    <span
+                        class="material-symbols-outlined text-sm transition-transform duration-200"
+                        :class="openCat ? 'rotate-180' : ''"
+                    >
+                        expand_more
+                    </span>
+                </button>
               
-              <div x-show="openCat" x-cloak class="pl-4 flex flex-col gap-1 mt-1">
+                <div
+                    x-show="openCat"
+                    x-cloak
+                    x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 -translate-y-2"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 -translate-y-2"
+                    class="pl-4 flex flex-col gap-1 mt-1"
+                >
                 
                 @auth
                   @if(auth()->user()->is_admin || auth()->user()->user_type === 'admin' || auth()->user()->email === 'copavagricola@example.com')
                     <a
                     href="{{ route('categorias.index') }}"
-                    class="p-1.5 text-xs text-amber-200 hover:bg-[#236350] rounded font-semibold flex items-center gap-1">
+                    class="p-1.5 text-md text-amber-200 hover:bg-[#236350] rounded font-semibold flex items-center gap-1">
                       - Ver Todas -
                     </a>
                   @else
                     <a
                     href="{{ route('categorias.create') }}"
-                    class="p-1.5 text-xs hover:bg-[#236350] rounded font-semibold flex items-center gap-1">
-                      <span class="material-symbols-outlined text-sm">add_circle</span>
-                      Sugerir Categoria
+                    class="p-1.5 text-md hover:bg-[#236350] rounded font-semibold flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">add</span>
+                    Sugerir Categoria
                     </a>
                   @endif
                 @else
                   <a
                   href="{{ route('categorias.create') }}"
-                  class="p-1.5 text-xs hover:bg-[#236350] rounded font-semibold flex items-center gap-1">
-                    <span class="material-symbols-outlined text-sm">add_circle</span>
-                    Sugerir Categoria
+                  class="p-1.5 text-md hover:bg-[#236350] rounded font-semibold flex items-center gap-1">
+                  <span class="material-symbols-outlined text-sm">add</span>
+                  Sugerir Categoria
                   </a>
                 @endauth
 
                 @foreach($categorias ?? [] as $categoria)
                   <a
                   href="{{ route('categorias.show', $categoria->id) }}"
-                  class="p-1.5 text-xs hover:bg-[#236350] rounded">
+                  class="p-1.5 text-md hover:bg-[#236350] rounded">
                     {{ $categoria->nome }}
                   </a>
                 @endforeach
@@ -344,7 +487,7 @@
               <a href="{{ route('negociacoes.compras') }}"
                 class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
                   <span class="material-symbols-outlined text-lg">shopping_bag</span>
-                  <span>Minhas compras</span>
+                  <span>Minhas Compras</span>
               </a>
 
               {{-- Minhas vendas: fornecedor, empresa ou administrador --}}
@@ -358,7 +501,7 @@
                   <a href="{{ route('negociacoes.vendas') }}"
                     class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
                       <span class="material-symbols-outlined text-lg">storefront</span>
-                      <span>Minhas vendas</span>
+                      <span>Minhas Vendas</span>
                   </a>
               @endif
 
@@ -420,7 +563,7 @@
 
     <main class="flex-1 min-h-0 w-full
     @if(View::hasSection('chat_layout'))
-        overflow-hidden !p-0
+        overflow-hidden p-0
     @else
         px-4 sm:px-6 lg:px-10 py-6
     @endif">
@@ -431,7 +574,7 @@
     @auth
       <div
           id="copav-chat-global"
-          class="fixed bottom-5 right-5 z-[100]"
+          class="fixed bottom-5 right-5 z-100"
           x-data="{
               chatAberto: false,
               conversas: [],
@@ -696,7 +839,7 @@
           >
               
           <!-- Cabeçalho -->
-          <div class="flex min-h-[68px] items-center justify-between bg-[#1B4D3E] px-4 py-3 text-white">
+          <div class="flex min-h-68px items-center justify-between bg-[#1B4D3E] px-4 py-3 text-white">
 
               <!-- Identificação da conversa -->
               <div class="flex min-w-0 flex-1 items-center gap-3">
@@ -858,7 +1001,7 @@
                                       : 'rounded-bl-sm bg-white text-gray-800'"
                               >
                                   <p
-                                      class="whitespace-pre-wrap break-words text-sm"
+                                      class="whitespace-pre-wrap wrap-break-words text-sm"
                                       x-text="mensagem.conteudo"
                                   ></p>
 
@@ -889,13 +1032,13 @@
                           rows="1"
                           maxlength="5000"
                           placeholder="Digite sua mensagem..."
-                          class="max-h-24 min-h-[42px] flex-1 resize-none rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm outline-none transition focus:border-[#236350] focus:ring-1 focus:ring-[#236350]"
+                          class="max-h-24 min-h-42px flex-1 resize-none rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm outline-none transition focus:border-[#236350] focus:ring-1 focus:ring-[#236350]"
                       ></textarea>
 
                       <button
                           type="submit"
                           :disabled="!mensagemNova.trim() || enviandoMensagem"
-                          class="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-xl bg-[#236350] text-white transition hover:bg-[#1B4D3E] disabled:cursor-not-allowed disabled:opacity-40"
+                          class="flex h-42px w-42px shrink-0 items-center justify-center rounded-xl bg-[#236350] text-white transition hover:bg-[#1B4D3E] disabled:cursor-not-allowed disabled:opacity-40"
                           aria-label="Enviar mensagem"
                       >
                           <span

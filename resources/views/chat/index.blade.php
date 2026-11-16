@@ -15,7 +15,7 @@
 
         {{-- PAINEL ESQUERDO: CONVERSAS --}}
         <aside
-            class="min-h-0 w-full flex-col overflow-hidden border-r border-gray-200 bg-white md:w-[340px] md:shrink-0 lg:w-[390px]"
+            class="min-h-0 w-full flex-col overflow-hidden border-r border-gray-200 bg-white md:w-340px md:shrink-0 lg:w-390px"
             :class="conversaSelecionada ? 'hidden md:flex' : 'flex'"
         >
 
@@ -194,7 +194,7 @@
             >
 
                 {{-- Cabeçalho --}}
-                <header class="flex min-h-[72px] items-center gap-3 border-b border-gray-200 bg-white px-4 py-3 sm:px-6">
+                <header class="flex min-h-72px items-center gap-3 border-b border-gray-200 bg-white px-4 py-3 sm:px-6">
 
                     <button
                         type="button"
@@ -261,7 +261,7 @@
                                     : 'rounded-bl-sm bg-white text-gray-800'"
                             >
                                 <p
-                                    class="whitespace-pre-wrap break-words text-sm leading-relaxed"
+                                    class="whitespace-pre-wrap wrap-break-words text-sm leading-relaxed"
                                     x-text="mensagem.conteudo"
                                 ></p>
 
@@ -304,7 +304,7 @@
                         rows="1"
                         maxlength="5000"
                         placeholder="Digite sua mensagem..."
-                        class="max-h-32 min-h-[44px] flex-1 resize-none rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition focus:border-[#236350] focus:ring-1 focus:ring-[#236350]"
+                        class="max-h-32 min-h-44px flex-1 resize-none rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition focus:border-[#236350] focus:ring-1 focus:ring-[#236350]"
                     ></textarea>
 
                     <button

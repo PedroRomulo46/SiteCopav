@@ -99,7 +99,7 @@
 
 
                         {{-- Descrição --}}
-                        <p class="text-sm text-gray-500 mt-1 line-clamp-2 min-h-[40px]">
+                        <p class="text-sm text-gray-500 mt-1 line-clamp-2 min-h-40px">
                             {{ $produto->descricao ?? 'Nenhuma descrição cadastrada.' }}
                         </p>
 
@@ -123,7 +123,7 @@
                                     Fornecedor
                                 </span>
 
-                                <span class="font-semibold text-gray-700 truncate max-w-[150px]">
+                                <span class="font-semibold text-gray-700 truncate max-w-150px">
                                     {{ $produto->fornecedor->nome ?? 'Não informado' }}
                                 </span>
                             </div>
