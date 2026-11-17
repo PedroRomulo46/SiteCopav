@@ -36,12 +36,12 @@ composer require stripe/stripe-php
 ```
 
 3. Configurar as variáveis de ambiente
-```
+```bash
 cp .env.example .env
 php artisan key:generate
 ```
 3.1 Também configure a conexão com o banco no arquivo .env e a chave do stripe
-```
+```bash
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
@@ -53,28 +53,28 @@ STRIPE_SECRET=sk_test_sua_chave_secreta_aqui
 ```
 
 4. Executar as migrações e popular o banco
-```
+```bash
 php artisan migrate --seed
 ```
 
 5. Gerar link para o storage
-```
+```bash
 php artisan storage:link
 ```
 
 6. Instalar dependências front-end
-```
+```bash
 npm install
 ```
 
 7. Executar o ambiente de desenvolvimento
-```
+```bash
 composer run dev
 ```
 
 8. Configuração de Webhooks (Stripe + Ngrok)
 8.1 Inicie o Ngrok
-```
+```bash
 ngrok http 80
 ```
 8.2 Adicione um novo destino no painel de Webhooks no Stripe e adicione a URL pro seu destino
