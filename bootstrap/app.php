@@ -12,9 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
         channels: __DIR__.'/../routes/channels.php',
         health: '/up',
     )
-    ->withMiddleware(function (Middleware $middleware): void {
-        // Exclui a rota do webhook do PagBank da verificação de token CSRF
+    ->withMiddleware(function (Middleware $middleware) {
         $middleware->validateCsrfTokens(except: [
+            'webhook/stripe',
             'webhook/pagbank',
         ]);
     })
