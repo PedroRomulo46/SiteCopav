@@ -575,6 +575,7 @@
       <div
           id="copav-chat-global"
           class="fixed bottom-5 right-5 z-100"
+          x-init="inicializarChat()"
           x-data="{
               chatAberto: false,
               conversas: [],
@@ -590,7 +591,7 @@
               usuarioId: {{ (int) auth()->id() }},
               csrfToken: '{{ csrf_token() }}',
               urlConversas: '{{ route('chat.conversas') }}',
-
+              totalNaoLidas: 0,
               chatIdAtivo: null,
               canaisInscritos: [],
 
@@ -603,6 +604,8 @@
               },
 
               async carregarConversas() {
+                  if (this.carregando) return;
+
                   this.carregando = true;
                   this.erro = '';
 
@@ -619,11 +622,12 @@
                       }
 
                       this.conversas = await resposta.json();
-                      this.conversasCarregadas = true;
-
                       this.conversas.forEach(conversa => {
-                          this.inscreverCanal(conversa.chat_id);
-                      });
+                      this.inscreverCanalGlobal(conversa.chat_id);
+                  });
+
+                    this.atualizarTotalNaoLidas();
+                    this.conversasCarregadas = true;
 
                   } catch (erro) {
                       this.erro = erro.message;
@@ -632,7 +636,20 @@
                   }
               },
 
-              inscreverCanal(chatId) {
+              inicializarChat() {
+                  this.carregarConversas();
+              },
+
+              atualizarTotalNaoLidas() {
+                  this.totalNaoLidas = this.conversas.reduce(
+                      (total, conversa) =>
+                          total + Number(conversa.mensagens_nao_lidas || 0),
+                      0
+                  );
+              },
+
+              
+              inscreverCanalGlobal(chatId) {
                   if (!window.Echo || !chatId) return;
 
                   chatId = Number(chatId);
@@ -647,66 +664,86 @@
                       });
               },
 
+              
               receberMensagem(mensagem) {
                   const conversa = this.conversas.find(
                       item => Number(item.chat_id) === Number(mensagem.chat_id)
                   );
 
-                  if (conversa) {
-                      conversa.ultima_mensagem = mensagem.conteudo;
+                  if (!conversa) return;
 
-                      if (
-                          Number(this.chatIdAtivo) === Number(mensagem.chat_id)
-                      ) {
-                          this.adicionarMensagem(mensagem);
-                          this.rolarHistorico();
-                      } else if (
-                          Number(mensagem.usuario_id) !== this.usuarioId
-                      ) {
-                          conversa.mensagens_nao_lidas =
-                              Number(conversa.mensagens_nao_lidas || 0) + 1;
-                      }
+                  conversa.ultima_mensagem = mensagem.conteudo;
+
+                  // Não contabiliza mensagens enviadas pelo próprio usuário.
+                  if (Number(mensagem.usuario_id) === Number(this.usuarioId)) {
+                      return;
                   }
+
+                  // Se a conversa estiver aberta, adiciona a mensagem ao histórico.
+                  if (
+                      this.chatAberto &&
+                      Number(this.chatIdAtivo) === Number(mensagem.chat_id)
+                  ) {
+                      this.adicionarMensagem(mensagem);
+                      this.rolarHistorico();
+                  } else {
+                      // Caso contrário, incrementa as mensagens não lidas.
+                      conversa.mensagens_nao_lidas =
+                          Number(conversa.mensagens_nao_lidas || 0) + 1;
+                  }
+
+                  this.atualizarTotalNaoLidas();
               },
 
-              async abrirConversa(conversa) {
-                  this.conversaSelecionada = conversa;
-                  this.mensagens = [];
-                  this.erroMensagens = '';
-                  this.carregandoMensagens = true;
-                  this.chatIdAtivo = conversa.chat_id;
 
-                  conversa.mensagens_nao_lidas = 0;
+              
+            async abrirConversa(conversa) {
+                this.conversaSelecionada = conversa;
+                this.mensagens = [];
+                this.erroMensagens = '';
+                this.carregandoMensagens = true;
+                this.chatIdAtivo = conversa.chat_id;
 
-                  try {
-                      const resposta = await fetch(
-                          `/chat/${conversa.negociacao_id}/mensagens`,
-                          {
-                              headers: {
-                                  'Accept': 'application/json',
-                                  'X-Requested-With': 'XMLHttpRequest'
-                              }
-                          }
-                      );
+                try {
+                    const resposta = await fetch(
+                        `/chat/${conversa.negociacao_id}/mensagens`,
+                        {
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        }
+                    );
 
-                      if (!resposta.ok) {
-                          throw new Error('Não foi possível carregar as mensagens.');
-                      }
+                    if (!resposta.ok) {
+                        throw new Error('Não foi possível carregar as mensagens.');
+                    }
 
-                      const dados = await resposta.json();
+                    const dados = await resposta.json();
 
-                      this.chatIdAtivo = dados.chat_id;
-                      this.inscreverCanal(dados.chat_id);
-                      this.mensagens = dados.mensagens || [];
+                    this.chatIdAtivo = dados.chat_id;
+                    this.inscreverCanalGlobal(dados.chat_id);
+                    this.mensagens = dados.mensagens || [];
 
-                      this.$nextTick(() => this.rolarHistorico());
+                    const conversaAtual = this.conversas.find(
+                        item => Number(item.chat_id) === Number(conversa.chat_id)
+                    );
 
-                  } catch (erro) {
-                      this.erroMensagens = erro.message;
-                  } finally {
-                      this.carregandoMensagens = false;
-                  }
-              },
+                    if (conversaAtual) {
+                        conversaAtual.mensagens_nao_lidas = 0;
+                    }
+
+                    this.atualizarTotalNaoLidas();
+
+                    this.$nextTick(() => this.rolarHistorico());
+
+                } catch (erro) {
+                    this.erroMensagens = erro.message;
+                } finally {
+                    this.carregandoMensagens = false;
+                }
+            },
+
 
               adicionarMensagem(mensagem) {
                   if (this.mensagens.some(
@@ -824,10 +861,12 @@
               <span class="material-symbols-outlined text-3xl">chat</span>
 
               <span
-                  x-show="conversas.some(c => Number(c.mensagens_nao_lidas || 0) > 0)"
-                  class="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-xs font-bold text-white"
-                  x-text="conversas.reduce((total, c) => total + Number(c.mensagens_nao_lidas || 0), 0)"
-              ></span>
+                id="copav-chat-contador"
+                x-show="totalNaoLidas > 0"
+                x-text="totalNaoLidas > 99 ? '99+' : totalNaoLidas"
+                x-cloak
+                class="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white"
+            ></span>
           </button>
 
           <!-- Janela do chat -->
