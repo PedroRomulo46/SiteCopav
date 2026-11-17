@@ -81,13 +81,93 @@
             Site Copav
           </a>
 
-          {{-- Busca Desktop --}}
-          <form action="{{ route('buscar') }}" method="GET" class="hidden sm:flex flex-1 max-w-2xl relative items-center">
-              <input type="text" name="q" value="{{ request('q') }}" placeholder="Buscar lotes, produtos ou compradores..." class="input w-full bg-white text-gray-800 placeholder-gray-400 pl-4 pr-10 py-2 rounded-md focus:outline-none shadow-sm text-sm">
-              <button type="submit" class="absolute right-3 text-gray-500 hover:text-gray-700 flex items-center">
-                  <span class="material-symbols-outlined text-xl">search</span>
-              </button>
-          </form>
+        {{-- Busca Desktop Inteligente (Live Search) --}}
+        <div 
+            x-data="{
+                termo: '{{ request('q') }}',
+                resultados: [],
+                aberto: false,
+                carregando: false,
+                async pesquisar() {
+                    if (this.termo.trim().length < 2) {
+                        this.resultados = [];
+                        this.aberto = false;
+                        return;
+                    }
+                    this.carregando = true;
+                    this.aberto = true;
+                    try {
+                        const res = await fetch(`{{ route('buscar.sugestoes') }}?q=${encodeURIComponent(this.termo)}`);
+                        this.resultados = await res.json();
+                    } catch (e) {
+                        console.error(e);
+                    } finally {
+                        this.carregando = false;
+                    }
+                }
+            }"
+            @click.outside="aberto = false"
+            @keydown.escape.window="aberto = false"
+            class="hidden sm:flex flex-1 max-w-2xl relative items-center"
+        >
+            <form action="{{ route('buscar') }}" method="GET" class="w-full relative flex items-center">
+                <input 
+                    type="text" 
+                    name="q" 
+                    x-model="termo"
+                    @input.debounce.300ms="pesquisar()"
+                    @focus="if (resultados.length > 0) aberto = true"
+                    autocomplete="off"
+                    placeholder="Buscar lotes, produtos ou compradores..." 
+                    class="input w-full bg-white text-gray-800 placeholder-gray-400 pl-4 pr-10 py-2 rounded-md focus:outline-none shadow-sm text-sm"
+                >
+                <button type="submit" class="absolute right-3 text-gray-500 hover:text-gray-700 flex items-center cursor-pointer">
+                    <span class="material-symbols-outlined text-xl" x-show="!carregando">search</span>
+                    <span class="material-symbols-outlined text-xl animate-spin text-[#236350]" x-show="carregando" x-cloak>progress_activity</span>
+                </button>
+            </form>
+
+            {{-- Dropdown Flutuante de Resultados --}}
+            <div 
+                x-show="aberto" 
+                x-cloak
+                x-transition.opacity.duration.150ms
+                class="absolute left-0 right-0 top-full mt-2 bg-white text-gray-800 rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-50"
+            >
+                {{-- Lista de Produtos Encontrados --}}
+                <template x-if="resultados.length > 0">
+                    <div class="divide-y divide-gray-100 max-h-80 overflow-y-auto">
+                        <template x-for="item in resultados" :key="item.id">
+                            <a :href="item.url" class="flex items-center gap-3 p-3 hover:bg-emerald-50/70 transition-colors">
+                                <img :src="item.imagem" :alt="item.nome" class="w-12 h-12 rounded-lg object-cover bg-gray-100 shrink-0 border border-gray-200">
+                                <div class="flex-1 min-w-0 text-left">
+                                    <p class="text-sm font-bold text-gray-900 truncate" x-text="item.nome"></p>
+                                    <p class="text-xs text-gray-500 truncate">Fornecedor: <span x-text="item.fornecedor"></span></p>
+                                </div>
+                                <div class="text-right shrink-0">
+                                    <span class="text-sm font-extrabold text-[#236350] block" x-text="'R$ ' + item.valor"></span>
+                                    <span class="text-[11px] text-gray-400" x-text="'/ ' + item.unidade"></span>
+                                </div>
+                            </a>
+                        </template>
+                    </div>
+                </template>
+
+                {{-- Estado Vazio --}}
+                <template x-if="!carregando && resultados.length === 0 && termo.trim().length >= 2">
+                    <div class="p-4 text-center text-sm text-gray-500">
+                        Nenhum lote encontrado para "<span class="font-semibold text-gray-700" x-text="termo"></span>".
+                    </div>
+                </template>
+
+                {{-- Rodapé para ver todos os resultados --}}
+                <template x-if="resultados.length > 0">
+                    <a :href="`{{ route('buscar') }}?q=${encodeURIComponent(termo)}`" class="block bg-gray-50 hover:bg-gray-100 text-center py-2.5 text-xs font-bold text-[#236350] border-t border-gray-200 transition-colors">
+                        Ver todos os resultados para "<span x-text="termo"></span>"
+                    </a>
+                </template>
+            </div>
+        </div>
 
           {{-- Banner Oferta
           <div class="xl:flex hidden items-center gap-3 bg-slate-700 hover:bg-slate-600 border border-emerald-700 p-1.5 px-3 rounded-full shadow-md transition-all cursor-pointer group shrink-0">
@@ -569,8 +649,8 @@
     @endif">
     @yield('conteudo')
 </main>
+
     {{-- Chat flutuante global do COPAV --}}
-    
     @auth
       <div
           id="copav-chat-global"

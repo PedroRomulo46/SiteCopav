@@ -3,6 +3,14 @@
 @section('title', 'Resultados da Busca')
 
 @section('conteudo')
+
+<a href="{{ route("home") }}" class="flex justify-start gap-2 text-gray-600">
+    <span class="material-symbols-outlined">
+        arrow_back
+    </span>
+    <p>Voltar</p>
+</a>
+
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
     <div class="mb-8">
         <h1 class="text-3xl font-bold text-gray-900">Resultados para: "{{ $termo }}"</h1>
