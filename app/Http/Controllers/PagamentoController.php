@@ -4,30 +4,28 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Negociacao;
+use Stripe\Stripe;
+use Stripe\Checkout\Session;
 
 class PagamentoController extends Controller
 {
     public function show(Negociacao $negociacao)
     {
-        // Carrega os dados necessários para a tela.
         $negociacao->load([
             'oferta.produto',
             'oferta.fornecedor',
             'propostas.usuario',
         ]);
 
-        // Recupera a proposta aceita que pertence ao usuário logado.
         $propostaAceita = $negociacao->propostas
             ->first(function ($proposta) {
                 return $proposta->status === 'aceita'
                     && (int) $proposta->usuario_id === (int) auth()->id();
             });
 
-        // Somente quem enviou a proposta aceita pode acessar o pagamento.
         abort_unless($propostaAceita, 403);
 
         $oferta = $negociacao->oferta;
-
         $valorUnitario = (float) $propostaAceita->valor;
         $quantidade = (float) $propostaAceita->quantidade;
         $valorTotal = $valorUnitario * $quantidade;
@@ -49,7 +47,7 @@ class PagamentoController extends Controller
             'oferta.fornecedor',
             'propostas.usuario',
         ]);
-        
+
         $propostaAceita = $negociacao->propostas->first(function ($proposta) {
             return $proposta->status === 'aceita'
                 && (int) $proposta->usuario_id === (int) auth()->id();
@@ -57,24 +55,34 @@ class PagamentoController extends Controller
 
         abort_unless($propostaAceita, 403);
 
-        // Atualiza o status da negociação para pago no banco
-        $negociacao->update(['status' => 'pago']);
-
-        // DISPARA O EVENTO PARA O WEBSOCKET (REVERB / ECHO)
-        // Substitua 'PagamentoAprovado' pelo nome da classe do seu evento real
-        event(new \App\Events\PagamentoAprovado($negociacao));
-
-        $oferta = $negociacao->oferta;
         $valorUnitario = (float) $propostaAceita->valor;
         $quantidade = (float) $propostaAceita->quantidade;
         $valorTotal = $valorUnitario * $quantidade;
+        $valorEmCentavos = (int) round($valorTotal * 100);
 
-        // Retorna a view de sucesso/confirmação do pagamento
-        return view('pagamentos.confirmar', compact(
-            'negociacao',
-            'propostaAceita',
-            'oferta',
-            'valorTotal'
-        ));
+        // Configura a chave do Stripe que você colocou no .env
+        Stripe::setApiKey(env('STRIPE_SECRET'));
+
+        $session = Session::create([
+            'line_items' => [[
+                'price_data' => [
+                    'currency' => 'brl',
+                    'product_data' => [
+                        'name' => $negociacao->oferta->produto->nome,
+                    ],
+                    'unit_amount' => $valorEmCentavos,
+                ],
+                'quantity' => 1,
+            ]],
+            'mode' => 'payment',
+            'metadata' => [
+                'negociacao_id' => (string) $negociacao->id,
+            ],
+            'success_url' => route('negociacoes.compras') . '?pagamento=sucesso',
+            'cancel_url' => route('pagamentos.show', $negociacao),
+        ]);
+
+        // Redireciona para o checkout oficial do Stripe
+        return redirect()->away($session->url);
     }
 }

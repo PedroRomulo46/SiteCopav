@@ -15,6 +15,7 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\PagamentoController;
 use App\Http\Controllers\BuscaController;
+use App\Http\Controllers\WebhookController; // ou onde preferir colocar a lógica do webhook
 
 // ROTAS PÚBLICAS (Visitantes e Autenticados)
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -23,7 +24,12 @@ Route::resource('categorias', CategoriaController::class)->only(['index', 'show'
 // Listagem pública de ofertas
 Route::get('/ofertas', [OfertaController::class, 'index'])->name('ofertas.index');
 
+// Pesquisa
 Route::get('/buscar', [BuscaController::class, 'index'])->name('buscar');
+Route::get('/buscar/sugestoes', [BuscaController::class, 'sugestoes'])->name('buscar.sugestoes');
+
+// Rota do Webhook do Stripe (Pública, pois vem de fora da aplicação)
+Route::post('/webhook/stripe', [WebhookController::class, 'stripe']);
 
 // ROTAS PROTEGIDAS (Exigem Login)
 Route::middleware('auth')->group(function () {
