@@ -125,7 +125,7 @@
                 storefront
             </span>
             <h2 class="text-xl font-bold text-gray-700 mt-4">
-                Nenhuma venda em andamento
+                Nenhuma venda sendo negociada
             </h2>
             <p class="text-gray-500 mt-2">
                 Quando alguém iniciar uma negociação nos seus lotes, ela aparecerá aqui.
