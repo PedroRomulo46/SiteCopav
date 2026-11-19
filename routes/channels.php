@@ -49,25 +49,26 @@ Broadcast::channel('negociacao.{negociacaoId}', function (User $user, $negociaca
             === (int) $user->fornecedor->id;
 });
 
-//chat
-Broadcast::channel('chat.{chatId}', function (User $user, int $chatId) {
-    $chat = Chat::with('negociacao.oferta.fornecedor')
-        ->find($chatId);
 
-    if (!$chat || !$chat->negociacao) {
+// Chat — autorização pela conversa entre cliente e fornecedor
+Broadcast::channel('chat.{chatId}', function (User $user, int $chatId) {
+    $chat = Chat::find($chatId);
+
+    if (!$chat) {
         return false;
     }
 
-    $negociacao = $chat->negociacao;
-
-    // Cliente que iniciou a negociação
-    if ((int) $negociacao->cliente_id === (int) $user->id) {
+    // Administrador pode acompanhar qualquer conversa
+    if ($user->user_type === 'admin') {
         return true;
     }
 
-    // Fornecedor responsável pela oferta
+    // Cliente participante
+    if ((int) $chat->cliente_id === (int) $user->id) {
+        return true;
+    }
+
+    // Fornecedor participante
     return $user->fornecedor
-        && $negociacao->oferta
-        && (int) $negociacao->oferta->fornecedor_id
-            === (int) $user->fornecedor->id;
+        && (int) $chat->fornecedor_id === (int) $user->fornecedor->id;
 });

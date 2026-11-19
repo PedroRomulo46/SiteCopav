@@ -9,32 +9,42 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Chat extends Model
 {
     protected $fillable = [
-        'negociacao_id',
-        'entrega_confirmada_em',
-        'ultima_mensagem_em',
-        'cliente_ultima_leitura_id',
-        'fornecedor_ultima_leitura_id',
-        'encerrado_em',
-        'excluir_mensagens_em',
-    ];
+    'cliente_id',
+    'fornecedor_id',
+    'ultima_mensagem_em',
+    'cliente_ultima_leitura_id',
+    'fornecedor_ultima_leitura_id',
+];
 
     protected function casts(): array
     {
         return [
-            'entrega_confirmada_em' => 'datetime',
             'ultima_mensagem_em' => 'datetime',
-            'encerrado_em' => 'datetime',
-            'excluir_mensagens_em' => 'datetime',
         ];
     }
 
-    public function negociacao(): BelongsTo
+    public function cliente(): BelongsTo
     {
-        return $this->belongsTo(Negociacao::class);
+        return $this->belongsTo(User::class, 'cliente_id');
+    }
+
+    public function fornecedor(): BelongsTo
+    {
+        return $this->belongsTo(Fornecedor::class, 'fornecedor_id');
+    }
+
+    public function assuntos(): HasMany
+    {
+        return $this->hasMany(AssuntoChat::class, 'chat_id');
     }
 
     public function mensagens(): HasMany
     {
         return $this->hasMany(Mensagem::class, 'chat_id');
+    }
+    // Compatibilidade temporária com a estrutura antiga.
+    public function negociacao(): BelongsTo
+    {
+        return $this->belongsTo(Negociacao::class, 'negociacao_id');
     }
 }

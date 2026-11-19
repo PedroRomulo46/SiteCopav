@@ -11,8 +11,6 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    {{-- Script para abrir o menu monile nas outras páginas --}}
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <style>
         [x-cloak] { display: none !important; }
@@ -651,6 +649,7 @@
 </main>
 
     {{-- Chat flutuante global do COPAV --}}
+    @unless(View::hasSection('chat_layout'))
     @auth
       <div
           id="copav-chat-global"
@@ -663,6 +662,7 @@
               conversasCarregadas: false,
               erro: '',
               conversaSelecionada: null,
+              assuntoSelecionadoId: null,
               mensagens: [],
               carregandoMensagens: false,
               erroMensagens: '',
@@ -779,51 +779,58 @@
               
             async abrirConversa(conversa) {
                 this.conversaSelecionada = conversa;
+
+                this.assuntoSelecionadoId =
+                    conversa.assuntos?.[0]?.id ?? null;
+
                 this.mensagens = [];
                 this.erroMensagens = '';
                 this.carregandoMensagens = true;
-                this.chatIdAtivo = conversa.chat_id;
+                this.chatIdAtivo = Number(conversa.chat_id);
 
                 try {
-                    const resposta = await fetch(
-                        `/chat/${conversa.negociacao_id}/mensagens`,
-                        {
-                            headers: {
-                                'Accept': 'application/json',
-                                'X-Requested-With': 'XMLHttpRequest'
-                            }
-                        }
+                    const url = new URL(
+                        `/chat/${conversa.chat_id}/mensagens`,
+                        window.location.origin
                     );
 
-                    if (!resposta.ok) {
-                        throw new Error('Não foi possível carregar as mensagens.');
+                    if (this.assuntoSelecionadoId) {
+                        url.searchParams.set(
+                            'assunto_chat_id',
+                            this.assuntoSelecionadoId
+                        );
                     }
+
+                    const resposta = await fetch(url, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
 
                     const dados = await resposta.json();
 
-                    this.chatIdAtivo = dados.chat_id;
+                    if (!resposta.ok) {
+                        throw new Error(
+                            dados.message || 'Não foi possível carregar as mensagens.'
+                        );
+                    }
+
                     this.inscreverCanalGlobal(dados.chat_id);
                     this.mensagens = dados.mensagens || [];
 
-                    const conversaAtual = this.conversas.find(
-                        item => Number(item.chat_id) === Number(conversa.chat_id)
-                    );
-
-                    if (conversaAtual) {
-                        conversaAtual.mensagens_nao_lidas = 0;
-                    }
-
+                    conversa.mensagens_nao_lidas = 0;
                     this.atualizarTotalNaoLidas();
 
                     this.$nextTick(() => this.rolarHistorico());
 
                 } catch (erro) {
+                    console.error('Erro ao carregar mensagens:', erro);
                     this.erroMensagens = erro.message;
                 } finally {
                     this.carregandoMensagens = false;
                 }
             },
-
 
               adicionarMensagem(mensagem) {
                   if (this.mensagens.some(
@@ -844,54 +851,56 @@
               },
 
               async enviarMensagem() {
-                  const conteudo = this.mensagemNova.trim();
+                const conteudo = this.mensagemNova.trim();
 
-                  if (
-                      !conteudo ||
-                      !this.conversaSelecionada ||
-                      this.enviandoMensagem
-                  ) {
-                      return;
-                  }
+                if (
+                    !conteudo ||
+                    !this.conversaSelecionada ||
+                    this.enviandoMensagem
+                ) {
+                    return;
+                }
 
-                  this.enviandoMensagem = true;
-                  this.erroMensagens = '';
+                this.enviandoMensagem = true;
+                this.erroMensagens = '';
 
-                  try {
-                      const resposta = await fetch(
-                          `/chat/${this.conversaSelecionada.negociacao_id}/mensagens`,
-                          {
-                              method: 'POST',
-                              headers: {
-                                  'Content-Type': 'application/json',
-                                  'Accept': 'application/json',
-                                  'X-CSRF-TOKEN': this.csrfToken,
-                                  'X-Requested-With': 'XMLHttpRequest'
-                              },
-                              body: JSON.stringify({
-                                  conteudo: conteudo
-                              })
-                          }
-                      );
+                try {
+                    const resposta = await fetch(
+                        `/chat/${this.conversaSelecionada.chat_id}/mensagens`,
+                        {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': this.csrfToken,
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: JSON.stringify({
+                                conteudo: conteudo,
+                                assunto_chat_id: this.assuntoSelecionadoId
+                            })
+                        }
+                    );
 
-                      const dados = await resposta.json();
+                    const dados = await resposta.json();
 
-                      if (!resposta.ok) {
-                          throw new Error(
-                              dados.message || 'Não foi possível enviar a mensagem.'
-                          );
-                      }
+                    if (!resposta.ok) {
+                        throw new Error(
+                            dados.message || 'Não foi possível enviar a mensagem.'
+                        );
+                    }
 
-                      this.adicionarMensagem(dados.mensagem);
-                      this.mensagemNova = '';
+                    this.adicionarMensagem(dados.mensagem);
+                    this.mensagemNova = '';
 
-                      this.$nextTick(() => this.rolarHistorico());
+                    this.$nextTick(() => this.rolarHistorico());
 
-                  } catch (erro) {
-                      this.erroMensagens = erro.message;
-                  } finally {
-                      this.enviandoMensagem = false;
-                  }
+                } catch (erro) {
+                    console.error('Erro ao enviar mensagem:', erro);
+                    this.erroMensagens = erro.message;
+                } finally {
+                    this.enviandoMensagem = false;
+                }
               },
 
               voltarConversas() {
@@ -958,7 +967,7 @@
           >
               
           <!-- Cabeçalho -->
-          <div class="flex min-h-68px items-center justify-between bg-[#1B4D3E] px-4 py-3 text-white">
+          <div class="flex min-h-[68px] items-center justify-between bg-[#1B4D3E] px-4 py-3 text-white">
 
               <!-- Identificação da conversa -->
               <div class="flex min-w-0 flex-1 items-center gap-3">
@@ -1092,9 +1101,10 @@
               >
                   <!-- Histórico -->
                   <div
-                      x-ref="listaMensagens"
-                      class="flex-1 space-y-3 overflow-y-auto p-3"
-                  >
+                    x-ref="listaMensagens"
+                    class="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-4 py-5 sm:px-6"
+                    style="visibility: hidden;"
+                >
                       <div
                           x-show="carregandoMensagens"
                           class="py-8 text-center text-sm text-gray-500"
@@ -1151,13 +1161,13 @@
                           rows="1"
                           maxlength="5000"
                           placeholder="Digite sua mensagem..."
-                          class="max-h-24 min-h-42px flex-1 resize-none rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm outline-none transition focus:border-[#236350] focus:ring-1 focus:ring-[#236350]"
+                          class="max-h-24 min-h-[42px] flex-1 resize-none rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm outline-none transition focus:border-[#236350] focus:ring-1 focus:ring-[#236350]"
                       ></textarea>
 
                       <button
                           type="submit"
                           :disabled="!mensagemNova.trim() || enviandoMensagem"
-                          class="flex h-42px w-42px shrink-0 items-center justify-center rounded-xl bg-[#236350] text-white transition hover:bg-[#1B4D3E] disabled:cursor-not-allowed disabled:opacity-40"
+                          class="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-xl bg-[#236350] text-white transition hover:bg-[#1B4D3E] disabled:cursor-not-allowed disabled:opacity-40"
                           aria-label="Enviar mensagem"
                       >
                           <span
@@ -1175,7 +1185,7 @@
           </section>
       </div>
     @endauth
-
+    @endunless
 
     @stack('scripts')
 

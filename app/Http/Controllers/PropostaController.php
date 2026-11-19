@@ -97,6 +97,7 @@ class PropostaController extends Controller
             ->with('sucesso', 'Proposta enviada com sucesso!');
     }
 
+    
     public function aceitar(Proposta $proposta)
     {
         $proposta->load('negociacao.oferta.fornecedor');
@@ -164,15 +165,39 @@ class PropostaController extends Controller
                 ];
             }
 
-            // Aceita apenas esta proposta. As demais continuam pendentes.
+            // Aceita a proposta.
             $propostaAtual->update([
                 'status' => 'aceita'
             ]);
 
-            // Cada negociação terá seu próprio chat.
-            Chat::firstOrCreate([
-                'negociacao_id' => $propostaAtual->negociacao_id,
+            /*
+            * NOVA ESTRUTURA DE CHAT
+            *
+            * Cada cliente possui uma conversa única com cada fornecedor.
+            * Cada negociação aceita corresponde a um assunto nessa conversa.
+            */
+
+            // Cria ou reutiliza a conversa entre cliente e fornecedor.
+            $chat = Chat::firstOrCreate([
+                'cliente_id' => $negociacao->cliente_id,
+                'fornecedor_id' => $ofertaBloqueada->fornecedor_id,
             ]);
+
+            // Verifica se a negociação já possui um assunto nessa conversa.
+            $assunto = $chat->assuntos()
+                ->whereHas('negociacoes', function ($query) use ($negociacao) {
+                    $query->where('negociacoes.id', $negociacao->id);
+                })
+                ->first();
+
+            // Cria o assunto somente se ainda não existir.
+            if (!$assunto) {
+                $assunto = $chat->assuntos()->create([
+                    'titulo' => 'Negociação #' . $negociacao->id,
+                ]);
+
+                $assunto->negociacoes()->attach($negociacao->id);
+            }
 
             return [
                 'sucesso' => true,
@@ -185,17 +210,18 @@ class PropostaController extends Controller
             return back()->with('erro', $resultado['mensagem']);
         }
 
-        // Atualiza o status em tempo real, como já fazíamos anteriormente.
+        // Atualiza o status em tempo real.
         $propostaAtualizada = Proposta::findOrFail(
             $resultado['proposta_id']
         );
 
-        event(new \App\Events\PropostaAtualizada($propostaAtualizada));
+        event(new PropostaAtualizada($propostaAtualizada));
 
         return redirect()
             ->route('negociacoes.show', $resultado['negociacao_id'])
             ->with('sucesso', 'Proposta aceita e chat criado com sucesso!');
     }
+
 
     public function recusar(Proposta $proposta)
     {

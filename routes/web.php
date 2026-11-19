@@ -49,7 +49,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('produtos', ProdutoController::class)->parameters(['produtos' => 'produto']);
     Route::get('/meus-produtos', [ProdutoController::class, 'meusProdutos'])->name('produtos.meus');
 
-    // Chat
+    
+    // Chat — nova estrutura por cliente e fornecedor
+
+    // Página principal
     Route::get('/chat', [ChatController::class, 'index'])
         ->name('chat');
 
@@ -57,17 +60,29 @@ Route::middleware('auth')->group(function () {
     Route::get('/chat/conversas', [ChatController::class, 'conversas'])
         ->name('chat.conversas');
 
-    // Histórico de mensagens de uma conversa
-    Route::get('/chat/{negociacao}/mensagens', [ChatController::class, 'mensagens'])
+    // Abrir uma conversa específica
+    Route::get('/chat/{chat}', [ChatController::class, 'show'])
+        ->whereNumber('chat')
+        ->name('chat.show');
+
+    // Listar assuntos de uma conversa
+    Route::get('/chat/{chat}/assuntos', [ChatController::class, 'assuntos'])
+        ->whereNumber('chat')
+        ->name('chat.assuntos');
+
+    // Histórico de mensagens gerais ou de um assunto
+    Route::get('/chat/{chat}/mensagens', [ChatController::class, 'mensagens'])
+        ->whereNumber('chat')
         ->name('chat.mensagens');
 
-    // Abrir uma conversa específica
-    Route::get('/chat/{negociacao}', [ChatController::class, 'show'])
-        ->name('chat.show');
-        
-    // Enviar mensagem
-    Route::post('/chat/{negociacao}/mensagens', [ChatController::class, 'store'])
-        ->name('chat.mensagens.store'); 
+    // Enviar mensagem geral ou vinculada a um assunto
+    Route::post('/chat/{chat}/mensagens', [ChatController::class, 'store'])
+        ->whereNumber('chat')
+        ->name('chat.mensagens.store');
+
+    // Abrir conversa a partir de uma negociação
+    Route::get('/negociacoes/{negociacao}/chat', [ChatController::class, 'abrirNegociacao'])
+        ->name('negociacoes.chat');
 
     // Categorias
     Route::resource('categorias', CategoriaController::class)->except(['index', 'show']);

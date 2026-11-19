@@ -11,6 +11,7 @@ class Mensagem extends Model
 
     protected $fillable = [
         'chat_id',
+        'assunto_chat_id',
         'usuario_id',
         'conteudo',
     ];
@@ -18,6 +19,11 @@ class Mensagem extends Model
     public function chat(): BelongsTo
     {
         return $this->belongsTo(Chat::class, 'chat_id');
+    }
+
+    public function assunto(): BelongsTo
+    {
+        return $this->belongsTo(AssuntoChat::class, 'assunto_chat_id');
     }
 
     public function usuario(): BelongsTo
