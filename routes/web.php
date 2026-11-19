@@ -24,12 +24,16 @@ Route::resource('categorias', CategoriaController::class)->only(['index', 'show'
 // Listagem pública de ofertas
 Route::get('/ofertas', [OfertaController::class, 'index'])->name('ofertas.index');
 
+// Exibição do card de oferta
+Route::resource('ofertas', OfertaController::class);
+
 // Pesquisa
 Route::get('/buscar', [BuscaController::class, 'index'])->name('buscar');
 Route::get('/buscar/sugestoes', [BuscaController::class, 'sugestoes'])->name('buscar.sugestoes');
 
 // Rota do Webhook do Stripe (Pública, pois vem de fora da aplicação)
 Route::post('/webhook/stripe', [WebhookController::class, 'stripe']);
+
 
 // ROTAS PROTEGIDAS (Exigem Login)
 Route::middleware('auth')->group(function () {
@@ -40,7 +44,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/ofertas/{oferta}/card', [OfertaController::class, 'card'])->name('ofertas.card');
     Route::get('/propostas/{proposta}/card', [PropostaController::class,'card'])->name('propostas.card');
 
-    Route::resource('ofertas', OfertaController::class);
 
     // Demandas
     Route::resource('demandas', DemandaController::class);

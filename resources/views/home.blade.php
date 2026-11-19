@@ -252,7 +252,7 @@
 
                                     <a href="{{ route('negociacoes.propostas', ['oferta' => $oferta->id]) }}"
                                     class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold px-3 py-2 rounded-md text-xs transition-colors whitespace-nowrap">
-                                        Negociação
+                                        Negociações
                                     </a>
 
                                     <a href="{{ route('ofertas.show', $oferta->id) }}"

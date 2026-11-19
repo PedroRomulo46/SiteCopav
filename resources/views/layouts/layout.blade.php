@@ -455,7 +455,7 @@
 
                             <button
                                 type="submit"
-                                class="flex items-center gap-2 w-full px-3 py-2 rounded-md text-left text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-150 cursor-pointer"
+                                class="flex items-center gap-2 w-full px-3 py-2 rounded-md text-left text-error hover:bg-red-50 transition-colors duration-150 cursor-pointer"
                             >
                                 <span class="material-symbols-outlined text-lg">
                                     logout

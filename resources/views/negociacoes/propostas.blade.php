@@ -15,19 +15,11 @@
             </a>
         </li>
 
-        {{-- Consertar rota anterior --}}
-        <li class="flex items-center space-x-2">
-            <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
-            <a href="{{route('negociacoes.vendas')}}">
-                Minhas vendas
-            </a>
-        </li>
-
-        {{-- Item 3: Pégina Atual --}}
+        {{-- Item 2: Página Atual --}}
         <li class="flex items-center space-x-2 hover:cursor-pointer">
             <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
             <span class="font-semibold text-gray-800">
-                {{ $oferta->produto->nome }}
+                Negociações de {{ $oferta->produto->nome }}
             </span>
         </li>
     </ol>
@@ -140,7 +132,7 @@
                         Aceitas <span class="ml-1 opacity-80">{{ $aceitas }}</span>
                     </a>
                     <a href="{{ route('negociacoes.propostas', ['oferta' => $oferta, 'status' => 'recusada', 'ordenar' => $ordenar]) }}"
-                       class="px-3.5 py-1.5 rounded-lg text-sm font-medium transition-colors {{ $status === 'recusada' ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }}">
+                       class="px-3.5 py-1.5 rounded-lg text-sm font-medium transition-colors {{ $status === 'recusada' ? 'bg-error text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }}">
                         Recusadas <span class="ml-1 opacity-80">{{ $recusadas }}</span>
                     </a>
                 </div>

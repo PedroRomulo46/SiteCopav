@@ -57,26 +57,26 @@
 
         {{-- Item Intermediário Dinâmico baseado no contexto ou origem --}}
         @php
-            $veioDeCompras = str_contains(url()->previous(), 'compras');
-            $veioDeVendas = str_contains(url()->previous(), 'vendas');
-            $veioDeOferta = str_contains(url()->previous(), 'ofertas');
+            $SubCompras = str_contains(url()->previous(), 'compras');
+            $SubVendas = str_contains(url()->previous(), 'vendas');
+            $SubOferta = str_contains(url()->previous(), 'ofertas');
         @endphp
 
-        @if($veioDeCompras)
+        @if($SubCompras)
             <li class="flex items-center space-x-2">
                 <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
                 <a href="{{ route('negociacoes.compras') }}" class="hover:text-[#236350] transition-colors">
                     Minhas Compras
                 </a>
             </li>
-        @elseif($veioDeVendas)
+        @elseif($SubVendas)
             <li class="flex items-center space-x-2">
                 <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
                 <a href="{{ route('negociacoes.vendas') }}" class="hover:text-[#236350] transition-colors">
                     Minhas Vendas
                 </a>
             </li>
-        @elseif($veioDeOferta)
+        @elseif($SubOferta)
             <li class="flex items-center space-x-2">
                 <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
                 <a href="{{ url()->previous() }}" class="hover:text-[#236350] transition-colors">
@@ -97,7 +97,7 @@
         <li class="flex items-center space-x-2">
             <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
             <span class="font-semibold text-gray-800">
-                Negociação {{ $negociacao->id }}
+                Painel de Negociação
             </span>
         </li>
     </ol>
