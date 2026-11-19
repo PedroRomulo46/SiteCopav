@@ -417,7 +417,7 @@
 
                         {{-- Perfil --}}
                         <a
-                            href="{{ route('profile.edit') }}"
+                            href="{{ route('profile.show') }}"
                             class="flex items-center gap-2 w-full px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 hover:text-[#1B4D3E] transition-colors duration-150"
                         >
                             <span class="material-symbols-outlined text-lg">

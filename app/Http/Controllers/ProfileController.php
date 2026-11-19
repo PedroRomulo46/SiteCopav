@@ -12,9 +12,6 @@ use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
-    /**
-     * Display the user's profile form.
-     */
     public function edit(Request $request): View
     {
         return view('profile.edit', [
@@ -22,9 +19,6 @@ class ProfileController extends Controller
         ]);
     }
 
-    /**
-     * Update the user's profile information.
-     */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $dados = $request->validated();
@@ -76,9 +70,13 @@ class ProfileController extends Controller
             ->with('status', 'profile-updated');
     }
 
-    /**
-     * Delete the user's account.
-     */
+    public function show(Request $request): View
+    {
+    return view('profile.show', [
+        'user' => $request->user(),
+    ]);
+    }
+
     public function destroy(Request $request): RedirectResponse
     {
         $request->validateWithBag('userDeletion', [

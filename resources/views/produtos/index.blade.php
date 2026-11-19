@@ -14,7 +14,7 @@
             </a>
         </li>
 
-        {{-- Item 2: Pégina Atual --}}
+        {{-- Item 2: Página Atual --}}
         <li class="flex items-center space-x-2 hover:cursor-pointer">
             <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
             <span class="font-semibold text-gray-800">
