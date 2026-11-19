@@ -73,42 +73,36 @@ class NegociacaoController extends Controller
 
     public function vendas()
     {
-    $usuario = auth()->user();
+        $usuario = auth()->user();
 
-    // Somente administradores, empresa ou fornecedores.
-    $is_Admin = $usuario->user_type === 'admin'
-        || $usuario->is_admin
-        || $usuario->email === 'copavagricola@example.com';
+        if (!$usuario->fornecedor && $usuario->user_type !== 'admin') {
+            abort(403);
+        }
 
-    $is_Empresa = $usuario->user_type === 'empresa';
+        $consulta = Negociacao::query();
 
-    if (!$is_Admin && !$is_Empresa && !$usuario->fornecedor) {
-        abort(403);
-    }
+        // Filtra estritamente pelas ofertas do fornecedor vinculado ao usuário atual (incluindo a Empresa)
+        if ($usuario->fornecedor) {
+            $fornecedorId = $usuario->fornecedor->id;
+            $consulta->whereHas('oferta', function ($query) use ($fornecedorId) {
+                $query->where('fornecedor_id', $fornecedorId);
+            });
+        } else {
+            // Se o admin não tiver perfil de fornecedor vinculado, retorna vazio em "Minhas Vendas" para não misturar com lotes de terceiros
+            $consulta->whereRaw('1 = 0');
+        }
 
-    $consulta = Negociacao::query();
+        $negociacoes = $consulta
+            ->with([
+                'oferta.produto',
+                'oferta.fornecedor',
+                'cliente',
+                'propostas.usuario',
+            ])
+            ->latest()
+            ->get();
 
-    // Fornecedores veem apenas negociações dos próprios lotes.
-    // Administradores e empresa veem todas as negociações.
-    if (!$is_Admin && !$is_Empresa) {
-        $fornecedor = $usuario->fornecedor;
-
-        $consulta->whereHas('oferta', function ($query) use ($fornecedor) {
-            $query->where('fornecedor_id', $fornecedor->id);
-        });
-    }
-
-    $negociacoes = $consulta
-        ->with([
-            'oferta.produto',
-            'oferta.fornecedor',
-            'cliente',
-            'propostas.usuario',
-        ])
-        ->latest()
-        ->get();
-
-    return view('negociacoes.vendas', compact('negociacoes'));
+        return view('negociacoes.vendas', compact('negociacoes'));
     }
 
     public function create()

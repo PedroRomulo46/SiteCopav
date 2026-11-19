@@ -4,33 +4,43 @@
 @section('conteudo')
 
 
-{{-- Breadcrumbs com setas garantidas via ícone --}}
+{{-- Breadcrumbs --}}
 <nav class="flex items-center text-sm mb-6 text-gray-600" aria-label="Breadcrumb">
     <ol class="inline-flex items-center space-x-2">
 
         {{-- Item 1: Início --}}
         <li>
-            <a href="{{route('home')}}">
+            <a href="{{ route('home') }}" class="hover:text-[#236350] transition-colors">
                 Início
             </a>
         </li>
 
-        {{-- Item 2: Detalhes --}}
-        <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
-        <li>
-            <a href="{{route('negociacoes.show', $negociacao)}}">
-                Detalhes
+        {{-- Item 2: Nome do Produto / Oferta --}}
+        @if($negociacao->oferta && $negociacao->oferta->produto)
+            <li class="flex items-center space-x-2">
+                <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
+                <a href="{{ route('ofertas.show', $negociacao->oferta) }}" class="hover:text-[#236350] transition-colors">
+                    {{ $negociacao->oferta->produto->nome }}
+                </a>
+            </li>
+        @endif
+
+        {{-- Item 3: Painel de Negociação --}}
+        <li class="flex items-center space-x-2">
+            <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
+            <a href="{{ route('negociacoes.show', $negociacao) }}" class="hover:text-[#236350] transition-colors">
+                Painel de Negociação
             </a>
         </li>
 
-
-        {{-- Item 2: Pégina Atual --}}
-        <li class="flex items-center space-x-2 hover:cursor-pointer">
+        {{-- Item 4: Página Atual --}}
+        <li class="flex items-center space-x-2">
             <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
             <span class="font-semibold text-gray-800">
-                @yield('title')
+                Nova proposta
             </span>
         </li>
+
     </ol>
 </nav>
 

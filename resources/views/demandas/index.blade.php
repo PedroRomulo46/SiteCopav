@@ -28,9 +28,6 @@
     {{-- Cabeçalho da Página --}}
     <div class="flex flex-row items-center justify-between gap-4 pb-2">
         <div class="text-left">
-            <p class="text-sm font-semibold text-[#236350] mb-1">
-                Painel de Demandas
-            </p>
             <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 flex items-center gap-2">
                 <span class="material-symbols-outlined text-[#1B4D3E] text-3xl">assignment</span>
                 Demandas

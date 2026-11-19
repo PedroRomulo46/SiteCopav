@@ -24,12 +24,16 @@ Route::resource('categorias', CategoriaController::class)->only(['index', 'show'
 // Listagem pública de ofertas
 Route::get('/ofertas', [OfertaController::class, 'index'])->name('ofertas.index');
 
+// Exibição do card de oferta
+Route::resource('ofertas', OfertaController::class);
+
 // Pesquisa
 Route::get('/buscar', [BuscaController::class, 'index'])->name('buscar');
 Route::get('/buscar/sugestoes', [BuscaController::class, 'sugestoes'])->name('buscar.sugestoes');
 
 // Rota do Webhook do Stripe (Pública, pois vem de fora da aplicação)
 Route::post('/webhook/stripe', [WebhookController::class, 'stripe']);
+
 
 // ROTAS PROTEGIDAS (Exigem Login)
 Route::middleware('auth')->group(function () {
@@ -40,7 +44,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/ofertas/{oferta}/card', [OfertaController::class, 'card'])->name('ofertas.card');
     Route::get('/propostas/{proposta}/card', [PropostaController::class,'card'])->name('propostas.card');
 
-    Route::resource('ofertas', OfertaController::class);
 
     // Demandas
     Route::resource('demandas', DemandaController::class);
@@ -127,6 +130,7 @@ Route::middleware('auth')->group(function () {
     ->name('propostas.visualizar');
 
     // Perfil
+    Route::get('/perfil', [ProfileController::class, 'show'])->name('profile.show');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -137,6 +141,7 @@ Route::middleware('auth')->group(function () {
     // Pagamentos
     Route::get('/negociacoes/{negociacao}/pagamento',[PagamentoController::class, 'show'])->name('pagamentos.show');
     Route::post('/negociacoes/{negociacao}/pagamento/aprovar', [PagamentoController::class, 'confirmar'])->name('pagamentos.confirmar');
+    Route::get('/negociacoes/{negociacao}/pagamento/sucesso', [PagamentoController::class, 'sucesso'])->name('pagamentos.sucesso');
 });
 
 // ROTAS EXCLUSIVAS DA EMPRESA (ADMIN)

@@ -12,9 +12,6 @@ use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
-    /**
-     * Display the user's profile form.
-     */
     public function edit(Request $request): View
     {
         return view('profile.edit', [
@@ -22,19 +19,43 @@ class ProfileController extends Controller
         ]);
     }
 
-    /**
-     * Update the user's profile information.
-     */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $dados = $request->validated();
 
         if ($request->hasFile('imagem')) {
+            $arquivo = $request->file('imagem');
+
+            if (! $arquivo->isValid()) {
+                return Redirect::route('profile.edit')
+                    ->withErrors(['imagem' => 'O upload da imagem falhou (código: ' . $arquivo->getError() . '). Verifique o tamanho máximo no PHP.']);
+            }
+
+            $caminhoTemp = $arquivo->getRealPath();
+
+            if (! $caminhoTemp || ! file_exists($caminhoTemp)) {
+                return Redirect::route('profile.edit')
+                    ->withErrors(['imagem' => 'Arquivo temporário não encontrado no servidor. Verifique upload_tmp_dir no php.ini.']);
+            }
+
+            $pastaDestino = storage_path('app/public/perfis');
+            if (! is_dir($pastaDestino)) {
+                mkdir($pastaDestino, 0775, true);
+            }
+
+            $extensao = $arquivo->guessExtension() ?: $arquivo->getClientOriginalExtension() ?: 'jpg';
+            $nomeArquivo = 'perfil_' . uniqid('', true) . '.' . $extensao;
+
+            if (! $arquivo->move($pastaDestino, $nomeArquivo)) {
+                return Redirect::route('profile.edit')
+                    ->withErrors(['imagem' => 'Não foi possível mover a imagem para a pasta de perfis.']);
+            }
+
             if ($request->user()->imagem) {
                 Storage::disk('public')->delete($request->user()->imagem);
             }
 
-            $dados['imagem'] = $request->file('imagem')->store('perfis', 'public');
+            $dados['imagem'] = 'perfis/' . $nomeArquivo;
         }
 
         $request->user()->fill($dados);
@@ -49,9 +70,13 @@ class ProfileController extends Controller
             ->with('status', 'profile-updated');
     }
 
-    /**
-     * Delete the user's account.
-     */
+    public function show(Request $request): View
+    {
+    return view('profile.show', [
+        'user' => $request->user(),
+    ]);
+    }
+
     public function destroy(Request $request): RedirectResponse
     {
         $request->validateWithBag('userDeletion', [

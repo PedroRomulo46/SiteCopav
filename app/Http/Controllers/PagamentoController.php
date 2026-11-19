@@ -78,11 +78,22 @@ class PagamentoController extends Controller
             'metadata' => [
                 'negociacao_id' => (string) $negociacao->id,
             ],
-            'success_url' => route('negociacoes.compras') . '?pagamento=sucesso',
+            // Criamos uma rota dedicada ou passamos o ID para garantir a atualização imediata no retorno
+            'success_url' => route('pagamentos.sucesso', $negociacao) . '?session_id={CHECKOUT_SESSION_ID}',
             'cancel_url' => route('pagamentos.show', $negociacao),
         ]);
 
         // Redireciona para o checkout oficial do Stripe
         return redirect()->away($session->url);
+    }
+
+    public function sucesso(Request $request, Negociacao $negociacao)
+    {
+        // Garante a atualização imediata da negociação para pago ao retornar do Stripe
+        if ($negociacao->status !== 'pago' && $negociacao->status !== 'aprovado') {
+            $negociacao->update(['status' => 'pago']);
+        }
+
+        return redirect()->route('negociacoes.compras')->with('sucesso', 'Pagamento aprovado com sucesso!');
     }
 }

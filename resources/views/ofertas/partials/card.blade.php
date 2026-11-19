@@ -81,7 +81,7 @@
                     Localização
                 </span>
 
-                <span class="font-semibold text-gray-700 truncate max-w-[170px]">
+                <span class="font-semibold text-gray-700 truncate max-w-170px">
                     {{ $oferta->localizacao ?? 'Não informada' }}
                 </span>
             </div>
