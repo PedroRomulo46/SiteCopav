@@ -185,7 +185,7 @@
 
                             {{-- ações para aprovar ou recusar --}}
                             <div class="px-5 py-3 bg-amber-50/40 border-t border-amber-100 flex items-center justify-between gap-2">
-                                <form action="{{ route('categorias.sugestoes.aprovar', $sugestao) }}" method="POST" class="inline">
+                                <form action="{{ route('categorias.sugerir.aprovar', $sugestao) }}" method="POST" class="inline">
                                     @csrf
                                     <button type="submit" class="btn btn-ghost btn-xs text-emerald-700 hover:bg-emerald-50 gap-1 font-medium cursor-pointer">
                                         <span class="material-symbols-outlined text-base">check</span>
@@ -193,7 +193,7 @@
                                     </button>
                                 </form>
 
-                                <form action="{{ route('categorias.sugestoes.recusar', $sugestao) }}" method="POST" class="inline">
+                                <form action="{{ route('categorias.sugerir.recusar', $sugestao) }}" method="POST" class="inline">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-ghost btn-xs text-red-600 hover:bg-red-50 gap-1 font-medium cursor-pointer">

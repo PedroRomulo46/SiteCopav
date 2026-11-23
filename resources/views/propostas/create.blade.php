@@ -115,6 +115,7 @@
                 <input
                     type="number"
                     name="valor"
+                    id="valor_proposta"
                     step="0.01"
                     min="0"
                     value="{{ old('valor') }}"
@@ -131,12 +132,26 @@
                 <input
                     type="number"
                     name="quantidade"
+                    id="quantidade_proposta"
                     step="{{ strtolower($negociacao->oferta->unidade) === 'saca' ? '1' : '0.01' }}"
                     min="0"
                     value="{{ old('quantidade') }}"
                     placeholder="Informe a quantidade"
                     class="w-full p-3 border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">
             </div>
+        </div>
+
+        {{-- Valor a Pagar --}}
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+                Valor a pagar (R$):
+            </label>
+            <input
+                type="text"
+                id="valor_a_pagar"
+                readonly
+                value="R$ 0,00"
+                class="w-full p-3 bg-gray-50 border-gray-300 rounded-md shadow-sm text-gray-700 font-semibold cursor-not-allowed">
         </div>
 
         {{-- Observação --}}
@@ -168,5 +183,27 @@
         </div>
     </form>
 </div>
+
+<script>
+    const inputValorProposta = document.getElementById('valor_proposta');
+    const inputQuantidadeProposta = document.getElementById('quantidade_proposta');
+    const inputValorAPagar = document.getElementById('valor_a_pagar');
+
+    function atualizarValorAPagar() {
+        const valor = parseFloat(inputValorProposta.value) || 0;
+        const quantidade = parseFloat(inputQuantidadeProposta.value) || 0;
+        const total = valor * quantidade;
+
+        inputValorAPagar.value = total.toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+        });
+    }
+
+    inputValorProposta.addEventListener('input', atualizarValorAPagar);
+    inputQuantidadeProposta.addEventListener('input', atualizarValorAPagar);
+
+    atualizarValorAPagar();
+</script>
 
 @endsection

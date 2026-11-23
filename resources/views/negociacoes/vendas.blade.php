@@ -10,7 +10,7 @@
 
         {{-- Item 1: Início --}}
         <li>
-            <a href="{{route('home')}}">
+            <a href="{{ route('home') }}">
                 Início
             </a>
         </li>
@@ -49,10 +49,13 @@
                     $oferta = $negociacao->oferta;
                     $produto = $oferta?->produto;
                     $ultimaProposta = $negociacao->propostas->sortBy('created_at')->last();
+                    $vendaPaga = in_array($negociacao->status, ['pago', 'aprovado']);
                 @endphp
 
-                <article class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
-
+                <article
+                    data-negociacao-id="{{ $negociacao->id }}"
+                    class="bg-white rounded-2xl border {{ $vendaPaga ? 'border-sky-500' : 'border-gray-200' }} shadow-sm overflow-hidden flex flex-col"
+                >
                     <div class="h-44 bg-gray-100">
                         <img
                             src="{{ $produto && $produto->imagem
@@ -96,7 +99,7 @@
                                     </strong>
                                 </p>
                                 <p class="text-sm text-gray-500 mt-1">
-                                    Situação: <strong> {{ ucfirst(str_replace('_', ' ', $ultimaProposta->status)) }} </strong>
+                                    Situação: <strong>{{ ucfirst(str_replace('_', ' ', $ultimaProposta->status)) }}</strong>
                                 </p>
                             @else
                                 <p class="text-sm text-gray-500 mt-2">
@@ -105,14 +108,22 @@
                             @endif
                         </div>
 
-                        {{-- Botão de negociação --}}
-                        <div>
+                        <div class="mt-auto space-y-2">
                             <a
                                 href="{{ route('negociacoes.show', $negociacao) }}"
-                                class="btn-copav w-full rounded-lg px-4 py-3 gap-2 text-sm font-semibold"
+                                class="btn-copav w-full rounded-lg px-4 py-3 gap-2 text-sm font-semibold flex items-center justify-center"
                             >
                                 <span class="material-symbols-outlined">library_books</span>
                                 Ver Negociação
+                            </a>
+
+                            <a
+                                id="botao-entrega-{{ $negociacao->id }}"
+                                href="{{ route('compras.encomenda', $negociacao) }}"
+                                class="{{ $vendaPaga ? 'flex' : 'hidden' }} w-full rounded-lg px-4 py-3 gap-2 text-sm font-semibold items-center justify-center bg-sky-600 hover:bg-sky-700 text-white transition-colors"
+                            >
+                                <span class="material-symbols-outlined text-lg">local_shipping</span>
+                                Atualizar entrega
                             </a>
                         </div>
                     </div>
@@ -139,4 +150,30 @@
         </div>
     @endif
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (!window.Echo) return;
+
+    document.querySelectorAll('[data-negociacao-id]').forEach(function (card) {
+        const negociacaoId = Number(card.dataset.negociacaoId);
+
+        window.Echo
+            .private(`negociacao.${negociacaoId}`)
+            .listen('.pagamento.aprovado', function () {
+                const botaoEntrega = document.getElementById(`botao-entrega-${negociacaoId}`);
+                card.classList.remove('border-gray-200');
+                card.classList.add('border-sky-500');
+
+                if (botaoEntrega) {
+                    botaoEntrega.classList.remove('hidden');
+                    botaoEntrega.classList.add('flex');
+                }
+            });
+    });
+});
+</script>
+@endpush
+
 @endsection

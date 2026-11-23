@@ -55,7 +55,7 @@
 
         {{-- formulário de sugestão --}}
         <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6 sm:p-8">
-            <form action="{{ route('categorias.sugestoes.store') }}" method="POST" class="space-y-5">
+            <form action="{{ route('categorias.sugerir.store') }}" method="POST" class="space-y-5">
                 @csrf
 
                 {{-- nome da categoria sugerida --}}

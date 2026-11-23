@@ -19,7 +19,6 @@ use App\Http\Controllers\WebhookController;
 
 // ROTAS PÚBLICAS (Visitantes e Autenticados)
 Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::resource('categorias', CategoriaController::class)->only(['index', 'show']);
 
 // Listagem pública de ofertas
 Route::get('/ofertas', [OfertaController::class, 'index'])->name('ofertas.index');
@@ -78,19 +77,19 @@ Route::middleware('auth')->group(function () {
 
     // Enviar mensagem geral ou vinculada a um assunto
     Route::post('/chat/{chat}/mensagens', [ChatController::class, 'store'])
-        ->whereNumber('chat')
-        ->name('chat.mensagens.store');
-
+    ->whereNumber('chat')
+    ->name('chat.mensagens.store');
+    
     // Abrir conversa a partir de uma negociação
     Route::get('/negociacoes/{negociacao}/chat', [ChatController::class, 'abrirNegociacao'])
-        ->name('negociacoes.chat');
+    ->name('negociacoes.chat');
 
     // Categorias - Sugestões (declarar antes do resource de categorias)
     Route::get('/categorias/sugerir', [CategoriaController::class, 'sugerir'])->name('categorias.sugerir');
     Route::post('/categorias/sugerir', [CategoriaController::class, 'armazenarSugestao'])->name('categorias.sugerir.store');
     Route::post('/categorias/sugerir/{sugestao}/aprovar', [CategoriaController::class, 'aprovarSugestao'])->name('categorias.sugerir.aprovar');
     Route::delete('/categorias/sugerir/{sugestao}', [CategoriaController::class, 'recusarSugestao'])->name('categorias.sugerir.recusar');
-
+    
     // Categorias
     Route::resource('categorias', CategoriaController::class)->except(['index', 'show']);
 
@@ -143,5 +142,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 });
+
+Route::resource('categorias', CategoriaController::class)->only(['index', 'show']);
 
 require __DIR__.'/auth.php';

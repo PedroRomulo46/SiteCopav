@@ -121,6 +121,7 @@
                 <input
                     type="number"
                     name="quantidade"
+                    id="quantidade"
                     step="1"
                     min="0"
                     value="{{ old('quantidade') }}"
@@ -131,12 +132,13 @@
             {{-- Valor --}}
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                    Valor (R$):
+                    Valor por quantidade (R$):
                 </label>
 
                 <input
                     type="number"
                     name="valor"
+                    id="valor"
                     step="0.01"
                     min="0"
                     value="{{ old('valor') }}"
@@ -196,18 +198,18 @@
                 </div>
             </div>
 
-            {{-- Localização --}}
+            {{-- Valor total --}}
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                    Localização:
+                    Valor total (R$):
                 </label>
 
                 <input
                     type="text"
-                    name="localizacao"
-                    value="{{ old('localizacao') }}"
-                    placeholder="Ex: Icapuí - CE"
-                    class="p-3 w-full border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">
+                    id="valor_total"
+                    readonly
+                    value="R$ 0,00"
+                    class="w-full p-3 bg-gray-50 border-gray-300 rounded-md shadow-sm text-gray-700 font-semibold cursor-not-allowed">
             </div>
 
             {{-- Data de início --}}
@@ -223,6 +225,20 @@
                     value="{{ old('data_inicio', now()->format('Y-m-d')) }}"
                     min="{{ now()->format('Y-m-d') }}"
                     class="w-full p-3 border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">
+            </div>
+
+            {{-- Localização --}}
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    Localização:
+                </label>
+
+                <input
+                    type="text"
+                    name="localizacao"
+                    value="{{ old('localizacao') }}"
+                    placeholder="Ex: Icapuí - CE"
+                    class="p-3 w-full border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">
             </div>
 
             {{-- Data de término --}}
@@ -321,6 +337,9 @@
     const status = document.getElementById('status');
     const dataInicio = document.getElementById('data_inicio');
     const dataValidade = document.getElementById('data_validade');
+    const quantidadeInput = document.getElementById('quantidade');
+    const valorUnitarioInput = document.getElementById('valor');
+    const valorTotalInput = document.getElementById('valor_total');
 
     const hoje = "{{ now()->format('Y-m-d') }}";
 
@@ -331,6 +350,22 @@
             dataValidade.min = hoje;
         }
     }
+
+    function atualizarValorTotal() {
+        const qtd = parseFloat(quantidadeInput.value) || 0;
+        const unit = parseFloat(valorUnitarioInput.value) || 0;
+        const total = qtd * unit;
+
+        valorTotalInput.value = total.toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+        });
+    }
+
+    quantidadeInput.addEventListener('input', atualizarValorTotal);
+    valorUnitarioInput.addEventListener('input', atualizarValorTotal);
+
+    atualizarValorTotal();
 
     function selecionarProduto(event, id, nome) {
         event.preventDefault();
