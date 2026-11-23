@@ -85,6 +85,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/negociacoes/{negociacao}/chat', [ChatController::class, 'abrirNegociacao'])
         ->name('negociacoes.chat');
 
+    // Categorias - Sugestões (declarar antes do resource de categorias)
+    Route::get('/categorias/sugerir', [CategoriaController::class, 'sugerir'])->name('categorias.sugerir');
+    Route::post('/categorias/sugerir', [CategoriaController::class, 'armazenarSugestao'])->name('categorias.sugerir.store');
+    Route::post('/categorias/sugerir/{sugestao}/aprovar', [CategoriaController::class, 'aprovarSugestao'])->name('categorias.sugerir.aprovar');
+    Route::delete('/categorias/sugerir/{sugestao}', [CategoriaController::class, 'recusarSugestao'])->name('categorias.sugerir.recusar');
+
+    // Categorias
+    Route::resource('categorias', CategoriaController::class)->except(['index', 'show']);
+
     // Categorias
     Route::resource('categorias', CategoriaController::class)->except(['index', 'show']);
     
