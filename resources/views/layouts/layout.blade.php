@@ -721,12 +721,23 @@
               },
 
               atualizarTotalNaoLidas() {
-                  this.totalNaoLidas = this.conversas.reduce(
-                      (total, conversa) =>
-                          total + Number(conversa.mensagens_nao_lidas || 0),
-                      0
-                  );
-              },
+                this.totalNaoLidas = this.conversas.reduce(
+                    (total, conversa) => {
+                        const naoLidasGerais = Number(
+                            conversa.mensagens_nao_lidas || 0
+                        );
+
+                        const naoLidasAssuntos = (conversa.assuntos || []).reduce(
+                            (subtotal, assunto) =>
+                                subtotal + Number(assunto.mensagens_nao_lidas || 0),
+                            0
+                        );
+
+                        return total + naoLidasGerais + naoLidasAssuntos;
+                    },
+                    0
+                );
+            },
 
               
               inscreverCanalGlobal(chatId) {
@@ -777,16 +788,23 @@
 
 
               
-            async abrirConversa(conversa) {
+            async abrirConversa(conversa, assuntoId = null) {
                 this.conversaSelecionada = conversa;
 
                 this.assuntoSelecionadoId =
-                    conversa.assuntos?.[0]?.id ?? null;
+                    assuntoId === null ? null : Number(assuntoId);
 
                 this.mensagens = [];
                 this.erroMensagens = '';
                 this.carregandoMensagens = true;
                 this.chatIdAtivo = Number(conversa.chat_id);
+
+                const lista = this.$refs.listaMensagens;
+
+                if (lista) {
+                    lista.style.visibility = 'hidden';
+                    lista.scrollTop = 0;
+                }
 
                 try {
                     const url = new URL(
@@ -794,7 +812,7 @@
                         window.location.origin
                     );
 
-                    if (this.assuntoSelecionadoId) {
+                    if (this.assuntoSelecionadoId !== null) {
                         url.searchParams.set(
                             'assunto_chat_id',
                             this.assuntoSelecionadoId
@@ -819,7 +837,18 @@
                     this.inscreverCanalGlobal(dados.chat_id);
                     this.mensagens = dados.mensagens || [];
 
-                    conversa.mensagens_nao_lidas = 0;
+                    if (this.assuntoSelecionadoId === null) {
+                        conversa.mensagens_nao_lidas = 0;
+                    } else {
+                        const assunto = conversa.assuntos?.find(
+                            item => Number(item.id) === this.assuntoSelecionadoId
+                        );
+
+                        if (assunto) {
+                            assunto.mensagens_nao_lidas = 0;
+                        }
+                    }
+
                     this.atualizarTotalNaoLidas();
 
                     this.$nextTick(() => this.rolarHistorico());
@@ -915,6 +944,7 @@
 
                   if (lista) {
                       lista.scrollTop = lista.scrollHeight;
+                      lista.style.visibility = 'visible';
                   }
               },
 
@@ -969,39 +999,64 @@
           <!-- Cabeçalho -->
           <div class="flex min-h-[68px] items-center justify-between bg-[#1B4D3E] px-4 py-3 text-white">
 
-              <!-- Identificação da conversa -->
-              <div class="flex min-w-0 flex-1 items-center gap-3">
+            <!-- Identificação da conversa -->
+            <div class="flex min-w-0 flex-1 items-center gap-3">
 
-                  <button
-                      x-show="conversaSelecionada"
-                      @click="voltarConversas()"
-                      type="button"
-                      class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-0 bg-transparent p-0 text-white transition-colors hover:bg-white/10"
-                      aria-label="Voltar às conversas"
-                  >
-                      <span class="material-symbols-outlined text-[23px] leading-none">
-                          arrow_back
-                      </span>
-                  </button>
+                <button
+                    x-show="conversaSelecionada"
+                    @click="voltarConversas()"
+                    type="button"
+                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-0 bg-transparent p-0 text-white transition-colors hover:bg-white/10"
+                    aria-label="Voltar às conversas"
+                >
+                    <span class="material-symbols-outlined text-[23px] leading-none">
+                        arrow_back
+                    </span>
+                </button>
 
-                  <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/15">
-                      <span class="material-symbols-outlined text-[23px] leading-none">
-                          forum
-                      </span>
-                  </div>
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/15">
+                    <span class="material-symbols-outlined text-[23px] leading-none">
+                        forum
+                    </span>
+                </div>
 
-                  <div class="min-w-0">
-                      <h3
-                          class="truncate font-semibold"
-                          x-text="conversaSelecionada ? conversaSelecionada.participante : 'Mensagens'"
-                      ></h3>
+                <div class="min-w-0 flex-1">
+                    <div class="flex min-w-0 items-center gap-1.5">
+                        <h3
+                            class="truncate font-semibold"
+                            x-text="conversaSelecionada ? conversaSelecionada.participante : 'Mensagens'"
+                        ></h3>
 
-                      <p
-                          class="text-xs text-white/70"
-                          x-text="conversaSelecionada ? 'Conversa' : 'Suas conversas'"
-                      ></p>
-                  </div>
-              </div>
+                        <template
+                            x-for="negociacao in (
+                                conversaSelecionada?.assuntos?.find(
+                                    item => Number(item.id) === Number(assuntoSelecionadoId)
+                                )?.links_negociacoes || []
+                            )"
+                            :key="negociacao.id"
+                        >
+                            <a
+                                :href="negociacao.url"
+                                target="_blank"
+                                class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-green-200 transition hover:bg-white/10 hover:text-white"
+                                title="Ver oferta"
+                                aria-label="Ver oferta"
+                                @click.stop
+                            >
+                                <span class="material-symbols-outlined text-[19px]">
+                                    storefront
+                                </span>
+                            </a>
+                        </template>
+                    </div>
+
+                    <p
+                        class="truncate text-xs text-white/70"
+                        x-text="conversaSelecionada ? 'Conversa' : 'Suas conversas'"
+                    ></p>
+                </div>
+            </div>
+
 
               <!-- Ações do cabeçalho -->
               <div class="ml-3 flex shrink-0 items-center gap-1">
@@ -1034,8 +1089,8 @@
 
               <!-- Lista de conversas -->
               <div
-                  x-show="!conversaSelecionada"
-                  class="flex-1 overflow-y-auto bg-gray-50"
+                x-show="!conversaSelecionada"
+                class="min-h-0 flex-1 overflow-y-auto bg-gray-50"
               >
                   <div
                       x-show="carregando"
@@ -1051,36 +1106,88 @@
                   ></div>
 
                   <template x-for="conversa in conversas" :key="conversa.chat_id">
-                      <button
-                          type="button"
-                          @click="abrirConversa(conversa)"
-                          class="flex w-full items-center gap-3 border-b border-gray-100 px-4 py-4 text-left transition hover:bg-white"
-                      >
-                          <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#1B4D3E]/10 text-[#1B4D3E]">
-                              <span class="material-symbols-outlined">person</span>
-                          </div>
+                    <div class="border-b border-gray-200">
 
-                          <div class="min-w-0 flex-1">
-                              <div class="flex items-center justify-between gap-2">
-                                  <span
-                                      class="truncate font-semibold text-gray-800"
-                                      x-text="conversa.participante"
-                                  ></span>
+                        <!-- Identificação do participante -->
+                        <div class="flex items-center gap-3 bg-white px-4 py-3">
+                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#1B4D3E]/10 text-[#1B4D3E]">
+                                <span class="material-symbols-outlined">person</span>
+                            </div>
 
-                                  <span
-                                      x-show="Number(conversa.mensagens_nao_lidas || 0) > 0"
-                                      class="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#236350] px-1 text-xs font-bold text-white"
-                                      x-text="conversa.mensagens_nao_lidas"
-                                  ></span>
-                              </div>
+                            <div class="min-w-0 flex-1">
+                                <p
+                                    class="truncate font-semibold text-gray-800"
+                                    x-text="conversa.participante"
+                                ></p>
 
-                              <p
-                                  class="mt-1 truncate text-sm text-gray-500"
-                                  x-text="conversa.ultima_mensagem"
-                              ></p>
-                          </div>
-                      </button>
-                  </template>
+                                <p class="text-xs text-gray-400">
+                                    Conversa
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Mensagens gerais -->
+                        <button
+                            type="button"
+                            @click="abrirConversa(conversa, null)"
+                            class="flex w-full items-center gap-3 border-t border-gray-100 px-5 py-3 text-left transition hover:bg-white"
+                        >
+                            <span class="material-symbols-outlined text-xl text-gray-500">
+                                forum
+                            </span>
+
+                            <div class="min-w-0 flex-1">
+                                <p class="text-sm font-medium text-gray-700">
+                                    Mensagens gerais
+                                </p>
+
+                                <p class="text-xs text-gray-400">
+                                    Conversa sem assunto específico
+                                </p>
+                            </div>
+
+                            <span
+                                x-show="Number(conversa.mensagens_nao_lidas || 0) > 0"
+                                class="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#236350] px-1 text-xs font-bold text-white"
+                                x-text="conversa.mensagens_nao_lidas"
+                            ></span>
+                        </button>
+
+                        <!-- Assuntos -->
+                        <template
+                            x-for="assunto in (conversa.assuntos || [])"
+                            :key="assunto.id"
+                        >
+                            <button
+                                type="button"
+                                @click="abrirConversa(conversa, assunto.id)"
+                                class="flex w-full items-center gap-3 border-t border-gray-100 px-5 py-3 text-left transition hover:bg-white"
+                            >
+                                <span class="material-symbols-outlined text-xl text-[#236350]">
+                                    topic
+                                </span>
+
+                                <div class="min-w-0 flex-1">
+                                    <p
+                                        class="truncate text-sm font-medium text-gray-700"
+                                        x-text="assunto.titulo"
+                                    ></p>
+
+                                    <p class="text-xs text-gray-400">
+                                        Assunto da conversa
+                                    </p>
+                                </div>
+
+                                <span
+                                    x-show="Number(assunto.mensagens_nao_lidas || 0) > 0"
+                                    class="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#236350] px-1 text-xs font-bold text-white"
+                                    x-text="assunto.mensagens_nao_lidas"
+                                ></span>
+                            </button>
+                        </template>
+
+                    </div>
+                </template>
 
                   <div
                       x-show="!carregando && conversas.length === 0 && !erro"

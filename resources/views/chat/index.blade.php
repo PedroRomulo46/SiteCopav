@@ -113,6 +113,11 @@
                             ->filter()
                             ->unique('id')
                             ->first();
+
+                        $primeiraOferta = $assunto->negociacoes
+                            ->map(fn ($negociacao) => $negociacao->oferta)
+                            ->filter()
+                            ->first();
                     @endphp
 
                     <button
@@ -120,6 +125,7 @@
                         @click="abrirConversa({{ $chat->id }}, $event.currentTarget)"
                         data-chat-id="{{ $chat->id }}"
                         data-assunto-chat-id="{{ $assunto->id }}"
+                        data-oferta-url="{{ $primeiraOferta ? route('ofertas.show', $primeiraOferta) : '' }}"
                         data-contexto-chave="{{ $chat->id }}:{{ $assunto->id }}"
                         data-contexto-titulo="{{ $assunto->titulo }}"
                         data-participante="{{ $nomeParticipante }}"
@@ -240,6 +246,17 @@
                     </div>
 
                     <a
+                        x-show="conversaSelecionada?.oferta_url"
+                        :href="conversaSelecionada?.oferta_url || '#'"
+                        target="_blank"
+                        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-[#236350]"
+                        title="Ver oferta"
+                        aria-label="Ver oferta"
+                    >
+                        <span class="material-symbols-outlined">storefront</span>
+                    </a>
+
+                    <a
                         :href="conversaSelecionada
                             ? '/chat/' + conversaSelecionada.chat_id
                                 + (conversaSelecionada.assunto_chat_id
@@ -257,6 +274,7 @@
                 <div
                     x-ref="listaMensagens"
                     class="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-4 py-5 sm:px-6"
+                    style="visibility: hidden;"
                 >
                     <div
                         x-show="carregandoMensagens"
@@ -432,6 +450,7 @@ window.chatIndex = function () {
                     contexto_chave: botao.dataset.contextoChave,
                     titulo: botao.dataset.contextoTitulo,
                     participante: botao.dataset.participante || 'Participante',
+                    oferta_url: botao.dataset.ofertaUrl || '',
                     ultima_mensagem: 'Nenhuma mensagem ainda',
                     ultima_mensagem_usuario: null,
                     ultima_mensagem_data: null
@@ -559,7 +578,6 @@ window.chatIndex = function () {
                 !this.carregandoMensagens
             ) {
                 this.adicionarMensagem(mensagem);
-                this.$nextTick(() => this.rolarHistorico());
             } else if (Number(mensagem.usuario_id) !== this.usuarioId) {
                 this.naoLidas[chave] =
                     Number(this.naoLidas[chave] || 0) + 1;
@@ -585,7 +603,9 @@ window.chatIndex = function () {
                 console.error('Contexto não encontrado:', chave);
                 return;
             }
-
+            if (this.$refs.listaMensagens) {
+                this.$refs.listaMensagens.style.visibility = 'hidden';
+            }
             this.conversaSelecionada = contexto;
             this.contextoSelecionado = chave;
             this.assuntoSelecionadoId = assuntoId || '';
@@ -655,15 +675,7 @@ window.chatIndex = function () {
                     this.carregandoMensagens = false;
 
                     this.$nextTick(() => {
-                        requestAnimationFrame(() => {
-                            requestAnimationFrame(() => {
-                                const lista = this.$refs.listaMensagens;
-
-                                if (lista) {
-                                    lista.scrollTop = lista.scrollHeight;
-                                }
-                            });
-                        });
+                        this.rolarHistorico(true);
                     });
                 }
             }
@@ -756,26 +768,19 @@ window.chatIndex = function () {
             this.carregandoMensagens = false;
         },
 
-        rolarHistorico() {
+        rolarHistorico(revelar = false) {
             const lista = this.$refs.listaMensagens;
 
             if (!lista) return;
 
-            const posicionar = () => {
-                lista.scrollTo({
-                    top: lista.scrollHeight,
-                    behavior: 'instant'
-                });
-            };
-
-            this.$nextTick(() => {
+            requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
-                    posicionar();
+                    lista.scrollTop = lista.scrollHeight;
 
-                    requestAnimationFrame(posicionar);
+                    if (revelar) {
+                        lista.style.visibility = 'visible';
+                    }
                 });
-
-                setTimeout(posicionar, 100);
             });
         },
 

@@ -203,6 +203,23 @@ class ChatController extends Controller
                     'negociacoes' => $assunto->negociacoes->pluck('id'),
 
                     'produtos' => $produtos,
+
+                    'links_negociacoes' => $assunto->negociacoes
+                        ->map(function ($negociacao) {
+                            $produto = $negociacao->oferta?->produto;
+
+                            if (!$produto) {
+                                return null;
+                            }
+
+                            return [
+                                'id' => $negociacao->id,
+                                'produto' => $produto->nome,
+                                'url' => route('ofertas.show', $negociacao->oferta),
+                            ];
+                        })
+                        ->filter()
+                        ->values(),
                 ];
             })->values();
 

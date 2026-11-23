@@ -129,7 +129,13 @@
                         {{-- Produto --}}
                         <div class="mb-4 text-left">
                             <h2 class="text-xl font-bold text-gray-800 text-left">
-                                {{ $oferta->produto->nome }}
+                                <a
+                                    href="{{ route('ofertas.show', $oferta) }}"
+                                    class="hover:text-[#236350] transition-colors"
+                                    title="Visitar oferta"
+                                >
+                                    {{ $oferta->produto->nome }}
+                                </a>
                             </h2>
                             <p class="text-sm text-gray-500 mt-1 text-left">
                                 {{ $oferta->fornecedor->nome }}

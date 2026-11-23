@@ -60,7 +60,8 @@
         {{-- PAINEL ESQUERDO --}}
         <aside
             id="painel-assuntos"
-            class="{{ $mostrarConversaMobile ? 'hidden' : 'flex' }} w-full shrink-0 flex-col overflow-hidden border-r border-gray-200 bg-white xl:flex xl:w-[370px]"
+            
+class="{{ $mostrarConversaMobile ? 'hidden' : 'flex' }} min-h-0 w-full shrink-0 flex-col overflow-hidden border-r border-gray-200 bg-white md:flex md:w-[340px] lg:w-[390px]"
         >
 
             {{-- CABEÇALHO DA LISTA --}}
@@ -95,7 +96,7 @@
             <div class="min-h-0 flex-1 overflow-y-auto p-3">
 
                 <p class="mb-3 px-2 text-xs font-semibold uppercase tracking-wider text-gray-400">
-                    Histórico da conversa
+                    Histórico
                 </p>
 
                 {{-- MENSAGENS GERAIS --}}
@@ -215,19 +216,19 @@
         {{-- PAINEL DIREITO --}}
         <main
             id="painel-conversa"
-            class="{{ $mostrarConversaMobile ? 'flex' : 'hidden' }} min-h-0 flex-1 flex-col overflow-hidden xl:flex"
+            class="{{ $mostrarConversaMobile ? 'flex' : 'hidden' }} min-h-0 min-w-0 flex-1 flex-col overflow-hidden md:flex"
         >
 
             {{-- CABEÇALHO DO CHAT --}}
-            <header class="flex min-h-[72px] shrink-0 items-center gap-3 border-b border-gray-200 bg-white px-4 py-3 sm:px-6">
-               <button
+            <header class="flex min-h-[72px] shrink-0 items-center gap-3 border-b border-gray-200 bg-white px-4 py-3 sm:px-6">   
+                <button
                     id="voltar-lista-assuntos"
                     type="button"
                     class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-[#236350] md:hidden"
-                    title="Voltar às conversas"
-                    aria-label="Voltar às conversas"
+                    title="Voltar"
+                    aria-label="Voltar"
                 >
-                    <span class="material-symbols-outlined">arrow_back</span>
+                    <span class="material-symbols-outlined text-[23px]">arrow_back</span>
                 </button>
 
                 <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#E5EFEA] font-semibold text-[#1B4D3E]">
@@ -259,6 +260,7 @@
                 data-chat-id="{{ $chat->id }}"
                 data-assunto-id="{{ $assuntoSelecionadoId ?? '' }}"
                 class="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain bg-[#F5F5F0] px-4 py-5 sm:px-6"
+                style="visibility: hidden;"
             >
 
                 @forelse ($mensagensIniciais as $mensagem)
@@ -413,21 +415,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let assuntoAtual = lista.dataset.assuntoId || '';
 
-    function rolarParaBaixo() {
-        const posicionar = () => {
-            lista.scrollTo({
-                top: lista.scrollHeight,
-                behavior: 'instant'
-            });
-        };
-
+    function rolarParaBaixo(revelar = false) {
         requestAnimationFrame(() => {
-            posicionar();
+            requestAnimationFrame(() => {
+                lista.scrollTop = lista.scrollHeight;
 
-            requestAnimationFrame(posicionar);
+                if (revelar) {
+                    lista.style.visibility = 'visible';
+                }
+            });
         });
-
-        setTimeout(posicionar, 100);
     }
 
 
@@ -557,7 +554,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    rolarParaBaixo();
+    rolarParaBaixo(true);
 });
 </script>
 @endpush

@@ -142,9 +142,25 @@
                     <span class="text-xs font-semibold uppercase tracking-wider text-gray-500 block">
                         NEGOCIAÇÃO
                     </span>
-                    <h1 class="text-2xl font-bold text-gray-800">
-                        {{ $negociacao->oferta->produto->nome }}
-                    </h1>
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <h1 class="text-2xl font-bold text-gray-800">
+                            {{ $negociacao->oferta->produto->nome }}
+                        </h1>
+
+                        <a
+                            href="{{ route('ofertas.show', $negociacao->oferta) }}"
+                            title="Visitar loja do produto"
+                            aria-label="Visitar loja do produto"
+                            class="inline-flex items-center justify-center w-9 h-9 rounded-lg
+                                text-[#236350] bg-green-50 border border-green-100
+                                hover:bg-green-100 hover:border-green-200
+                                transition-colors"
+                        >
+                            <span class="material-symbols-outlined text-xl">
+                                storefront
+                            </span>
+                        </a>
+                    </div>
                 </div>
 
                 <div>
@@ -226,13 +242,58 @@
                 @endauth
             </div>
 
-                <div id="lista-propostas" class="space-y-4">
+                <div id="lista-propostas" class="space-y-6">
+                    {{-- Propostas aceitas --}}
+                    <section>
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="material-symbols-outlined text-green-600">check_circle</span>
+                            <h3 class="font-bold text-gray-800">Propostas aceitas</h3>
+                            <span id="contador-aceitas" class="text-xs text-gray-500"></span>
+                        </div>
+
+                        <div id="propostas-aceitas" class="space-y-4">
+                            <p id="vazio-aceitas" class="text-sm text-gray-500 bg-gray-50 border border-gray-100 rounded-lg p-4">
+                                Nenhuma proposta aceita ainda.
+                            </p>
+                        </div>
+                    </section>
+
+                    {{-- Demais propostas --}}
+                    <section>
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="material-symbols-outlined text-amber-600">pending_actions</span>
+                            <h3 class="font-bold text-gray-800">Outras propostas</h3>
+                            <span id="contador-outras" class="text-xs text-gray-500"></span>
+                        </div>
+
+                        <div id="propostas-outras" class="space-y-4">
+                            <p id="vazio-outras" class="text-sm text-gray-500 bg-gray-50 border border-gray-100 rounded-lg p-4">
+                                Nenhuma outra proposta no momento.
+                            </p>
+                        </div>
+                    </section>
+
+                    {{-- Área temporária dos cards renderizados pelo Blade --}}
+                    <div id="propostas-iniciais" class="hidden">
+
                     @forelse($negociacao->propostas as $proposta)
                         {{-- Card de Proposta Individual --}}
-                        <div
-                            id="card-proposta-{{ $proposta->id }}"
-                            class="border border-gray-200 rounded-lg p-4 mb-4 bg-white shadow-sm"
-                        >
+                        @php
+                        $statusAtual = strtolower($proposta->status ?? 'pendente');
+
+                        $coresCard = [
+                            'aceita' => 'border-l-4 border-l-green-500 border-gray-200',
+                            'recusada' => 'border-l-4 border-l-red-500 border-gray-200',
+                            'cancelada' => 'border-l-4 border-l-gray-400 border-gray-200',
+                            'pendente' => 'border-l-4 border-l-amber-400 border-gray-200',
+                        ];
+                    @endphp
+
+                    <div
+                        id="card-proposta-{{ $proposta->id }}"
+                        data-status="{{ $statusAtual }}"
+                        class="rounded-lg border {{ $coresCard[$statusAtual] ?? $coresCard['pendente'] }} p-4 mb-4 bg-white shadow-sm"
+                    >
 
                             {{-- Cabeçalho da Proposta --}}
                             <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-3">
@@ -250,9 +311,13 @@
 
                                     <span
                                         id="status-proposta-{{ $proposta->id }}"
-                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200 capitalize"
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border capitalize
+                                            {{ $statusAtual === 'aceita' ? 'bg-green-100 text-green-800 border-green-200' : '' }}
+                                            {{ $statusAtual === 'recusada' ? 'bg-red-100 text-red-800 border-red-200' : '' }}
+                                            {{ $statusAtual === 'cancelada' ? 'bg-gray-100 text-gray-600 border-gray-200' : '' }}
+                                            {{ $statusAtual === 'pendente' ? 'bg-amber-100 text-amber-800 border-amber-200' : '' }}"
                                     >
-                                        {{ $proposta->status ?? 'Pendente' }}
+                                        {{ ucfirst($statusAtual) }}
                                     </span>
                                 </div>
                             </div>
@@ -484,16 +549,48 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!raiz) return;
 
-    if (!window.Echo) {
-        console.error('Echo não foi carregado na tela da negociação.');
-        return;
-    }
-
     const negociacaoId = Number(raiz.dataset.negociacaoId);
     const lista = document.getElementById('lista-propostas');
     const podeGerenciar = raiz.dataset.podeGerenciar === '1';
     const unidade = raiz.dataset.unidade || '';
     const csrf = raiz.dataset.csrf;
+    const propostasAceitas = document.getElementById('propostas-aceitas');
+    const propostasOutras = document.getElementById('propostas-outras');
+    const propostasIniciais = document.getElementById('propostas-iniciais');
+
+    function atualizarSecoes() {
+        const quantidadeAceitas = propostasAceitas.querySelectorAll('[id^="card-proposta-"]').length;
+        const quantidadeOutras = propostasOutras.querySelectorAll('[id^="card-proposta-"]').length;
+
+        document.getElementById('vazio-aceitas').classList.toggle('hidden', quantidadeAceitas > 0);
+        document.getElementById('vazio-outras').classList.toggle('hidden', quantidadeOutras > 0);
+
+        document.getElementById('contador-aceitas').textContent =
+            `(${quantidadeAceitas})`;
+
+        document.getElementById('contador-outras').textContent =
+            `(${quantidadeOutras})`;
+    }
+
+    function distribuirCard(card, status) {
+        const destino = status === 'aceita'
+            ? propostasAceitas
+            : propostasOutras;
+
+        destino.appendChild(card);
+        atualizarSecoes();
+    }
+
+    // Distribui os cards que vieram inicialmente do Blade.
+    propostasIniciais.querySelectorAll('[id^="card-proposta-"]').forEach(card => {
+        distribuirCard(card, card.dataset.status || 'pendente');
+    });
+
+    // A distribuição inicial funciona mesmo se o Echo estiver indisponível.
+    if (!window.Echo) {
+        console.error('Echo não foi carregado na tela da negociação.');
+    } else {
+        window.Echo.private(`negociacao.${negociacaoId}`)
 
     // Cancelar proposta sem recarregar a página
     document.querySelectorAll(
@@ -558,48 +655,64 @@ document.addEventListener('DOMContentLoaded', function () {
             `status-proposta-${proposta.id}`
         );
 
-        if (status) {
-            const nomes = {
-                pendente: 'Pendente',
-                aceita: 'Aceita',
-                recusada: 'Recusada',
-                cancelada: 'Cancelada'
-            };
+        const nomes = {
+            pendente: 'Pendente',
+            aceita: 'Aceita',
+            recusada: 'Recusada',
+            cancelada: 'Cancelada'
+        };
 
-            status.textContent =
-                nomes[proposta.status] || proposta.status;
+        const cores = {
+            aceita: [
+                'bg-green-100', 'text-green-800', 'border-green-200'
+            ],
+            recusada: [
+                'bg-red-100', 'text-red-800', 'border-red-200'
+            ],
+            cancelada: [
+                'bg-gray-100', 'text-gray-600', 'border-gray-200'
+            ],
+            pendente: [
+                'bg-amber-100', 'text-amber-800', 'border-amber-200'
+            ]
+        };
+
+        const statusAtual = proposta.status || 'pendente';
+
+        if (status) {
+            status.textContent = nomes[statusAtual] || statusAtual;
 
             status.className =
                 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border capitalize';
 
-            if (proposta.status === 'aceita') {
-                status.classList.add(
-                    'bg-green-100', 'text-green-800', 'border-green-200'
-                );
-            } else if (proposta.status === 'recusada') {
-                status.classList.add(
-                    'bg-red-100', 'text-red-800', 'border-red-200'
-                );
-            } else if (proposta.status === 'cancelada') {
-                status.classList.add(
-                    'bg-gray-100', 'text-gray-600', 'border-gray-200'
-                );
-            } else {
-                status.classList.add(
-                    'bg-gray-100', 'text-gray-800', 'border-gray-200'
-                );
-            }
+            status.classList.add(...(cores[statusAtual] || cores.pendente));
         }
 
-        if (['aceita', 'recusada', 'cancelada'].includes(proposta.status)) {
+        if (card) {
+            card.dataset.status = statusAtual;
+
+            card.className =
+                'rounded-lg border border-gray-200 border-l-4 p-4 mb-4 bg-white shadow-sm';
+
+            const bordas = {
+                aceita: 'border-l-green-500',
+                recusada: 'border-l-red-500',
+                cancelada: 'border-l-gray-400',
+                pendente: 'border-l-amber-400'
+            };
+
+            card.classList.add(bordas[statusAtual] || bordas.pendente);
+
+            distribuirCard(card, statusAtual);
+        }
+
+        if (['aceita', 'recusada', 'cancelada'].includes(statusAtual)) {
             document.getElementById(
                 `acoes-proposta-${proposta.id}`
             )?.remove();
         }
 
-        if (card) {
-            card.dataset.status = proposta.status;
-        }
+        atualizarSecoes();
     }
 
     function criarFormulario(proposta, tipo) {
@@ -666,7 +779,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const card = document.createElement('article');
         card.id = `card-proposta-${proposta.id}`;
         card.className =
-            'border border-gray-200 rounded-lg p-4 mb-4 bg-white shadow-sm';
+            'rounded-lg border border-gray-200 border-l-4 p-4 mb-4 bg-white shadow-sm';
 
         const cabecalho = document.createElement('div');
         cabecalho.className =
@@ -731,7 +844,7 @@ document.addEventListener('DOMContentLoaded', function () {
             card.appendChild(acoes);
         }
 
-        lista.prepend(card);
+        propostasIniciais.appendChild(card);
         atualizarStatus(proposta);
     }
 
@@ -758,10 +871,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            // Se a proposta ainda não existir na tela, cria o card.
             adicionarProposta(proposta);
             atualizarStatus(proposta);
         });
+    }
 });
 </script>
 @endpush
