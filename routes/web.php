@@ -49,21 +49,43 @@ Route::middleware('auth')->group(function () {
     // Produtos
     Route::resource('produtos', ProdutoController::class)->parameters(['produtos' => 'produto']);
     Route::get('/meus-produtos', [ProdutoController::class, 'meusProdutos'])->name('produtos.meus');
-        
-    // Chat
-    Route::get('/chat', [ChatController::class, 'index'])->name('chat');
-    Route::get('/chat/conversas', [ChatController::class, 'conversas'])->name('chat.conversas');
-    Route::get('/chat/{negociacao}/mensagens', [ChatController::class, 'mensagens'])->name('chat.mensagens');
-    Route::get('/chat/{negociacao}', [ChatController::class, 'show'])->name('chat.show');
-    Route::post('/chat/{negociacao}/mensagens', [ChatController::class, 'store'])->name('chat.mensagens.store');
+
     
-    // Categorias - Sugestões (declarar antes do resource de categorias)
-    Route::get('/categorias/sugerir', [CategoriaController::class, 'sugerir'])->name('categorias.sugerir');
-    Route::post('/categorias/sugerir', [CategoriaController::class, 'armazenarSugestao'])->name('categorias.sugerir.store');
-    Route::post('/categorias/sugerir/{sugestao}/aprovar', [CategoriaController::class, 'aprovarSugestao'])->name('categorias.sugerir.aprovar');
-    Route::delete('/categorias/sugerir/{sugestao}', [CategoriaController::class, 'recusarSugestao'])->name('categorias.sugerir.recusar');
-    
-    // Categorias (ações protegidas)
+    // Chat — nova estrutura por cliente e fornecedor
+
+    // Página principal
+    Route::get('/chat', [ChatController::class, 'index'])
+        ->name('chat');
+
+    // Lista de conversas para a janela flutuante
+    Route::get('/chat/conversas', [ChatController::class, 'conversas'])
+        ->name('chat.conversas');
+
+    // Abrir uma conversa específica
+    Route::get('/chat/{chat}', [ChatController::class, 'show'])
+        ->whereNumber('chat')
+        ->name('chat.show');
+
+    // Listar assuntos de uma conversa
+    Route::get('/chat/{chat}/assuntos', [ChatController::class, 'assuntos'])
+        ->whereNumber('chat')
+        ->name('chat.assuntos');
+
+    // Histórico de mensagens gerais ou de um assunto
+    Route::get('/chat/{chat}/mensagens', [ChatController::class, 'mensagens'])
+        ->whereNumber('chat')
+        ->name('chat.mensagens');
+
+    // Enviar mensagem geral ou vinculada a um assunto
+    Route::post('/chat/{chat}/mensagens', [ChatController::class, 'store'])
+        ->whereNumber('chat')
+        ->name('chat.mensagens.store');
+
+    // Abrir conversa a partir de uma negociação
+    Route::get('/negociacoes/{negociacao}/chat', [ChatController::class, 'abrirNegociacao'])
+        ->name('negociacoes.chat');
+
+    // Categorias
     Route::resource('categorias', CategoriaController::class)->except(['index', 'show']);
     
     // Recursos de Fornecedor e Negociações

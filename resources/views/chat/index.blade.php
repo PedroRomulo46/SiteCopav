@@ -1,180 +1,200 @@
-
 @extends('layouts.layout')
 
 @section('chat_layout', true)
 
 @section('conteudo')
 <div class="flex h-full min-h-0 w-full flex-col overflow-hidden">
-
-    {{-- Interface de mensagens --}}
     <div
         x-data="chatIndex()"
         x-init="inicializar()"
         class="flex min-h-0 flex-1 overflow-hidden rounded-none border-y border-gray-200 bg-white shadow-sm"
     >
-
-        {{-- PAINEL ESQUERDO: CONVERSAS --}}
+        {{-- PAINEL ESQUERDO --}}
         <aside
-            class="min-h-0 w-full flex-col overflow-hidden border-r border-gray-200 bg-white md:w-340px md:shrink-0 lg:w-390px"
+            class="flex min-h-0 w-full flex-col overflow-hidden border-r border-gray-200 bg-white md:w-[340px] md:shrink-0 lg:w-[390px]"
             :class="conversaSelecionada ? 'hidden md:flex' : 'flex'"
         >
-
-            {{-- Cabeçalho da lista --}}
             <div class="shrink-0 border-b border-gray-100 px-5 py-4">
-
                 <div class="flex items-center gap-3">
-
-                    {{-- Voltar --}}
                     <button
                         type="button"
-                        onclick="history.back()"
+                        onclick="voltarParaOrigemChat()"
                         class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-[#236350]"
                         title="Voltar"
-                        aria-label="Voltar à página anterior"
                     >
-                        <span class="material-symbols-outlined text-[23px]">
-                            arrow_back
-                        </span>
+                        <span class="material-symbols-outlined text-[23px]">arrow_back</span>
                     </button>
 
                     <div>
-                        <h2 class="font-semibold text-gray-900">
-                            Suas conversas
-                        </h2>
-
+                        <h2 class="font-semibold text-gray-900">Suas conversas</h2>
                         <p class="mt-1 text-xs text-gray-500">
                             {{ $chats->count() }}
                             {{ $chats->count() === 1 ? 'conversa' : 'conversas' }}
                         </p>
                     </div>
-
                 </div>
             </div>
 
-            {{-- Lista --}}
             <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+                
+            @forelse ($chats as $chat)
+                @php
+                    $ehCliente = (int) $chat->cliente_id === (int) auth()->id();
 
-                @forelse ($chats as $chat)
+                    $nomeParticipante = $ehCliente
+                        ? (
+                            $chat->fornecedor?->usuario?->nome
+                            ?? $chat->fornecedor?->nome
+                            ?? 'Fornecedor'
+                        )
+                        : ($chat->cliente?->nome ?? 'Cliente');
+
+                    $inicial = mb_strtoupper(mb_substr($nomeParticipante, 0, 1));
+                @endphp
+
+                {{-- IDENTIFICAÇÃO DO FORNECEDOR/CLIENTE --}}
+                <div class="border-b border-gray-100 bg-gray-50 px-4 py-3">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#E5EFEA] font-semibold text-[#1B4D3E]">
+                            {{ $inicial }}
+                        </div>
+
+                        <div class="min-w-0">
+                            <h3 class="truncate text-sm font-semibold text-gray-900">
+                                {{ $nomeParticipante }}
+                            </h3>
+
+                            <p class="text-xs text-gray-500">
+                                {{ $chat->assuntos->count() }}
+                                {{ $chat->assuntos->count() === 1 ? 'assunto' : 'assuntos' }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- MENSAGENS GERAIS --}}
+                <button
+                    type="button"
+                    @click="abrirConversa({{ $chat->id }}, $event.currentTarget)"
+                    data-chat-id="{{ $chat->id }}"
+                    data-assunto-chat-id=""
+                    data-contexto-chave="{{ $chat->id }}:geral"
+                    data-contexto-titulo="Mensagens gerais"
+                    data-participante="{{ $nomeParticipante }}"
+                    class="flex w-full items-center gap-3 border-b border-gray-100 px-4 py-4 text-left transition hover:bg-gray-50"
+                >
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#E5EFEA] text-[#236350]">
+                        <span class="material-symbols-outlined">forum</span>
+                    </div>
+
+                    <div class="min-w-0 flex-1">
+                        <h4 class="truncate text-sm font-medium text-gray-800">
+                            Mensagens gerais
+                        </h4>
+
+                        <p class="mt-1 truncate text-xs text-gray-500">
+                            Conversa geral com {{ $nomeParticipante }}
+                        </p>
+                    </div>
+
+                    <span
+                        x-show="naoLidas['{{ $chat->id }}:geral'] > 0"
+                        x-cloak
+                        class="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-[#236350] px-1 text-[10px] font-bold text-white"
+                        x-text="naoLidas['{{ $chat->id }}:geral']"
+                    ></span>
+                </button>
+
+                {{-- ASSUNTOS --}}
+                @foreach ($chat->assuntos as $assunto)
                     @php
-                        $negociacao = $chat->negociacao;
-                        $ehCliente = (int) $negociacao->cliente_id === (int) auth()->id();
-
-                        $outroParticipante = $ehCliente
-                            ? $negociacao->oferta->fornecedor
-                            : $negociacao->cliente;
-
-                        $ultimaMensagem = $chat->mensagens->first();
-
-                        $nomeParticipante = $ehCliente
-                            ? ($outroParticipante->nome ?? 'Fornecedor')
-                            : ($outroParticipante->nome ?? 'Cliente');
-
-                        $nomeProduto = $negociacao->oferta->produto->nome
-                            ?? 'Produto da negociação';
+                        $primeiroProduto = $assunto->negociacoes
+                            ->map(fn ($negociacao) => $negociacao->oferta?->produto)
+                            ->filter()
+                            ->unique('id')
+                            ->first();
                     @endphp
 
                     <button
                         type="button"
-                        @click="abrirConversa($event.currentTarget)"
+                        @click="abrirConversa({{ $chat->id }}, $event.currentTarget)"
                         data-chat-id="{{ $chat->id }}"
-                        data-negociacao-id="{{ $negociacao->id }}"
+                        data-assunto-chat-id="{{ $assunto->id }}"
+                        data-contexto-chave="{{ $chat->id }}:{{ $assunto->id }}"
+                        data-contexto-titulo="{{ $assunto->titulo }}"
                         data-participante="{{ $nomeParticipante }}"
-                        data-produto="{{ $nomeProduto }}"
-                        data-ultima-mensagem="{{ $ultimaMensagem?->conteudo ?? 'Nenhuma mensagem ainda' }}"
-                        data-ultima-mensagem-usuario="{{ $ultimaMensagem?->usuario_id ?? '' }}"
-                        data-ultima-mensagem-data="{{ $ultimaMensagem?->created_at?->toISOString() ?? '' }}"
                         class="flex w-full items-center gap-3 border-b border-gray-100 px-4 py-4 text-left transition hover:bg-gray-50"
-                        :class="conversaSelecionada && Number(conversaSelecionada.chat_id) === {{ (int) $chat->id }} ? 'bg-[#EAF2ED]' : ''"
                     >
+                        @if ($primeiroProduto?->imagem)
+                            <img
+                                src="{{ asset('storage/' . ltrim($primeiroProduto->imagem, '/')) }}"
+                                alt="{{ $primeiroProduto->nome }}"
+                                class="h-10 w-10 shrink-0 rounded-xl object-cover"
+                            >
+                        @else
+                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#E5EFEA] text-[#236350]">
+                                <span class="material-symbols-outlined">inventory_2</span>
+                            </div>
+                        @endif
 
-                        {{-- Avatar --}}
-                        <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#E5EFEA] font-semibold text-[#1B4D3E]">
-                            {{ mb_strtoupper(mb_substr($nomeParticipante, 0, 1)) }}
-                        </div>
-
-                        {{-- Informações --}}
                         <div class="min-w-0 flex-1">
-                            <div class="flex items-center justify-between gap-2">
-                                <h3 class="truncate text-sm font-semibold text-gray-900">
-                                    {{ $nomeParticipante }}
-                                </h3>
+                            <h4 class="truncate text-sm font-medium text-gray-800">
+                                {{ $primeiroProduto?->nome ?? $assunto->titulo }}
+                            </h4>
 
-                                <span class="shrink-0 text-[11px] text-gray-400"
-                                    x-text="formatarHoraLista(
-                                        $el.closest('button').dataset.ultimaMensagemData
-                                    )"
-                                ></span>
-                            </div>
-
-                            <p class="mt-1 truncate text-xs text-[#236350]">
-                                {{ $nomeProduto }}
+                            <p class="mt-1 truncate text-xs text-gray-500">
+                                {{ $assunto->titulo }}
                             </p>
-
-                            <div class="mt-1 flex items-center justify-between gap-2">
-                                <p
-                                    class="truncate text-xs text-gray-500"
-                                    x-text="textoPrevia({{ (int) $chat->id }})"
-                                >
-                                    {{ $ultimaMensagem
-                                        ? (($ultimaMensagem->usuario_id == auth()->id() ? 'Você: ' : '') . $ultimaMensagem->conteudo)
-                                        : 'Nenhuma mensagem ainda' }}
-                                </p>
-
-                                <span
-                                    x-show="naoLidas[{{ (int) $chat->id }}] > 0"
-                                    class="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-[#236350] px-1 text-[10px] font-bold text-white"
-                                    x-text="naoLidas[{{ (int) $chat->id }}]"
-                                ></span>
-                            </div>
                         </div>
+
+                        <span
+                            x-show="naoLidas['{{ $chat->id }}:{{ $assunto->id }}'] > 0"
+                            x-cloak
+                            class="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-[#236350] px-1 text-[10px] font-bold text-white"
+                            x-text="naoLidas['{{ $chat->id }}:{{ $assunto->id }}']"
+                        ></span>
                     </button>
+                @endforeach
 
-                @empty
-                    <div class="px-6 py-16 text-center">
-                        <span class="material-symbols-outlined text-4xl text-gray-300">
-                            forum
-                        </span>
+            @empty
+                <div class="px-6 py-16 text-center">
+                    <span class="material-symbols-outlined text-4xl text-gray-300">forum</span>
 
-                        <h3 class="mt-3 font-semibold text-gray-800">
-                            Nenhuma conversa por enquanto
-                        </h3>
+                    <h3 class="mt-3 font-semibold text-gray-800">
+                        Nenhuma conversa por enquanto
+                    </h3>
 
-                        <p class="mt-2 text-sm text-gray-500">
-                            Quando uma proposta for aceita, sua conversa ficará disponível aqui.
-                        </p>
+                    <p class="mt-2 text-sm text-gray-500">
+                        Quando uma proposta for aceita, sua conversa ficará disponível aqui.
+                    </p>
 
-                        <a
-                            href="{{ route('negociacoes.index') }}"
-                            class="mt-5 inline-flex rounded-lg bg-[#236350] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#1B4D3E]"
-                        >
-                            Ver negociações
-                        </a>
-                    </div>
-                @endforelse
+                    <a
+                        href="{{ route('negociacoes.index') }}"
+                        class="mt-5 inline-flex rounded-lg bg-[#236350] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#1B4D3E]"
+                    >
+                        Ver negociações
+                    </a>
+                </div>
+            @endforelse
 
             </div>
         </aside>
 
-        {{-- PAINEL DIREITO: CONVERSA --}}
+        {{-- PAINEL DIREITO --}}
         <section
             class="min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-[#F5F5F0]"
             :class="conversaSelecionada ? 'flex' : 'hidden md:flex'"
         >
-
             {{-- Estado inicial --}}
             <div
                 x-show="!conversaSelecionada"
                 class="flex flex-1 flex-col items-center justify-center px-6 text-center"
             >
                 <div class="flex h-24 w-24 items-center justify-center rounded-full bg-[#E5EFEA] text-[#236350]">
-                    <span class="material-symbols-outlined text-5xl">
-                        forum
-                    </span>
+                    <span class="material-symbols-outlined text-5xl">forum</span>
                 </div>
 
-                <h2 class="mt-5 text-xl font-semibold text-gray-800">
-                    Suas mensagens
-                </h2>
+                <h2 class="mt-5 text-xl font-semibold text-gray-800">Suas mensagens</h2>
 
                 <p class="mt-2 max-w-sm text-sm leading-relaxed text-gray-500">
                     Selecione uma conversa ao lado para visualizar as mensagens e continuar sua negociação.
@@ -192,14 +212,13 @@
                 class="flex min-h-0 flex-1 flex-col"
                 style="display: none;"
             >
-
                 {{-- Cabeçalho --}}
-                <header class="flex min-h-72px items-center gap-3 border-b border-gray-200 bg-white px-4 py-3 sm:px-6">
-
+                <header class="flex min-h-[72px] shrink-0 items-center gap-3 border-b border-gray-200 bg-white px-4 py-3 sm:px-6">
                     <button
                         type="button"
                         @click="voltarLista()"
-                        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 md:hidden"
+                        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-[#236350] md:hidden"
+                        title="Voltar às conversas"
                         aria-label="Voltar às conversas"
                     >
                         <span class="material-symbols-outlined">arrow_back</span>
@@ -215,14 +234,18 @@
                             x-text="conversaSelecionada?.participante"
                         ></h2>
 
-                        <p
-                            class="truncate text-xs text-gray-500"
-                            x-text="conversaSelecionada?.produto"
-                        ></p>
+                        <p class="truncate text-xs text-gray-500">
+                            Conversa privada
+                        </p>
                     </div>
 
                     <a
-                        :href="conversaSelecionada ? '/chat/' + conversaSelecionada.negociacao_id : '#'"
+                        :href="conversaSelecionada
+                            ? '/chat/' + conversaSelecionada.chat_id
+                                + (conversaSelecionada.assunto_chat_id
+                                    ? '?assunto_chat_id=' + conversaSelecionada.assunto_chat_id
+                                    : '')
+                            : '#'"
                         class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-[#236350]"
                         title="Abrir conversa em página completa"
                     >
@@ -233,9 +256,8 @@
                 {{-- Histórico --}}
                 <div
                     x-ref="listaMensagens"
-                    class="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-3 py-5 sm:px-6"
+                    class="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-4 py-5 sm:px-6"
                 >
-
                     <div
                         x-show="carregandoMensagens"
                         class="py-8 text-center text-sm text-gray-500"
@@ -255,7 +277,7 @@
                             :class="Number(mensagem.usuario_id) === usuarioId ? 'justify-end' : 'justify-start'"
                         >
                             <div
-                                class="max-w-[88%] rounded-2xl px-4 py-2.5 shadow-sm sm:max-w-[75%]"
+                                class="max-w-[88%] rounded-2xl px-4 py-3 shadow-sm sm:max-w-[75%]"
                                 :class="Number(mensagem.usuario_id) === usuarioId
                                     ? 'rounded-br-sm bg-[#D9F2DF] text-gray-800'
                                     : 'rounded-bl-sm bg-white text-gray-800'"
@@ -266,7 +288,7 @@
                                 ></p>
 
                                 <p
-                                    class="mt-1 text-right text-[10px] text-gray-500"
+                                    class="mt-2 text-right text-[11px] text-gray-500"
                                     x-text="formatarDataHora(mensagem.created_at)"
                                 ></p>
                             </div>
@@ -277,9 +299,7 @@
                         x-show="!carregandoMensagens && mensagens.length === 0 && !erroMensagens"
                         class="py-12 text-center"
                     >
-                        <p class="text-sm text-gray-500">
-                            Nenhuma mensagem ainda.
-                        </p>
+                        <p class="text-sm text-gray-500">Nenhuma mensagem ainda.</p>
                         <p class="mt-1 text-xs text-gray-400">
                             Envie uma mensagem para iniciar a conversa.
                         </p>
@@ -296,37 +316,32 @@
                 {{-- Formulário --}}
                 <form
                     @submit.prevent="enviarMensagem()"
-                    class="flex shrink-0 items-end gap-2 border-t border-gray-200 bg-white px-3 py-3 sm:px-5"
+                    class="flex shrink-0 items-end gap-2 border-t border-gray-200 bg-white px-3 py-3 sm:gap-3 sm:px-5"
                 >
                     <textarea
                         x-model="mensagemNova"
-                        @keydown.enter="if (!$event.shiftKey) { $event.preventDefault(); enviarMensagem(); }"
+                        @keydown.enter="if ($event.ctrlKey || $event.metaKey) { $event.preventDefault(); enviarMensagem(); }"
                         rows="1"
                         maxlength="5000"
                         placeholder="Digite sua mensagem..."
-                        class="max-h-32 min-h-44px flex-1 resize-none rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition focus:border-[#236350] focus:ring-1 focus:ring-[#236350]"
+                        class="max-h-32 min-h-[44px] min-w-0 flex-1 resize-none rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 outline-none transition placeholder:text-gray-400 focus:border-[#236350] focus:ring-1 focus:ring-[#236350]"
                     ></textarea>
 
-                    <button
-                        type="submit"
-                        :disabled="!mensagemNova.trim() || enviandoMensagem"
-                        class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#236350] text-white transition hover:bg-[#1B4D3E] disabled:cursor-not-allowed disabled:opacity-40"
-                        aria-label="Enviar mensagem"
-                    >
-                        <span
-                            x-show="!enviandoMensagem"
-                            class="material-symbols-outlined"
-                        >
-                            send
+                    <div class="flex shrink-0 flex-col items-center gap-1">
+                        <span class="hidden text-[11px] text-gray-400 sm:block">
+                            Ctrl + Enter
                         </span>
 
-                        <span
-                            x-show="enviandoMensagem"
-                            class="material-symbols-outlined animate-spin"
+                        <button
+                            type="submit"
+                            :disabled="!mensagemNova.trim() || enviandoMensagem"
+                            class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#236350] text-white transition hover:bg-[#1B4D3E] disabled:cursor-not-allowed disabled:opacity-40"
+                            aria-label="Enviar mensagem"
                         >
-                            progress_activity
-                        </span>
-                    </button>
+                            <span x-show="!enviandoMensagem" class="material-symbols-outlined">send</span>
+                            <span x-show="enviandoMensagem" class="material-symbols-outlined animate-spin">progress_activity</span>
+                        </button>
+                    </div>
                 </form>
             </div>
         </section>
@@ -336,6 +351,53 @@
 
 @push('scripts')
 <script>
+
+// Guarda a página de origem ao entrar no índice do chat.
+(function () {
+    const chave = 'sitecopav_chat_index_origem';
+    const origem = document.referrer;
+
+    if (!origem) return;
+
+    try {
+        const url = new URL(origem);
+
+        // Só aceita páginas do próprio Site Copav.
+        if (url.origin !== window.location.origin) return;
+
+        // Não substitui a origem ao voltar do show para o index.
+        if (url.pathname === '/chat' || url.pathname.startsWith('/chat/')) {
+            return;
+        }
+
+        sessionStorage.setItem(chave, url.href);
+    } catch (erro) {
+        console.warn('Não foi possível registrar a página de origem.', erro);
+    }
+})();
+
+// Retorna à página de origem, com fallback para a página inicial.
+window.voltarParaOrigemChat = function () {
+    const chave = 'sitecopav_chat_index_origem';
+
+    try {
+        const origem = sessionStorage.getItem(chave);
+
+        if (origem) {
+            const url = new URL(origem);
+
+            if (url.origin === window.location.origin) {
+                window.location.assign(url.href);
+                return;
+            }
+        }
+    } catch (erro) {
+        console.warn('Não foi possível recuperar a página de origem.', erro);
+    }
+
+    window.location.assign('/');
+};
+
 window.chatIndex = function () {
     return {
         usuarioId: {{ (int) auth()->id() }},
@@ -343,6 +405,8 @@ window.chatIndex = function () {
 
         conversas: [],
         conversaSelecionada: null,
+        assuntoSelecionadoId: '',
+        contextoSelecionado: '',
         mensagens: [],
         mensagemNova: '',
 
@@ -353,18 +417,26 @@ window.chatIndex = function () {
 
         naoLidas: {},
         canaisInscritos: [],
+        requisicaoMensagens: 0,
 
         inicializar() {
             this.conversas = Array.from(
                 this.$el.querySelectorAll('[data-chat-id]')
-            ).map(botao => ({
-                chat_id: Number(botao.dataset.chatId),
-                negociacao_id: Number(botao.dataset.negociacaoId),
-                participante: botao.dataset.participante,
-                produto: botao.dataset.produto,
-                ultima_mensagem: botao.dataset.ultimaMensagem,
-                ultima_mensagem_usuario: botao.dataset.ultimaMensagemUsuario
-            }));
+            ).map(botao => {
+                const chatId = Number(botao.dataset.chatId);
+                const assuntoId = botao.dataset.assuntoChatId || null;
+
+                return {
+                    chat_id: chatId,
+                    assunto_chat_id: assuntoId ? Number(assuntoId) : null,
+                    contexto_chave: botao.dataset.contextoChave,
+                    titulo: botao.dataset.contextoTitulo,
+                    participante: botao.dataset.participante || 'Participante',
+                    ultima_mensagem: 'Nenhuma mensagem ainda',
+                    ultima_mensagem_usuario: null,
+                    ultima_mensagem_data: null
+                };
+            });
 
             this.carregarContadores();
         },
@@ -378,37 +450,75 @@ window.chatIndex = function () {
                     }
                 });
 
-                if (!resposta.ok) return;
+                if (!resposta.ok) {
+                    throw new Error('Não foi possível carregar as conversas.');
+                }
 
                 const dados = await resposta.json();
 
                 dados.forEach(item => {
-                    this.naoLidas[item.chat_id] =
-                        Number(item.mensagens_nao_lidas || 0);
+                    // Mensagens gerais
+                    const geral = this.conversas.find(
+                        contexto =>
+                            contexto.chat_id === Number(item.chat_id) &&
+                            contexto.assunto_chat_id === null
+                    );
+
+                    if (geral && item.mensagens_gerais) {
+                        geral.ultima_mensagem =
+                            item.mensagens_gerais.ultima_mensagem;
+
+                        geral.ultima_mensagem_usuario =
+                            item.mensagens_gerais.ultima_mensagem_usuario;
+
+                        geral.ultima_mensagem_data =
+                            item.mensagens_gerais.ultima_mensagem_data;
+
+                        this.naoLidas[geral.contexto_chave] =
+                            Number(item.mensagens_gerais.mensagens_nao_lidas || 0);
+                    }
+
+                    // Assuntos
+                    (item.assuntos || []).forEach(assunto => {
+                        const contexto = this.conversas.find(
+                            entrada =>
+                                entrada.chat_id === Number(item.chat_id) &&
+                                entrada.assunto_chat_id === Number(assunto.id)
+                        );
+
+                        if (!contexto) return;
+
+                        contexto.ultima_mensagem = assunto.ultima_mensagem;
+                        contexto.ultima_mensagem_usuario =
+                            assunto.ultima_mensagem_usuario;
+                        contexto.ultima_mensagem_data =
+                            assunto.ultima_mensagem_data;
+
+                        this.naoLidas[contexto.contexto_chave] =
+                            Number(assunto.mensagens_nao_lidas || 0);
+                    });
                 });
 
             } catch (erro) {
                 console.error('Erro ao carregar contadores:', erro);
             }
 
-            this.conversas.forEach(conversa => {
-                this.inscreverCanal(conversa.chat_id);
+            this.conversas.forEach(contexto => {
+                this.inscreverCanal(contexto.chat_id);
             });
         },
 
-        textoPrevia(chatId) {
-            const conversa = this.conversas.find(
-                item => Number(item.chat_id) === Number(chatId)
-            );
-
-            if (!conversa) return '';
+        textoPrevia(contexto) {
+            if (!contexto) return '';
 
             const prefixo =
-                Number(conversa.ultima_mensagem_usuario) === this.usuarioId
+                Number(contexto.ultima_mensagem_usuario) === this.usuarioId
                     ? 'Você: '
                     : '';
 
-            return prefixo + (conversa.ultima_mensagem || 'Nenhuma mensagem ainda');
+            return prefixo + (
+                contexto.ultima_mensagem || 'Nenhuma mensagem ainda'
+            );
         },
 
         inscreverCanal(chatId) {
@@ -427,55 +537,95 @@ window.chatIndex = function () {
         },
 
         receberMensagem(mensagem) {
-            const conversa = this.conversas.find(
-                item => Number(item.chat_id) === Number(mensagem.chat_id)
+            const chave = mensagem.assunto_chat_id
+                ? `${mensagem.chat_id}:${mensagem.assunto_chat_id}`
+                : `${mensagem.chat_id}:geral`;
+
+            const contexto = this.conversas.find(
+                item => item.contexto_chave === chave
             );
 
-            if (!conversa) return;
+            if (!contexto) return;
 
-            conversa.ultima_mensagem = mensagem.conteudo;
-            conversa.ultima_mensagem_usuario = mensagem.usuario_id;
+            contexto.ultima_mensagem = mensagem.conteudo;
+            contexto.ultima_mensagem_usuario = mensagem.usuario_id;
+            contexto.ultima_mensagem_data = mensagem.created_at;
+
+            const mesmoContexto =
+                this.contextoSelecionado === chave;
 
             if (
-                this.conversaSelecionada &&
-                Number(this.conversaSelecionada.chat_id) === Number(mensagem.chat_id)
+                mesmoContexto &&
+                !this.carregandoMensagens
             ) {
                 this.adicionarMensagem(mensagem);
-                this.rolarHistorico();
+                this.$nextTick(() => this.rolarHistorico());
             } else if (Number(mensagem.usuario_id) !== this.usuarioId) {
-                this.naoLidas[mensagem.chat_id] =
-                    Number(this.naoLidas[mensagem.chat_id] || 0) + 1;
+                this.naoLidas[chave] =
+                    Number(this.naoLidas[chave] || 0) + 1;
             }
         },
 
-        async abrirConversa(botao) {
-            const chatId = Number(botao.dataset.chatId);
+        async abrirConversa(chatId, botao) {
+            chatId = Number(chatId);
 
-            const conversa = this.conversas.find(
-                item => Number(item.chat_id) === chatId
+            if (!botao) {
+                console.error('Botão do contexto não encontrado:', chatId);
+                return;
+            }
+
+            const chave = botao.dataset.contextoChave;
+            const assuntoId = botao.dataset.assuntoChatId || null;
+
+            const contexto = this.conversas.find(
+                item => item.contexto_chave === chave
             );
 
-            if (!conversa) return;
+            if (!contexto) {
+                console.error('Contexto não encontrado:', chave);
+                return;
+            }
 
-            this.conversaSelecionada = conversa;
+            this.conversaSelecionada = contexto;
+            this.contextoSelecionado = chave;
+            this.assuntoSelecionadoId = assuntoId || '';
+
             this.mensagens = [];
             this.mensagemNova = '';
             this.erroMensagens = '';
             this.erroEnvio = '';
-            this.carregandoMensagens = true;
 
-            this.naoLidas[chatId] = 0;
+            this.inscreverCanal(chatId);
+
+            await this.carregarMensagens();
+        },
+
+        async carregarMensagens() {
+            if (!this.conversaSelecionada) return;
+
+            const numeroRequisicao = ++this.requisicaoMensagens;
+
+            this.carregandoMensagens = true;
+            this.erroMensagens = '';
+            this.mensagens = [];
+
+            const chatId = this.conversaSelecionada.chat_id;
+            const assuntoId = this.assuntoSelecionadoId;
+            const chave = this.contextoSelecionado;
 
             try {
-                const resposta = await fetch(
-                    `/chat/${conversa.negociacao_id}/mensagens`,
-                    {
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
+                let url = `/chat/${chatId}/mensagens`;
+
+                if (assuntoId) {
+                    url += `?assunto_chat_id=${encodeURIComponent(assuntoId)}`;
+                }
+
+                const resposta = await fetch(url, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
                     }
-                );
+                });
 
                 const dados = await resposta.json();
 
@@ -485,14 +635,37 @@ window.chatIndex = function () {
                     );
                 }
 
-                this.mensagens = dados.mensagens || [];
+                // Impede uma resposta antiga de substituir outro contexto.
+                if (
+                    numeroRequisicao === this.requisicaoMensagens &&
+                    this.contextoSelecionado === chave
+                ) {
+                    this.mensagens = dados.mensagens || [];
 
-                this.$nextTick(() => this.rolarHistorico());
+                    // O controller já marcou somente este contexto como lido.
+                    this.naoLidas[chave] = 0;
+                }
 
             } catch (erro) {
-                this.erroMensagens = erro.message;
+                if (numeroRequisicao === this.requisicaoMensagens) {
+                    this.erroMensagens = erro.message;
+                }
             } finally {
-                this.carregandoMensagens = false;
+                if (numeroRequisicao === this.requisicaoMensagens) {
+                    this.carregandoMensagens = false;
+
+                    this.$nextTick(() => {
+                        requestAnimationFrame(() => {
+                            requestAnimationFrame(() => {
+                                const lista = this.$refs.listaMensagens;
+
+                                if (lista) {
+                                    lista.scrollTop = lista.scrollHeight;
+                                }
+                            });
+                        });
+                    });
+                }
             }
         },
 
@@ -505,13 +678,18 @@ window.chatIndex = function () {
                 this.mensagens.push(mensagem);
             }
 
-            const conversa = this.conversas.find(
-                item => Number(item.chat_id) === Number(mensagem.chat_id)
+            const chave = mensagem.assunto_chat_id
+                ? `${mensagem.chat_id}:${mensagem.assunto_chat_id}`
+                : `${mensagem.chat_id}:geral`;
+
+            const contexto = this.conversas.find(
+                item => item.contexto_chave === chave
             );
 
-            if (conversa) {
-                conversa.ultima_mensagem = mensagem.conteudo;
-                conversa.ultima_mensagem_usuario = mensagem.usuario_id;
+            if (contexto) {
+                contexto.ultima_mensagem = mensagem.conteudo;
+                contexto.ultima_mensagem_usuario = mensagem.usuario_id;
+                contexto.ultima_mensagem_data = mensagem.created_at;
             }
         },
 
@@ -529,7 +707,7 @@ window.chatIndex = function () {
 
             try {
                 const resposta = await fetch(
-                    `/chat/${this.conversaSelecionada.negociacao_id}/mensagens`,
+                    `/chat/${this.conversaSelecionada.chat_id}/mensagens`,
                     {
                         method: 'POST',
                         headers: {
@@ -538,7 +716,10 @@ window.chatIndex = function () {
                             'X-CSRF-TOKEN': this.csrfToken,
                             'X-Requested-With': 'XMLHttpRequest'
                         },
-                        body: JSON.stringify({ conteudo })
+                        body: JSON.stringify({
+                            conteudo,
+                            assunto_chat_id: this.assuntoSelecionadoId || null
+                        })
                     }
                 );
 
@@ -563,41 +744,45 @@ window.chatIndex = function () {
         },
 
         voltarLista() {
+            this.requisicaoMensagens++;
+
             this.conversaSelecionada = null;
+            this.contextoSelecionado = '';
+            this.assuntoSelecionadoId = '';
             this.mensagens = [];
             this.mensagemNova = '';
             this.erroMensagens = '';
             this.erroEnvio = '';
+            this.carregandoMensagens = false;
         },
 
         rolarHistorico() {
             const lista = this.$refs.listaMensagens;
 
-            if (lista) {
-                lista.scrollTop = lista.scrollHeight;
-            }
+            if (!lista) return;
+
+            const posicionar = () => {
+                lista.scrollTo({
+                    top: lista.scrollHeight,
+                    behavior: 'instant'
+                });
+            };
+
+            this.$nextTick(() => {
+                requestAnimationFrame(() => {
+                    posicionar();
+
+                    requestAnimationFrame(posicionar);
+                });
+
+                setTimeout(posicionar, 100);
+            });
         },
 
         formatarDataHora(data) {
             if (!data) return '';
 
-            let dataMensagem;
-
-            const brasileira = String(data).match(
-                /^(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2})$/
-            );
-
-            if (brasileira) {
-                dataMensagem = new Date(
-                    Number(brasileira[3]),
-                    Number(brasileira[2]) - 1,
-                    Number(brasileira[1]),
-                    Number(brasileira[4]),
-                    Number(brasileira[5])
-                );
-            } else {
-                dataMensagem = new Date(data);
-            }
+            const dataMensagem = new Date(data);
 
             if (isNaN(dataMensagem.getTime())) return '';
 
@@ -625,5 +810,7 @@ window.chatIndex = function () {
         }
     };
 };
+
+
 </script>
 @endpush
