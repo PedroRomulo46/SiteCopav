@@ -3,13 +3,35 @@
 @section('title', 'Configurações')
 
 @section('conteudo')
+
+{{-- Breadcrumbs com setas garantidas via ícone --}}
+<nav class="flex items-center text-sm mb-6 text-gray-600" aria-label="Breadcrumb">
+    <ol class="inline-flex items-center space-x-2">
+
+        {{-- Item 1: Início --}}
+        <li>
+            <a href="{{route('home')}}">
+                Início
+            </a>
+        </li>
+
+        {{-- Item 2: Página Atual --}}
+        <li class="flex items-center space-x-2 hover:cursor-pointer">
+            <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
+            <span class="font-semibold text-gray-800">
+                @yield('title')
+            </span>
+        </li>
+    </ol>
+</nav>
+
 <div class="max-w-5xl mx-auto px-4 py-8 space-y-6">
     <div>
         <h1 class="text-2xl font-bold text-gray-800">Configurações</h1>
         <p class="text-sm text-gray-500">Gerencie as informações da sua conta, senha e segurança.</p>
     </div>
 
-    {{-- 1. INFORMAÇÕES DO PERFIL --}}
+    {{-- Informações do perfil --}}
     <div class="card bg-base-100 shadow-sm border border-base-200">
         <div class="card-body max-w-2xl">
             <h2 class="card-title text-lg text-gray-900">Informações do perfil</h2>
@@ -30,43 +52,55 @@
                 @csrf
                 @method('patch')
 
-                {{-- FOTO DE PERFIL --}}
+                {{-- Foto de perfil--}}
                 <div class="form-control">
-                    <label for="imagem" class="label">
-                        <span class="label-text font-medium">Foto de perfil</span>
-                    </label>
+                    <span class="label-text font-medium mb-2 block">Foto de perfil</span>
 
-                    @if($user->imagem)
-                        <div class="mt-1 mb-2" id="currentAvatarWrapper">
-                            <img
-                                id="avatarPreview"
-                                src="{{ asset('storage/' . $user->imagem) }}"
-                                alt="Foto de perfil"
-                                class="w-32 h-32 rounded-full object-cover border-2 border-[#236350] block"
-                            >
+                    <label
+                        for="imagem"
+                        title="Alterar foto de perfil"
+                        class="relative w-32 h-32 rounded-full overflow-hidden border-2 border-[#236350] bg-gray-100 flex items-center justify-center cursor-pointer group select-none shadow-sm"
+                    >
+                        {{-- Imagem atual ou preview da nova imagem --}}
+                        <img
+                            id="avatarPreview"
+                            src="{{ $user->imagem ? asset('storage/' . $user->imagem) : '' }}"
+                            alt="Foto de perfil"
+                            class="w-full h-full object-cover {{ $user->imagem ? 'block' : 'hidden' }}"
+                        >
+
+                        {{-- Ícone padrão quando não há imagem --}}
+                        <span
+                            id="avatarPlaceholder"
+                            class="text-gray-400 {{ $user->imagem ? 'hidden' : 'flex' }} items-center justify-center w-full h-full"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                            </svg>
+                        </span>
+
+                        {{-- Sobreposição com lápis ao passar o mouse --}}
+                        <div
+                            class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+                            </svg>
+                            <span class="text-xs font-medium mt-1">Alterar</span>
                         </div>
-                    @else
-                        <div class="mt-1 mb-2 hidden" id="currentAvatarWrapper">
-                            <img
-                                id="avatarPreview"
-                                src=""
-                                alt="Foto de perfil"
-                                class="w-32 h-32 rounded-full object-cover border-2 border-[#236350] block"
-                            >
-                        </div>
-                    @endif
+                    </label>
 
                     <input
                         id="imagem"
                         name="imagem"
                         type="file"
                         accept="image/jpeg,image/png,image/jpg,image/webp"
-                        class="file-input file-input-bordered w-full max-w-md mt-1"
+                        class="hidden"
                         onchange="previewAvatar(event)"
                     >
 
-                    <span class="label-text-alt text-gray-500 mt-1">
-                        JPG, JPEG, PNG ou WEBP. Máximo de 2 MB.
+                    <span class="label-text-alt text-gray-500 mt-2 block">
+                        Clique na foto para selecionar. JPG, JPEG, PNG ou WEBP. Máximo de 2 MB.
                     </span>
 
                     @foreach ($errors->get('imagem') as $message)
@@ -74,7 +108,7 @@
                     @endforeach
                 </div>
 
-                {{-- NOME --}}
+                {{-- Nome --}}
                 <div class="form-control">
                     <label for="nome" class="label">
                         <span class="label-text font-medium">Nome</span>
@@ -94,7 +128,7 @@
                     @endforeach
                 </div>
 
-                {{-- EMAIL --}}
+                {{-- Email --}}
                 <div class="form-control">
                     <label for="email" class="label">
                         <span class="label-text font-medium">Email</span>
@@ -130,7 +164,7 @@
                     @endif
                 </div>
 
-                {{-- BOTÃO SALVAR --}}
+                {{-- Botão de salvar --}}
                 <div class="pt-2 flex items-center gap-4">
                     <button
                         type="submit"
@@ -156,7 +190,7 @@
         </div>
     </div>
 
-    {{-- 2. TROCAR SENHA --}}
+    {{-- Trocar senha --}}
     <div class="card bg-base-100 shadow-sm border border-base-200">
         <div class="card-body">
             <div class="max-w-xl">
@@ -176,7 +210,8 @@
                 @method('put')
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {{-- SENHA ATUAL --}}
+
+                    {{-- Senha atual --}}
                     <div class="form-control">
                         <label for="update_password_current_password" class="label py-1">
                             <span class="label-text font-medium text-gray-700">Senha atual</span>
@@ -194,7 +229,7 @@
                         @endforeach
                     </div>
 
-                    {{-- NOVA SENHA --}}
+                    {{-- Nova senha --}}
                     <div class="form-control">
                         <label for="update_password_password" class="label py-1">
                             <span class="label-text font-medium text-gray-700">Nova senha</span>
@@ -212,7 +247,7 @@
                         @endforeach
                     </div>
 
-                    {{-- CONFIRMAR SENHA NOVA --}}
+                    {{-- Confirmar nova senha --}}
                     <div class="form-control">
                         <label for="update_password_password_confirmation" class="label py-1">
                             <span class="label-text font-medium text-gray-700">Confirmar senha nova</span>
@@ -268,7 +303,7 @@
         </div>
     </div>
 
-    {{-- 3. DELETAR CONTA (SEM X-MODAL) --}}
+    {{-- Deletar conta --}}
     <div class="card bg-base-100 shadow-sm border border-error/30">
         <div class="card-body max-w-2xl">
             <h2 class="card-title text-lg text-error">Deletar Conta</h2>

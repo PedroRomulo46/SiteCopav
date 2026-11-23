@@ -193,13 +193,96 @@
           </button>
         </div>
 
-        {{-- Busca Mobile --}}
-        <form action="{{ route('buscar') }}" method="GET" class="sm:hidden w-full relative flex items-center mt-1">
-            <input type="text" name="q" value="{{ request('q') }}" placeholder="Buscar no marketplace..." class="input w-full bg-white text-gray-800 placeholder-gray-400 pl-3 pr-9 py-2 rounded-md text-xs">
-            <button type="submit" class="absolute right-2 text-gray-500 flex items-center">
-                <span class="material-symbols-outlined text-lg">search</span>
-            </button>
-        </form>
+        {{-- Busca Mobile Inteligente (Live Search) --}}
+        <div 
+            x-data="{
+                termo: '{{ request('q') }}',
+                resultados: [],
+                aberto: false,
+                carregando: false,
+                async pesquisar() {
+                    if (this.termo.trim().length < 2) {
+                        this.resultados = [];
+                        this.aberto = false;
+                        return;
+                    }
+                    this.carregando = true;
+                    this.aberto = true;
+                    try {
+                        const res = await fetch(`{{ route('buscar.sugestoes') }}?q=${encodeURIComponent(this.termo)}`);
+                        this.resultados = await res.json();
+                    } catch (e) {
+                        console.error(e);
+                    } finally {
+                        this.carregando = false;
+                    }
+                }
+            }"
+            @click.outside="aberto = false"
+            @keydown.escape.window="aberto = false"
+            class="sm:hidden w-full relative mt-1"
+        >
+            <form action="{{ route('buscar') }}" method="GET" class="w-full relative flex items-center">
+
+                {{-- text-sm ou text-[16px] evita o zoom automático do Safari no iPhone ao tocar no input --}}
+                <input 
+                    type="text" 
+                    name="q" 
+                    x-model="termo"
+                    @input.debounce.300ms="pesquisar()"
+                    @focus="if (resultados.length > 0) aberto = true"
+                    autocomplete="off"
+                    placeholder="Buscar no marketplace..." 
+                    class="input w-full bg-white text-gray-800 placeholder-gray-400 pl-3 pr-9 py-2 rounded-md text-sm focus:outline-none shadow-sm"
+                >
+                <button type="submit" class="absolute right-2.5 text-gray-500 flex items-center cursor-pointer">
+                    <span class="material-symbols-outlined text-lg" x-show="!carregando">search</span>
+                    <span class="material-symbols-outlined text-lg animate-spin text-[#236350]" x-show="carregando" x-cloak>progress_activity</span>
+                </button>
+            </form>
+
+            {{-- Dropdown Flutuante de Resultados Mobile --}}
+            <div 
+                x-show="aberto" 
+                x-cloak
+                x-transition.opacity.duration.150ms
+                class="absolute left-0 right-0 top-full mt-1.5 bg-white text-gray-800 rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-50"
+            >
+                {{-- Lista de Produtos Encontrados --}}
+                <template x-if="resultados.length > 0">
+                    {{-- max-h-[60vh] garante que a lista caiba na tela mesmo com o teclado do celular aberto --}}
+                    <div class="divide-y divide-gray-100 max-h-[60vh] overflow-y-auto overscroll-contain">
+                        <template x-for="item in resultados" :key="item.id">
+                            <a :href="item.url" class="flex items-center gap-2.5 p-2.5 active:bg-emerald-50 transition-colors">
+                                <img :src="item.imagem" :alt="item.nome" class="w-10 h-10 rounded-lg object-cover bg-gray-100 shrink-0 border border-gray-200">
+                                <div class="flex-1 min-w-0 text-left">
+                                    <p class="text-xs font-bold text-gray-900 truncate" x-text="item.nome"></p>
+                                    <p class="text-[11px] text-gray-500 truncate">Forn.: <span x-text="item.fornecedor"></span></p>
+                                </div>
+                                <div class="text-right shrink-0">
+                                    <span class="text-xs font-extrabold text-[#236350] block" x-text="'R$ ' + item.valor"></span>
+                                    <span class="text-[10px] text-gray-400" x-text="'/ ' + item.unidade"></span>
+                                </div>
+                            </a>
+                        </template>
+                    </div>
+                </template>
+
+                {{-- Estado Vazio --}}
+                <template x-if="!carregando && resultados.length === 0 && termo.trim().length >= 2">
+                    <div class="p-3.5 text-center text-xs text-gray-500">
+                        Nenhum lote encontrado para "<span class="font-semibold text-gray-700" x-text="termo"></span>".
+                    </div>
+                </template>
+
+                {{-- Rodapé para ver todos os resultados --}}
+                <template x-if="resultados.length > 0">
+                    <a :href="`{{ route('buscar') }}?q=${encodeURIComponent(termo)}`" class="block bg-gray-50 active:bg-gray-100 text-center py-2.5 text-xs font-bold text-[#236350] border-t border-gray-200 transition-colors">
+                        Ver todos os resultados (<span x-text="resultados.length"></span>)
+                    </a>
+                </template>
+            </div>
+        </div>
 
         {{-- LINHA INFERIOR --}}
         <div class="menu-desktop items-center justify-between text-sm border-t border-[#236350] pt-2.5 text-gray-100 w-full">
@@ -240,7 +323,7 @@
                     </span>
                 </button>
 
-                {{-- Conteúdo do Dropdown --}}
+                {{-- desktop: conteúdo do dropdown de categorias --}}
                 <div
                     x-show="categoriasMenuAberto"
                     x-cloak
@@ -252,8 +335,6 @@
                     x-transition:leave-end="opacity-0 -translate-y-2 scale-95"
                     class="absolute left-0 top-full mt-2 w-56 bg-white text-gray-800 rounded-xl shadow-xl border border-gray-200 p-2 z-100 max-h-60 overflow-y-auto origin-top-left"
                 >
-
-                    {{-- Condição de Acesso --}}
                     @auth
                         @if(auth()->user()->is_admin ||
                             auth()->user()->user_type === 'admin' ||
@@ -271,7 +352,7 @@
                         @else
 
                             <a
-                                href="{{ route('categorias.create') }}"
+                                href="{{ route('categorias.sugerir') }}"
                                 @click="categoriasMenuAberto = false"
                                 class="flex items-center gap-2 px-3 py-2 rounded-md font-bold text-amber-700 hover:bg-amber-50 transition-colors"
                             >
@@ -295,9 +376,8 @@
 
                     <div class="border-t border-gray-100 my-1"></div>
 
-                    {{-- Categorias cadastradas --}}
+                    {{-- categorias cadastradas (visível para todos, inclusive visitantes) --}}
                     @forelse($categorias ?? [] as $categoria)
-
                         <a
                             href="{{ route('categorias.show', $categoria->id) }}"
                             @click="categoriasMenuAberto = false"
@@ -305,15 +385,11 @@
                         >
                             {{ $categoria->nome }}
                         </a>
-
                     @empty
-
                         <div class="text-xs text-gray-400 p-2 text-center">
                             Nenhuma categoria encontrada
                         </div>
-
                     @endforelse
-
                 </div>
             </div>
           </nav>
@@ -417,7 +493,7 @@
 
                         {{-- Perfil --}}
                         <a
-                            href="{{ route('profile.edit') }}"
+                            href="{{ route('profile.show') }}"
                             class="flex items-center gap-2 w-full px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 hover:text-[#1B4D3E] transition-colors duration-150"
                         >
                             <span class="material-symbols-outlined text-lg">
@@ -495,9 +571,9 @@
               @endif
             @endauth
 
-            {{-- Dropdown Categorias Mobile --}}
+            {{-- mobile: dropdown de categorias --}}
             <div x-data="{ openCat: false }">
-              <button
+                <button
                     type="button"
                     @click="openCat = !openCat"
                     :aria-expanded="openCat"
@@ -512,7 +588,7 @@
                         expand_more
                     </span>
                 </button>
-              
+
                 <div
                     x-show="openCat"
                     x-cloak
@@ -524,39 +600,42 @@
                     x-transition:leave-end="opacity-0 -translate-y-2"
                     class="pl-4 flex flex-col gap-1 mt-1"
                 >
-                
-                @auth
-                  @if(auth()->user()->is_admin || auth()->user()->user_type === 'admin' || auth()->user()->email === 'copavagricola@example.com')
-                    <a
-                    href="{{ route('categorias.index') }}"
-                    class="p-1.5 text-md text-amber-200 hover:bg-[#236350] rounded font-semibold flex items-center gap-1">
-                      - Ver Todas -
-                    </a>
-                  @else
-                    <a
-                    href="{{ route('categorias.create') }}"
-                    class="p-1.5 text-md hover:bg-[#236350] rounded font-semibold flex items-center gap-1">
-                    <span class="material-symbols-outlined text-sm">add</span>
-                    Sugerir Categoria
-                    </a>
-                  @endif
-                @else
-                  <a
-                  href="{{ route('categorias.create') }}"
-                  class="p-1.5 text-md hover:bg-[#236350] rounded font-semibold flex items-center gap-1">
-                  <span class="material-symbols-outlined text-sm">add</span>
-                  Sugerir Categoria
-                  </a>
-                @endauth
+                    @auth
+                        @if(auth()->user()->is_admin || auth()->user()->user_type === 'admin' || auth()->user()->email === 'copavagricola@example.com')
+                            <a
+                                href="{{ route('categorias.index') }}"
+                                class="p-1.5 text-md text-amber-200 hover:bg-[#236350] rounded font-semibold flex items-center gap-1"
+                            >
+                                - Ver Todas -
+                            </a>
+                        @else
+                            <a
+                                href="{{ route('categorias.sugerir') }}"
+                                class="p-1.5 text-md hover:bg-[#236350] rounded font-semibold flex items-center gap-1"
+                            >
+                                <span class="material-symbols-outlined text-sm">add</span>
+                                Sugerir Categoria
+                            </a>
+                        @endif
+                    @else
+                        <a
+                            href="{{ route('login') }}"
+                            class="p-1.5 text-md hover:bg-[#236350] rounded font-semibold flex items-center gap-1"
+                        >
+                            <span class="material-symbols-outlined text-sm">add</span>
+                            Sugerir Categoria
+                        </a>
+                    @endauth
 
-                @foreach($categorias ?? [] as $categoria)
-                  <a
-                  href="{{ route('categorias.show', $categoria->id) }}"
-                  class="p-1.5 text-md hover:bg-[#236350] rounded">
-                    {{ $categoria->nome }}
-                  </a>
-                @endforeach
-              </div>
+                    @foreach($categorias ?? [] as $categoria)
+                        <a
+                            href="{{ route('categorias.show', $categoria->id) }}"
+                            class="p-1.5 text-md hover:bg-[#236350] rounded"
+                        >
+                            {{ $categoria->nome }}
+                        </a>
+                    @endforeach
+                </div>
             </div>
           </nav>
 

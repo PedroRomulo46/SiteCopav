@@ -7,14 +7,25 @@
 {{-- Breadcrumb --}}
 <nav class="flex items-center text-sm mb-4 text-gray-600" aria-label="Breadcrumb">
     <ol class="inline-flex items-center space-x-2">
-        <li><a href="{{ route('home') }}" class="hover:text-[#236350]">Início</a></li>
+        <li>
+            <a href="{{ route('home') }}" class="hover:text-[#236350]">Início</a>
+        </li>
+
+        @if (request('origem') === 'index')
+            <li class="flex items-center space-x-2">
+                <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
+                <a href="{{ route('categorias.index') }}" class="hover:text-[#236350]">
+                    Categorias
+                </a>
+            </li>
+        @endif
+
         <li class="flex items-center space-x-2">
             <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
             <span class="font-semibold text-gray-800">@yield('title')</span>
         </li>
     </ol>
 </nav>
-
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
     <div class="mb-8">
         <h1 class="text-3xl font-bold text-gray-900">{{ $categoria->nome }}</h1>
