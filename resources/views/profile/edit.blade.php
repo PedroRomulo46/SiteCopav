@@ -354,14 +354,20 @@
 <script>
     function previewAvatar(event) {
         const file = event.target.files[0];
-        const wrapper = document.getElementById('currentAvatarWrapper');
         const img = document.getElementById('avatarPreview');
-        if (!file || !img || !wrapper) return;
+        const placeholder = document.getElementById('avatarPlaceholder');
+        if (!file || !img) return;
 
         const reader = new FileReader();
         reader.onload = function (e) {
             img.src = e.target.result;
-            wrapper.classList.remove('hidden');
+            img.classList.remove('hidden');
+            img.classList.add('block');
+
+            if (placeholder) {
+                placeholder.classList.remove('flex');
+                placeholder.classList.add('hidden');
+            }
         };
         reader.readAsDataURL(file);
     }
