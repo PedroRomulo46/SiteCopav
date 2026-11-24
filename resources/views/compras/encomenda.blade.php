@@ -4,6 +4,51 @@
 
 @section('conteudo')
 
+@php
+    $usuarioId = auth()->id();
+    $donoOfertaUserId = $oferta?->fornecedor?->user_id ?? $oferta?->user_id;
+    $is_donodaoferta = $usuarioId !== null
+        && (int) $usuarioId === (int) $donoOfertaUserId
+        && (int) $usuarioId !== (int) $negociacao->cliente_id;
+
+    $statusAtual = $negociacao->status_entrega ?? 'pagamento_aprovado';
+
+    $etapas = [
+        'pagamento_aprovado' => [
+            'titulo' => 'Pagamento Aprovado',
+            'descricao' => 'O pagamento foi processado e confirmado com sucesso.',
+            'icone' => 'check',
+            'cor' => 'bg-emerald-600',
+            'botao' => 'Marcar: Pagamento Aprovado',
+        ],
+        'em_separacao' => [
+            'titulo' => 'Em separação pelo Fornecedor',
+            'descricao' => 'O fornecedor está preparando e embalando o seu lote.',
+            'icone' => 'inventory_2',
+            'cor' => 'bg-amber-500',
+            'botao' => 'Marcar: Em separação',
+        ],
+        'saiu_para_entrega' => [
+            'titulo' => 'Saiu para Entrega / Retirada',
+            'descricao' => 'O pedido está a caminho ou disponível para retirada.',
+            'icone' => 'local_shipping',
+            'cor' => 'bg-sky-600',
+            'botao' => 'Marcar: Saiu para entrega',
+        ],
+        'entregue' => [
+            'titulo' => 'Entregue',
+            'descricao' => 'A encomenda foi entregue ao comprador.',
+            'icone' => 'verified',
+            'cor' => 'bg-emerald-700',
+            'botao' => 'Marcar: Entregue',
+        ],
+    ];
+
+    $ordemEtapas = array_keys($etapas);
+    $indiceAtual = array_search($statusAtual, $ordemEtapas);
+    $indiceAtual = $indiceAtual === false ? 0 : $indiceAtual;
+@endphp
+
 {{-- Breadcrumb --}}
 <nav class="flex flex-wrap items-center gap-2 text-sm mb-7" aria-label="Breadcrumb">
     <a href="{{ route('home') }}" class="text-gray-500 hover:text-[#236350]">
@@ -12,14 +57,17 @@
     <span class="material-symbols-outlined text-gray-400 text-lg">
         chevron_right
     </span>
-    <a href="{{ route('negociacoes.compras') }}" class="text-gray-500 hover:text-[#236350]">
-        Minhas Compras
+    <a
+        href="{{ $is_donodaoferta ? route('negociacoes.vendas') : route('negociacoes.compras') }}"
+        class="text-gray-500 hover:text-[#236350]"
+    >
+        {{ $is_donodaoferta ? 'Minhas Vendas' : 'Minhas Compras' }}
     </a>
     <span class="material-symbols-outlined text-gray-400 text-lg">
         chevron_right
     </span>
     <span class="font-semibold text-gray-800">
-        Acompanhar Encomenda
+        {{ $is_donodaoferta ? 'Atualizar Entrega' : 'Acompanhar Encomenda' }}
     </span>
 </nav>
 
@@ -27,6 +75,12 @@
     <div class="mb-8">
         <h1 class="text-3xl font-bold text-gray-900">Detalhes da Encomenda</h1>
         <p class="text-gray-500 mt-1">Acompanhe o status de separação, envio e entrega do seu pedido (#{{ $negociacao->id }}).</p>
+    </div>
+
+    {{-- Alerta de feedback --}}
+    <div id="alerta-status-entrega" class="hidden mb-5 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 items-center gap-2">
+        <span class="material-symbols-outlined text-lg">check_circle</span>
+        <span id="texto-alerta-entrega">Status da entrega atualizado.</span>
     </div>
 
     {{-- Card do Produto / Encomenda --}}
@@ -45,39 +99,63 @@
             </div>
         </div>
 
-        {{-- Status da Entrega (Timeline Simples) --}}
-        <div class="space-y-6">
+        {{-- Controles do Dono da Oferta --}}
+        @if($is_donodaoferta)
+            <div class="mb-6 rounded-xl border border-sky-200 bg-sky-50/60 p-4">
+                <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+                    <div>
+                        <h3 class="text-sm font-bold text-sky-950 flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-base text-sky-700">local_shipping</span>
+                            Atualizar Status da Entrega (Fornecedor)
+                        </h3>
+                        <p class="text-xs text-sky-800/80 mt-0.5">
+                            Selecione a etapa atual para o comprador acompanhar o andamento.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap gap-2">
+                    @foreach($etapas as $chave => $etapa)
+                        <button
+                            type="button"
+                            data-status-btn="{{ $chave }}"
+                            onclick="atualizarStatusEntrega('{{ $chave }}')"
+                            class="px-3.5 py-2 rounded-lg text-xs font-semibold border transition-all cursor-pointer flex items-center gap-1.5"
+                        >
+                            <span class="material-symbols-outlined text-sm">{{ $etapa['icone'] }}</span>
+                            {{ $etapa['botao'] }}
+                        </button>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
+        {{-- Timeline Interativa --}}
+        <div class="space-y-6" id="timeline-entrega">
             <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4">Status do Pedido</h3>
-            
-            <div class="flex items-start gap-4">
-                <div class="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
-                    <span class="material-symbols-outlined text-sm">check</span>
-                </div>
-                <div>
-                    <h4 class="text-sm font-bold text-gray-900">Pagamento Aprovado</h4>
-                    <p class="text-xs text-gray-500">O pagamento foi processado e confirmado com sucesso.</p>
-                </div>
-            </div>
 
-            <div class="flex items-start gap-4">
-                <div class="w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center shrink-0">
-                    <span class="material-symbols-outlined text-sm">inventory_2</span>
+            @foreach($etapas as $chave => $etapa)
+                @php
+                    $passoIndice = $loop->index;
+                    $concluidoOuAtual = $passoIndice <= $indiceAtual;
+                @endphp
+                <div
+                    id="etapa-{{ $chave }}"
+                    data-passo="{{ $passoIndice }}"
+                    class="flex items-start gap-4 transition-opacity duration-200 {{ $concluidoOuAtual ? 'opacity-100' : 'opacity-50' }}"
+                >
+                    <div
+                        data-icone-etapa
+                        class="w-8 h-8 rounded-full text-white flex items-center justify-center shrink-0 transition-colors {{ $concluidoOuAtual ? $etapa['cor'] : 'bg-gray-200 text-gray-600' }}"
+                    >
+                        <span class="material-symbols-outlined text-sm">{{ $etapa['icone'] }}</span>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-gray-900">{{ $etapa['titulo'] }}</h4>
+                        <p class="text-xs text-gray-500">{{ $etapa['descricao'] }}</p>
+                    </div>
                 </div>
-                <div>
-                    <h4 class="text-sm font-bold text-gray-900">Em separação pelo Fornecedor</h4>
-                    <p class="text-xs text-gray-500">O fornecedor está preparando e embalando o seu lote.</p>
-                </div>
-            </div>
-
-            <div class="flex items-start gap-4 opacity-50">
-                <div class="w-8 h-8 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center shrink-0">
-                    <span class="material-symbols-outlined text-sm">local_shipping</span>
-                </div>
-                <div>
-                    <h4 class="text-sm font-bold text-gray-900">Saiu para Entrega / Retirada</h4>
-                    <p class="text-xs text-gray-500">Aguardando despacho logístico.</p>
-                </div>
-            </div>
+            @endforeach
         </div>
     </div>
 
@@ -85,13 +163,96 @@
     <div class="flex gap-3">
         <a href="{{ route('chat.show', $negociacao) }}" class="flex-1 flex items-center justify-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
             <span class="material-symbols-outlined text-lg">chat</span>
-            Falar com o Vendedor
+            {{ $is_donodaoferta ? 'Falar com o Comprador' : 'Falar com o Vendedor' }}
         </a>
-        <a href="{{ route('negociacoes.compras') }}" class="flex-1 flex items-center justify-center gap-2 rounded-xl bg-[#236350] px-4 py-3 text-sm font-semibold text-white hover:bg-[#194b3c] transition-colors">
-            <span class="material-symbols-outlined text-lg">shopping_bag</span>
-            Minhas Compras
+        <a
+            href="{{ $is_donodaoferta ? route('negociacoes.vendas') : route('negociacoes.compras') }}"
+            class="flex-1 flex items-center justify-center gap-2 rounded-xl bg-[#236350] px-4 py-3 text-sm font-semibold text-white hover:bg-[#194b3c] transition-colors"
+        >
+            <span class="material-symbols-outlined text-lg">{{ $is_donodaoferta ? 'storefront' : 'shopping_bag' }}</span>
+            {{ $is_donodaoferta ? 'Minhas Vendas' : 'Minhas Compras' }}
         </a>
     </div>
 </div>
+
+@if($is_donodaoferta)
+<script>
+    const etapasConfig = @json($etapas);
+    const ordemEtapas = Object.keys(etapasConfig);
+    let statusAtualFront = @json($statusAtual);
+
+    function renderizarTimeline(novoStatus) {
+        const indiceAtivo = ordemEtapas.indexOf(novoStatus);
+        const alvo = indiceAtivo === -1 ? 0 : indiceAtivo;
+
+        ordemEtapas.forEach((chave, idx) => {
+            const linha = document.getElementById(`etapa-${chave}`);
+            const circulo = linha?.querySelector('[data-icone-etapa]');
+            const corAtiva = etapasConfig[chave].cor;
+
+            if (!linha || !circulo) return;
+
+            if (idx <= alvo) {
+                linha.classList.remove('opacity-50');
+                linha.classList.add('opacity-100');
+
+                circulo.className = `w-8 h-8 rounded-full text-white flex items-center justify-center shrink-0 transition-colors ${corAtiva}`;
+            } else {
+                linha.classList.remove('opacity-100');
+                linha.classList.add('opacity-50');
+
+                circulo.className = 'w-8 h-8 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center shrink-0 transition-colors';
+            }
+        });
+
+        document.querySelectorAll('[data-status-btn]').forEach((btn) => {
+            const btnStatus = btn.getAttribute('data-status-btn');
+            if (btnStatus === novoStatus) {
+                btn.className = 'px-3.5 py-2 rounded-lg text-xs font-semibold border border-[#236350] bg-[#236350] text-white transition-all cursor-pointer flex items-center gap-1.5 shadow-sm';
+            } else {
+                btn.className = 'px-3.5 py-2 rounded-lg text-xs font-semibold border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition-all cursor-pointer flex items-center gap-1.5';
+            }
+        });
+    }
+
+    async function atualizarStatusEntrega(novoStatus) {
+        statusAtualFront = novoStatus;
+        renderizarTimeline(novoStatus);
+
+        const alerta = document.getElementById('alerta-status-entrega');
+        const textoAlerta = document.getElementById('texto-alerta-entrega');
+
+        @if(\Illuminate\Support\Facades\Route::has('compras.encomenda.status'))
+        try {
+            const response = await fetch("{{ route('compras.encomenda.status', $negociacao) }}", {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ status_entrega: novoStatus })
+            });
+
+            if (response.ok && alerta && textoAlerta) {
+                textoAlerta.textContent = `Status atualizado para: ${etapasConfig[novoStatus].titulo}.`;
+                alerta.classList.remove('hidden');
+                alerta.classList.add('flex');
+            }
+        } catch (e) {
+            console.error('Erro ao salvar status de entrega:', e);
+        }
+        @else
+        if (alerta && textoAlerta) {
+            textoAlerta.textContent = `Status selecionado: ${etapasConfig[novoStatus].titulo} (adicione a rota compras.encomenda.status para salvar no banco).`;
+            alerta.classList.remove('hidden');
+            alerta.classList.add('flex');
+        }
+        @endif
+    }
+
+    renderizarTimeline(statusAtualFront);
+</script>
+@endif
 
 @endsection

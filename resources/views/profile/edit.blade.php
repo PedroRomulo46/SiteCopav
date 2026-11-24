@@ -190,6 +190,30 @@
         </div>
     </div>
 
+    {{-- Aparência / Modo Escuro --}}
+    <div class="card bg-base-100 shadow-sm border border-base-200 dark:bg-gray-900 dark:border-gray-800">
+        <div class="card-body max-w-2xl">
+            <div class="flex items-center justify-between gap-4">
+                <div>
+                    <h2 class="card-title text-lg text-gray-900 dark:text-gray-100">Aparência</h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        Alterne entre o tema claro e o modo escuro em todo o site.
+                    </p>
+                </div>
+
+                <button
+                    type="button"
+                    id="btnToggleDarkMode"
+                    onclick="alternarModoEscuro()"
+                    class="btn border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 gap-2 shrink-0 cursor-pointer"
+                >
+                    <span id="iconeModoEscuro" class="material-symbols-outlined text-xl">dark_mode</span>
+                    <span id="textoModoEscuro">Ativar modo escuro</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     {{-- Trocar senha --}}
     <div class="card bg-base-100 shadow-sm border border-base-200">
         <div class="card-body">
@@ -352,16 +376,52 @@
 </div>
 
 <script>
+    function aplicarTemaEscuro(ativado) {
+    const html = document.documentElement;
+    const icone = document.getElementById('iconeModoEscuro');
+    const texto = document.getElementById('textoModoEscuro');
+
+    if (ativado) {
+        html.classList.add('tema-escuro');
+        html.setAttribute('data-theme', 'dark');
+        localStorage.setItem('tema_escuro', '1');
+        if (icone) icone.textContent = 'light_mode';
+        if (texto) texto.textContent = 'Modo escuro ativado';
+    } else {
+        html.classList.remove('tema-escuro');
+        html.setAttribute('data-theme', 'light');
+        localStorage.setItem('tema_escuro', '0');
+        if (icone) icone.textContent = 'dark_mode';
+        if (texto) texto.textContent = 'Ativar modo escuro';
+    }
+    }
+
+    function alternarModoEscuro() {
+        const estaEscuro = document.documentElement.classList.contains('tema-escuro');
+        aplicarTemaEscuro(!estaEscuro);
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const salvo = localStorage.getItem('tema_escuro') === '1';
+        aplicarTemaEscuro(salvo);
+    });
+
     function previewAvatar(event) {
         const file = event.target.files[0];
-        const wrapper = document.getElementById('currentAvatarWrapper');
         const img = document.getElementById('avatarPreview');
-        if (!file || !img || !wrapper) return;
+        const placeholder = document.getElementById('avatarPlaceholder');
+        if (!file || !img) return;
 
         const reader = new FileReader();
         reader.onload = function (e) {
             img.src = e.target.result;
-            wrapper.classList.remove('hidden');
+            img.classList.remove('hidden');
+            img.classList.add('block');
+
+            if (placeholder) {
+                placeholder.classList.remove('flex');
+                placeholder.classList.add('hidden');
+            }
         };
         reader.readAsDataURL(file);
     }

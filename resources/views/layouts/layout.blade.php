@@ -11,9 +11,87 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-
     <style>
         [x-cloak] { display: none !important; }
+
+        /* Fundo padrão (modo claro) */
+        html:not(.tema-escuro) body {
+            background-color: #ebeae7;
+            color: #111827;
+        }
+
+        /* Modo escuro explícito */
+        html.tema-escuro body {
+            background-color: #090d16;
+            color: #f3f4f6;
+        }
+
+        /* Títulos e textos gerais no modo escuro */
+        html.tema-escuro main h1,
+        html.tema-escuro main h2,
+        html.tema-escuro main h3,
+        html.tema-escuro main h4,
+        html.tema-escuro nav[aria-label="Breadcrumb"] {
+            color: #f9fafb;
+        }
+
+        html.tema-escuro main p {
+            color: #9ca3af;
+        }
+
+        /* Cartões e blocos com bg-white no modo escuro (excluindo dropdowns e busca) */
+        html.tema-escuro .card,
+        html.tema-escuro main .bg-white:not([x-show]) {
+            background-color: #111827 !important;
+            color: #f3f4f6 !important;
+            border-color: #1f2937 !important;
+        }
+
+        /* Blocos internos claros (como "SUA ÚLTIMA PROPOSTA") no modo escuro */
+        html.tema-escuro main .bg-gray-50 {
+            background-color: #1f2937 !important;
+            border-color: #374151 !important;
+        }
+
+        html.tema-escuro main .bg-gray-50 p,
+        html.tema-escuro main .bg-gray-50 strong {
+            color: #e5e7eb !important;
+        }
+
+        /* Inputs dentro de formulários no modo escuro (sem quebrar a barra de busca do topo) */
+        html.tema-escuro main input,
+        html.tema-escuro main textarea,
+        html.tema-escuro main select {
+            background-color: #1f2937 !important;
+            color: #f9fafb !important;
+            border-color: #374151 !important;
+        }
+
+        /* Verde do valor mais claro e legível no modo escuro */
+        html.tema-escuro .card-vitrine .text-\[\#1B4D3E\],
+        html.tema-escuro .card-vitrine .text-\[\#236350\] {
+            color: #34d399 !important;
+        }
+
+        /* Barras divisórias internas do card no modo escuro com tom cinza da descrição */
+        html.tema-escuro .card-vitrine .border-gray-100,
+        html.tema-escuro .card-vitrine .border-t {
+            border-color: #9ca3af !important;
+        }
+
+        /* Dropdowns / menus flutuantes brancos mantêm texto escuro e legível */
+        [x-show].bg-white,
+        [x-show] .bg-white {
+            background-color: #ffffff !important;
+            color: #1f2937 !important;
+        }
+
+        [x-show].bg-white a,
+        [x-show].bg-white button,
+        [x-show] .bg-white a,
+        [x-show] .bg-white button {
+            color: #1f2937 !important;
+        }
 
         .btn-copav {
             background-color: #236350 !important;
@@ -30,7 +108,7 @@
             background-color: #1a493b !important;
             color: #ffffff !important;
         }
-        
+
         /* Esconde no mobile/tablet e exibe flex no computador */
         .menu-desktop {
           display: none;
@@ -42,22 +120,35 @@
         }
 
         .nav-link:hover {
-          color: #fcd34d !important; /* Cor equivalente a amber-300 */
+          color: #fcd34d !important;
         }
 
+        html:not(.tema-escuro) .container-home {
+            background-color: #ebeae7;
+        }
+
+        html.tema-escuro .container-home {
+            background-color: transparent;
+        }
     </style>
+
+    <script>
+        (function () {
+            const escuro = localStorage.getItem('tema_escuro') === '1';
+            const html = document.documentElement;
+            if (escuro) {
+                html.classList.add('tema-escuro');
+                html.setAttribute('data-theme', 'dark');
+            } else {
+                html.classList.remove('tema-escuro');
+                html.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
 
 </head>
 
-<script>
-    window.addEventListener('pageshow', function (event) {
-        if (event.persisted) {
-            window.location.reload();
-        }
-    });
-</script>
-
-<body class="bg-[#ebeae7] min-h-screen flex flex-col font-sans
+<body class="min-h-screen flex flex-col font-sans transition-colors duration-200
     @if(View::hasSection('chat_layout')) h-screen overflow-hidden @endif">
 
     {{-- Cabeçalho --}}
@@ -681,6 +772,15 @@
                 </a>
               @endif
 
+              {{-- Botão de Perfil --}}
+              <a href="{{ route('profile.show') }}"
+                class="flex w-full items-center gap-2 p-2 rounded-md
+                        text-white hover:bg-[#236350]
+                        transition-colors duration-200">
+                  <span class="material-symbols-outlined text-lg">person</span>
+                  <span>Perfil</span>
+              </a>
+
               {{-- Botão de configurações --}}
               <a href="{{ route('profile.edit') }}"
                 class="flex w-full items-center gap-2 p-2 rounded-md
@@ -1135,7 +1235,7 @@
           >
               
           <!-- Cabeçalho -->
-          <div class="flex min-h-[68px] items-center justify-between bg-[#1B4D3E] px-4 py-3 text-white">
+          <div class="flex min-h-68px items-center justify-between bg-[#1B4D3E] px-4 py-3 text-white">
 
             <!-- Identificação da conversa -->
             <div class="flex min-w-0 flex-1 items-center gap-3">
@@ -1466,13 +1566,13 @@
                           rows="1"
                           maxlength="5000"
                           placeholder="Digite sua mensagem..."
-                          class="max-h-24 min-h-[42px] flex-1 resize-none rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm outline-none transition focus:border-[#236350] focus:ring-1 focus:ring-[#236350]"
+                          class="max-h-24 min-h-42px flex-1 resize-none rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm outline-none transition focus:border-[#236350] focus:ring-1 focus:ring-[#236350]"
                       ></textarea>
 
                       <button
                           type="submit"
                           :disabled="!mensagemNova.trim() || enviandoMensagem"
-                          class="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-xl bg-[#236350] text-white transition hover:bg-[#1B4D3E] disabled:cursor-not-allowed disabled:opacity-40"
+                          class="flex h-42px w-42px shrink-0 items-center justify-center rounded-xl bg-[#236350] text-white transition hover:bg-[#1B4D3E] disabled:cursor-not-allowed disabled:opacity-40"
                           aria-label="Enviar mensagem"
                       >
                           <span
