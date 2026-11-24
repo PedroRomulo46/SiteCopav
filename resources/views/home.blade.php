@@ -66,7 +66,7 @@
         abaAtiva: '{{ ($is_Fornecedor || $is_Admin || $is_Empresa) ? 'lotes' : 'demandas' }}',
         ordenarPor: 'recentes'
     }"
-    class="w-full max-w-7xl mx-auto px-3 sm:px-5 lg:px-6 py-5 space-y-7 bg-[#ebeae7] min-h-screen">
+    class="container-home w-full max-w-7xl mx-auto px-3 sm:px-5 lg:px-6 py-5 space-y-7 min-h-screen">
 
     {{-- Painel de gestão --}}
     @auth
@@ -93,16 +93,6 @@
                             <h1 class="text-xl sm:text-2xl font-extrabold mt-1">
                                 Gestão do marketplace
                             </h1>
-
-                            <p class="text-xs sm:text-sm text-emerald-50 mt-1">
-                                Acompanhe as demandas e oportunidades do marketplace.
-                            </p>
-
-                        @elseif($is_Empresa)
-                            <span class="text-xs font-bold uppercase tracking-wider text-emerald-50">
-                                Painel da empresa
-                            </span>
-
 
                             <p class="text-xs sm:text-sm text-emerald-50 mt-1">
                                 Acompanhe as demandas e oportunidades do marketplace.
