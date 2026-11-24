@@ -681,6 +681,15 @@
                 </a>
               @endif
 
+              {{-- Botão de Perfil --}}
+              <a href="{{ route('profile.show') }}"
+                class="flex w-full items-center gap-2 p-2 rounded-md
+                        text-white hover:bg-[#236350]
+                        transition-colors duration-200">
+                  <span class="material-symbols-outlined text-lg">person</span>
+                  <span>Perfil</span>
+              </a>
+
               {{-- Botão de configurações --}}
               <a href="{{ route('profile.edit') }}"
                 class="flex w-full items-center gap-2 p-2 rounded-md
@@ -1076,7 +1085,7 @@
           >
               
           <!-- Cabeçalho -->
-          <div class="flex min-h-[68px] items-center justify-between bg-[#1B4D3E] px-4 py-3 text-white">
+          <div class="flex min-h-68px items-center justify-between bg-[#1B4D3E] px-4 py-3 text-white">
 
             <!-- Identificação da conversa -->
             <div class="flex min-w-0 flex-1 items-center gap-3">
@@ -1347,13 +1356,13 @@
                           rows="1"
                           maxlength="5000"
                           placeholder="Digite sua mensagem..."
-                          class="max-h-24 min-h-[42px] flex-1 resize-none rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm outline-none transition focus:border-[#236350] focus:ring-1 focus:ring-[#236350]"
+                          class="max-h-24 min-h-42px flex-1 resize-none rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm outline-none transition focus:border-[#236350] focus:ring-1 focus:ring-[#236350]"
                       ></textarea>
 
                       <button
                           type="submit"
                           :disabled="!mensagemNova.trim() || enviandoMensagem"
-                          class="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-xl bg-[#236350] text-white transition hover:bg-[#1B4D3E] disabled:cursor-not-allowed disabled:opacity-40"
+                          class="flex h-42px w-42px shrink-0 items-center justify-center rounded-xl bg-[#236350] text-white transition hover:bg-[#1B4D3E] disabled:cursor-not-allowed disabled:opacity-40"
                           aria-label="Enviar mensagem"
                       >
                           <span
