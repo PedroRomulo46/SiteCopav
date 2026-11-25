@@ -10,13 +10,13 @@
 
         {{-- Item 1: Início --}}
         <li>
-            <a href="{{route('home')}}">
+            <a href="{{ route('home') }}" class="hover:text-[#1B4D3E]">
                 Início
             </a>
         </li>
 
-        {{-- Item 2: Pégina Atual --}}
-        <li class="flex items-center space-x-2 hover:cursor-pointer">
+        {{-- Item 2: Página Atual --}}
+        <li class="flex items-center space-x-2">
             <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
             <span class="font-semibold text-gray-800">
                 @yield('title')
@@ -90,7 +90,7 @@
                     @foreach($produtos as $produto)
                         <option
                             value="{{ $produto->id }}"
-                            {{ old('produto_id', $oferta->produto_id) == $produto->id ? 'selected' : '' }}
+                            {{ (string) old('produto_id', $oferta->produto_id) === (string) $produto->id ? 'selected' : '' }}
                         >
                             {{ $produto->nome }}
 
@@ -266,10 +266,11 @@
                     </option>
                 </select>
             </div>
+
         </form>
 
         {{-- Botões --}}
-        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-4 border-t border-gray-100">
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-6 mt-6 border-t border-gray-100">
 
             {{-- Excluir à esquerda --}}
             <form
@@ -282,7 +283,7 @@
 
                 <button
                     type="submit"
-                    class="inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-md transition-colors"
+                    class="inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-md transition-colors cursor-pointer"
                 >
                     <span class="material-symbols-outlined">
                         delete
@@ -294,18 +295,18 @@
             {{-- Cancelar e salvar à direita --}}
             <div class="flex gap-3">
                 <a
-                href="{{ route('ofertas.index') }}"
-                class="inline-flex items-center justify-center px-2 py-2.5 gap-1.5 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
-                <span class="material-symbols-outlined">
-                    block
-                </span>
-                Cancelar
-            </a>
-            
+                    href="{{ route('ofertas.index') }}"
+                    class="inline-flex items-center justify-center px-4 py-2.5 gap-1.5 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                    <span class="material-symbols-outlined">
+                        block
+                    </span>
+                    Cancelar
+                </a>
+
                 <button
                     type="submit"
                     form="form-editar-oferta"
-                    class="inline-flex items-center justify-center gap-2 bg-[#236350] hover:bg-[#1B4D3E] text-white px-5 py-2.5 rounded-md transition-colors">
+                    class="btn-copav inline-flex items-center justify-center gap-2 text-white px-5 py-2.5 rounded-md transition-colors cursor-pointer">
                     <span class="material-symbols-outlined">
                         upload_file
                     </span>
@@ -313,7 +314,7 @@
                 </button>
             </div>
         </div>
-    </form>
+    </div>
 </div>
 
 @endsection

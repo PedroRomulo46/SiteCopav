@@ -109,7 +109,7 @@
 
                 <button 
                     type="submit" 
-                    class="btn bg-[#1B4D3E] hover:bg-[#143B2F] text-white border-none gap-2 shadow-sm px-6 cursor-pointer"
+                    class="btn btn-copav text-white border-none gap-2 shadow-sm px-6 cursor-pointer"
                 >
                     <span class="material-symbols-outlined text-xl">save</span>
                     Salvar Alterações

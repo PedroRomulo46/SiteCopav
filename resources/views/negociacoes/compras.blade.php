@@ -10,7 +10,7 @@
 
         {{-- Item 1: Início --}}
         <li>
-            <a href="{{route('home')}}">
+            <a href="{{ route('home') }}">
                 Início
             </a>
         </li>
@@ -62,8 +62,11 @@
 
             @php
                 $oferta = $negociacao->oferta;
+                $produto = $oferta?->produto;
+                $fornecedor = $oferta?->fornecedor;
+                $unidade = $oferta?->unidade ?? 'un.';
 
-                $minhasPropostas = $negociacao->propostas
+                $minhasPropostas = ($negociacao->propostas ?? collect())
                     ->where('usuario_id', auth()->id());
 
                 $ultimaProposta = $minhasPropostas->last();
@@ -73,8 +76,7 @@
                         return $proposta->status === 'aceita';
                     });
 
-                // Verifica se a negociação já foi paga/aprovada (você pode adaptar para a sua regra de status da negociação, ex: status === 'pago' ou 'aprovado')
-                $compraAprovada = $negociacao->status === 'pago' || $negociacao->status === 'aprovado';
+                $compraAprovada = in_array($negociacao->status, ['pago', 'aprovado'], true);
             @endphp
 
             {{-- Card da Compra / Negociação --}}
@@ -89,12 +91,12 @@
                 {{-- Imagem --}}
                 <div class="relative h-44 bg-gray-100 overflow-hidden">
                     <img
-                        src="{{ $oferta->produto && $oferta->produto->imagem 
-                            ? (str_contains($oferta->produto->imagem, 'assets/') 
-                                ? asset($oferta->produto->imagem) 
-                                : asset('storage/' . $oferta->produto->imagem)) 
+                        src="{{ $produto && $produto->imagem
+                            ? (str_contains($produto->imagem, 'assets/')
+                                ? asset($produto->imagem)
+                                : asset('storage/' . $produto->imagem))
                             : asset('assets/milho.png') }}"
-                        alt="{{ $oferta->produto->nome ?? 'Produto' }}"
+                        alt="{{ $produto->nome ?? 'Produto' }}"
                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
 
                     {{-- Badge de Status da Negociação --}}
@@ -121,11 +123,11 @@
                     {{-- Produto e Fornecedor --}}
                     <div class="mb-4 text-left">
                         <h2 class="text-xl font-bold text-gray-800 text-left">
-                            {{ $oferta->produto->nome }}
+                            {{ $produto->nome ?? 'Produto' }}
                         </h2>
                         <p class="text-sm text-gray-500 mt-1 text-left flex items-center gap-1">
                             <span class="material-symbols-outlined text-base">store</span>
-                            Fornecedor: <strong>{{ $oferta->fornecedor->nome }}</strong>
+                            Fornecedor: <strong>{{ $fornecedor->nome ?? 'Copav' }}</strong>
                         </p>
                     </div>
 
@@ -137,10 +139,10 @@
                             </p>
                             <p class="text-2xl font-bold text-[#236350]">
                                 R$ {{ number_format($ultimaProposta->valor, 2, ',', '.') }}
-                                <span class="text-xs text-gray-500 font-normal">/ {{ $oferta->unidade }}</span>
+                                <span class="text-xs text-gray-500 font-normal">/ {{ $unidade }}</span>
                             </p>
                             <p class="text-xs text-gray-600 mt-1">
-                                Qtd. proposta: <strong>{{ number_format($ultimaProposta->quantidade ?? 0, 0, ',', '.') }} {{ $oferta->unidade }}</strong>
+                                Qtd. proposta: <strong>{{ number_format($ultimaProposta->quantidade ?? 0, 0, ',', '.') }} {{ $unidade }}</strong>
                             </p>
                         </div>
                     @endif
@@ -149,7 +151,7 @@
                     <div>
                         @php
                             if ($compraAprovada) {
-                                $rotaBotao = route('compras.encomenda', $negociacao); // Ajuste para a sua rota de acompanhar encomenda
+                                $rotaBotao = route('compras.encomenda', $negociacao);
                                 $textoBotao = 'Acompanhar encomenda';
                                 $iconeBotao = 'local_shipping';
                             } elseif ($minhaPropostaAceita) {
@@ -169,11 +171,11 @@
                             class="btn-copav flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors"
                         >
                             <span class="material-symbols-outlined text-lg icone-botao-compra">
-                                {{ $compraAprovada ? 'local_shipping' : ($minhaPropostaAceita ? 'payments' : 'library_books') }}
+                                {{ $iconeBotao }}
                             </span>
 
                             <span class="texto-botao-compra">
-                                {{ $compraAprovada ? 'Acompanhar encomenda' : ($minhaPropostaAceita ? 'Seguir para o pagamento' : 'Ver Negociação') }}
+                                {{ $textoBotao }}
                             </span>
                         </a>
                     </div>
@@ -195,7 +197,6 @@
             <p class="text-sm text-gray-500 mt-1">
                 Você ainda não enviou propostas para ofertas. Explore os lotes disponíveis para iniciar uma negociação!
             </p>
-            {{-- Trocar rota depois --}}
             <a href="{{ route('ofertas.index') }}" class="btn-copav inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold mt-4 text-sm">
                 Explorar Lotes
             </a>
@@ -215,6 +216,8 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
 
+    const rotaEncomendaTemplate = @json(route('compras.encomenda', ['negociacao' => '__ID__']));
+
     document.querySelectorAll('[data-negociacao-id]').forEach(function (card) {
         const negociacaoId = Number(card.dataset.negociacaoId);
 
@@ -224,13 +227,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 const status = document.getElementById(`status-compra-${negociacaoId}`);
                 const botao = document.getElementById(`botao-compra-${negociacaoId}`);
 
-                // Atualiza a borda do card para Azul (sky-600)
-                card.classList.remove('border-amber-500', 'border-emerald-600');
-                card.classList.add('border-sky-600');
+                card.classList.remove('border-amber-400', 'border-amber-500', 'border-emerald-600');
+                card.classList.add('border-sky-500');
 
                 if (status) {
                     status.classList.remove('bg-amber-500', 'bg-emerald-600');
-                    status.classList.add('bg-sky-600'); // Mantém o badge azul conforme o seu exemplo
+                    status.classList.add('bg-sky-600');
 
                     const icone = status.querySelector('.material-symbols-outlined');
                     const texto = status.querySelector('.texto-status-compra');
@@ -243,7 +245,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     const textoBotao = botao.querySelector('.texto-botao-compra');
                     const iconeBotao = botao.querySelector('.icone-botao-compra');
 
-                    botao.href = `/compras/${negociacaoId}/encomenda`;
+                    botao.href = rotaEncomendaTemplate.replace('__ID__', negociacaoId);
 
                     if (textoBotao) textoBotao.textContent = 'Acompanhar encomenda';
                     if (iconeBotao) iconeBotao.textContent = 'local_shipping';

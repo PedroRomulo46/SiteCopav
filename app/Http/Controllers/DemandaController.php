@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Demanda;
 use App\Models\Categoria;
+use App\Models\Demanda;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -18,6 +18,8 @@ class DemandaController extends Controller
 
     public function create()
     {
+        abort_unless(auth()->user()?->podeGerenciarDemandas(), 403, 'Ação não autorizada.');
+
         $categorias = Categoria::all();
 
         return view('demandas.create', compact('categorias'));
@@ -25,35 +27,35 @@ class DemandaController extends Controller
 
     public function store(Request $request)
     {
-    $dados = $request->validate([
-        'categoria_id' => 'required|exists:categorias,id',
-        'nome_produto' => 'required|string|max:255',
-        'descricao'    => 'nullable|string',
-        'quantidade'   => 'required|numeric|min:0',
-        'unidade'      => 'required|string|max:50',
-        'valor_maximo' => 'nullable|numeric|min:0',
-        'localizacao'  => 'nullable|string|max:255',
-        'data_limite'  => 'nullable|date',
-        'imagem'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-    ]);
+        abort_unless(auth()->user()?->podeGerenciarDemandas(), 403, 'Ação não autorizada.');
 
-    // Vincula a demanda ao usuário logado
-    $dados['cliente_id'] = auth()->id();
-    $dados['user_id']    = auth()->id();
-    $dados['status']     = 'aberta';
+        $dados = $request->validate([
+            'categoria_id' => 'required|exists:categorias,id',
+            'nome_produto' => 'required|string|max:255',
+            'descricao'    => 'nullable|string',
+            'quantidade'   => 'required|numeric|min:0',
+            'unidade'      => 'required|string|max:50',
+            'valor_maximo' => 'nullable|numeric|min:0',
+            'localizacao'  => 'nullable|string|max:255',
+            'data_limite'  => 'nullable|date',
+            'imagem'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+        ]);
 
-    // Salva a imagem
-    if ($request->hasFile('imagem')) {
-        $dados['imagem'] = $request
-            ->file('imagem')
-            ->store('demandas', 'public');
-    }
+        // Vincula a demanda ao usuário logado pelo cliente_id
+        $dados['cliente_id'] = auth()->id();
+        $dados['status']     = 'aberta';
 
-    Demanda::create($dados);
+        if ($request->hasFile('imagem')) {
+            $dados['imagem'] = $request
+                ->file('imagem')
+                ->store('demandas', 'public');
+        }
 
-    return redirect()
-        ->route('demandas.index')
-        ->with('sucesso', 'Demanda da empresa publicada com sucesso!');
+        Demanda::create($dados);
+
+        return redirect()
+            ->route('demandas.index')
+            ->with('sucesso', 'Demanda da empresa publicada com sucesso!');
     }
 
     public function show(Demanda $demanda)
@@ -67,8 +69,12 @@ class DemandaController extends Controller
     {
         $usuario = auth()->user();
 
-        // Permite se for o criador ou se for Admin/Empresa
-        if ($usuario->id !== $demanda->cliente_id && !$usuario->is_admin && $usuario->user_type !== 'admin') {
+        $donoOuAdmin = $usuario !== null && (
+            $usuario->isAdmin()
+            || (int) $usuario->id === (int) $demanda->cliente_id
+        );
+
+        if (! $donoOuAdmin) {
             abort(403, 'Ação não autorizada.');
         }
 
@@ -81,7 +87,12 @@ class DemandaController extends Controller
     {
         $usuario = auth()->user();
 
-        if ($usuario->id !== $demanda->cliente_id && !$usuario->is_admin && $usuario->user_type !== 'admin') {
+        $donoOuAdmin = $usuario !== null && (
+            $usuario->isAdmin()
+            || (int) $usuario->id === (int) $demanda->cliente_id
+        );
+
+        if (! $donoOuAdmin) {
             abort(403, 'Ação não autorizada.');
         }
 
@@ -95,7 +106,18 @@ class DemandaController extends Controller
             'localizacao'  => 'nullable|string|max:255',
             'data_limite'  => 'nullable|date',
             'status'       => 'required|in:aberta,encerrada,cancelada',
+            'imagem'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
+
+        if ($request->hasFile('imagem')) {
+            if ($demanda->imagem && ! str_contains($demanda->imagem, 'assets/')) {
+                Storage::disk('public')->delete(ltrim(str_replace('public/', '', $demanda->imagem), '/'));
+            }
+
+            $dados['imagem'] = $request
+                ->file('imagem')
+                ->store('demandas', 'public');
+        }
 
         $demanda->update($dados);
 
@@ -108,8 +130,17 @@ class DemandaController extends Controller
     {
         $usuario = auth()->user();
 
-        if ($usuario->id !== $demanda->cliente_id && !$usuario->is_admin && $usuario->user_type !== 'admin') {
+        $donoOuAdmin = $usuario !== null && (
+            $usuario->isAdmin()
+            || (int) $usuario->id === (int) $demanda->cliente_id
+        );
+
+        if (! $donoOuAdmin) {
             abort(403, 'Ação não autorizada.');
+        }
+
+        if ($demanda->imagem && ! str_contains($demanda->imagem, 'assets/')) {
+            Storage::disk('public')->delete(ltrim(str_replace('public/', '', $demanda->imagem), '/'));
         }
 
         $demanda->delete();

@@ -2,197 +2,217 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use App\Models\Categoria;
+use App\Models\Cliente;
 use App\Models\Fornecedor;
-use App\Models\Produto;
 use App\Models\Oferta;
+use App\Models\Produto;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Cria Usuário principal da Empresa (Admin / Cooperativa)
-        $user = User::factory()->create([
-            'nome'      => 'Copav Admin',
-            'email'     => 'empresa@teste.com',
-            'password'  => Hash::make('12345678'), // Senha definida para Login
-            'user_type' => 'admin',
-            'is_admin'  => true,
+        $senhaPadrao = Hash::make('12345678');
+
+        // 1. Cria ou atualiza o Usuário Admin
+        $admin = User::firstOrNew([
+            'email' => 'admin@teste.com',
         ]);
 
-        // 1.1. Cria Perfil de Fornecedor vinculado ao Admin
-        $fornecedorCopav = Fornecedor::create([
-            'nome'      => 'Cooperativa Agrícola COPAV',
-            'user_id'   => $user->id,
-            'status'    => 'ativo',
-            'documento' => '12.345.678/0001-90',
-            'telefone'  => '(88) 99999-9999',
-            'endereco'  => 'Zona Rural, S/N',
-            'cidade'    => 'Icapuí',
-            'estado'    => 'CE',
+        $admin->forceFill([
+            'nome'              => 'Administrador',
+            'password'          => $admin->exists && $admin->password ? $admin->password : $senhaPadrao,
+            'user_type'         => 'admin',
+            'is_admin'          => true,
+            'email_verified_at' => $admin->email_verified_at ?? now(),
+        ])->save();
+
+        // 2. Cria ou atualiza o Usuário e o Fornecedor com nome "Empresa"
+        $usuarioEmpresa = User::firstOrNew([
+            'email' => 'empresa@teste.com',
         ]);
 
-        // 2. Cria Categorias individuais
-        $catGraos      = Categoria::create(['nome' => 'Grãos e Cereais']);
-        $catFrutas     = Categoria::create(['nome' => 'Frutas e Hortaliças']);
-        $catAdubos     = Categoria::create(['nome' => 'Adubos e Substratos']);
-        $catMaquinario = Categoria::create(['nome' => 'Maquinários']);
+        $usuarioEmpresa->forceFill([
+            'nome'              => 'Empresa',
+            'password'          => $usuarioEmpresa->exists && $usuarioEmpresa->password ? $usuarioEmpresa->password : $senhaPadrao,
+            'user_type'         => 'fornecedor',
+            'is_admin'          => false,
+            'email_verified_at' => $usuarioEmpresa->email_verified_at ?? now(),
+        ])->save();
 
-        // 3. Cria Produtos vinculados às suas respectivas categorias
-        $p1 = Produto::create([
-            'nome'          => 'Milho Verde',
-            'descricao'     => 'Milho de alta qualidade para consumo e ração.',
-            'unidade'       => 'Saca (60kg)',
-            'categoria_id'  => $catGraos->id,
-            'fornecedor_id' => $fornecedorCopav->id,
-            'imagem'        => 'assets/milho.png',
-        ]);
+        $fornecedorEmpresa = Fornecedor::updateOrCreate(
+            ['documento' => '12.345.678/0001-90'],
+            [
+                'nome'     => 'Empresa',
+                'user_id'  => $usuarioEmpresa->id,
+                'status'   => 'ativo',
+                'telefone' => '(88) 99999-9999',
+                'endereco' => 'Zona Rural, S/N',
+                'cidade'   => 'Icapuí',
+                'estado'   => 'CE',
+            ]
+        );
 
-        $p2 = Produto::create([
-            'nome'          => 'Café Arábica',
-            'descricao'     => 'Café especial ensacado e pronto para transporte.',
-            'unidade'       => 'Saca (60kg)',
-            'categoria_id'  => $catGraos->id,
-            'fornecedor_id' => $fornecedorCopav->id,
-            'imagem'        => 'assets/cafe.png',
-        ]);
-
-        $p3 = Produto::create([
-            'nome'          => 'Maçãs Verdes',
-            'descricao'     => 'Maçãs suculentas da fazenda.',
-            'unidade'       => 'Saca (60kg)',
-            'categoria_id'  => $catFrutas->id,
-            'fornecedor_id' => $fornecedorCopav->id,
-            'imagem'        => 'assets/maca.png',
+        // 3. Cria ou atualiza o Cliente comum
+        $usuarioCliente = User::firstOrNew([
+            'email' => 'cliente@teste.com',
         ]);
 
-        $p4 = Produto::create([
-            'nome'          => 'Nutriente de solo',
-            'descricao'     => 'Nutriente especializado para produção de folhas e floração.',
-            'unidade'       => 'Saca (60kg)',
-            'categoria_id'  => $catAdubos->id,
-            'fornecedor_id' => $fornecedorCopav->id,
-            'imagem'        => 'assets/nutriente.png',
-        ]);
+        $usuarioCliente->forceFill([
+            'nome'              => 'Cliente Comum',
+            'password'          => $usuarioCliente->exists && $usuarioCliente->password ? $usuarioCliente->password : $senhaPadrao,
+            'user_type'         => 'cliente',
+            'is_admin'          => false,
+            'email_verified_at' => $usuarioCliente->email_verified_at ?? now(),
+        ])->save();
 
-        $p5 = Produto::create([
-            'nome'          => 'Trator John Deere Séries 3036EN',
-            'descricao'     => 'Trator compacto destinado a cultura de café, horticultura e fruticultura (3 cilindros, 1.6 Diesel).',
-            'unidade'       => '1200 (Kg)',
-            'categoria_id'  => $catMaquinario->id,
-            'fornecedor_id' => $fornecedorCopav->id,
-            'imagem'        => 'assets/trator.jpg',
-        ]);
+        if (class_exists(Cliente::class) && Schema::hasTable('clientes')) {
+            $clienteAttributes = ['nome' => 'Cliente Comum'];
 
-        $p6 = Produto::create([
-            'nome'          => 'Tomates Frescos',
-            'descricao'     => 'Tomates recem colhidos, muito frescos.',
-            'unidade'       => '80 (Kg)',
-            'categoria_id'  => $catFrutas->id,
-            'fornecedor_id' => $fornecedorCopav->id,
-            'imagem'        => 'assets/tomate.png',
-        ]);
+            if (Schema::hasColumn('clientes', 'user_id')) {
+                $clienteAttributes['user_id'] = $usuarioCliente->id;
+            }
+            if (Schema::hasColumn('clientes', 'email')) {
+                $clienteAttributes['email'] = $usuarioCliente->email;
+            }
+            if (Schema::hasColumn('clientes', 'status')) {
+                $clienteAttributes['status'] = 'ativo';
+            }
 
-        $p7 = Produto::create([
-            'nome'          => 'Feijões da Fazenda Belém',
-            'descricao'     => 'Feijões bonitos e plantados na lendária fazenda belém.',
-            'unidade'       => '120 (Kg)',
-            'categoria_id'  => $catGraos->id,
-            'fornecedor_id' => $fornecedorCopav->id,
-            'imagem'        => 'assets/feijao.png',
-        ]);
+            $lookupCliente = Schema::hasColumn('clientes', 'user_id')
+                ? ['user_id' => $usuarioCliente->id]
+                : (Schema::hasColumn('clientes', 'email')
+                    ? ['email' => $usuarioCliente->email]
+                    : ['nome' => 'Cliente Comum']);
 
-        $p8 = Produto::create([
-            'nome'          => 'Drone Agricola',
-            'descricao'     => 'Drone especializado para pulverização.',
-            'unidade'       => '25 (Kg)',
-            'categoria_id'  => $catMaquinario->id,
-            'fornecedor_id' => $fornecedorCopav->id,
-            'imagem'        => 'assets/drone.png',
-        ]);
-        
-        // 4. Cria Ofertas públicas
-        Oferta::create([
-            'produto_id'    => $p1->id,
-            'fornecedor_id' => $fornecedorCopav->id,
-            'quantidade'    => 100,
-            'valor'         => 85.50,
-            'unidade'       => 'Sacas',
-            'status'        => 'publicada',
-            'data_validade' => now()->addDays(15),
-        ]);
+            Cliente::updateOrCreate($lookupCliente, $clienteAttributes);
+        }
 
-        Oferta::create([
-            'produto_id'    => $p2->id,
-            'fornecedor_id' => $fornecedorCopav->id,
-            'quantidade'    => 50,
-            'valor'         => 199.99,
-            'unidade'       => 'Sacas',
-            'status'        => 'publicada',
-            'data_validade' => now()->addDays(30),
-        ]);
+        // 4. Cria Categorias
+        $catGraos      = Categoria::firstOrCreate(['nome' => 'Grãos e Cereais']);
+        $catFrutas     = Categoria::firstOrCreate(['nome' => 'Frutas e Hortaliças']);
+        $catAdubos     = Categoria::firstOrCreate(['nome' => 'Adubos e Substratos']);
+        $catMaquinario = Categoria::firstOrCreate(['nome' => 'Maquinários']);
 
-        Oferta::create([
-            'produto_id'    => $p3->id,
-            'fornecedor_id' => $fornecedorCopav->id,
-            'quantidade'    => 50,
-            'valor'         => 45.70,
-            'unidade'       => 'Sacas',
-            'status'        => 'publicada',
-            'data_validade' => now()->addDays(30),
-        ]);
+        // 5. Cria Produtos vinculados ao fornecedor "Empresa"
+        $p1 = Produto::firstOrCreate(
+            ['nome' => 'Milho Verde', 'fornecedor_id' => $fornecedorEmpresa->id],
+            [
+                'descricao'    => 'Milho de alta qualidade para consumo e ração.',
+                'unidade'      => 'Saca (60kg)',
+                'categoria_id' => $catGraos->id,
+                'imagem'       => 'assets/milho.png',
+            ]
+        );
 
-        Oferta::create([
-            'produto_id'    => $p4->id,
-            'fornecedor_id' => $fornecedorCopav->id,
-            'quantidade'    => 50,
-            'valor'         => 60.00,
-            'unidade'       => 'Sacas',
-            'status'        => 'publicada',
-            'data_validade' => now()->addDays(30),
-        ]);
+        $p2 = Produto::firstOrCreate(
+            ['nome' => 'Café Arábica', 'fornecedor_id' => $fornecedorEmpresa->id],
+            [
+                'descricao'    => 'Café especial ensacado e pronto para transporte.',
+                'unidade'      => 'Saca (60kg)',
+                'categoria_id' => $catGraos->id,
+                'imagem'       => 'assets/cafe.png',
+            ]
+        );
 
-        Oferta::create([
-            'produto_id'    => $p5->id,
-            'fornecedor_id' => $fornecedorCopav->id,
-            'quantidade'    => 1,
-            'valor'         => 145000.00,
-            'unidade'       => 'S/Unidade',
-            'status'        => 'publicada',
-            'data_validade' => now()->addDays(30),
-        ]);
+        $p3 = Produto::firstOrCreate(
+            ['nome' => 'Maçãs Verdes', 'fornecedor_id' => $fornecedorEmpresa->id],
+            [
+                'descricao'    => 'Maçãs suculentas da fazenda.',
+                'unidade'      => 'Saca (60kg)',
+                'categoria_id' => $catFrutas->id,
+                'imagem'       => 'assets/maca.png',
+            ]
+        );
 
-        Oferta::create([
-            'produto_id'    => $p6->id,
-            'fornecedor_id' => $fornecedorCopav->id,
-            'quantidade'    => 50,
-            'valor'         => 800.00,
-            'unidade'       => 'Sacas',
-            'status'        => 'publicada',
-            'data_validade' => now()->addDays(30),
-        ]);
+        $p4 = Produto::firstOrCreate(
+            ['nome' => 'Nutriente de solo', 'fornecedor_id' => $fornecedorEmpresa->id],
+            [
+                'descricao'    => 'Nutriente especializado para produção de folhas e floração.',
+                'unidade'      => 'Saca (60kg)',
+                'categoria_id' => $catAdubos->id,
+                'imagem'       => 'assets/nutriente.png',
+            ]
+        );
 
-        Oferta::create([
-            'produto_id'    => $p7->id,
-            'fornecedor_id' => $fornecedorCopav->id,
-            'quantidade'    => 120,
-            'valor'         => 620.00,
-            'unidade'       => 'Sacas',
-            'status'        => 'publicada',
-            'data_validade' => now()->addDays(30),
-        ]);
+        $p5 = Produto::firstOrCreate(
+            ['nome' => 'Trator John Deere Séries 3036EN', 'fornecedor_id' => $fornecedorEmpresa->id],
+            [
+                'descricao'    => 'Trator compacto destinado a cultura de café, horticultura e fruticultura (3 cilindros, 1.6 Diesel).',
+                'unidade'      => '1200 (Kg)',
+                'categoria_id' => $catMaquinario->id,
+                'imagem'       => 'assets/trator.jpg',
+            ]
+        );
 
-        Oferta::create([
-            'produto_id'    => $p8->id,
-            'fornecedor_id' => $fornecedorCopav->id,
-            'quantidade'    => 1,
-            'valor'         => 120000.00,
-            'unidade'       => 'Sacas',
-            'status'        => 'publicada',
-            'data_validade' => now()->addDays(30),
-        ]);
+        $p6 = Produto::firstOrCreate(
+            ['nome' => 'Tomates Frescos', 'fornecedor_id' => $fornecedorEmpresa->id],
+            [
+                'descricao'    => 'Tomates recem colhidos, muito frescos.',
+                'unidade'      => '80 (Kg)',
+                'categoria_id' => $catFrutas->id,
+                'imagem'       => 'assets/tomate.png',
+            ]
+        );
+
+        $p7 = Produto::firstOrCreate(
+            ['nome' => 'Feijões da Fazenda Belém', 'fornecedor_id' => $fornecedorEmpresa->id],
+            [
+                'descricao'    => 'Feijões bonitos e plantados na lendária fazenda belém.',
+                'unidade'      => '120 (Kg)',
+                'categoria_id' => $catGraos->id,
+                'imagem'       => 'assets/feijao.png',
+            ]
+        );
+
+        $p8 = Produto::firstOrCreate(
+            ['nome' => 'Drone Agricola', 'fornecedor_id' => $fornecedorEmpresa->id],
+            [
+                'descricao'    => 'Drone especializado para pulverização.',
+                'unidade'      => '25 (Kg)',
+                'categoria_id' => $catMaquinario->id,
+                'imagem'       => 'assets/drone.png',
+            ]
+        );
+
+        // 6. Cria Ofertas como se o fornecedor "Empresa" tivesse criado
+        $ofertas = [
+            ['produto' => $p1, 'quantidade' => 100, 'valor' => 85.50,     'unidade' => 'Sacas',     'dias' => 15],
+            ['produto' => $p2, 'quantidade' => 50,  'valor' => 199.99,    'unidade' => 'Sacas',     'dias' => 30],
+            ['produto' => $p3, 'quantidade' => 50,  'valor' => 45.70,     'unidade' => 'Sacas',     'dias' => 30],
+            ['produto' => $p4, 'quantidade' => 50,  'valor' => 60.00,     'unidade' => 'Sacas',     'dias' => 30],
+            ['produto' => $p5, 'quantidade' => 1,   'valor' => 145000.00, 'unidade' => 'S/Unidade', 'dias' => 30],
+            ['produto' => $p6, 'quantidade' => 50,  'valor' => 800.00,    'unidade' => 'Sacas',     'dias' => 30],
+            ['produto' => $p7, 'quantidade' => 120, 'valor' => 620.00,    'unidade' => 'Sacas',     'dias' => 30],
+            ['produto' => $p8, 'quantidade' => 1,   'valor' => 120000.00, 'unidade' => 'Sacas',     'dias' => 30],
+        ];
+
+        $temUserIdEmOfertas = Schema::hasTable('ofertas') && Schema::hasColumn('ofertas', 'user_id');
+
+        foreach ($ofertas as $item) {
+            $dadosOferta = [
+                'quantidade'    => $item['quantidade'],
+                'valor'         => $item['valor'],
+                'unidade'       => $item['unidade'],
+                'data_validade' => now()->addDays($item['dias']),
+            ];
+
+            if ($temUserIdEmOfertas) {
+                $dadosOferta['user_id'] = $usuarioEmpresa->id;
+            }
+
+            Oferta::firstOrCreate(
+                [
+                    'produto_id'    => $item['produto']->id,
+                    'fornecedor_id' => $fornecedorEmpresa->id,
+                    'status'        => 'publicada',
+                ],
+                $dadosOferta
+            );
+        }
     }
 }

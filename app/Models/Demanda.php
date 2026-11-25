@@ -8,6 +8,7 @@ class Demanda extends Model
 {
     protected $fillable = [
         'cliente_id',
+        'user_id',
         'categoria_id',
         'nome_produto',
         'descricao',
@@ -21,14 +22,19 @@ class Demanda extends Model
     ];
 
     protected $casts = [
-        'quantidade' => 'decimal:2',
+        'quantidade'   => 'decimal:2',
         'valor_maximo' => 'decimal:2',
-        'data_limite' => 'date',
+        'data_limite'  => 'date',
     ];
 
     public function cliente()
     {
         return $this->belongsTo(User::class, 'cliente_id');
+    }
+
+    public function usuario()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function categoria()

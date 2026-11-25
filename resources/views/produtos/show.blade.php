@@ -1,22 +1,39 @@
 @extends('layouts.layout')
 
-@section('title', $produto->nome)
+@section('title', $produto->nome ?? 'Produto')
 
 @section('conteudo')
+
+@php
+    $usuarioLogado = auth()->user();
+    $fornecedorDoUsuario = $usuarioLogado?->fornecedor;
+    $isAdmin = $usuarioLogado !== null && $usuarioLogado->isAdmin();
+
+    $podeEditarProduto = $usuarioLogado !== null && (
+        $isAdmin ||
+        ($fornecedorDoUsuario && (int) $fornecedorDoUsuario->id === (int) ($produto->fornecedor_id ?? 0))
+    );
+
+    $imagemProduto = $produto->imagem
+        ? (str_contains($produto->imagem, 'assets/')
+            ? asset($produto->imagem)
+            : asset('storage/' . ltrim(str_replace('public/', '', $produto->imagem), '/')))
+        : asset('assets/milho.png');
+@endphp
 
 {{-- Breadcrumbs com setas garantidas via ícone --}}
 <nav class="flex items-center text-sm mb-6 text-gray-600" aria-label="Breadcrumb">
     <ol class="inline-flex items-center space-x-2">
 
         {{-- Item 1: Início --}}
-        <li>
-            <a href="{{route('home')}}">
+        <li class="flex items-center">
+            <a href="{{ route('home') }}" class="hover:text-[#1B4D3E]">
                 Início
             </a>
         </li>
 
-        {{-- Item 2: Pégina Atual --}}
-        <li class="flex items-center space-x-2 hover:cursor-pointer">
+        {{-- Item 2: Página Atual --}}
+        <li class="flex items-center space-x-2">
             <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
             <span class="font-semibold text-gray-800">
                 @yield('title')
@@ -25,18 +42,14 @@
     </ol>
 </nav>
 
-<div class="max-w-5xl mx-auto my-6">
+<div class="max-w-5xl mx-auto my-6 text-left">
     <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
         <div class="grid grid-cols-1 md:grid-cols-2">
 
             {{-- Imagem --}}
-            <div class="bg-gray-100 min-h-350px]">
+            <div class="bg-gray-100 min-h-350px overflow-hidden">
                 <img
-                    src="{{ $produto->imagem 
-                        ? (str_contains($produto->imagem, 'assets/') 
-                            ? asset($produto->imagem) 
-                            : asset('storage/' . str_replace('public/', '', $produto->imagem))) 
-                        : asset('assets/milho.png') }}"
+                    src="{{ $imagemProduto }}"
                     alt="{{ $produto->nome ?? 'Imagem do produto' }}"
                     class="w-full h-full min-h-350px object-cover"
                     onerror="this.onerror=null; this.src='{{ asset('assets/milho.png') }}';"
@@ -49,13 +62,13 @@
                 {{-- Categoria --}}
                 <div class="mb-3">
                     <span class="inline-block text-xs font-semibold text-[#236350] bg-green-50 px-3 py-1 rounded-full">
-                        {{ $produto->categoria->nome ?? 'Sem categoria' }}
+                        {{ $produto->categoria?->nome ?? 'Sem categoria' }}
                     </span>
                 </div>
 
                 {{-- Nome --}}
                 <h1 class="text-3xl font-bold text-gray-800">
-                    {{ $produto->nome }}
+                    {{ $produto->nome ?? 'Produto sem nome' }}
                 </h1>
 
                 {{-- Descrição --}}
@@ -75,48 +88,36 @@
                             Unidade
                         </span>
                         <span class="font-semibold text-gray-800">
-                            {{ $produto->unidade }}
+                            {{ $produto->unidade ?? '—' }}
                         </span>
                     </div>
 
-                    <div class="flex justify-between items-center">
-
+                    <div class="flex justify-between items-center gap-2">
                         <span class="text-gray-500">
                             Fornecedor
                         </span>
-
-                        <span class="font-semibold text-gray-800">
-                            {{ $produto->fornecedor->nome ?? 'Não informado' }}
+                        <span class="font-semibold text-gray-800 text-right">
+                            {{ $produto->fornecedor?->nome ?? 'Não informado' }}
                         </span>
-
                     </div>
                 </div>
 
                 {{-- Botões --}}
                 <div class="flex gap-3 mt-auto pt-8">
 
-                    @auth
-                        @if(
-                            auth()->user()->user_type === 'admin' ||
-                            (
-                                auth()->user()->fornecedor &&
-                                auth()->user()->fornecedor->id === $produto->fornecedor_id
-                            )
-                        )
-
-                            <a
-                                href="{{ route('produtos.edit', $produto) }}"
-                                class="flex-1 text-center border border-gray-300 text-gray-700 hover:bg-gray-100 px-4 py-2.5 rounded-md transition-colors">
-                                Editar produto
-                            </a>
-
-                        @endif
-
-                    @endauth
+                    @if($podeEditarProduto)
+                        <a
+                            href="{{ route('produtos.edit', $produto) }}"
+                            class="flex-1 inline-flex items-center justify-center gap-1.5 text-center border border-gray-300 text-gray-700 hover:bg-gray-100 px-4 py-2.5 rounded-md text-sm font-semibold transition-colors">
+                            <span class="material-symbols-outlined text-lg">edit</span>
+                            Editar produto
+                        </a>
+                    @endif
 
                     <a
                         href="{{ route('home') }}"
-                        class="flex-1 text-center btn-copav text-white px-4 py-2.5 rounded-md transition-colors">
+                        class="btn-copav flex-1 inline-flex items-center justify-center gap-1.5 text-center text-white px-4 py-2.5 rounded-md text-sm font-semibold transition-opacity hover:opacity-90">
+                        <span class="material-symbols-outlined text-lg">arrow_back</span>
                         Voltar para o início
                     </a>
                 </div>
@@ -138,13 +139,13 @@
 
                     <a
                         href="{{ route('ofertas.show', $oferta) }}"
-                        class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 hover:shadow-md transition-shadow">
+                        class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 hover:shadow-md transition-shadow block">
 
                         <div class="flex justify-between items-start gap-3">
 
                             <div>
                                 <p class="font-bold text-gray-800">
-                                    {{ $oferta->quantidade }} {{ $oferta->unidade }}
+                                    {{ $oferta->quantidade }} {{ $oferta->unidade ?? ($produto->unidade ?? '') }}
                                 </p>
 
                                 <p class="text-sm text-gray-500 mt-1">
@@ -152,15 +153,15 @@
                                 </p>
                             </div>
 
-                            <span class="font-bold text-[#79A961]">
-                                R$ {{ number_format($oferta->valor, 2, ',', '.') }}
+                            <span class="font-bold text-[#236350] shrink-0">
+                                R$ {{ number_format((float) ($oferta->valor ?? 0), 2, ',', '.') }}
                             </span>
                         </div>
 
                         <div class="mt-3 text-xs text-gray-500">
                             Status:
-                            <span class="font-semibold">
-                                {{ ucfirst($oferta->status) }}
+                            <span class="font-semibold text-gray-700">
+                                {{ ucfirst((string) ($oferta->status ?? 'indefinido')) }}
                             </span>
                         </div>
                     </a>

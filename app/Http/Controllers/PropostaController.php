@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Chat;
 use App\Models\Negociacao;
+use App\Models\Oferta;
 use App\Models\Proposta;
 use Illuminate\Http\Request;
 use App\Events\PropostaCriada;
@@ -17,7 +18,7 @@ class PropostaController extends Controller
         $negociacao->load([
             'oferta.produto',
             'oferta.fornecedor',
-            'cliente'
+            'cliente',
         ]);
 
         $usuario = auth()->user();
@@ -25,7 +26,7 @@ class PropostaController extends Controller
         // O dono da oferta não pode fazer proposta na própria oferta
         if (
             $negociacao->oferta->fornecedor &&
-            $negociacao->oferta->fornecedor->user_id === $usuario->id
+            (int) $negociacao->oferta->fornecedor->user_id === (int) $usuario->id
         ) {
             abort(403);
         }
@@ -37,13 +38,13 @@ class PropostaController extends Controller
     {
         $dados = $request->validate([
             'negociacao_id' => 'required|exists:negociacoes,id',
-            'valor' => 'required|numeric|min:0',
-            'quantidade' => 'required|numeric|min:0.01',
-            'observacao' => 'nullable|string',
+            'valor'         => 'required|numeric|min:0',
+            'quantidade'    => 'required|numeric|min:0.01',
+            'observacao'    => 'nullable|string',
         ]);
 
         $negociacao = Negociacao::with([
-            'oferta.fornecedor'
+            'oferta.fornecedor',
         ])->findOrFail($dados['negociacao_id']);
 
         $usuario = $request->user();
@@ -51,13 +52,13 @@ class PropostaController extends Controller
         // Dono da oferta não pode fazer proposta
         if (
             $negociacao->oferta->fornecedor &&
-            $negociacao->oferta->fornecedor->user_id === $usuario->id
+            (int) $negociacao->oferta->fornecedor->user_id === (int) $usuario->id
         ) {
             abort(403);
         }
 
         // Garante que o usuário realmente participa da negociação
-        if ($negociacao->cliente_id !== $usuario->id) {
+        if ((int) $negociacao->cliente_id !== (int) $usuario->id) {
             abort(403);
         }
 
@@ -79,7 +80,6 @@ class PropostaController extends Controller
             ->with('sucesso', 'Proposta enviada com sucesso!');
     }
 
-    
     public function aceitar(Proposta $proposta)
     {
         $proposta->load('negociacao.oferta.fornecedor');
@@ -88,14 +88,11 @@ class PropostaController extends Controller
         $negociacao = $proposta->negociacao;
         $oferta = $negociacao->oferta;
 
-        // Somente o fornecedor responsável pela oferta ou um admin pode aceitar.
-        if (
-            $usuario->user_type !== 'admin' &&
-            (
-                !$oferta->fornecedor ||
-                (int) $oferta->fornecedor->user_id !== (int) $usuario->id
-            )
-        ) {
+        $isAdmin = $usuario?->isAdmin() ?? false;
+        $isDonoDaOferta = $oferta->fornecedor
+            && (int) $oferta->fornecedor->user_id === (int) $usuario->id;
+
+        if (! $isAdmin && ! $isDonoDaOferta) {
             abort(403);
         }
 
@@ -106,11 +103,8 @@ class PropostaController extends Controller
             );
         }
 
-        // A transação e o bloqueio da oferta evitam aceitar propostas
-        // simultaneamente ultrapassando a quantidade disponível.
         $resultado = DB::transaction(function () use ($proposta, $negociacao) {
-
-            $ofertaBloqueada = \App\Models\Oferta::whereKey(
+            $ofertaBloqueada = Oferta::whereKey(
                 $negociacao->oferta_id
             )->lockForUpdate()->firstOrFail();
 
@@ -120,13 +114,11 @@ class PropostaController extends Controller
 
             if ($propostaAtual->status !== 'pendente') {
                 return [
-                    'sucesso' => false,
-                    'mensagem' => 'Esta proposta já foi processada.'
+                    'sucesso'  => false,
+                    'mensagem' => 'Esta proposta já foi processada.',
                 ];
             }
 
-            // Soma todas as quantidades já aceitas em negociações
-            // relacionadas à mesma oferta.
             $quantidadeAceita = Proposta::where('status', 'aceita')
                 ->whereHas('negociacao', function ($query) use ($ofertaBloqueada) {
                     $query->where('oferta_id', $ofertaBloqueada->id);
@@ -142,38 +134,27 @@ class PropostaController extends Controller
                 (float) $propostaAtual->quantidade > $quantidadeDisponivel
             ) {
                 return [
-                    'sucesso' => false,
-                    'mensagem' => 'Quantidade insuficiente disponível para aceitar esta proposta.'
+                    'sucesso'  => false,
+                    'mensagem' => 'Quantidade insuficiente disponível para aceitar esta proposta.',
                 ];
             }
 
-            // Aceita a proposta.
             $propostaAtual->update([
-                'status' => 'aceita'
+                'status' => 'aceita',
             ]);
 
-            /*
-            * NOVA ESTRUTURA DE CHAT
-            *
-            * Cada cliente possui uma conversa única com cada fornecedor.
-            * Cada negociação aceita corresponde a um assunto nessa conversa.
-            */
-
-            // Cria ou reutiliza a conversa entre cliente e fornecedor.
             $chat = Chat::firstOrCreate([
-                'cliente_id' => $negociacao->cliente_id,
+                'cliente_id'    => $negociacao->cliente_id,
                 'fornecedor_id' => $ofertaBloqueada->fornecedor_id,
             ]);
 
-            // Verifica se a negociação já possui um assunto nessa conversa.
             $assunto = $chat->assuntos()
                 ->whereHas('negociacoes', function ($query) use ($negociacao) {
                     $query->where('negociacoes.id', $negociacao->id);
                 })
                 ->first();
 
-            // Cria o assunto somente se ainda não existir.
-            if (!$assunto) {
+            if (! $assunto) {
                 $assunto = $chat->assuntos()->create([
                     'titulo' => 'Negociação #' . $negociacao->id,
                 ]);
@@ -182,17 +163,16 @@ class PropostaController extends Controller
             }
 
             return [
-                'sucesso' => true,
-                'proposta_id' => $propostaAtual->id,
+                'sucesso'       => true,
+                'proposta_id'   => $propostaAtual->id,
                 'negociacao_id' => $propostaAtual->negociacao_id,
             ];
         });
 
-        if (!$resultado['sucesso']) {
+        if (! $resultado['sucesso']) {
             return back()->with('erro', $resultado['mensagem']);
         }
 
-        // Atualiza o status em tempo real.
         $propostaAtualizada = Proposta::findOrFail(
             $resultado['proposta_id']
         );
@@ -204,24 +184,22 @@ class PropostaController extends Controller
             ->with('sucesso', 'Proposta aceita e chat criado com sucesso!');
     }
 
-
     public function recusar(Proposta $proposta)
     {
         $proposta->load([
-            'negociacao.oferta.fornecedor'
+            'negociacao.oferta.fornecedor',
         ]);
 
         $usuario = auth()->user();
 
-        // Apenas o fornecedor pode recusar a proposta
-        if (
-            !$proposta->negociacao->oferta->fornecedor ||
-            $proposta->negociacao->oferta->fornecedor->user_id !== $usuario->id
-        ) {
+        $isAdmin = $usuario?->isAdmin() ?? false;
+        $isDonoDaOferta = $proposta->negociacao->oferta->fornecedor
+            && (int) $proposta->negociacao->oferta->fornecedor->user_id === (int) $usuario->id;
+
+        if (! $isAdmin && ! $isDonoDaOferta) {
             abort(403);
         }
 
-        // Só pode recusar uma proposta pendente
         if ($proposta->status !== 'pendente') {
             return back()->with(
                 'erro',
@@ -230,7 +208,7 @@ class PropostaController extends Controller
         }
 
         $proposta->update([
-            'status' => 'recusada'
+            'status' => 'recusada',
         ]);
 
         $proposta->refresh();
@@ -239,22 +217,17 @@ class PropostaController extends Controller
 
         return redirect()
             ->route('negociacoes.show', $proposta->negociacao)
-            ->with(
-                'sucesso',
-                'Proposta recusada.'
-            );      
+            ->with('sucesso', 'Proposta recusada.');
     }
-    
+
     public function cancelar(Proposta $proposta)
     {
         $proposta->load('negociacao');
 
-        // Somente o cliente que enviou a proposta pode cancelá-la.
         if ((int) $proposta->usuario_id !== (int) auth()->id()) {
             abort(403);
         }
 
-        // Só é possível cancelar uma proposta pendente.
         if ($proposta->status !== 'pendente') {
             return back()->with(
                 'erro',
@@ -268,54 +241,49 @@ class PropostaController extends Controller
 
         $proposta->refresh();
 
-        event(new \App\Events\PropostaAtualizada($proposta));
+        event(new PropostaAtualizada($proposta));
 
         return redirect()
             ->route('negociacoes.show', $proposta->negociacao)
             ->with('sucesso', 'Proposta cancelada com sucesso.');
     }
 
-
     public function visualizar(Proposta $proposta)
     {
         $proposta->load([
-            'negociacao.oferta.fornecedor'
+            'negociacao.oferta.fornecedor',
         ]);
 
         $usuario = auth()->user();
 
-        // Apenas o fornecedor dono da oferta ou um administrador
-        // pode visualizar a proposta dessa forma.
-        if ($usuario->user_type !== 'admin') {
+        if (! $usuario?->isAdmin()) {
             if (
-                !$usuario->fornecedor ||
-                !$proposta->negociacao->oferta->fornecedor ||
-                $proposta->negociacao->oferta->fornecedor->id !== $usuario->fornecedor->id
+                ! $usuario?->isFornecedor() ||
+                ! $proposta->negociacao->oferta->fornecedor ||
+                (int) $proposta->negociacao->oferta->fornecedor->id !== (int) $usuario->fornecedor->id
             ) {
                 abort(403);
             }
         }
 
-        // Marca a proposta como visualizada
-        if (!$proposta->visualizada_em) {
+        if (! $proposta->visualizada_em) {
             $proposta->update([
                 'visualizada_em' => now(),
             ]);
         }
 
-        // Entra na negociação daquela proposta
         return redirect()->route(
             'negociacoes.show',
             $proposta->negociacao_id
         );
-    } 
+    }
 
-    public function card(\App\Models\Proposta $proposta)
+    public function card(Proposta $proposta)
     {
         $proposta->load([
             'usuario',
             'negociacao.cliente',
-            'negociacao.oferta'
+            'negociacao.oferta',
         ]);
 
         $oferta = $proposta->negociacao->oferta;
@@ -325,5 +293,4 @@ class PropostaController extends Controller
             'oferta'
         ));
     }
-    
 }

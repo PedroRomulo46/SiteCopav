@@ -4,27 +4,35 @@
 
 @section('conteudo')
 
+@php
+    $imagemAtual = $produto->imagem
+        ? (str_contains($produto->imagem, 'assets/')
+            ? asset($produto->imagem)
+            : asset('storage/' . ltrim(str_replace('public/', '', $produto->imagem), '/')))
+        : asset('assets/milho.png');
+@endphp
+
 {{-- Breadcrumbs com setas garantidas via ícone --}}
 <nav class="flex items-center text-sm mb-6 text-gray-600" aria-label="Breadcrumb">
     <ol class="inline-flex items-center space-x-2">
 
         {{-- Item 1: Início --}}
-        <li>
-            <a href="{{route('home')}}">
+        <li class="flex items-center">
+            <a href="{{ route('home') }}" class="hover:text-[#1B4D3E]">
                 Início
             </a>
         </li>
 
-        {{-- Item 3: Produtos --}}
-        <li>
+        {{-- Item 2: Produtos cadastrados --}}
+        <li class="flex items-center space-x-2">
             <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
-            <a href="{{route('produtos.index')}}">
+            <a href="{{ route('produtos.index') }}" class="hover:text-[#1B4D3E]">
                 Produtos cadastrados
             </a>
         </li>
 
-        {{-- Item 2: Pégina Atual --}}
-        <li class="flex items-center space-x-2 hover:cursor-pointer">
+        {{-- Item 3: Página Atual --}}
+        <li class="flex items-center space-x-2">
             <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
             <span class="font-semibold text-gray-800">
                 @yield('title')
@@ -33,17 +41,15 @@
     </ol>
 </nav>
 
-
-<div class="max-w-4xl mx-auto my-6 p-6 bg-white rounded-lg shadow-md">
+<div class="max-w-4xl mx-auto my-6 p-6 bg-white rounded-lg shadow-md text-left">
 
     <h1 class="text-2xl font-bold mb-6 text-gray-800">
         Editar Produto
     </h1>
 
-
     {{-- Erros de validação --}}
     @if ($errors->any())
-        <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700">
+        <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-r-md">
 
             <p class="font-bold">
                 Atenção! Corrija os erros abaixo:
@@ -60,7 +66,6 @@
         </div>
     @endif
 
-
     <form
         action="{{ route('produtos.update', $produto) }}"
         method="POST"
@@ -71,40 +76,40 @@
         @csrf
         @method('PUT')
 
-
         {{-- Campos principais --}}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
             {{-- Nome --}}
             <div>
 
-                <label class="block text-sm font-medium text-gray-700 mb-1">
+                <label for="nome" class="block text-sm font-medium text-gray-700 mb-1">
                     Nome do produto:
                 </label>
 
                 <input
                     type="text"
                     name="nome"
+                    id="nome"
                     value="{{ old('nome', $produto->nome) }}"
                     placeholder="Ex: Milho Verde"
                     required
-                    class="w-full p-3 border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]"
+                    class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]"
                 >
 
             </div>
 
-
             {{-- Categoria --}}
             <div>
 
-                <label class="block text-sm font-medium text-gray-700 mb-1">
+                <label for="categoria_id" class="block text-sm font-medium text-gray-700 mb-1">
                     Categoria:
                 </label>
 
                 <select
                     name="categoria_id"
+                    id="categoria_id"
                     required
-                    class="w-full p-3 border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]"
+                    class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]"
                 >
 
                     <option value="">
@@ -115,7 +120,7 @@
 
                         <option
                             value="{{ $categoria->id }}"
-                            {{ old('categoria_id', $produto->categoria_id) == $categoria->id ? 'selected' : '' }}
+                            {{ (string) old('categoria_id', $produto->categoria_id) === (string) $categoria->id ? 'selected' : '' }}
                         >
                             {{ $categoria->nome }}
                         </option>
@@ -126,18 +131,18 @@
 
             </div>
 
-
             {{-- Unidade --}}
             <div>
 
-                <label class="block text-sm font-medium text-gray-700 mb-1">
+                <label for="unidade" class="block text-sm font-medium text-gray-700 mb-1">
                     Unidade:
                 </label>
 
                 <select
                     name="unidade"
+                    id="unidade"
                     required
-                    class="w-full p-3 border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]"
+                    class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]"
                 >
 
                     <option value="">
@@ -146,35 +151,35 @@
 
                     <option
                         value="kg"
-                        {{ old('unidade', $produto->unidade) == 'kg' ? 'selected' : '' }}
+                        {{ old('unidade', $produto->unidade) === 'kg' ? 'selected' : '' }}
                     >
                         Kg
                     </option>
 
                     <option
                         value="saca"
-                        {{ old('unidade', $produto->unidade) == 'saca' ? 'selected' : '' }}
+                        {{ old('unidade', $produto->unidade) === 'saca' ? 'selected' : '' }}
                     >
                         Saca
                     </option>
 
                     <option
                         value="unidade"
-                        {{ old('unidade', $produto->unidade) == 'unidade' ? 'selected' : '' }}
+                        {{ old('unidade', $produto->unidade) === 'unidade' ? 'selected' : '' }}
                     >
                         Unidade
                     </option>
 
                     <option
                         value="litro"
-                        {{ old('unidade', $produto->unidade) == 'litro' ? 'selected' : '' }}
+                        {{ old('unidade', $produto->unidade) === 'litro' ? 'selected' : '' }}
                     >
                         Litro
                     </option>
 
                     <option
                         value="tonelada"
-                        {{ old('unidade', $produto->unidade) == 'tonelada' ? 'selected' : '' }}
+                        {{ old('unidade', $produto->unidade) === 'tonelada' ? 'selected' : '' }}
                     >
                         Tonelada
                     </option>
@@ -183,17 +188,17 @@
 
             </div>
 
-
             {{-- Imagem --}}
             <div>
 
-                <label class="block text-sm font-medium text-gray-700 mb-1">
+                <label for="imagem" class="block text-sm font-medium text-gray-700 mb-1">
                     Imagem do produto:
                 </label>
 
                 <input
                     type="file"
                     name="imagem"
+                    id="imagem"
                     accept="image/jpeg,image/png,image/jpg,image/webp"
                     class="file-input w-full border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]"
                 >
@@ -206,7 +211,6 @@
 
         </div>
 
-
         {{-- Imagem atual --}}
         @if($produto->imagem)
 
@@ -217,9 +221,10 @@
                 </p>
 
                 <img
-                    src="{{ asset('storage/' . $produto->imagem) }}"
-                    alt="{{ $produto->nome }}"
+                    src="{{ $imagemAtual }}"
+                    alt="{{ $produto->nome ?? 'Produto' }}"
                     class="w-32 h-32 object-cover rounded-lg border border-gray-200"
+                    onerror="this.onerror=null; this.src='{{ asset('assets/milho.png') }}';"
                 >
 
                 <p class="text-xs text-gray-500 mt-2">
@@ -230,37 +235,36 @@
 
         @endif
 
-
         {{-- Descrição --}}
         <div class="mt-4">
 
-            <label class="block text-sm font-medium text-gray-700 mb-1">
+            <label for="descricao" class="block text-sm font-medium text-gray-700 mb-1">
                 Descrição:
             </label>
 
             <textarea
                 name="descricao"
+                id="descricao"
                 rows="5"
                 placeholder="Descreva o produto, suas características e informações importantes..."
-                class="w-full p-3 border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]"
+                class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]"
             >{{ old('descricao', $produto->descricao) }}</textarea>
 
         </div>
-
 
         {{-- Botões --}}
         <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200 w-full">
 
             <a
                 href="{{ route('produtos.show', $produto) }}"
-                class="text-gray-600 hover:text-gray-900"
+                class="text-gray-600 hover:text-gray-900 text-sm font-medium"
             >
                 Cancelar
             </a>
 
             <button
                 type="submit"
-                class="btn-copav text-white px-5 py-2 rounded-md transition-colors"
+                class="btn-copav text-white px-5 py-2.5 rounded-md text-sm font-semibold transition-opacity hover:opacity-90 cursor-pointer"
             >
                 Salvar alterações
             </button>

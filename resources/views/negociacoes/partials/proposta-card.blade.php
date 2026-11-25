@@ -1,6 +1,6 @@
-
 @php
-    $valorTotal = $proposta->valor * ($proposta->quantidade ?? 0);
+    $valorTotal = ($proposta->valor ?? 0) * ($proposta->quantidade ?? 0);
+    $unidadeMedida = $oferta->unidade ?? $proposta->unidade ?? '';
 @endphp
 
 <div
@@ -43,7 +43,9 @@
                         {{ fmod($proposta->quantidade, 1) == 0
                             ? number_format($proposta->quantidade, 0, ',', '.')
                             : number_format($proposta->quantidade, 2, ',', '.') }}
-                        <span class="text-xs font-normal text-gray-500">{{ $oferta->unidade }}</span>
+                        @if($unidadeMedida)
+                            <span class="text-xs font-normal text-gray-500">{{ $unidadeMedida }}</span>
+                        @endif
                     @else
                         —
                     @endif

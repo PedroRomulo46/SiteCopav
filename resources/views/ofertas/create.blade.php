@@ -10,13 +10,13 @@
 
         {{-- Item 1: Início --}}
         <li>
-            <a href="{{route('home')}}">
+            <a href="{{ route('home') }}" class="hover:text-[#1B4D3E]">
                 Início
             </a>
         </li>
 
-        {{-- Item 2: Pégina Atual --}}
-        <li class="flex items-center space-x-2 hover:cursor-pointer">
+        {{-- Item 2: Página Atual --}}
+        <li class="flex items-center space-x-2">
             <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
             <span class="font-semibold text-gray-800">
                 @yield('title')
@@ -32,7 +32,7 @@
 
     {{-- Bloco para exibição de erros de validação --}}
     @if ($errors->any())
-        <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700">
+        <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-r-md">
             <p class="font-bold">
                 Atenção! Corrija os erros abaixo:
             </p>
@@ -45,76 +45,84 @@
         </div>
     @endif
 
+    @php
+        $unidadesLabel = [
+            'kg' => 'Kg',
+            'saca' => 'Saca',
+        ];
+        $unidadeAntiga = strtolower((string) old('unidade', ''));
+    @endphp
+
     <form action="{{ route('ofertas.store') }}" method="POST" class="space-y-4">
         @csrf
 
         {{-- Campos principais --}}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-        {{-- Produto --}}
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-                Produto:
-            </label>
+            {{-- Produto --}}
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    Produto:
+                </label>
 
-            <div class="flex gap-2">
-                <div class="dropdown dropdown-bottom w-full">
-                    <div
-                        tabindex="0"
-                        role="button"
-                        class="flex items-center justify-between w-full p-3
-                            bg-white border border-gray-200 rounded-box
-                            shadow-sm text-gray-700
-                            hover:border-gray-300
-                            cursor-pointer transition-colors">
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <div class="dropdown dropdown-bottom w-full">
+                        <div
+                            tabindex="0"
+                            role="button"
+                            class="flex items-center justify-between w-full p-3
+                                bg-white border border-gray-200 rounded-box
+                                shadow-sm text-gray-700
+                                hover:border-gray-300
+                                cursor-pointer transition-colors">
 
-                        <span id="produtoSelecionado">
-                            {{ old('produto_id') ? ($produtos->firstWhere('id', old('produto_id'))->nome ?? 'Selecione o produto') : 'Selecione o produto' }}
-                        </span>
+                            <span id="produtoSelecionado" class="truncate">
+                                {{ old('produto_id') ? ($produtos->firstWhere('id', old('produto_id'))->nome ?? 'Selecione o produto') : 'Selecione o produto' }}
+                            </span>
 
-                        <span class="material-symbols-outlined text-gray-500">
-                            expand_more
-                        </span>
+                            <span class="material-symbols-outlined text-gray-500 shrink-0">
+                                expand_more
+                            </span>
+                        </div>
+
+                        <ul
+                            tabindex="0"
+                            class="dropdown-content menu bg-white text-gray-800 rounded-box
+                                z-50 w-full p-2 shadow-xl mt-1
+                                border border-gray-100 max-h-60 overflow-y-auto">
+
+                            @foreach($produtos as $produto)
+                                <li>
+                                    <a
+                                        href="#"
+                                        data-produto-id="{{ $produto->id }}"
+                                        data-produto-nome="{{ $produto->nome }}"
+                                        onclick="selecionarProduto(event, this)"
+                                        class="hover:bg-emerald-50">
+                                        {{ $produto->nome }} - {{ $produto->categoria->nome ?? 'Sem Categoria' }}
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
+
+                        <input type="hidden" name="produto_id" id="produto_id" value="{{ old('produto_id') }}" required>
                     </div>
 
-                    <ul
-                        tabindex="0"
-                        class="dropdown-content menu bg-white text-gray-800 rounded-box
-                            z-50 w-full p-2 shadow-xl mt-1
-                            border border-gray-100 max-h-60 overflow-y-auto">
-
-                        @foreach($produtos as $produto)
-                            <li>
-                                <a
-                                    href="#"
-                                    onclick="selecionarProduto(event, {{ $produto->id }}, '{{ addslashes($produto->nome) }}')"
-                                    class="hover:bg-emerald-50">
-
-                                    {{ $produto->nome }}
-                                    - {{ $produto->categoria->nome ?? 'Sem Categoria' }}
-                                </a>
-                            </li>
-                        @endforeach
-                    </ul>
-
-                    <input type="hidden" name="produto_id" id="produto_id" value="{{ old('produto_id') }}" required>
+                    {{-- Criar novo produto --}}
+                    <a
+                        href="{{ route('produtos.create') }}"
+                        class="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-md text-amber-800 border border-amber-200 hover:bg-amber-50 transition-colors font-semibold text-sm whitespace-nowrap shrink-0">
+                        <span class="material-symbols-outlined text-lg">
+                            add_circle
+                        </span>
+                        Novo produto
+                    </a>
                 </div>
-
-                {{-- Criar novo produto --}}
-                <a
-                    href="{{ route('produtos.create') }}"
-                    class="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-md text-amber-800 border border-amber-200 hover:bg-amber-50 transition-colors font-semibold text-sm whitespace-nowrap">
-                    <span class="material-symbols-outlined text-lg">
-                        add_circle
-                    </span>
-                    Novo produto
-                </a>
             </div>
-        </div>
 
             {{-- Quantidade --}}
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
+                <label for="quantidade" class="block text-sm font-medium text-gray-700 mb-1">
                     Quantidade:
                 </label>
 
@@ -126,12 +134,12 @@
                     min="0"
                     value="{{ old('quantidade') }}"
                     required
-                    class="w-full p-3 border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">
+                    class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">
             </div>
 
             {{-- Valor --}}
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
+                <label for="valor" class="block text-sm font-medium text-gray-700 mb-1">
                     Valor por quantidade (R$):
                 </label>
 
@@ -143,7 +151,7 @@
                     min="0"
                     value="{{ old('valor') }}"
                     required
-                    class="w-full p-3 border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">
+                    class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">
             </div>
 
             {{-- Unidade --}}
@@ -163,7 +171,7 @@
                             cursor-pointer transition-colors">
 
                         <span id="unidadeSelecionada">
-                            {{ old('unidade') ? ucfirst(old('unidade')) : 'Selecione a unidade' }}
+                            {{ $unidadesLabel[$unidadeAntiga] ?? ($unidadeAntiga !== '' ? ucfirst($unidadeAntiga) : 'Selecione a unidade') }}
                         </span>
 
                         <span class="material-symbols-outlined text-gray-500">
@@ -200,7 +208,7 @@
 
             {{-- Valor total --}}
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
+                <label for="valor_total" class="block text-sm font-medium text-gray-700 mb-1">
                     Valor total (R$):
                 </label>
 
@@ -209,12 +217,12 @@
                     id="valor_total"
                     readonly
                     value="R$ 0,00"
-                    class="w-full p-3 bg-gray-50 border-gray-300 rounded-md shadow-sm text-gray-700 font-semibold cursor-not-allowed">
+                    class="w-full p-3 bg-gray-50 border border-gray-300 rounded-md shadow-sm text-gray-700 font-semibold cursor-not-allowed">
             </div>
 
             {{-- Data de início --}}
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
+                <label for="data_inicio" class="block text-sm font-medium text-gray-700 mb-1">
                     Data de início:
                 </label>
 
@@ -224,26 +232,27 @@
                     id="data_inicio"
                     value="{{ old('data_inicio', now()->format('Y-m-d')) }}"
                     min="{{ now()->format('Y-m-d') }}"
-                    class="w-full p-3 border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">
+                    class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">
             </div>
 
             {{-- Localização --}}
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
+                <label for="localizacao" class="block text-sm font-medium text-gray-700 mb-1">
                     Localização:
                 </label>
 
                 <input
                     type="text"
                     name="localizacao"
+                    id="localizacao"
                     value="{{ old('localizacao') }}"
                     placeholder="Ex: Icapuí - CE"
-                    class="p-3 w-full border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">
+                    class="p-3 w-full border border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">
             </div>
 
             {{-- Data de término --}}
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
+                <label for="data_validade" class="block text-sm font-medium text-gray-700 mb-1">
                     Data de término:
                 </label>
 
@@ -253,7 +262,7 @@
                     id="data_validade"
                     value="{{ old('data_validade') }}"
                     min="{{ old('data_inicio', now()->format('Y-m-d')) }}"
-                    class="w-full p-3 border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">
+                    class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">
             </div>
         </div>
 
@@ -315,7 +324,6 @@
             </div>
         </div>
 
-
         {{-- Botões --}}
         <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200 w-full">
 
@@ -331,7 +339,6 @@
         </div>
     </form>
 </div>
-
 
 <script>
     const status = document.getElementById('status');
@@ -367,8 +374,11 @@
 
     atualizarValorTotal();
 
-    function selecionarProduto(event, id, nome) {
+    function selecionarProduto(event, element) {
         event.preventDefault();
+
+        const id = element.dataset.produtoId || '';
+        const nome = element.dataset.produtoNome || 'Selecione o produto';
 
         document.getElementById('produto_id').value = id;
         document.getElementById('produtoSelecionado').textContent = nome;
@@ -391,7 +401,6 @@
         document.getElementById('status').value = valor;
         document.getElementById('statusSelecionado').textContent = nome;
 
-        // Atualiza as datas imediatamente
         atualizarDataInicio();
 
         fecharDropdown(event);

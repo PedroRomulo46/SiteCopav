@@ -14,12 +14,14 @@
                 </a>
             </li>
 
-            <li class="flex items-center space-x-2">
-                <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
-                <a href="{{ route('categorias.index') }}" class="hover:text-[#1B4D3E]">
-                    Categorias
-                </a>
-            </li>
+            @if(auth()->user()?->isAdmin())
+                <li class="flex items-center space-x-2">
+                    <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
+                    <a href="{{ route('categorias.index') }}" class="hover:text-[#1B4D3E]">
+                        Categorias
+                    </a>
+                </li>
+            @endif
 
             <li class="flex items-center space-x-2">
                 <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
@@ -107,7 +109,7 @@
 
                     <button
                         type="submit"
-                        class="btn bg-[#1B4D3E] hover:bg-[#143B2F] text-white border-none gap-2 px-6 shadow-sm"
+                        class="btn btn-copav text-white border-none gap-2 px-6 shadow-sm"
                     >
                         <span class="material-symbols-outlined text-lg">send</span>
                         Enviar Sugestão

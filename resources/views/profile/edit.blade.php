@@ -4,19 +4,27 @@
 
 @section('conteudo')
 
+@php
+    $imagemPerfil = $user?->imagem
+        ? (str_contains($user->imagem, 'assets/')
+            ? asset($user->imagem)
+            : asset('storage/' . ltrim(str_replace('public/', '', $user->imagem), '/')))
+        : null;
+@endphp
+
 {{-- Breadcrumbs com setas garantidas via ícone --}}
 <nav class="flex items-center text-sm mb-6 text-gray-600" aria-label="Breadcrumb">
     <ol class="inline-flex items-center space-x-2">
 
         {{-- Item 1: Início --}}
-        <li>
-            <a href="{{route('home')}}">
+        <li class="flex items-center">
+            <a href="{{ route('home') }}" class="hover:text-[#1B4D3E]">
                 Início
             </a>
         </li>
 
         {{-- Item 2: Página Atual --}}
-        <li class="flex items-center space-x-2 hover:cursor-pointer">
+        <li class="flex items-center space-x-2">
             <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
             <span class="font-semibold text-gray-800">
                 @yield('title')
@@ -25,7 +33,7 @@
     </ol>
 </nav>
 
-<div class="max-w-5xl mx-auto px-4 py-8 space-y-6">
+<div class="max-w-5xl mx-auto px-4 py-8 space-y-6 text-left">
     <div>
         <h1 class="text-2xl font-bold text-gray-800">Configurações</h1>
         <p class="text-sm text-gray-500">Gerencie as informações da sua conta, senha e segurança.</p>
@@ -52,7 +60,7 @@
                 @csrf
                 @method('patch')
 
-                {{-- Foto de perfil--}}
+                {{-- Foto de perfil --}}
                 <div class="form-control">
                     <span class="label-text font-medium mb-2 block">Foto de perfil</span>
 
@@ -64,15 +72,16 @@
                         {{-- Imagem atual ou preview da nova imagem --}}
                         <img
                             id="avatarPreview"
-                            src="{{ $user->imagem ? asset('storage/' . $user->imagem) : '' }}"
+                            src="{{ $imagemPerfil ?? '' }}"
                             alt="Foto de perfil"
-                            class="w-full h-full object-cover {{ $user->imagem ? 'block' : 'hidden' }}"
+                            class="w-full h-full object-cover {{ $imagemPerfil ? 'block' : 'hidden' }}"
+                            onerror="this.classList.add('hidden'); this.classList.remove('block'); document.getElementById('avatarPlaceholder')?.classList.remove('hidden'); document.getElementById('avatarPlaceholder')?.classList.add('flex');"
                         >
 
                         {{-- Ícone padrão quando não há imagem --}}
                         <span
                             id="avatarPlaceholder"
-                            class="text-gray-400 {{ $user->imagem ? 'hidden' : 'flex' }} items-center justify-center w-full h-full"
+                            class="text-gray-400 {{ $imagemPerfil ? 'hidden' : 'flex' }} items-center justify-center w-full h-full"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
@@ -117,7 +126,7 @@
                         id="nome"
                         name="nome"
                         type="text"
-                        value="{{ old('nome', $user->nome) }}"
+                        value="{{ old('nome', $user?->nome) }}"
                         required
                         autofocus
                         autocomplete="name"
@@ -137,7 +146,7 @@
                         id="email"
                         name="email"
                         type="email"
-                        value="{{ old('email', $user->email) }}"
+                        value="{{ old('email', $user?->email) }}"
                         required
                         autocomplete="username"
                         class="input input-bordered w-full max-w-md focus:border-[#236350] focus:outline-none"
@@ -168,8 +177,7 @@
                 <div class="pt-2 flex items-center gap-4">
                     <button
                         type="submit"
-                        class="btn text-white border-0 hover:opacity-95"
-                        style="background-color: #236350;"
+                        class="btn-copav inline-flex items-center justify-center rounded-md px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-95 cursor-pointer"
                     >
                         Salvar
                     </button>
@@ -191,12 +199,12 @@
     </div>
 
     {{-- Aparência / Modo Escuro --}}
-    <div class="card bg-base-100 shadow-sm border border-base-200 dark:bg-gray-900 dark:border-gray-800">
-        <div class="card-body max-w-2xl">
-            <div class="flex items-center justify-between gap-4">
-                <div>
-                    <h2 class="card-title text-lg text-gray-900 dark:text-gray-100">Aparência</h2>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+    <div id="cardAparencia" class="card bg-base-100 shadow-sm border border-base-200 transition-colors duration-200">
+        <div class="card-body p-4 sm:p-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div class="min-w-0 flex-1">
+                    <h2 id="tituloAparencia" class="card-title text-lg text-gray-900">Aparência</h2>
+                    <p id="descricaoAparencia" class="text-sm text-gray-500 mt-1">
                         Alterne entre o tema claro e o modo escuro em todo o site.
                     </p>
                 </div>
@@ -205,7 +213,7 @@
                     type="button"
                     id="btnToggleDarkMode"
                     onclick="alternarModoEscuro()"
-                    class="btn border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 gap-2 shrink-0 cursor-pointer"
+                    class="btn w-full sm:w-auto border border-gray-300 bg-white text-gray-800 hover:bg-gray-100 gap-2 shrink-0 cursor-pointer justify-center"
                 >
                     <span id="iconeModoEscuro" class="material-symbols-outlined text-xl">dark_mode</span>
                     <span id="textoModoEscuro">Ativar modo escuro</span>
@@ -316,8 +324,7 @@
 
                         <button
                             type="submit"
-                            class="btn text-white border-0 hover:opacity-95 px-6"
-                            style="background-color: #236350;"
+                            class="btn-copav inline-flex items-center justify-center rounded-md px-6 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-95 cursor-pointer"
                         >
                             Salvar
                         </button>
@@ -366,7 +373,7 @@
                 </div>
 
                 <div class="pt-1">
-                    <button type="submit" class="btn btn-error text-white">
+                    <button type="submit" class="btn btn-error text-white cursor-pointer">
                         Deletar Conta
                     </button>
                 </div>
@@ -376,24 +383,57 @@
 </div>
 
 <script>
-    function aplicarTemaEscuro(ativado) {
-    const html = document.documentElement;
-    const icone = document.getElementById('iconeModoEscuro');
-    const texto = document.getElementById('textoModoEscuro');
+    function sincronizarBotaoTema(ativado) {
+        const icone = document.getElementById('iconeModoEscuro');
+        const texto = document.getElementById('textoModoEscuro');
+        const btn = document.getElementById('btnToggleDarkMode');
+        const card = document.getElementById('cardAparencia');
+        const titulo = document.getElementById('tituloAparencia');
+        const descricao = document.getElementById('descricaoAparencia');
 
-    if (ativado) {
-        html.classList.add('tema-escuro');
-        html.setAttribute('data-theme', 'dark');
-        localStorage.setItem('tema_escuro', '1');
-        if (icone) icone.textContent = 'light_mode';
-        if (texto) texto.textContent = 'Modo escuro ativado';
-    } else {
-        html.classList.remove('tema-escuro');
-        html.setAttribute('data-theme', 'light');
-        localStorage.setItem('tema_escuro', '0');
-        if (icone) icone.textContent = 'dark_mode';
-        if (texto) texto.textContent = 'Ativar modo escuro';
+        if (icone) icone.textContent = ativado ? 'light_mode' : 'dark_mode';
+        if (texto) texto.textContent = ativado ? 'Modo escuro ativado' : 'Ativar modo escuro';
+
+        if (btn) {
+            if (ativado) {
+                btn.style.backgroundColor = '#1f2937';
+                btn.style.color = '#f9fafb';
+                btn.style.borderColor = '#374151';
+            } else {
+                btn.style.backgroundColor = '#ffffff';
+                btn.style.color = '#1f2937';
+                btn.style.borderColor = '#d1d5db';
+            }
+        }
+
+        if (card) {
+            if (ativado) {
+                card.style.backgroundColor = '#111827';
+                card.style.borderColor = '#1f2937';
+            } else {
+                card.style.backgroundColor = '#ffffff';
+                card.style.borderColor = '#e5e7eb';
+            }
+        }
+
+        if (titulo) titulo.style.color = ativado ? '#f9fafb' : '#111827';
+        if (descricao) descricao.style.color = ativado ? '#9ca3af' : '#6b7280';
     }
+
+    function aplicarTemaEscuro(ativado) {
+        const html = document.documentElement;
+
+        if (ativado) {
+            html.classList.add('tema-escuro');
+            html.setAttribute('data-theme', 'dark');
+            localStorage.setItem('tema_escuro', '1');
+        } else {
+            html.classList.remove('tema-escuro');
+            html.setAttribute('data-theme', 'light');
+            localStorage.setItem('tema_escuro', '0');
+        }
+
+        sincronizarBotaoTema(ativado);
     }
 
     function alternarModoEscuro() {
@@ -407,7 +447,7 @@
     });
 
     function previewAvatar(event) {
-        const file = event.target.files[0];
+        const file = event.target.files?.[0];
         const img = document.getElementById('avatarPreview');
         const placeholder = document.getElementById('avatarPlaceholder');
         if (!file || !img) return;

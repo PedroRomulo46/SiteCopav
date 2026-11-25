@@ -1,5 +1,5 @@
 @extends('layouts.layout')
-@section('title', 'Menu fornecedor')
+@section('title', 'Cadastrar Fornecedor')
 
 @section('conteudo')
 
@@ -9,12 +9,12 @@
 
         {{-- Item 1: Início --}}
         <li>
-            <a href="{{route('home')}}">
+            <a href="{{ route('home') }}">
                 Início
             </a>
         </li>
 
-        {{-- Item 2: Pégina Atual --}}
+        {{-- Item 2: Página Atual --}}
         <li class="flex items-center space-x-2 hover:cursor-pointer">
             <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
             <span class="font-semibold text-gray-800">
@@ -52,7 +52,7 @@
                     name="nome"
                     value="{{ old('nome') }}"
                     required
-                    class="p-3 w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    class="p-3 w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-[#236350] focus:border-[#236350]">
             </div>
 
             {{-- Documento --}}
@@ -63,7 +63,7 @@
                     name="documento"
                     value="{{ old('documento') }}"
                     required
-                    class="p-3 w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    class="p-3 w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-[#236350] focus:border-[#236350]">
             </div>
 
             {{-- Telefone --}}
@@ -74,7 +74,7 @@
                     name="telefone"
                     value="{{ old('telefone') }}"
                     required
-                    class="p-3 w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    class="p-3 w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-[#236350] focus:border-[#236350]">
             </div>
 
             {{-- Cidade --}}
@@ -85,7 +85,7 @@
                     name="cidade"
                     value="{{ old('cidade') }}"
                     required
-                    class="p-3 w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    class="p-3 w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-[#236350] focus:border-[#236350]">
             </div>
 
             {{-- Estado --}}
@@ -98,7 +98,7 @@
                     maxlength="2"
                     required
                     placeholder="Ex: CE"
-                    class="p-3 w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 uppercase">
+                    class="p-3 w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-[#236350] focus:border-[#236350] uppercase">
             </div>
 
             {{-- Endereço --}}
@@ -109,16 +109,16 @@
                     name="endereco"
                     value="{{ old('endereco') }}"
                     required
-                    class="p-3 w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    class="p-3 w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-[#236350] focus:border-[#236350]">
             </div>
 
             {{-- Descrição --}}
             <div class="md:col-span-2">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Descrição:</label>
-                <textarea 
-                    name="descricao" 
-                    rows="3" 
-                    class="p-3 w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">{{ old('descricao') }}</textarea>
+                <textarea
+                    name="descricao"
+                    rows="3"
+                    class="p-3 w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-[#236350] focus:border-[#236350]">{{ old('descricao') }}</textarea>
             </div>
 
         </div>
@@ -128,7 +128,7 @@
             <a href="{{ route('home') }}" class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
                 Cancelar
             </a>
-            
+
             <button type="submit" class="btn-copav px-4 py-2 rounded-lg font-medium text-sm shadow-md transition-all cursor-pointer border-0 flex items-center gap-2">
                 Cadastrar
             </button>

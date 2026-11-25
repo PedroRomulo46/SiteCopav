@@ -4,19 +4,51 @@
 
 @section('conteudo')
 
+@php
+    $usuarioLogado = auth()->user();
+    $isDonoDemanda = $usuarioLogado !== null && (int) $usuarioLogado->id === (int) ($demanda->cliente_id ?? 0);
+
+    $statusAtual = strtolower((string) ($demanda->status ?? 'aberta'));
+    $statusClasses = match($statusAtual) {
+        'aberta', 'publicada', 'ativa' =>
+            'bg-emerald-50 text-emerald-700 border-emerald-200',
+
+        'encerrada', 'finalizada' =>
+            'bg-gray-100 text-gray-600 border-gray-200',
+
+        'cancelada' =>
+            'bg-red-50 text-red-700 border-red-200',
+
+        default =>
+            'bg-amber-50 text-amber-700 border-amber-200',
+    };
+    $demandaAberta = in_array($statusAtual, ['aberta', 'publicada', 'ativa'], true);
+    $podeFazerOferta = $demandaAberta && ($usuarioLogado?->isFornecedor() ?? false) && ! $isDonoDemanda;
+
+    $ofertasRecebidas = $demanda->ofertasDiretas ?? collect();
+@endphp
+
 {{-- Breadcrumbs com setas garantidas via ícone --}}
 <nav class="flex items-center text-sm mb-4 text-gray-600" aria-label="Breadcrumb">
     <ol class="inline-flex items-center space-x-2">
 
         {{-- Item 1: Início --}}
-        <li>
-            <a href="{{route('home')}}">
+        <li class="flex items-center">
+            <a href="{{ route('home') }}" class="hover:text-[#236350] transition-colors">
                 Início
             </a>
         </li>
 
-        {{-- Item 2: Pégina Atual --}}
-        <li class="flex items-center space-x-2 hover:cursor-pointer">
+        {{-- Item 2: Demandas --}}
+        <li class="flex items-center space-x-2">
+            <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
+            <a href="{{ route('demandas.index') }}" class="hover:text-[#236350] transition-colors">
+                Demandas
+            </a>
+        </li>
+
+        {{-- Item 3: Página Atual --}}
+        <li class="flex items-center space-x-2">
             <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
             <span class="font-semibold text-gray-800">
                 @yield('title')
@@ -25,7 +57,7 @@
     </ol>
 </nav>
 
-<div class="max-w-6xl mx-auto px-4 py-6">
+<div class="max-w-6xl mx-auto px-4 py-6 text-left">
 
     {{-- CARD PRINCIPAL DA DEMANDA --}}
     <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
@@ -44,34 +76,18 @@
                     </div>
 
                     <h1 class="text-2xl md:text-3xl font-bold text-gray-800">
-                        {{ $demanda->nome_produto }}
+                        {{ $demanda->nome_produto ?? 'Produto não informado' }}
                     </h1>
                     <p class="mt-1 text-sm text-gray-500">
-                        {{ $demanda->categoria->nome ?? 'Sem categoria' }}
+                        {{ $demanda->categoria?->nome ?? 'Sem categoria' }}
                     </p>
                 </div>
 
                 {{-- Status --}}
                 <div>
-                    @php
-                        $statusClasses = match($demanda->status) {
-                            'aberta', 'publicada', 'ativa' =>
-                                'bg-emerald-50 text-emerald-700 border-emerald-200',
-
-                            'encerrada', 'finalizada' =>
-                                'bg-gray-100 text-gray-600 border-gray-200',
-
-                            'cancelada' =>
-                                'bg-red-50 text-red-700 border-red-200',
-
-                            default =>
-                                'bg-amber-50 text-amber-700 border-amber-200',
-                        };
-                    @endphp
-
                     <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-semibold {{ $statusClasses }}">
                         <span class="w-2 h-2 rounded-full bg-current"></span>
-                        {{ ucfirst($demanda->status) }}
+                        {{ ucfirst((string) ($demanda->status ?? 'aberta')) }}
                     </span>
                 </div>
             </div>
@@ -91,7 +107,7 @@
                         </span>
                     </div>
                     <p class="font-semibold text-gray-800">
-                        {{ $demanda->cliente->nome ?? 'Não informado' }}
+                        {{ $demanda->cliente?->nome ?? 'Não informado' }}
                     </p>
                 </div>
 
@@ -106,8 +122,8 @@
                         </span>
                     </div>
                     <p class="font-semibold text-gray-800">
-                        {{ $demanda->quantidade }}
-                        {{ $demanda->unidade }}
+                        {{ $demanda->quantidade ?? 0 }}
+                        {{ $demanda->unidade ?? '' }}
                     </p>
                 </div>
 
@@ -122,13 +138,12 @@
                         </span>
                     </div>
                     <p class="font-semibold text-gray-800">
-                        @if($demanda->valor_maximo)
-                            R$ {{ number_format($demanda->valor_maximo, 2, ',', '.') }}
+                        @if(!is_null($demanda->valor_maximo))
+                            R$ {{ number_format((float) $demanda->valor_maximo, 2, ',', '.') }}
                         @else
                             Não informado
                         @endif
                     </p>
-
                 </div>
 
                 {{-- Localização --}}
@@ -167,7 +182,7 @@
                 <span>
                     <strong class="text-gray-700">Data limite:</strong>
                     @if($demanda->data_limite)
-                        {{ $demanda->data_limite->format('d/m/Y') }}
+                        {{ \Carbon\Carbon::parse($demanda->data_limite)->format('d/m/Y') }}
                     @else
                         Não informada
                     @endif
@@ -176,18 +191,20 @@
         </div>
 
         {{-- Ação --}}
-        <div class="px-6 py-4 bg-gray-50 border-t border-gray-100">
-            <a
-                href="{{ route('ofertas-diretas.create', ['demanda_id' => $demanda->id]) }}"
-                class="inline-flex items-center justify-center gap-2 px-5 py-2.5
-                       btn-copav text-white rounded-md font-semibold text-sm
-                       shadow-sm hover:opacity-90 transition-all">
-                <span class="material-symbols-outlined text-lg">
-                    add_circle
-                </span>
-                Fazer oferta para esta demanda
-            </a>
-        </div>
+        @if($podeFazerOferta)
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-100">
+                <a
+                    href="{{ route('ofertas-diretas.create', ['demanda_id' => $demanda->id]) }}"
+                    class="inline-flex items-center justify-center gap-2 px-5 py-2.5
+                           btn-copav text-white rounded-md font-semibold text-sm
+                           shadow-sm hover:opacity-90 transition-all">
+                    <span class="material-symbols-outlined text-lg">
+                        add_circle
+                    </span>
+                    Fazer oferta para esta demanda
+                </a>
+            </div>
+        @endif
     </div>
 
     {{-- OFERTAS DOS FORNECEDORES --}}
@@ -203,15 +220,15 @@
                 </p>
             </div>
             <span class="badge badge-ghost">
-                {{ $demanda->ofertasDiretas->count() }}
-                {{ $demanda->ofertasDiretas->count() === 1 ? 'oferta' : 'ofertas' }}
+                {{ $ofertasRecebidas->count() }}
+                {{ $ofertasRecebidas->count() === 1 ? 'oferta' : 'ofertas' }}
             </span>
         </div>
 
-        @if($demanda->ofertasDiretas->count())
+        @if($ofertasRecebidas->count())
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                @foreach($demanda->ofertasDiretas as $oferta)
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100hover:shadow-md transition-shadow overflow-hidden">
+                @foreach($ofertasRecebidas as $oferta)
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow overflow-hidden">
 
                         {{-- Cabeçalho da oferta --}}
                         <div class="p-5 border-b border-gray-100">
@@ -229,24 +246,24 @@
                                             Fornecedor
                                         </p>
                                         <h3 class="font-bold text-gray-800">
-                                            {{ $oferta->fornecedor->nome ?? 'Fornecedor não informado' }}
+                                            {{ $oferta->fornecedor?->nome ?? 'Fornecedor não informado' }}
                                         </h3>
                                     </div>
                                 </div>
 
                                 {{-- Status da oferta --}}
                                 @php
-                                    $statusOferta = match($oferta->status) {
+                                    $statusOferta = match(strtolower((string) ($oferta->status ?? ''))) {
                                         'aceita', 'aprovada' =>
                                             'bg-emerald-50 text-emerald-700 border-emerald-200',
-                                            'recusada', 'cancelada' 
-                                            =>'bg-red-50 text-red-700 border-red-200',
-
-                                        default =>'bg-amber-50 text-amber-700 border-amber-200',
+                                        'recusada', 'cancelada' =>
+                                            'bg-red-50 text-red-700 border-red-200',
+                                        default =>
+                                            'bg-amber-50 text-amber-700 border-amber-200',
                                     };
                                 @endphp
                                 <span class="px-2.5 py-1 rounded-full border text-xs font-semibold {{ $statusOferta }}">
-                                    {{ ucfirst($oferta->status) }}
+                                    {{ ucfirst((string) ($oferta->status ?? 'pendente')) }}
                                 </span>
                             </div>
                         </div>
@@ -259,8 +276,8 @@
                                         Quantidade
                                     </p>
                                     <p class="font-semibold text-gray-800">
-                                        {{ $oferta->quantidade }}
-                                        {{ $demanda->unidade }}
+                                        {{ $oferta->quantidade ?? 0 }}
+                                        {{ $demanda->unidade ?? '' }}
                                     </p>
                                 </div>
 
@@ -269,7 +286,7 @@
                                         Valor
                                     </p>
                                     <p class="font-bold text-[#236350] text-lg">
-                                        R$ {{ number_format($oferta->valor, 2, ',', '.') }}
+                                        R$ {{ number_format((float) ($oferta->valor ?? 0), 2, ',', '.') }}
                                     </p>
                                 </div>
                             </div>
@@ -288,7 +305,7 @@
                 @endforeach
             </div>
         @else
-            <div class="bg-white border border-dashed border-gray-300 rounded-xlp-10 text-center">
+            <div class="bg-white border border-dashed border-gray-300 rounded-xl p-10 text-center">
                 <span class="material-symbols-outlined text-4xl text-gray-400">
                     inbox
                 </span>
@@ -300,21 +317,6 @@
                 </p>
             </div>
         @endif
-    </div>
-
-    {{-- Voltar --}}
-    <div class="mt-8">
-        <a
-            href="{{ route('demandas.index') }}"
-            class="inline-flex items-center gap-2 px-4 py-2
-                   border border-gray-200 rounded-md
-                   text-gray-600 font-medium text-sm
-                   hover:bg-gray-50 transition-colors">
-            <span class="material-symbols-outlined text-lg">
-                arrow_back
-            </span>
-            Voltar para demandas
-        </a>
     </div>
 </div>
 

@@ -9,7 +9,20 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
+    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
+
+    protected $fillable = [
+        'nome',
+        'email',
+        'password',
+        'imagem',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
 
     protected function casts(): array
     {
@@ -20,23 +33,9 @@ class User extends Authenticatable
         ];
     }
 
-    protected $fillable = [
-        'nome',
-        'email',
-        'password',
-        'user_type',
-        'imagem',
-    ];
-
-    // Relacionamento com fornecedor, inclusive para empresas.
     public function fornecedor()
     {
-        return $this->hasOne(Fornecedor::class, 'user_id', 'id');
-    }
-
-    public function demandas()
-    {
-        return $this->hasMany(Demanda::class, 'cliente_id');
+        return $this->hasOne(Fornecedor::class);
     }
 
     public function negociacoes()
@@ -44,8 +43,30 @@ class User extends Authenticatable
         return $this->hasMany(Negociacao::class, 'cliente_id');
     }
 
-    public function propostas()
+    public function isAdmin(): bool
     {
-        return $this->hasMany(Proposta::class, 'usuario_id');
+        return $this->user_type === 'admin' || (bool) $this->is_admin;
+    }
+
+    public function isFornecedor(): bool
+    {
+        return $this->user_type === 'fornecedor' && $this->fornecedor !== null;
+    }
+
+    public function isCliente(): bool
+    {
+        return ! $this->isAdmin()
+            && ! $this->isFornecedor()
+            && $this->user_type === 'cliente';
+    }
+
+    public function podeVender(): bool
+    {
+        return $this->isFornecedor();
+    }
+
+    public function podeGerenciarDemandas(): bool
+    {
+        return $this->isFornecedor() || $this->isAdmin();
     }
 }

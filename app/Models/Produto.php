@@ -15,15 +15,18 @@ class Produto extends Model
         'imagem',
     ];
 
-    public function fornecedor() {
-        return $this->belongsTo(Fornecedor::class); 
+    public function fornecedor()
+    {
+        return $this->belongsTo(Fornecedor::class);
     }
 
-    public function categoria() {
+    public function categoria()
+    {
         return $this->belongsTo(Categoria::class);
     }
 
-    public function ofertas() {
+    public function ofertas()
+    {
         return $this->hasMany(Oferta::class);
     }
 }
