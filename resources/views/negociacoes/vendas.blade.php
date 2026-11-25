@@ -48,8 +48,8 @@
                 @php
                     $oferta = $negociacao->oferta;
                     $produto = $oferta?->produto;
-                    $ultimaProposta = $negociacao->propostas->sortBy('created_at')->last();
-                    $vendaPaga = in_array($negociacao->status, ['pago', 'aprovado']);
+                    $ultimaProposta = ($negociacao->propostas ?? collect())->sortBy('created_at')->last();
+                    $vendaPaga = in_array($negociacao->status, ['pago', 'aprovado'], true);
                 @endphp
 
                 <article
@@ -143,7 +143,7 @@
             </p>
             <a
                 href="{{ route('ofertas.index') }}"
-                class="btn-copav rounded-lg px-5 py-3 mt-5"
+                class="btn-copav inline-flex items-center gap-2 rounded-lg px-5 py-3 mt-5 text-sm font-semibold"
             >
                 Ver lotes
             </a>

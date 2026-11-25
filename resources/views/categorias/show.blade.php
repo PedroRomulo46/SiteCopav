@@ -4,6 +4,11 @@
 
 @section('conteudo')
 
+@php
+    $ofertasVisiveis = ($categoria->produtos ?? collect())
+        ->flatMap(fn ($produto) => $produto->ofertas ?? collect());
+@endphp
+
 {{-- Breadcrumb --}}
 <nav class="flex items-center text-sm mb-4 text-gray-600" aria-label="Breadcrumb">
     <ol class="inline-flex items-center space-x-2">

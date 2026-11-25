@@ -18,20 +18,18 @@ class HomeController extends Controller
             ->take(9)
             ->get();
 
-        // 2. Ofertas do fornecedor logado
-        $ofertas = ($usuario && $usuario->fornecedor)
-            ? Oferta::with(['produto', 'negociacoes'])
-                ->where('fornecedor_id', $usuario->fornecedor->id)
-                ->latest()
-                ->get()
-            : collect();
-
-        // 3. Propostas pendentes ainda não visualizadas
+        // 2. Ofertas e novas propostas apenas para Fornecedor comum (não para Admin)
+        $ofertas = collect();
         $novasPropostas = 0;
         $ofertasComNovasPropostas = collect();
 
-        if ($usuario && $usuario->fornecedor) {
+        if ($usuario && $usuario->isFornecedor()) {
             $fornecedorId = $usuario->fornecedor->id;
+
+            $ofertas = Oferta::with(['produto', 'negociacoes'])
+                ->where('fornecedor_id', $fornecedorId)
+                ->latest()
+                ->get();
 
             $propostasNaoVisualizadas = Proposta::whereNull('visualizada_em')
                 ->where('status', 'pendente')
@@ -41,10 +39,8 @@ class HomeController extends Controller
                 ->with('negociacao')
                 ->get();
 
-            // Quantidade total de propostas não visualizadas
             $novasPropostas = $propostasNaoVisualizadas->count();
 
-            // Quantidade de propostas não visualizadas por oferta
             $ofertasComNovasPropostas = $propostasNaoVisualizadas
                 ->groupBy(function ($proposta) {
                     return $proposta->negociacao->oferta_id;
@@ -53,29 +49,22 @@ class HomeController extends Controller
                     return $propostas->count();
                 });
 
-                                
-                $ofertas = $ofertas->sort(function ($a, $b) use ($ofertasComNovasPropostas) {
-                    $novasA = $ofertasComNovasPropostas->get($a->id, 0);
-                    $novasB = $ofertasComNovasPropostas->get($b->id, 0);
+            $ofertas = $ofertas->sort(function ($a, $b) use ($ofertasComNovasPropostas) {
+                $novasA = $ofertasComNovasPropostas->get($a->id, 0);
+                $novasB = $ofertasComNovasPropostas->get($b->id, 0);
 
-                    // Mais propostas não visualizadas primeiro
-                    if ($novasA !== $novasB) {
-                        return $novasB <=> $novasA;
-                    }
+                if ($novasA !== $novasB) {
+                    return $novasB <=> $novasA;
+                }
 
-                    // Em caso de empate, oferta mais recente primeiro
-                    return $b->id <=> $a->id;
-                })->values();
-
+                return $b->id <=> $a->id;
+            })->values();
         }
 
-        // 4. Demandas: clientes não recebem esta lista na Home
-        if ($usuario && $usuario->user_type === 'cliente') {
+        // 3. Demandas na Home conforme o papel
+        if ($usuario && $usuario->isCliente()) {
             $demandas = collect();
-        } elseif (
-            $usuario &&
-            ($usuario->is_admin || $usuario->user_type === 'admin')
-        ) {
+        } elseif ($usuario && $usuario->isAdmin()) {
             $demandas = Demanda::latest()->get();
         } else {
             $demandas = Demanda::where('status', 'aberta')

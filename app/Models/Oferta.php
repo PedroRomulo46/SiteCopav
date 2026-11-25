@@ -39,4 +39,14 @@ class Oferta extends Model
     {
         return $this->hasMany(Negociacao::class);
     }
+
+    public function propostas()
+    {
+        return $this->hasManyThrough(
+            Proposta::class,
+            Negociacao::class,
+            'oferta_id',
+            'negociacao_id'
+        );
+    }
 }

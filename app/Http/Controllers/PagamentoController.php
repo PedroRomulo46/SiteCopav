@@ -60,8 +60,7 @@ class PagamentoController extends Controller
         $valorTotal = $valorUnitario * $quantidade;
         $valorEmCentavos = (int) round($valorTotal * 100);
 
-        // Configura a chave do Stripe que você colocou no .env
-        Stripe::setApiKey(env('STRIPE_SECRET'));
+        Stripe::setApiKey(config('services.stripe.secret') ?: env('STRIPE_SECRET'));
 
         $session = Session::create([
             'line_items' => [[
@@ -78,18 +77,22 @@ class PagamentoController extends Controller
             'metadata' => [
                 'negociacao_id' => (string) $negociacao->id,
             ],
-            // Criamos uma rota dedicada ou passamos o ID para garantir a atualização imediata no retorno
             'success_url' => route('pagamentos.sucesso', $negociacao) . '?session_id={CHECKOUT_SESSION_ID}',
             'cancel_url' => route('pagamentos.show', $negociacao),
         ]);
 
-        // Redireciona para o checkout oficial do Stripe
         return redirect()->away($session->url);
     }
 
     public function sucesso(Request $request, Negociacao $negociacao)
     {
-        // Garante a atualização imediata da negociação para pago ao retornar do Stripe
+        $usuario = $request->user();
+
+        abort_unless(
+            $usuario?->isAdmin() || (int) $negociacao->cliente_id === (int) $usuario?->id,
+            403
+        );
+
         if ($negociacao->status !== 'pago' && $negociacao->status !== 'aprovado') {
             $negociacao->update(['status' => 'pago']);
         }

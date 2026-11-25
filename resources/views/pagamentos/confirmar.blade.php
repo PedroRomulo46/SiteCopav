@@ -5,36 +5,37 @@
 @section('conteudo')
 
 {{-- Breadcrumbs com setas garantidas via ícone --}}
-<nav class="flex flex-wrap items-center gap-2 text-sm mb-7" aria-label="Breadcrumb">
-    <ol>
+<nav class="flex items-center text-sm mb-7 text-gray-600" aria-label="Breadcrumb">
+    <ol class="inline-flex flex-wrap items-center gap-2">
         {{-- Item 1: Inicio --}}
-        <li>
-            <a href="{{ route('home') }}" class="text-gray-500 hover:text-[#236350]">
+        <li class="flex items-center">
+            <a href="{{ route('home') }}" class="text-gray-500 hover:text-[#236350] transition-colors">
                 Início
             </a>
         </li>
 
         {{-- Item 2: Compras --}}
-        <li>
+        <li class="flex items-center gap-2">
             <span class="material-symbols-outlined text-gray-400 text-lg">
                 chevron_right
             </span>
-            <a href="{{ route('negociacoes.compras') }}" class="text-gray-500 hover:text-[#236350]">
+            <a href="{{ route('negociacoes.compras') }}" class="text-gray-500 hover:text-[#236350] transition-colors">
                 Minhas Compras
             </a>
         </li>
 
-        {{-- Item 3: Página Atual --}}
-        <li>
+        {{-- Item 3: Verificar Pagamento --}}
+        <li class="flex items-center gap-2">
             <span class="material-symbols-outlined text-gray-400 text-lg">
                 chevron_right
             </span>
-            <a href="{{ route('pagamentos.show', $negociacao) }}" class="text-gray-500 hover:text-[#236350]">
+            <a href="{{ route('pagamentos.show', $negociacao) }}" class="text-gray-500 hover:text-[#236350] transition-colors">
                 Verificar Pagamento
             </a>
         </li>
 
-        <li>
+        {{-- Item 4: Página Atual --}}
+        <li class="flex items-center gap-2">
             <span class="material-symbols-outlined text-gray-400 text-lg">
                 chevron_right
             </span>
@@ -47,7 +48,7 @@
 
 <div class="min-h-[70vh] flex items-center justify-center py-8">
     <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8 text-center max-w-lg w-full">
-        
+
         {{-- Ícone de Sucesso --}}
         <div class="w-16 h-16 bg-emerald-100 text-[#236350] rounded-full flex items-center justify-center mx-auto mb-4">
             <span class="material-symbols-outlined text-3xl">check_circle</span>
@@ -72,7 +73,9 @@
             </div>
             <div class="border-t border-gray-200 my-2 pt-2 flex justify-between items-center">
                 <span class="font-bold text-gray-700">Total Pago:</span>
-                <span class="text-xl font-extrabold text-[#236350]">R$ {{ number_format($valorTotal, 2, ',', '.') }}</span>
+                <span class="text-xl font-extrabold text-[#236350]">
+                    R$ {{ number_format((float) ($valorTotal ?? 0), 2, ',', '.') }}
+                </span>
             </div>
         </div>
 
@@ -87,7 +90,7 @@
                 Ir para o Chat
             </a>
 
-            <a href="{{ route('negociacoes.compras') }}" class="flex-1 flex items-center justify-center gap-2 rounded-xl bg-[#236350] px-4 py-3 text-sm font-semibold text-white hover:bg-[#194b3c] transition-colors">
+            <a href="{{ route('negociacoes.compras') }}" class="btn-copav flex-1 flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90">
                 <span class="material-symbols-outlined text-lg">shopping_bag</span>
                 Minhas Compras
             </a>

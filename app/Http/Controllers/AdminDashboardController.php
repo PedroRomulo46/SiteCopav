@@ -11,12 +11,14 @@ class AdminDashboardController extends Controller
 {
     public function index()
     {
+        abort_unless(auth()->user()?->isAdmin(), 403, 'Acesso restrito ao administrador.');
+
         // Métricas e dados estratégicos para o painel da Cooperativa
         $totalFornecedores = Fornecedor::count();
         $totalDemandasAbertas = Demanda::where('status', 'aberta')->count();
         $totalNegociacoesEmAndamento = Negociacao::where('status', 'em_negociacao')->count();
-        
-        $demandasRecentes = Demanda::latest()->take(5)->get();
+
+        $demandasRecentes = Demanda::with(['cliente', 'categoria'])->latest()->take(5)->get();
         $ultimasOfertasFornecedores = Oferta::with(['produto', 'fornecedor'])->latest()->take(5)->get();
 
         return view('admin.dashboard', compact(

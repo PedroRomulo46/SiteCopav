@@ -1,5 +1,7 @@
 @extends('layouts.layout')
 
+@section('title', 'Cadastrar Categoria')
+
 @section('conteudo')
 <div class="max-w-2xl mx-auto my-10 p-6 bg-white rounded-xl shadow-md border border-gray-100">
 
@@ -11,7 +13,7 @@
       </div>
       <div>
         <h1 class="text-2xl font-bold text-gray-800">Cadastrar Categoria</h1>
-        <p class="text-xs text-gray-500">Adicione uma nova categoria de livros ao sistema</p>
+        <p class="text-xs text-gray-500">Adicione uma nova categoria ao marketplace</p>
       </div>
     </div>
 
@@ -54,7 +56,7 @@
           id="nome"
           name="nome"
           value="{{ old('nome') }}"
-          placeholder="Ex: Ficção Científica, Romance, Biografia..."
+          placeholder="Ex: Grãos e Cereais, Frutas e Hortaliças, Maquinários..."
           class="input input-bordered w-full pl-10 focus:border-[#1B4D3E] focus:ring-1 focus:ring-[#1B4D3E] @error('nome') input-error @enderror"
           required
         >
@@ -73,7 +75,7 @@
         id="descricao"
         name="descricao"
         rows="4"
-        placeholder="Breve descrição sobre os livros pertencentes a esta categoria..."
+        placeholder="Breve descrição sobre os lotes e produtos pertencentes a esta categoria..."
         class="textarea textarea-bordered w-full focus:border-[#1B4D3E] focus:ring-1 focus:ring-[#1B4D3E] @error('descricao') textarea-error @enderror"
       >{{ old('descricao') }}</textarea>
       @error('descricao')
@@ -86,7 +88,7 @@
       <a href="{{ route('categorias.index') }}" class="btn btn-outline border-gray-300 text-gray-600 hover:bg-gray-100 hover:text-gray-800">
         Cancelar
       </a>
-      
+
       <button type="submit" class="btn btn-copav text-white border-none gap-2 px-6">
         <span class="material-symbols-outlined text-lg">save</span>
         Cadastrar Categoria

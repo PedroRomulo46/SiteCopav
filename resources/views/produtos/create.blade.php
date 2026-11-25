@@ -10,13 +10,13 @@
 
         {{-- Item 1: Início --}}
         <li>
-            <a href="{{route('home')}}">
+            <a href="{{ route('home') }}" class="hover:text-[#1B4D3E]">
                 Início
             </a>
         </li>
 
-        {{-- Item 2: Pégina Atual --}}
-        <li class="flex items-center space-x-2 hover:cursor-pointer">
+        {{-- Item 2: Página Atual --}}
+        <li class="flex items-center space-x-2">
             <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
             <span class="font-semibold text-gray-800">
                 @yield('title')
@@ -25,7 +25,7 @@
     </ol>
 </nav>
 
-<div class="max-w-4xl mx-auto my-6 p-6 bg-white rounded-lg shadow-md">
+<div class="max-w-4xl mx-auto my-6 p-6 bg-white rounded-lg shadow-md text-left">
 
     <h1 class="text-2xl font-bold mb-6 text-gray-800">
         Cadastrar Novo Produto
@@ -33,7 +33,7 @@
 
     {{-- Bloco para exibição de erros de validação --}}
     @if ($errors->any())
-        <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700">
+        <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-r-md">
             <p class="font-bold">
                 Atenção! Corrija os erros abaixo:
             </p>
@@ -59,42 +59,42 @@
 
             {{-- Nome --}}
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
+                <label for="nome" class="block text-sm font-medium text-gray-700 mb-1">
                     Nome do produto:
                 </label>
 
                 <input
                     type="text"
                     name="nome"
+                    id="nome"
                     value="{{ old('nome') }}"
                     placeholder="Ex: Milho Verde"
                     required
-                    class="w-full p-3 border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">
+                    class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">
             </div>
 
             {{-- Categoria --}}
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
+                <label for="categoria_id" class="block text-sm font-medium text-gray-700 mb-1">
                     Categoria:
                 </label>
 
                 <select
                     name="categoria_id"
+                    id="categoria_id"
                     required
-                    class="w-full p-3 border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">
+                    class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">
 
                     <option value="">
                         Selecione a categoria
                     </option>
 
                     @foreach($categorias as $categoria)
-
                         <option
                             value="{{ $categoria->id }}"
-                            {{ old('categoria_id') == $categoria->id ? 'selected' : '' }}>
+                            {{ (string) old('categoria_id') === (string) $categoria->id ? 'selected' : '' }}>
                             {{ $categoria->nome }}
                         </option>
-
                     @endforeach
 
                 </select>
@@ -102,14 +102,15 @@
 
             {{-- Unidade --}}
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
+                <label for="unidade" class="block text-sm font-medium text-gray-700 mb-1">
                     Unidade:
                 </label>
 
                 <select
                     name="unidade"
+                    id="unidade"
                     required
-                    class="w-full p-3 border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">
+                    class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">
 
                     <option value="">
                         Selecione a unidade
@@ -117,46 +118,46 @@
 
                     <option
                         value="kg"
-                        {{ old('unidade') == 'kg' ? 'selected' : '' }}>
+                        {{ old('unidade') === 'kg' ? 'selected' : '' }}>
                         Kg
                     </option>
 
                     <option
                         value="saca"
-                        {{ old('unidade') == 'saca' ? 'selected' : '' }}>
+                        {{ old('unidade') === 'saca' ? 'selected' : '' }}>
                         Saca
                     </option>
 
                     <option
                         value="unidade"
-                        {{ old('unidade') == 'unidade' ? 'selected' : '' }}>
+                        {{ old('unidade') === 'unidade' ? 'selected' : '' }}>
                         Unidade
                     </option>
 
                     <option
                         value="litro"
-                        {{ old('unidade') == 'litro' ? 'selected' : '' }}>
+                        {{ old('unidade') === 'litro' ? 'selected' : '' }}>
                         Litro
                     </option>
 
                     <option
                         value="tonelada"
-                        {{ old('unidade') == 'tonelada' ? 'selected' : '' }}>
+                        {{ old('unidade') === 'tonelada' ? 'selected' : '' }}>
                         Tonelada
                     </option>
                 </select>
             </div>
 
-
             {{-- Imagem --}}
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
+                <label for="imagem" class="block text-sm font-medium text-gray-700 mb-1">
                     Imagem do produto:
                 </label>
 
                 <input
                     type="file"
                     name="imagem"
+                    id="imagem"
                     accept="image/jpeg,image/png,image/jpg,image/webp"
                     class="file-input w-full border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">
 
@@ -166,35 +167,32 @@
             </div>
         </div>
 
-
         {{-- Descrição --}}
         <div class="mt-4">
-
-            <label class="block text-sm font-medium text-gray-700 mb-1">
+            <label for="descricao" class="block text-sm font-medium text-gray-700 mb-1">
                 Descrição:
             </label>
 
             <textarea
                 name="descricao"
+                id="descricao"
                 rows="5"
                 placeholder="Descreva o produto, suas características e informações importantes..."
-                class="w-full border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]"
-                >{{ old('descricao') }}</textarea>
+                class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-[#236350] focus:border-[#236350]">{{ old('descricao') }}</textarea>
         </div>
-
 
         {{-- Botões --}}
         <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200 w-full">
 
             <a
                 href="{{ route('produtos.index') }}"
-                class="text-gray-600 hover:text-gray-900">
+                class="text-gray-600 hover:text-gray-900 text-sm font-medium">
                 Cancelar
             </a>
 
             <button
                 type="submit"
-                class="btn-copav text-white px-5 py-2 rounded-md transition-colors">
+                class="btn-copav text-white px-5 py-2.5 rounded-md text-sm font-semibold transition-opacity hover:opacity-90 cursor-pointer">
                 Cadastrar produto
             </button>
         </div>

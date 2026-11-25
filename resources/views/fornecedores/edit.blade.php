@@ -9,7 +9,7 @@
 
         {{-- Item 1: Início --}}
         <li class="flex items-center">
-            <a href="{{route('home')}}">
+            <a href="{{ route('home') }}">
                 Início
             </a>
         </li>
@@ -17,12 +17,12 @@
         {{-- Item 2: Menu Fornecedor --}}
         <li class="flex items-center space-x-2">
             <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
-            <a href="{{route('fornecedores.show', $fornecedor)}}">
+            <a href="{{ route('fornecedores.show', $fornecedor) }}">
                 Menu fornecedor
             </a>
         </li>
 
-        {{-- Item 2: Pégina Atual --}}
+        {{-- Item 3: Página Atual --}}
         <li class="flex items-center space-x-2 hover:cursor-pointer">
             <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
             <span class="font-semibold text-gray-800">
@@ -56,77 +56,77 @@
             {{-- Nome --}}
             <div class="md:col-span-2">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Nome:</label>
-                <input 
-                    type="text" 
-                    name="nome" 
-                    value="{{ old('nome', $fornecedor->nome) }}" 
-                    required 
-                    class="p-3 w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                <input
+                    type="text"
+                    name="nome"
+                    value="{{ old('nome', $fornecedor->nome) }}"
+                    required
+                    class="p-3 w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-[#236350] focus:border-[#236350]">
             </div>
 
             {{-- Documento --}}
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Documento:</label>
-                <input 
-                    type="text" 
-                    name="documento" 
-                    value="{{ old('documento', $fornecedor->documento) }}" 
-                    required 
-                    class="p-3 w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                <input
+                    type="text"
+                    name="documento"
+                    value="{{ old('documento', $fornecedor->documento) }}"
+                    required
+                    class="p-3 w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-[#236350] focus:border-[#236350]">
             </div>
 
             {{-- Telefone --}}
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Telefone:</label>
-                <input 
-                    type="text" 
-                    name="telefone" 
-                    value="{{ old('telefone', $fornecedor->telefone) }}" 
-                    required 
-                    class="p-3 w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                <input
+                    type="text"
+                    name="telefone"
+                    value="{{ old('telefone', $fornecedor->telefone) }}"
+                    required
+                    class="p-3 w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-[#236350] focus:border-[#236350]">
             </div>
 
             {{-- Descrição --}}
             <div class="md:col-span-2">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Descrição:</label>
-                <textarea 
-                    name="descricao" 
-                    rows="3" 
-                    class="p-3 w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">{{ old('descricao', $fornecedor->descricao) }}</textarea>
+                <textarea
+                    name="descricao"
+                    rows="3"
+                    class="p-3 w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-[#236350] focus:border-[#236350]">{{ old('descricao', $fornecedor->descricao) }}</textarea>
             </div>
 
             {{-- Endereço --}}
             <div class="md:col-span-2">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Endereço:</label>
-                <input 
-                    type="text" 
-                    name="endereco" 
-                    value="{{ old('endereco', $fornecedor->endereco) }}" 
-                    required 
-                    class="p-3 w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                <input
+                    type="text"
+                    name="endereco"
+                    value="{{ old('endereco', $fornecedor->endereco) }}"
+                    required
+                    class="p-3 w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-[#236350] focus:border-[#236350]">
             </div>
 
             {{-- Cidade --}}
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Cidade:</label>
-                <input 
-                    type="text" 
-                    name="cidade" 
-                    value="{{ old('cidade', $fornecedor->cidade) }}" 
-                    required 
-                    class="p-3 w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                <input
+                    type="text"
+                    name="cidade"
+                    value="{{ old('cidade', $fornecedor->cidade) }}"
+                    required
+                    class="p-3 w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-[#236350] focus:border-[#236350]">
             </div>
 
             {{-- Estado --}}
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Estado:</label>
-                <input 
-                    type="text" 
-                    name="estado" 
-                    maxlength="2" 
-                    value="{{ old('estado', $fornecedor->estado) }}" 
-                    required 
-                    class="p-3 w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 uppercase">
+                <input
+                    type="text"
+                    name="estado"
+                    maxlength="2"
+                    value="{{ old('estado', $fornecedor->estado) }}"
+                    required
+                    class="p-3 w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-[#236350] focus:border-[#236350] uppercase">
             </div>
 
         </div>
@@ -135,7 +135,7 @@
             <a href="{{ route('fornecedores.show', $fornecedor) }}" class="text-gray-600 hover:text-gray-900">
                 Cancelar
             </a>
-            <button type="submit" class="btn-copav text-white px-5 py-2 rounded-md transition-colors">
+            <button type="submit" class="btn-copav text-white px-5 py-2 rounded-md transition-colors cursor-pointer">
                 Salvar alterações
             </button>
         </div>

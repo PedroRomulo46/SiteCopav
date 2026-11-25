@@ -10,13 +10,13 @@
 
         {{-- Item 1: Início --}}
         <li>
-            <a href="{{route('home')}}">
+            <a href="{{ route('home') }}" class="hover:text-[#1B4D3E]">
                 Início
             </a>
         </li>
 
-        {{-- Item 2: Pégina Atual --}}
-        <li class="flex items-center space-x-2 hover:cursor-pointer">
+        {{-- Item 2: Página Atual --}}
+        <li class="flex items-center space-x-2">
             <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
             <span class="font-semibold text-gray-800">
                 @yield('title')
@@ -62,7 +62,7 @@
     {{-- Lista de ofertas --}}
     <div
         id="lista-ofertas"
-        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 {{ $ofertas->count() ? '' : 'hidden' }}"
     >
         @foreach($ofertas as $oferta)
             @include('ofertas.partials.card', [
@@ -72,112 +72,88 @@
     </div>
 
     {{-- Nenhuma oferta --}}
-    @if(!$ofertas->count())
+    <div
+        id="sem-ofertas"
+        class="bg-white rounded-xl shadow-md border border-gray-100 p-10 text-center my-6 {{ $ofertas->count() ? 'hidden' : '' }}"
+    >
+        <span class="material-symbols-outlined text-6xl text-gray-300">
+            local_offer
+        </span>
 
-        <div
-            id="sem-ofertas"
-            class="bg-white rounded-xl shadow-md border border-gray-100 p-10 text-center my-6"
-        >
+        <h2 class="text-xl font-bold text-gray-700 mt-4">
+            Nenhuma oferta cadastrada
+        </h2>
 
-            <span class="material-symbols-outlined text-6xl text-gray-300">
-                local_offer
-            </span>
+        <p class="text-gray-500 text-sm mt-2">
+            Ainda não existem ofertas cadastradas no marketplace.
+        </p>
 
-            <h2 class="text-xl font-bold text-gray-700 mt-4">
-                Nenhuma oferta cadastrada
-            </h2>
+        @auth
+            <a
+                href="{{ route('ofertas.create') }}"
+                class="btn-copav inline-flex items-center gap-2 mt-5 px-5 py-2.5 rounded-md transition-colors"
+            >
+                <span class="material-symbols-outlined">
+                    add
+                </span>
 
-            <p class="text-gray-500 text-sm mt-2">
-                Ainda não existem ofertas cadastradas no marketplace.
-            </p>
-
-            @auth
-                <a
-                    href="{{ route('ofertas.create') }}"
-                    class="btn-copav inline-flex items-center gap-2 mt-5 px-5 py-2.5 rounded-md transition-colors"
-                >
-                    <span class="material-symbols-outlined">
-                        add
-                    </span>
-
-                    Cadastrar primeira oferta
-                </a>
-            @endauth
-
-        </div>
-
-    @endif
+                Cadastrar primeira oferta
+            </a>
+        @endauth
+    </div>
 </div>
 @endsection
 
 @push('scripts')
 <script>
     window.addEventListener('load', function () {
-
         if (!window.Echo) {
             console.error('Echo não foi carregado.');
             return;
         }
 
+        const rotaCardOfertaTemplate = @json(route('ofertas.card', ['oferta' => '__ID__']));
+        const lista = document.getElementById('lista-ofertas');
+        const semOfertas = document.getElementById('sem-ofertas');
+
+        function sincronizarEstadoVazio() {
+            if (!lista || !semOfertas) return;
+
+            const temCards = lista.querySelectorAll('[data-oferta-id]').length > 0;
+            lista.classList.toggle('hidden', !temCards);
+            semOfertas.classList.toggle('hidden', temCards);
+        }
+
         window.Echo.channel('ofertas')
             .listen('.oferta.criada', function (event) {
+                const ofertaId = event?.oferta?.id;
 
-                console.log('NOVA OFERTA RECEBIDA:', event);
-
-                const lista = document.getElementById('lista-ofertas');
-
-                if (!lista) {
-                    console.error('Lista de ofertas não encontrada.');
+                if (!lista || !ofertaId) {
                     return;
                 }
-
-                const ofertaId = event.oferta.id;
 
                 if (lista.querySelector(`[data-oferta-id="${ofertaId}"]`)) {
                     return;
                 }
 
-                fetch(`/ofertas/${ofertaId}/card`)
+                fetch(rotaCardOfertaTemplate.replace('__ID__', ofertaId))
                     .then(response => {
-
                         if (!response.ok) {
-                            throw new Error(
-                                'Erro ao carregar a nova oferta.'
-                            );
+                            throw new Error('Erro ao carregar a nova oferta.');
                         }
 
                         return response.text();
                     })
                     .then(html => {
-
-                        lista.insertAdjacentHTML(
-                            'afterbegin',
-                            html
-                        );
-
-                        const semOfertas =
-                            document.getElementById('sem-ofertas');
-
-                        if (semOfertas) {
-                            semOfertas.remove();
-                        }
+                        lista.insertAdjacentHTML('afterbegin', html);
+                        sincronizarEstadoVazio();
                     })
                     .catch(error => {
-
-                        console.error(
-                            'Erro ao atualizar ofertas:',
-                            error
-                        );
-
+                        console.error('Erro ao atualizar ofertas:', error);
                     });
             })
             .listen('.oferta.excluida', function (event) {
-
-                console.log('OFERTA EXCLUÍDA:', event);
-
-                const lista = document.getElementById('lista-ofertas');
-
-                if (!lista) {
+                if (!lista || !event?.ofertaId) {
                     return;
                 }
 
@@ -186,65 +162,43 @@
                 );
 
                 if (!card) {
-                    console.log('Card da oferta não encontrado.');
                     return;
                 }
 
                 card.remove();
-
-                console.log('Card removido da tela.');
-
+                sincronizarEstadoVazio();
             })
             .listen('.oferta.atualizada', function (event) {
+                const ofertaId = event?.oferta?.id;
 
-                console.log('OFERTA ATUALIZADA:', event);
-
-                const lista = document.getElementById('lista-ofertas');
-
-                if (!lista) {
+                if (!lista || !ofertaId) {
                     return;
                 }
-
-                const ofertaId = event.oferta.id;
 
                 const cardAtual = lista.querySelector(
                     `[data-oferta-id="${ofertaId}"]`
                 );
 
                 if (!cardAtual) {
-                    console.log('Card da oferta atualizada não encontrado.');
                     return;
                 }
 
-                fetch(`/ofertas/${ofertaId}/card`)
+                fetch(rotaCardOfertaTemplate.replace('__ID__', ofertaId))
                     .then(response => {
-
                         if (!response.ok) {
-                            throw new Error(
-                                'Erro ao carregar a oferta atualizada.'
-                            );
+                            throw new Error('Erro ao carregar a oferta atualizada.');
                         }
 
                         return response.text();
                     })
                     .then(html => {
-
                         cardAtual.outerHTML = html;
-
-                        console.log('Card atualizado na tela.');
-
+                        sincronizarEstadoVazio();
                     })
                     .catch(error => {
-
-                        console.error(
-                            'Erro ao atualizar card:',
-                            error
-                        );
-
+                        console.error('Erro ao atualizar card:', error);
                     });
-
             });
-
     });
 </script>
 @endpush

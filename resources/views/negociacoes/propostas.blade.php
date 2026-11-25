@@ -10,7 +10,7 @@
 
         {{-- Item 1: Início --}}
         <li class="flex items-center">
-            <a href="{{route('home')}}">
+            <a href="{{ route('home') }}">
                 Início
             </a>
         </li>
@@ -19,7 +19,7 @@
         <li class="flex items-center space-x-2 hover:cursor-pointer">
             <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
             <span class="font-semibold text-gray-800">
-                Negociações de {{ $oferta->produto->nome }}
+                Negociações de {{ $oferta->produto->nome ?? 'Produto' }}
             </span>
         </li>
     </ol>
@@ -33,10 +33,10 @@
             <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 text-left">
                 <div>
                     <h1 class="text-3xl font-bold text-gray-800 mt-0.5">
-                        {{ $oferta->produto->nome }}
+                        {{ $oferta->produto->nome ?? 'Produto' }}
                     </h1>
                     <p class="text-sm text-gray-500 mt-1">
-                        {{ $oferta->fornecedor->nome }}
+                        {{ $oferta->fornecedor->nome ?? 'Fornecedor' }}
                     </p>
                 </div>
 
@@ -100,7 +100,7 @@
 
     {{-- Lista de Propostas --}}
     <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-        
+
         {{-- Topo da Lista de Propostas + Filtros --}}
         <div class="p-6 border-b border-gray-200 text-left">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -282,7 +282,6 @@
     </div>
 </div>
 
-
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -299,8 +298,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     const ofertaId = {{ $oferta->id }};
+    const rotaCardPropostaTemplate = @json(route('propostas.card', ['proposta' => '__ID__']));
 
-    
     window.Echo.private(`oferta.${ofertaId}`)
         .listen('.proposta.criada', function (evento) {
             const proposta = evento.proposta;
@@ -313,7 +312,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            fetch(`/propostas/${proposta.id}/card`)
+            fetch(rotaCardPropostaTemplate.replace('__ID__', proposta.id))
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Erro ao carregar o cartão da proposta.');
@@ -351,8 +350,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            // Busca o cartão atualizado no servidor.
-            fetch(`/propostas/${proposta.id}/card`)
+            fetch(rotaCardPropostaTemplate.replace('__ID__', proposta.id))
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Erro ao carregar o cartão atualizado.');
@@ -363,8 +361,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 .then(html => {
                     cartao.outerHTML = html;
 
-                    // Remove o indicador de nova mensagem quando a proposta
-                    // deixa de estar pendente.
                     if (['aceita', 'recusada', 'cancelada'].includes(proposta.status)) {
                         const indicador = document.querySelector(
                             `[data-proposta-id="${proposta.id}"] .indicador-nova-proposta`
@@ -374,15 +370,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                     console.log('Cartão da proposta atualizado sem recarregar a página.');
                 })
-
                 .catch(error => {
                     console.error('Erro ao atualizar cartão:', error);
                 });
         });
 });
-
 </script>
-
 @endpush
 
 @endsection

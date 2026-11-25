@@ -12,7 +12,7 @@ class Fornecedor extends Model
     protected $fillable = [ 
         'user_id', 
         'nome', 
-        'documento', 
+        'documento',
         'telefone', 
         'descricao', 
         'endereco', 

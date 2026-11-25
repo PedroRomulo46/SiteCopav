@@ -69,7 +69,7 @@
                     Sugerir Categoria
                 </a>
 
-                <a href="{{ route('categorias.create') }}" class="btn bg-[#1B4D3E] hover:bg-[#143B2F] text-white border-none gap-2 shadow-sm font-medium">
+                <a href="{{ route('categorias.create') }}" class="btn btn-copav text-white border-none gap-2 shadow-sm font-medium">
                     <span class="material-symbols-outlined text-xl">add</span>
                     Cadastrar Categoria
                 </a>

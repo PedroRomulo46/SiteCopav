@@ -37,46 +37,37 @@
 @php
     $usuarioLogado = auth()->user();
 
-    $is_Admin = auth()->check()
-        && $usuarioLogado->user_type === 'admin';
+    $isAdmin = auth()->check() && $usuarioLogado->isAdmin();
+    $isFornecedor = auth()->check() && $usuarioLogado->isFornecedor();
+    $isCliente = auth()->check() && $usuarioLogado->isCliente();
 
-    $is_Empresa = auth()->check()
-        && $usuarioLogado->user_type === 'empresa';
-
-    // Admin e empresa não são tratados como fornecedores.
-    $is_Fornecedor = auth()->check()
-        && !$is_Admin
-        && !$is_Empresa
-        && $usuarioLogado->fornecedor !== null;
-
-    $is_Cliente = auth()->check()
-        && !$is_Admin
-        && !$is_Empresa
-        && !$is_Fornecedor
-        && $usuarioLogado->user_type === 'cliente';
+    $hasGestaoPanel = $isFornecedor || $isAdmin;
 
     $listaOfertas = $ofertas ?? collect();
     $listaDemandas = $demandas ?? collect();
+    $minhasDemandas = $usuarioLogado
+        ? $listaDemandas->filter(fn ($demanda) => (int) ($demanda->cliente_id ?? 0) === (int) $usuarioLogado->id)->values()
+        : collect();
     $listaProdutos = $produtos ?? collect();
     $totalNovasPropostas = $novasPropostas ?? 0;
 @endphp
 
 <div
     x-data="{
-        abaAtiva: '{{ ($is_Fornecedor || $is_Admin || $is_Empresa) ? 'lotes' : 'demandas' }}',
+        abaAtiva: '{{ $hasGestaoPanel ? 'lotes' : 'demandas' }}',
         ordenarPor: 'recentes'
     }"
     class="container-home w-full max-w-7xl mx-auto px-3 sm:px-5 lg:px-6 py-5 space-y-7 min-h-screen">
 
     {{-- Painel de gestão --}}
     @auth
-        @if($is_Fornecedor || $is_Admin || $is_Empresa)
+        @if($hasGestaoPanel)
             <section class="bg-[#123228] text-white p-4 sm:p-6 rounded-2xl shadow-md">
 
-                {{-- Painel --}}
-                <div class="flex flex-row md:flex-row md:items-center justify-between gap-4 mb-4 pb-4 border-b border-emerald-800">
+                {{-- Cabeçalho do painel --}}
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 pb-4 border-b border-emerald-800">
                     <div>
-                        @if($is_Fornecedor)
+                        @if($isFornecedor)
                             <h1 class="text-lg sm:text-2xl font-bold mt-1">
                                 Gestão de Ofertas
                             </h1>
@@ -84,8 +75,7 @@
                             <p class="text-sm text-emerald-50 mt-1">
                                 Gerencie suas ofertas, acompanhe propostas e encontre oportunidades.
                             </p>
-
-                        @elseif($is_Admin)
+                        @elseif($isAdmin)
                             <span class="text-xs font-bold uppercase tracking-wider text-emerald-50">
                                 Painel administrativo
                             </span>
@@ -97,23 +87,10 @@
                             <p class="text-xs sm:text-sm text-emerald-50 mt-1">
                                 Acompanhe as demandas e oportunidades do marketplace.
                             </p>
-
-                        @elseif($is_Empresa)
-                            <span class="text-xs font-bold uppercase tracking-wider text-emerald-50">
-                                Painel da empresa
-                            </span>
-
-                            <h1 class="text-xl sm:text-2xl font-extrabold mt-1">
-                                Gestão da empresa
-                            </h1>
-
-                            <p class="text-xs sm:text-sm text-emerald-50 mt-1">
-                                Acompanhe as demandas e oportunidades da empresa.
-                            </p>
                         @endif
                     </div>
 
-                    @if($is_Fornecedor)
+                    @if($isFornecedor)
                         <div class="flex flex-wrap items-center gap-2">
                             <a href="{{ route('ofertas.create') }}"
                                class="btn-copav text-white text-sm px-4 py-2.5 rounded-lg font-bold flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-colors">
@@ -137,30 +114,25 @@
                          aria-label="Painel de gestão"
                          class="flex flex-wrap items-center gap-4 sm:gap-6 border-b border-gray-200 pb-3 mb-3 text-sm font-bold">
 
-                        @if($is_Fornecedor || $is_Admin || $is_Empresa)
-                            <button type="button" role="tab" @click="abaAtiva = 'lotes'" :aria-selected="abaAtiva === 'lotes'"
-                                :class="abaAtiva === 'lotes' ? 'text-[#236350] border-b-2 border-[#236350]' : 'text-gray-400 hover:text-gray-600'"
-                                class="relative pb-2 transition-colors">
+                        <button type="button"
+                            role="tab"
+                            @click="abaAtiva = 'lotes'"
+                            :aria-selected="abaAtiva === 'lotes'"
+                            :class="abaAtiva === 'lotes' ? 'text-[#236350] border-b-2 border-[#236350]' : 'text-gray-400 hover:text-gray-600'"
+                            class="relative pb-2 transition-colors">
 
-                                @if($is_Fornecedor)
-                                    Minhas Ofertas
-                                @elseif($is_Admin)
-                                    Lotes da empresa
-                                @elseif($is_Empresa)
-                                    Lotes da empresa
-                                @endif
+                            {{ $isFornecedor ? 'Minhas Ofertas' : 'Lotes da empresa' }}
 
-                                <span id="indicador-novas-propostas"
-                                    class="ml-1.5 inline-flex items-center justify-center rounded-full bg-amber-400 text-gray-900 text-[10px] font-extrabold min-w-5 h-5 px-1"
-                                    style="{{ $totalNovasPropostas > 0 ? 'display: inline-flex;' : 'display: none;' }}"
-                                    title="{{ $totalNovasPropostas }} {{ $totalNovasPropostas === 1 ? 'nova proposta' : 'novas propostas' }}">
+                            <span id="indicador-novas-propostas"
+                                class="ml-1.5 inline-flex items-center justify-center rounded-full bg-amber-400 text-gray-900 text-[10px] font-extrabold min-w-5 h-5 px-1"
+                                style="{{ $totalNovasPropostas > 0 ? 'display: inline-flex;' : 'display: none;' }}"
+                                title="{{ $totalNovasPropostas }} {{ $totalNovasPropostas === 1 ? 'nova proposta' : 'novas propostas' }}">
 
-                                    <span id="contador-novas-propostas">
-                                        {{ $totalNovasPropostas }}
-                                    </span>
+                                <span id="contador-novas-propostas">
+                                    {{ $totalNovasPropostas }}
                                 </span>
-                            </button>
-                        @endif
+                            </span>
+                        </button>
 
                         <button type="button"
                             role="tab"
@@ -169,36 +141,34 @@
                             :class="abaAtiva === 'demandas' ? 'text-[#236350] border-b-2 border-[#236350]' : 'text-gray-400 hover:text-gray-600'"
                             class="pb-2 transition-colors">
 
-                            Demandas da Empresa
+                            Minhas Demandas
 
-                            @if($listaDemandas->count() > 0)
+                            @if($minhasDemandas->count() > 0)
                                 <span class="ml-1 text-[10px] bg-slate-100 text-slate-600 rounded-full px-1.5 py-0.5">
-                                    {{ $listaDemandas->count() }}
+                                    {{ $minhasDemandas->count() }}
                                 </span>
                             @endif
                         </button>
                     </div>
 
                     {{-- Aba de ofertas --}}
-                    @if($is_Fornecedor || $is_Admin || $is_Empresa)
-                        <div x-show="abaAtiva === 'lotes'" x-cloak class="space-y-2">
+                    <div x-show="abaAtiva === 'lotes'" x-cloak class="space-y-2">
 
-                            @forelse($listaOfertas->take(3) as $oferta)
-                                @php
-                                    $quantidadeNovas = isset($ofertasComNovasPropostas)
-                                        ? (int) $ofertasComNovasPropostas->get($oferta->id, 0)
-                                        : 0;
+                        @forelse($listaOfertas->take(3) as $oferta)
+                            @php
+                                $quantidadeNovas = isset($ofertasComNovasPropostas)
+                                    ? (int) $ofertasComNovasPropostas->get($oferta->id, 0)
+                                    : 0;
 
-                                    $imagemProduto = $oferta->produto->imagem ?? null;
-                                @endphp
+                                $imagemProduto = $oferta->produto->imagem ?? null;
+                            @endphp
 
                             <article
-                            class="card-oferta-fornecedor relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-2 sm:p-3 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition-colors"                                data-oferta-id="{{ $oferta->id }}"
-                            data-novas-propostas="{{ $quantidadeNovas }}">
+                                class="card-oferta-fornecedor relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-2 sm:p-3 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition-colors"
+                                data-oferta-id="{{ $oferta->id }}"
+                                data-novas-propostas="{{ $quantidadeNovas }}">
 
-                                {{-- Informações do lote --}}
                                 <div class="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 sm:mr-auto">
-
                                     <img
                                         class="w-20 h-20 sm:w-16 sm:h-16 object-cover rounded-lg shrink-0 bg-gray-100"
                                         src="{{ $imagemProduto ? (str_contains($imagemProduto, 'assets/') ? asset($imagemProduto) : asset('storage/' . ltrim(str_replace('public/', '', $imagemProduto), '/'))) : asset('assets/milho.png') }}"
@@ -223,13 +193,11 @@
                                             <strong>
                                                 {{ $oferta->data_validade ? \Carbon\Carbon::parse($oferta->data_validade)->format('d/m/Y') : 'Sem prazo definido' }}
                                             </strong>
-                                        </h2>
+                                        </p>
                                     </div>
                                 </div>
 
-                                {{-- Botões abaixo no celular e à direita no computador --}}
                                 <div class="flex items-center justify-end gap-2 w-full sm:w-auto sm:shrink-0">
-
                                     @if($quantidadeNovas > 0)
                                         <span
                                             class="contador-propostas-oferta proposta-nova inline-flex items-center justify-center min-w-6 h-6 px-1 rounded-full bg-amber-400 text-gray-900 text-xs font-extrabold"
@@ -241,48 +209,39 @@
                                     @endif
 
                                     <a href="{{ route('negociacoes.propostas', ['oferta' => $oferta->id]) }}"
-                                    class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold px-3 py-2 rounded-md text-xs transition-colors whitespace-nowrap">
+                                       class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold px-3 py-2 rounded-md text-xs transition-colors whitespace-nowrap">
                                         Negociações
                                     </a>
 
                                     <a href="{{ route('ofertas.show', $oferta->id) }}"
-                                    class="btn-copav text-white px-3 py-2 rounded-md font-bold text-xs whitespace-nowrap transition-colors">
+                                       class="btn-copav text-white px-3 py-2 rounded-md font-bold text-xs whitespace-nowrap transition-colors">
                                         Detalhes
                                     </a>
                                 </div>
                             </article>
+                        @empty
+                            <p class="text-sm text-gray-400 text-center py-6">
+                                {{ $isFornecedor ? 'Você ainda não possui ofertas cadastradas.' : 'Nenhum lote da empresa foi encontrado.' }}
+                            </p>
+                        @endforelse
 
-                            @empty
-                                <p class="text-sm text-gray-400 text-center py-6">
-                                    @if($is_Fornecedor)
-                                        Você ainda não possui ofertas cadastradas.
-                                    @elseif($is_Admin)
-                                        Nenhum lote da empresa foi encontrado.
-                                    @elseif($is_Empresa)
-                                        Nenhum lote da empresa foi encontrado.
-                                    @endif
-                                </p>
-                            @endforelse
+                        @if($listaOfertas->count() > 3)
+                            <div class="pt-2 text-center">
+                                <a href="{{ route('ofertas.index') }}"
+                                   class="inline-flex items-center justify-center gap-1 text-xs font-bold bg-slate-200 hover:bg-slate-300 px-4 py-2.5 rounded-lg transition-colors">
+                                    Ver todas as ofertas
+                                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                                </a>
+                            </div>
+                        @endif
+                    </div>
 
-                            @if($listaOfertas->count() > 3)
-                                <div class="pt-2 text-center">
-                                    <a href="{{ route('ofertas.index') }}"
-                                    class="inline-flex items-center justify-center gap-1 text-xs font-bold bg-slate-200 hover:bg-slate-300 px-4 py-2.5 rounded-lg transition-colors">
-                                        Ver todas as ofertas
-                                        <span class="material-symbols-outlined text-sm">arrow_forward</span>
-                                    </a>
-                                </div>
-                            @endif
-                        </div>
-                    @endif
-
-                    
                     {{-- Aba de demandas --}}
                     <div x-show="abaAtiva === 'demandas'"
                         x-cloak
                         class="space-y-2">
 
-                        @forelse($listaDemandas->take(3) as $demanda)
+                        @forelse($minhasDemandas->take(3) as $demanda)
                             @php
                                 $imagemDemanda = $demanda->imagem ?? null;
                             @endphp
@@ -290,9 +249,7 @@
                             <article
                                 class="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-2 sm:p-3 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition-colors">
 
-                                {{-- Informações da demanda: alinhadas à esquerda --}}
                                 <div class="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 sm:mr-auto">
-
                                     <img
                                         class="w-20 h-20 sm:w-16 sm:h-16 object-cover rounded-lg shrink-0 bg-gray-100"
                                         src="{{ $imagemDemanda
@@ -304,7 +261,6 @@
                                         onerror="this.onerror=null; this.src='{{ asset('assets/milho.png') }}';">
 
                                     <div class="min-w-0 flex-1">
-
                                         <h2 class="font-extrabold text-gray-800 text-sm sm:text-base truncate">
                                             {{ $demanda->nome_produto ?? 'Produto solicitado' }}
                                         </h2>
@@ -316,7 +272,6 @@
                                         @endif
 
                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 mt-1 text-xs text-gray-500">
-
                                             <p>
                                                 Quantidade:
                                                 <strong class="text-gray-700">
@@ -351,49 +306,43 @@
                                                     </strong>
                                                 </p>
                                             @endif
-
                                         </div>
                                     </div>
                                 </div>
 
-                                {{-- Status e botão: à direita no desktop --}}
                                 <div class="flex items-center justify-end gap-2 w-full sm:w-auto sm:shrink-0">
-
                                     <span class="inline-flex items-center justify-center min-w-fit px-2 h-6 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-extrabold uppercase">
                                         {{ ucfirst($demanda->status ?? 'aberta') }}
                                     </span>
 
                                     <a href="{{ route('demandas.show', $demanda->id) }}"
-                                    class="btn-copav text-white px-3 py-2 rounded-md font-bold text-xs whitespace-nowrap transition-colors">
-                                        Enviar proposta
+                                       class="btn-copav text-white px-3 py-2 rounded-md font-bold text-xs whitespace-nowrap transition-colors">
+                                        Ver demanda
                                     </a>
-
                                 </div>
                             </article>
-
                         @empty
                             <p class="text-sm text-gray-400 text-center py-6">
-                                Nenhuma demanda corporativa aberta no momento.
+                                Você ainda não cadastrou nenhuma demanda.
                             </p>
                         @endforelse
 
-                        @if($listaDemandas->count() > 3)
+                        @if($minhasDemandas->count() > 3)
                             <div class="pt-2 text-center">
                                 <a href="{{ route('demandas.index') }}"
-                                class="inline-flex items-center justify-center gap-1 text-xs font-bold bg-slate-200 hover:bg-slate-300 px-4 py-2.5 text-[#236350] rounded-lg transition-colors">
-                                    Ver todas as demandas
+                                   class="inline-flex items-center justify-center gap-1 text-xs font-bold bg-slate-200 hover:bg-slate-300 px-4 py-2.5 text-[#236350] rounded-lg transition-colors">
+                                    Ver todas as minhas demandas
                                     <span class="material-symbols-outlined text-sm">arrow_forward</span>
                                 </a>
                             </div>
                         @endif
-
                     </div>
 
                 </div>
             </section>
 
-        @elseif($is_Cliente)
-            <section class="bg-[#123228] text-white p-4 sm:p-5 rounded-2xl shadow-md flex flex-row sm:flex-row items-center justify-between gap-3">
+        @elseif($isCliente)
+            <section class="bg-[#123228] text-white p-4 sm:p-5 rounded-2xl shadow-md flex flex-row items-center justify-between gap-3">
                 <div>
                     <h2 class="font-bold text-base">
                         Quer vender no marketplace?
@@ -458,7 +407,6 @@
                     Ordenar lotes
                 </label>
 
-                {{-- Filtro de ordenação --}}
                 <select id="ordenar-vitrine"
                     class="bg-white border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-700 outline-none focus:border-[#236350] focus:ring-2 focus:ring-emerald-100">
                     <option value="recentes">Mais recentes</option>
@@ -551,7 +499,6 @@
     </section>
 </div>
 
-{{-- Ordenação da vitrine --}}
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -567,13 +514,11 @@
 
             cards.sort((a, b) => {
                 if (ordenar.value === 'menor-preco') {
-                    return Number(a.dataset.valor || 0)
-                        - Number(b.dataset.valor || 0);
+                    return Number(a.dataset.valor || 0) - Number(b.dataset.valor || 0);
                 }
 
                 if (ordenar.value === 'maior-preco') {
-                    return Number(b.dataset.valor || 0)
-                        - Number(a.dataset.valor || 0);
+                    return Number(b.dataset.valor || 0) - Number(a.dataset.valor || 0);
                 }
 
                 if (ordenar.value === 'nome') {
@@ -583,8 +528,7 @@
                     );
                 }
 
-                return Number(b.dataset.id || 0)
-                    - Number(a.dataset.id || 0);
+                return Number(b.dataset.id || 0) - Number(a.dataset.id || 0);
             });
 
             cards.forEach(card => grade.appendChild(card));
@@ -596,18 +540,14 @@
 
     window.addEventListener('load', function () {
         if (!window.Echo) {
-            console.info(
-                'Laravel Echo não está disponível nesta página.'
-            );
+            console.info('Laravel Echo não está disponível nesta página.');
             return;
         }
 
         @auth
-            @if(auth()->user()->fornecedor)
+            @if(auth()->user()->isFornecedor() && auth()->user()->fornecedor)
                 const fornecedorId = {{ auth()->user()->fornecedor->id }};
-                const canal = window.Echo.private(
-                    `fornecedor.${fornecedorId}`
-                );
+                const canal = window.Echo.private(`fornecedor.${fornecedorId}`);
 
                 canal.listen('.proposta.criada', (event) => {
                     const proposta = event.proposta;
@@ -615,20 +555,13 @@
                     if (!proposta || !proposta.oferta_id) return;
 
                     const ofertaId = Number(proposta.oferta_id);
-                    
                     const card = document.querySelector(
                         `.card-oferta-fornecedor[data-oferta-id="${ofertaId}"]`
                     );
 
                     if (card) {
-                        const contador = card.querySelector(
-                            '.contador-propostas-oferta'
-                        );
-
-                        const atual = Number(
-                            card.dataset.novasPropostas || 0
-                        );
-
+                        const contador = card.querySelector('.contador-propostas-oferta');
+                        const atual = Number(card.dataset.novasPropostas || 0);
                         const novoTotal = atual + 1;
 
                         card.dataset.novasPropostas = novoTotal;
@@ -636,43 +569,24 @@
                         if (contador) {
                             contador.textContent = novoTotal;
                             contador.classList.remove('hidden');
-                            contador.classList.add(
-                                'inline-flex',
-                                'proposta-nova'
-                            );
+                            contador.classList.add('inline-flex', 'proposta-nova');
                             contador.style.display = 'inline-flex';
                         }
 
-                        // Coloca a oferta com nova proposta no início.
                         const lista = card.parentElement;
-
                         if (lista) {
                             lista.prepend(card);
                         }
                     }
 
-                    const contadorGeral = document.getElementById(
-                        'contador-novas-propostas'
-                    );
-
-                    const indicadorGeral = document.getElementById(
-                        'indicador-novas-propostas'
-                    );
+                    const contadorGeral = document.getElementById('contador-novas-propostas');
+                    const indicadorGeral = document.getElementById('indicador-novas-propostas');
 
                     if (contadorGeral && indicadorGeral) {
-                        const novoTotal = Number(
-                            contadorGeral.textContent.trim() || 0
-                        ) + 1;
-
+                        const novoTotal = Number(contadorGeral.textContent.trim() || 0) + 1;
                         contadorGeral.textContent = novoTotal;
                         indicadorGeral.style.display = 'inline-flex';
-
-                        indicadorGeral.title =
-                            `${novoTotal} ${
-                                novoTotal === 1
-                                    ? 'nova proposta'
-                                    : 'novas propostas'
-                            }`;
+                        indicadorGeral.title = `${novoTotal} ${novoTotal === 1 ? 'nova proposta' : 'novas propostas'}`;
                     }
                 });
             @endif

@@ -5,7 +5,7 @@
 @section('conteudo')
 
 @php
-    $produto = $oferta->produto;
+    $produto = $oferta?->produto;
 
     $imagemProduto = $produto && $produto->imagem
         ? (
@@ -24,7 +24,7 @@
      aria-label="Breadcrumb">
 
     <a href="{{ route('home') }}"
-       class="text-gray-500 hover:text-[#236350]">
+       class="text-gray-500 hover:text-[#236350] transition-colors">
         Início
     </a>
 
@@ -33,7 +33,7 @@
     </span>
 
     <a href="{{ route('negociacoes.compras') }}"
-       class="text-gray-500 hover:text-[#236350]">
+       class="text-gray-500 hover:text-[#236350] transition-colors">
         Minhas Compras
     </a>
 
@@ -72,6 +72,7 @@
                         src="{{ $imagemProduto }}"
                         alt="{{ $produto->nome ?? 'Produto' }}"
                         class="w-full h-56 md:h-64 object-cover rounded-xl bg-gray-100 shadow-sm"
+                        onerror="this.onerror=null; this.src='{{ asset('assets/milho.png') }}';"
                     >
                 </div>
 
@@ -102,10 +103,9 @@
                         <div class="min-w-0">
                             <p class="text-sm text-gray-500">Vendedor</p>
 
-                            {{-- Adicionar rota para perfil do fornecedor href="{{ route('perfil.fornecedor') }}" --}}
-                            <a class="font-bold text-gray-900 wrap-break-words">
-                                {{ $oferta->fornecedor->nome ?? 'Fornecedor' }}
-                            </a>
+                            <span class="font-bold text-gray-900 wrap-break-words">
+                                {{ $oferta?->fornecedor?->nome ?? 'Fornecedor' }}
+                            </span>
                         </div>
                     </div>
 
@@ -125,7 +125,6 @@
                                 </p>
                             </div>
                         </div>
-
                     </div>
                 </div>
 
@@ -170,11 +169,11 @@
 
                             <p class="flex flex-wrap items-baseline gap-2">
                                 <span class="text-2xl font-bold text-[#236350]">
-                                    R$ {{ number_format($valorUnitario, 2, ',', '.') }}
+                                    R$ {{ number_format((float) ($valorUnitario ?? 0), 2, ',', '.') }}
                                 </span>
 
                                 <span class="text-sm text-gray-500">
-                                    / {{ $oferta->unidade }}
+                                    / {{ $oferta?->unidade ?? 'Unidade' }}
                                 </span>
                             </p>
                         </div>
@@ -197,11 +196,11 @@
 
                             <p class="flex flex-wrap items-baseline gap-2">
                                 <span class="text-2xl font-bold text-[#236350]">
-                                    {{ number_format($quantidade, 2, ',', '.') }}
+                                    {{ number_format((float) ($quantidade ?? 0), 2, ',', '.') }}
                                 </span>
 
                                 <span class="text-sm text-gray-500">
-                                    {{ $oferta->unidade }}
+                                    {{ $oferta?->unidade ?? '' }}
                                 </span>
                             </p>
                         </div>
@@ -229,7 +228,7 @@
 
                                 <p class="text-2xl sm:text-3xl font-extrabold
                                           text-[#236350] wrap-break-words">
-                                    R$ {{ number_format($valorTotal, 2, ',', '.') }}
+                                    R$ {{ number_format((float) ($valorTotal ?? 0), 2, ',', '.') }}
                                 </p>
                             </div>
                         </div>
@@ -355,11 +354,11 @@
                 Voltar à página de compras
             </a>
 
-            {{-- Envolvendo a área com Alpine.js --}}
+            {{-- Área com Alpine.js --}}
             <div x-data="{ modalAberto: false }">
 
                 {{-- Botão que abre o Modal --}}
-                <button @click="modalAberto = true" type="button" class="flex items-center justify-center gap-2 rounded-xl bg-[#236350] px-5 py-3 text-sm font-semibold text-white hover:bg-[#194b3c] transition-colors w-full shadow-sm">
+                <button @click="modalAberto = true" type="button" class="btn-copav flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 w-full shadow-sm cursor-pointer">
                     <span class="material-symbols-outlined text-lg">paid</span>
                     Efetuar pagamento
                 </button>
@@ -367,37 +366,29 @@
                 {{-- MODAL DE CONFIRMAÇÃO --}}
                 <div x-show="modalAberto" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs px-4" x-cloak>
                     <div @click.outside="modalAberto = false" class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 text-center transform transition-all">
-                        
+
                         <div class="w-14 h-14 bg-emerald-50 text-[#236350] rounded-full flex items-center justify-center mx-auto mb-4">
                             <span class="material-symbols-outlined text-2xl">lock</span>
                         </div>
-                        
+
                         <h3 class="text-xl font-bold text-gray-900 mb-2">Confirmar Pagamento</h3>
                         <p class="text-sm text-gray-500 mb-6">
                             Você está prestes a efetuar o pagamento simulado desta negociação. Deseja prosseguir com a transação?
                         </p>
 
-                        {{-- Formulário nativo envolvendo os botões para submeter limpo --}}
                         <form action="{{ route('pagamentos.confirmar', $negociacao) }}" method="POST" class="flex gap-3">
                             @csrf
-                            <button @click="modalAberto = false" type="button" class="flex-1 rounded-xl border border-gray-300 bg-white py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
+                            <button @click="modalAberto = false" type="button" class="flex-1 rounded-xl border border-gray-300 bg-white py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer">
                                 Cancelar
                             </button>
 
-                            <button type="submit" class="flex-1 rounded-xl bg-[#236350] py-2.5 text-sm font-semibold text-white hover:bg-[#194b3c] transition-colors shadow-sm">
+                            <button type="submit" class="btn-copav flex-1 rounded-xl py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 shadow-sm cursor-pointer">
                                 Confirmar
                             </button>
                         </form>
 
                     </div>
                 </div>
-
-            </div>
-
-                {{-- Formulário oculto real que submete para o Laravel --}}
-                <form x-ref="formPagamento" action="{{ route('pagamentos.confirmar', $negociacao) }}" method="POST" class="hidden">
-                    @csrf
-                </form>
 
             </div>
         </div>

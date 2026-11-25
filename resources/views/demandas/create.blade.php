@@ -6,7 +6,7 @@
 {{-- Breadcrumbs com setas garantidas via ícone --}}
 <nav class="flex items-center text-sm mb-6 text-gray-600" aria-label="Breadcrumb">
     <ol class="inline-flex items-center space-x-2">
-        
+
         <!-- Item 1: Início -->
         <li class="flex items-center">
             <a href="{{ route('home') }}" class="hover:underline">Início</a>
@@ -71,7 +71,7 @@
                             Categoria <span class="text-red-500">*</span>
                         </span>
                     </label>
-                    <select name="categoria_id" class="select select-bordered w-full focus:outline-none focus:border-[#1B4D3E] focus:ring-1 focus:ring-[#1B4D3E] bg-gray-50/50" required>
+                    <select name="categoria_id" class="select select-bordered w-full focus:outline-none focus:border-[#1B4D3E] focus:ring-1 focus:ring-[#1B4D3E] bg-gray-50" required>
                         <option value="" disabled selected>Selecione uma categoria</option>
                         @foreach($categorias as $categoria)
                             <option value="{{ $categoria->id }}" {{ old('categoria_id') == $categoria->id ? 'selected' : '' }}>
@@ -89,13 +89,13 @@
                             Produto que procura <span class="text-red-500">*</span>
                         </span>
                     </label>
-                    <input 
-                        type="text" 
-                        name="nome_produto" 
-                        value="{{ old('nome_produto') }}" 
-                        placeholder="Ex: Milho em grão" 
-                        class="input input-bordered w-full focus:outline-none focus:border-[#1B4D3E] focus:ring-1 focus:ring-[#1B4D3E] bg-gray-50/50" 
-                        required 
+                    <input
+                        type="text"
+                        name="nome_produto"
+                        value="{{ old('nome_produto') }}"
+                        placeholder="Ex: Milho em grão"
+                        class="input input-bordered w-full focus:outline-none focus:border-[#1B4D3E] focus:ring-1 focus:ring-[#1B4D3E] bg-gray-50/50"
+                        required
                     />
                 </div>
             </div>
@@ -131,10 +131,10 @@
                         Descrição detalhada
                     </span>
                 </label>
-                <textarea 
-                    name="descricao" 
-                    rows="4" 
-                    placeholder="Descreva especificações, padrão de qualidade ou exigências da sua empresa..." 
+                <textarea
+                    name="descricao"
+                    rows="4"
+                    placeholder="Descreva especificações, padrão de qualidade ou exigências da sua empresa..."
                     class="textarea textarea-bordered w-full focus:outline-none focus:border-[#1B4D3E] focus:ring-1 focus:ring-[#1B4D3E] bg-gray-50/50 resize-y"
                 >{{ old('descricao') }}</textarea>
             </div>
@@ -148,15 +148,15 @@
                             Quantidade necessária <span class="text-red-500">*</span>
                         </span>
                     </label>
-                    <input 
-                        type="number" 
-                        name="quantidade" 
-                        step="0.01" 
-                        min="0" 
-                        value="{{ old('quantidade') }}" 
-                        placeholder="Ex: 500.00" 
-                        class="input input-bordered w-full focus:outline-none focus:border-[#1B4D3E] focus:ring-1 focus:ring-[#1B4D3E] bg-gray-50/50" 
-                        required 
+                    <input
+                        type="number"
+                        name="quantidade"
+                        step="0.01"
+                        min="0.01"
+                        value="{{ old('quantidade') }}"
+                        placeholder="Ex: 500.00"
+                        class="input input-bordered w-full focus:outline-none focus:border-[#1B4D3E] focus:ring-1 focus:ring-[#1B4D3E] bg-gray-50/50"
+                        required
                     />
                 </div>
 
@@ -168,13 +168,13 @@
                             Unidade de Medida <span class="text-red-500">*</span>
                         </span>
                     </label>
-                    <input 
-                        type="text" 
-                        name="unidade" 
-                        value="{{ old('unidade') }}" 
-                        placeholder="Ex: kg, sacas, toneladas" 
-                        class="input input-bordered w-full focus:outline-none focus:border-[#1B4D3E] focus:ring-1 focus:ring-[#1B4D3E] bg-gray-50/50" 
-                        required 
+                    <input
+                        type="text"
+                        name="unidade"
+                        value="{{ old('unidade') }}"
+                        placeholder="Ex: kg, sacas, toneladas"
+                        class="input input-bordered w-full focus:outline-none focus:border-[#1B4D3E] focus:ring-1 focus:ring-[#1B4D3E] bg-gray-50/50"
+                        required
                     />
                 </div>
             </div>
@@ -188,14 +188,14 @@
                             Valor máx. a pagar (R$)
                         </span>
                     </label>
-                    <input 
-                        type="number" 
-                        name="valor_maximo" 
-                        step="0.01" 
-                        min="0" 
-                        value="{{ old('valor_maximo') }}" 
-                        placeholder="0,00" 
-                        class="input input-bordered w-full focus:outline-none focus:border-[#1B4D3E] focus:ring-1 focus:ring-[#1B4D3E] bg-gray-50/50" 
+                    <input
+                        type="number"
+                        name="valor_maximo"
+                        step="0.01"
+                        min="0"
+                        value="{{ old('valor_maximo') }}"
+                        placeholder="0,00"
+                        class="input input-bordered w-full focus:outline-none focus:border-[#1B4D3E] focus:ring-1 focus:ring-[#1B4D3E] bg-gray-50/50"
                     />
                 </div>
 
@@ -207,12 +207,12 @@
                             Localização / Entrega
                         </span>
                     </label>
-                    <input 
-                        type="text" 
-                        name="localizacao" 
-                        value="{{ old('localizacao', '') }}" 
-                        placeholder="Ex: Icapuí - CE" 
-                        class="input input-bordered w-full focus:outline-none focus:border-[#1B4D3E] focus:ring-1 focus:ring-[#1B4D3E] bg-gray-50/50" 
+                    <input
+                        type="text"
+                        name="localizacao"
+                        value="{{ old('localizacao', '') }}"
+                        placeholder="Ex: Icapuí - CE"
+                        class="input input-bordered w-full focus:outline-none focus:border-[#1B4D3E] focus:ring-1 focus:ring-[#1B4D3E] bg-gray-50/50"
                     />
                 </div>
 
@@ -224,11 +224,11 @@
                             Data Limite de Cotação
                         </span>
                     </label>
-                    <input 
-                        type="date" 
-                        name="data_limite" 
-                        value="{{ old('data_limite') }}" 
-                        class="input input-bordered w-full focus:outline-none focus:border-[#1B4D3E] focus:ring-1 focus:ring-[#1B4D3E] bg-gray-50/50" 
+                    <input
+                        type="date"
+                        name="data_limite"
+                        value="{{ old('data_limite') }}"
+                        class="input input-bordered w-full focus:outline-none focus:border-[#1B4D3E] focus:ring-1 focus:ring-[#1B4D3E] bg-gray-50/50"
                     />
                 </div>
             </div>
@@ -238,7 +238,7 @@
                 <a href="{{ route('demandas.index') }}" class="btn btn-ghost text-gray-600 hover:bg-gray-100">
                     Cancelar
                 </a>
-                <button type="submit" class="btn-copav p-2 rounded-md text-white border-none gap-2 shadow-sm font-medium">
+                <button type="submit" class="btn btn-copav text-white border-none gap-2 px-6 shadow-sm font-medium">
                     <span class="material-symbols-outlined text-xl">check_circle</span>
                     Cadastrar Demanda
                 </button>

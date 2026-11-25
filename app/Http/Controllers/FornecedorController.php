@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Fornecedor;
-use App\Models\User;
 use Illuminate\Http\Request;
 
 class FornecedorController extends Controller
@@ -17,9 +16,11 @@ class FornecedorController extends Controller
 
     public function create()
     {
-        if (auth()->user()->fornecedor) {
+        $user = auth()->user();
+
+        if ($user->fornecedor) {
             return redirect()
-                ->route('fornecedores.show', auth()->user()->fornecedor)
+                ->route('fornecedores.show', $user->fornecedor)
                 ->with('sucesso', 'Você já possui um cadastro de fornecedor.');
         }
 
@@ -28,9 +29,11 @@ class FornecedorController extends Controller
 
     public function store(Request $request)
     {
-        if ($request->user()->fornecedor) {
+        $user = $request->user();
+
+        if ($user->fornecedor) {
             return redirect()
-                ->route('fornecedores.show', $request->user()->fornecedor)
+                ->route('fornecedores.show', $user->fornecedor)
                 ->with('sucesso', 'Você já possui um cadastro de fornecedor.');
         }
 
@@ -44,15 +47,21 @@ class FornecedorController extends Controller
             'estado' => 'required|string|size:2',
         ]);
 
-        $dados['user_id'] = $request->user()->id;
+        $dados['user_id'] = $user->id;
         $dados['status'] = 'ativo';
 
         Fornecedor::create($dados);
 
+        if (! $user->isAdmin()) {
+            $user->update(['user_type' => 'fornecedor']);
+        }
+
+        // Recarrega relação e usuário para o middleware/rotas subsequentes reconhecerem o papel
+        $user->unsetRelation('fornecedor');
+
         return redirect()
-            ->route('ofertas.create') // Estava "fornecedores.index"
-            ->with('sucesso', 'Fornecedor cadastrado com sucesso! Agora você pode criar sua oferta.'
-            );
+            ->route('ofertas.create')
+            ->with('sucesso', 'Fornecedor cadastrado com sucesso! Agora você pode criar sua oferta.');
     }
 
     public function show(Fornecedor $fornecedor)
@@ -64,22 +73,19 @@ class FornecedorController extends Controller
     {
         if (
             auth()->id() !== $fornecedor->user_id &&
-            auth()->user()->user_type !== 'admin'
+            ! auth()->user()->isAdmin()
         ) {
             abort(403);
         }
 
-        return view(
-            'fornecedores.edit',
-            compact('fornecedor')
-        );
+        return view('fornecedores.edit', compact('fornecedor'));
     }
 
     public function update(Request $request, Fornecedor $fornecedor)
     {
         if (
             auth()->id() !== $fornecedor->user_id &&
-            auth()->user()->user_type !== 'admin'
+            ! auth()->user()->isAdmin()
         ) {
             abort(403);
         }
@@ -105,7 +111,7 @@ class FornecedorController extends Controller
     {
         if (
             auth()->id() !== $fornecedor->user_id &&
-            auth()->user()->user_type !== 'admin'
+            ! auth()->user()->isAdmin()
         ) {
             abort(403);
         }

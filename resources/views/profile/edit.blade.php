@@ -4,19 +4,27 @@
 
 @section('conteudo')
 
+@php
+    $imagemPerfil = $user?->imagem
+        ? (str_contains($user->imagem, 'assets/')
+            ? asset($user->imagem)
+            : asset('storage/' . ltrim(str_replace('public/', '', $user->imagem), '/')))
+        : null;
+@endphp
+
 {{-- Breadcrumbs com setas garantidas via ícone --}}
 <nav class="flex items-center text-sm mb-6 text-gray-600" aria-label="Breadcrumb">
     <ol class="inline-flex items-center space-x-2">
 
         {{-- Item 1: Início --}}
-        <li>
-            <a href="{{route('home')}}">
+        <li class="flex items-center">
+            <a href="{{ route('home') }}" class="hover:text-[#1B4D3E]">
                 Início
             </a>
         </li>
 
         {{-- Item 2: Página Atual --}}
-        <li class="flex items-center space-x-2 hover:cursor-pointer">
+        <li class="flex items-center space-x-2">
             <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
             <span class="font-semibold text-gray-800">
                 @yield('title')
@@ -25,7 +33,7 @@
     </ol>
 </nav>
 
-<div class="max-w-5xl mx-auto px-4 py-8 space-y-6">
+<div class="max-w-5xl mx-auto px-4 py-8 space-y-6 text-left">
     <div>
         <h1 class="text-2xl font-bold text-gray-800">Configurações</h1>
         <p class="text-sm text-gray-500">Gerencie as informações da sua conta, senha e segurança.</p>
@@ -52,7 +60,7 @@
                 @csrf
                 @method('patch')
 
-                {{-- Foto de perfil--}}
+                {{-- Foto de perfil --}}
                 <div class="form-control">
                     <span class="label-text font-medium mb-2 block">Foto de perfil</span>
 
@@ -64,15 +72,16 @@
                         {{-- Imagem atual ou preview da nova imagem --}}
                         <img
                             id="avatarPreview"
-                            src="{{ $user->imagem ? asset('storage/' . $user->imagem) : '' }}"
+                            src="{{ $imagemPerfil ?? '' }}"
                             alt="Foto de perfil"
-                            class="w-full h-full object-cover {{ $user->imagem ? 'block' : 'hidden' }}"
+                            class="w-full h-full object-cover {{ $imagemPerfil ? 'block' : 'hidden' }}"
+                            onerror="this.classList.add('hidden'); this.classList.remove('block'); document.getElementById('avatarPlaceholder')?.classList.remove('hidden'); document.getElementById('avatarPlaceholder')?.classList.add('flex');"
                         >
 
                         {{-- Ícone padrão quando não há imagem --}}
                         <span
                             id="avatarPlaceholder"
-                            class="text-gray-400 {{ $user->imagem ? 'hidden' : 'flex' }} items-center justify-center w-full h-full"
+                            class="text-gray-400 {{ $imagemPerfil ? 'hidden' : 'flex' }} items-center justify-center w-full h-full"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
@@ -117,7 +126,7 @@
                         id="nome"
                         name="nome"
                         type="text"
-                        value="{{ old('nome', $user->nome) }}"
+                        value="{{ old('nome', $user?->nome) }}"
                         required
                         autofocus
                         autocomplete="name"
@@ -137,7 +146,7 @@
                         id="email"
                         name="email"
                         type="email"
-                        value="{{ old('email', $user->email) }}"
+                        value="{{ old('email', $user?->email) }}"
                         required
                         autocomplete="username"
                         class="input input-bordered w-full max-w-md focus:border-[#236350] focus:outline-none"
@@ -168,8 +177,7 @@
                 <div class="pt-2 flex items-center gap-4">
                     <button
                         type="submit"
-                        class="btn text-white border-0 hover:opacity-95"
-                        style="background-color: #236350;"
+                        class="btn-copav inline-flex items-center justify-center rounded-md px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-95 cursor-pointer"
                     >
                         Salvar
                     </button>
@@ -316,8 +324,7 @@
 
                         <button
                             type="submit"
-                            class="btn text-white border-0 hover:opacity-95 px-6"
-                            style="background-color: #236350;"
+                            class="btn-copav inline-flex items-center justify-center rounded-md px-6 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-95 cursor-pointer"
                         >
                             Salvar
                         </button>
@@ -366,7 +373,7 @@
                 </div>
 
                 <div class="pt-1">
-                    <button type="submit" class="btn btn-error text-white">
+                    <button type="submit" class="btn btn-error text-white cursor-pointer">
                         Deletar Conta
                     </button>
                 </div>
@@ -440,7 +447,7 @@
     });
 
     function previewAvatar(event) {
-        const file = event.target.files[0];
+        const file = event.target.files?.[0];
         const img = document.getElementById('avatarPreview');
         const placeholder = document.getElementById('avatarPlaceholder');
         if (!file || !img) return;

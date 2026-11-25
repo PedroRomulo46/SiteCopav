@@ -5,124 +5,104 @@ namespace App\Http\Controllers;
 use App\Models\Produto;
 use App\Models\Categoria;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class ProdutoController extends Controller
 {
     public function index()
     {
-    $usuario = auth()->user();
+        $usuario = auth()->user();
 
-    // Administrador pode visualizar todos os produtos
-    if ($usuario->user_type === 'admin') {
-        $produtos = Produto::with([
-            'fornecedor',
-            'categoria'
-        ])
-        ->orderBy('nome')
-        ->get();
-    } else {
-        // Fornecedor visualiza somente os produtos que ele criou
-        $fornecedor = $usuario->fornecedor;
+        if ($usuario?->isAdmin()) {
+            $produtos = Produto::with([
+                'fornecedor',
+                'categoria',
+            ])
+                ->orderBy('nome')
+                ->get();
+        } else {
+            if (! $usuario?->isFornecedor()) {
+                abort(403);
+            }
 
-        if (!$fornecedor) {
-            abort(403);
+            $produtos = Produto::where('fornecedor_id', $usuario->fornecedor->id)
+                ->with([
+                    'fornecedor',
+                    'categoria',
+                ])
+                ->orderBy('nome')
+                ->get();
         }
 
-        $produtos = Produto::where('fornecedor_id', $fornecedor->id)
-            ->with([
-                'fornecedor',
-                'categoria'
-            ])
-            ->orderBy('nome')
-            ->get();
-    }
-
-    return view('produtos.index', compact('produtos'));
+        return view('produtos.index', compact('produtos'));
     }
 
     public function meusProdutos()
     {
-        $fornecedor = auth()->user()->fornecedor;
+        $usuario = auth()->user();
 
-        if (!$fornecedor) {
+        if (! $usuario?->isFornecedor()) {
             abort(403);
         }
 
-        $produtos = Produto::where('fornecedor_id', $fornecedor->id)
+        $produtos = Produto::where('fornecedor_id', $usuario->fornecedor->id)
             ->with([
                 'fornecedor',
-                'categoria'
+                'categoria',
             ])
             ->get();
 
-        return view(
-            'produtos.meus',
-            compact('produtos')
-        );
+        return view('produtos.meus', compact('produtos'));
     }
 
     public function create()
     {
-    $fornecedor = auth()->user()->fornecedor;
+        $usuario = auth()->user();
+        $fornecedor = $usuario?->fornecedor;
 
-    if (!$fornecedor) {
-        return redirect()
-            ->route('fornecedores.create')
-            ->with(
-                'sucesso',
-                'Você precisa cadastrar um fornecedor antes de cadastrar produtos.'
-            );
-    }
+        if (! $fornecedor) {
+            return redirect()
+                ->route('fornecedores.create')
+                ->with(
+                    'sucesso',
+                    'Você precisa cadastrar um fornecedor antes de cadastrar produtos.'
+                );
+        }
 
-    if ($fornecedor->status !== 'ativo') {
-        return redirect()
-            ->route('fornecedores.show', $fornecedor)
-            ->with(
-                'sucesso',
-                'Seu fornecedor ainda não está ativo.'
-            );
-    }
+        if ($fornecedor->status !== 'ativo') {
+            return redirect()
+                ->route('fornecedores.show', $fornecedor)
+                ->with(
+                    'sucesso',
+                    'Seu fornecedor ainda não está ativo.'
+                );
+        }
 
-    $categorias = Categoria::orderBy('nome')->get();
+        $categorias = Categoria::orderBy('nome')->get();
 
-    return view(
-        'produtos.create',
-        compact('categorias')
-    );
+        return view('produtos.create', compact('categorias'));
     }
 
     public function store(Request $request)
     {
-        $fornecedor = $request->user()->fornecedor;
+        $usuario = $request->user();
+        $fornecedor = $usuario?->fornecedor;
 
-        if (!$fornecedor) {
-            abort(403);
-        }
-
-        if ($fornecedor->status !== 'ativo') {
+        if (! $usuario?->isFornecedor() || ! $fornecedor || $fornecedor->status !== 'ativo') {
             abort(403);
         }
 
         $dados = $request->validate([
             'categoria_id' => 'required|exists:categorias,id',
-            'nome' => 'required|string|max:255',
-            'descricao' => 'nullable|string',
-            'unidade' => 'required|string|max:50',
-            'imagem' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'nome'         => 'required|string|max:255',
+            'descricao'    => 'nullable|string',
+            'unidade'      => 'required|string|max:50',
+            'imagem'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
         $dados['fornecedor_id'] = $fornecedor->id;
 
         if ($request->hasFile('imagem') && $request->file('imagem')->isValid()) {
-            $file = $request->file('imagem');
-            $nomeArquivo = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-            
-            // Move o arquivo diretamente para a pasta public/storage/produtos do projeto
-            $file->move(public_path('storage/produtos'), $nomeArquivo);
-            
-            // Salva no banco o caminho relativo que a sua view já espera ('produtos/nome.ext')
-            $dados['imagem'] = 'produtos/' . $nomeArquivo;
+            $dados['imagem'] = $this->salvarImagemProduto($request->file('imagem'));
         } else {
             unset($dados['imagem']);
         }
@@ -139,7 +119,7 @@ class ProdutoController extends Controller
         $produto->load([
             'fornecedor',
             'categoria',
-            'ofertas'
+            'ofertas',
         ]);
 
         return view('produtos.show', compact('produto'));
@@ -148,55 +128,39 @@ class ProdutoController extends Controller
     public function edit(Produto $produto)
     {
         $usuario = auth()->user();
+        $isAdmin = $usuario?->isAdmin() ?? false;
+        $donoDoProduto = $usuario?->isFornecedor() && $produto->fornecedor_id === $usuario->fornecedor->id;
 
-        if ($usuario->user_type !== 'admin') {
-
-            $fornecedor = $usuario->fornecedor;
-
-            if (!$fornecedor || $produto->fornecedor_id !== $fornecedor->id) {
-                abort(403);
-            }
+        if (! $isAdmin && ! $donoDoProduto) {
+            abort(403);
         }
 
-        $categorias = Categoria::all();
+        $categorias = Categoria::orderBy('nome')->get();
 
-        return view(
-            'produtos.edit',
-            compact('produto', 'categorias')
-        );
+        return view('produtos.edit', compact('produto', 'categorias'));
     }
 
     public function update(Request $request, Produto $produto)
     {
         $usuario = $request->user();
+        $isAdmin = $usuario?->isAdmin() ?? false;
+        $donoDoProduto = $usuario?->isFornecedor() && $produto->fornecedor_id === $usuario->fornecedor->id;
 
-        // Apenas o admin pode alterar produtos de qualquer fornecedor
-        if ($usuario->user_type !== 'admin') {
-
-            $fornecedor = $usuario->fornecedor;
-
-            if (!$fornecedor || $produto->fornecedor_id !== $fornecedor->id) {
-                abort(403);
-            }
+        if (! $isAdmin && ! $donoDoProduto) {
+            abort(403);
         }
 
         $dados = $request->validate([
             'categoria_id' => 'required|exists:categorias,id',
-            'nome' => 'required|string|max:255',
-            'descricao' => 'nullable|string',
-            'unidade' => 'required|string|max:50',
-            'imagem' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'nome'         => 'required|string|max:255',
+            'descricao'    => 'nullable|string',
+            'unidade'      => 'required|string|max:50',
+            'imagem'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
-        if ($request->hasFile('imagem')) {
-
-            if ($produto->imagem) {
-                Storage::disk('public')->delete($produto->imagem);
-            }
-
-            $dados['imagem'] = $request
-                ->file('imagem')
-                ->store('produtos', 'public');
+        if ($request->hasFile('imagem') && $request->file('imagem')->isValid()) {
+            $this->removerImagemProduto($produto->imagem);
+            $dados['imagem'] = $this->salvarImagemProduto($request->file('imagem'));
         }
 
         $produto->update($dados);
@@ -209,25 +173,45 @@ class ProdutoController extends Controller
     public function destroy(Produto $produto)
     {
         $usuario = auth()->user();
+        $isAdmin = $usuario?->isAdmin() ?? false;
+        $donoDoProduto = $usuario?->isFornecedor() && $produto->fornecedor_id === $usuario->fornecedor->id;
 
-        // Apenas o admin pode excluir produtos de qualquer fornecedor
-        if ($usuario->user_type !== 'admin') {
-
-            $fornecedor = $usuario->fornecedor;
-
-            if (!$fornecedor || $produto->fornecedor_id !== $fornecedor->id) {
-                abort(403);
-            }
+        if (! $isAdmin && ! $donoDoProduto) {
+            abort(403);
         }
 
-        if ($produto->imagem) {
-            Storage::disk('public')->delete($produto->imagem);
-        }
-
+        $this->removerImagemProduto($produto->imagem);
         $produto->delete();
 
         return redirect()
             ->route('produtos.index')
             ->with('sucesso', 'Produto excluído com sucesso!');
+    }
+
+    private function salvarImagemProduto($file): string
+    {
+        $diretorio = public_path('storage/produtos');
+
+        if (! is_dir($diretorio)) {
+            mkdir($diretorio, 0755, true);
+        }
+
+        $nomeArquivo = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+        $file->move($diretorio, $nomeArquivo);
+
+        return 'produtos/' . $nomeArquivo;
+    }
+
+    private function removerImagemProduto(?string $caminho): void
+    {
+        if (! $caminho) {
+            return;
+        }
+
+        $arquivo = public_path('storage/' . ltrim(str_replace('public/', '', $caminho), '/'));
+
+        if (is_file($arquivo)) {
+            @unlink($arquivo);
+        }
     }
 }

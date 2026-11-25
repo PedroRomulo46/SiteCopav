@@ -79,7 +79,7 @@
 
     {{-- Alerta de feedback --}}
     <div id="alerta-status-entrega" class="hidden mb-5 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 items-center gap-2">
-        <span class="material-symbols-outlined text-lg">check_circle</span>
+        <span id="icone-alerta-entrega" class="material-symbols-outlined text-lg">check_circle</span>
         <span id="texto-alerta-entrega">Status da entrega atualizado.</span>
     </div>
 
@@ -167,7 +167,7 @@
         </a>
         <a
             href="{{ $is_donodaoferta ? route('negociacoes.vendas') : route('negociacoes.compras') }}"
-            class="flex-1 flex items-center justify-center gap-2 rounded-xl bg-[#236350] px-4 py-3 text-sm font-semibold text-white hover:bg-[#194b3c] transition-colors"
+            class="btn-copav flex-1 flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-white transition-colors"
         >
             <span class="material-symbols-outlined text-lg">{{ $is_donodaoferta ? 'storefront' : 'shopping_bag' }}</span>
             {{ $is_donodaoferta ? 'Minhas Vendas' : 'Minhas Compras' }}
@@ -180,6 +180,31 @@
     const etapasConfig = @json($etapas);
     const ordemEtapas = Object.keys(etapasConfig);
     let statusAtualFront = @json($statusAtual);
+
+    function exibirAlertaEntrega(mensagem, tipo = 'sucesso') {
+        const alerta = document.getElementById('alerta-status-entrega');
+        const icone = document.getElementById('icone-alerta-entrega');
+        const texto = document.getElementById('texto-alerta-entrega');
+
+        if (!alerta || !texto) return;
+
+        alerta.classList.remove(
+            'hidden',
+            'border-emerald-200', 'bg-emerald-50', 'text-emerald-800',
+            'border-red-200', 'bg-red-50', 'text-red-800'
+        );
+        alerta.classList.add('flex');
+
+        if (tipo === 'erro') {
+            alerta.classList.add('border-red-200', 'bg-red-50', 'text-red-800');
+            if (icone) icone.textContent = 'error';
+        } else {
+            alerta.classList.add('border-emerald-200', 'bg-emerald-50', 'text-emerald-800');
+            if (icone) icone.textContent = 'check_circle';
+        }
+
+        texto.textContent = mensagem;
+    }
 
     function renderizarTimeline(novoStatus) {
         const indiceAtivo = ordemEtapas.indexOf(novoStatus);
@@ -216,11 +241,9 @@
     }
 
     async function atualizarStatusEntrega(novoStatus) {
+        const statusAnterior = statusAtualFront;
         statusAtualFront = novoStatus;
         renderizarTimeline(novoStatus);
-
-        const alerta = document.getElementById('alerta-status-entrega');
-        const textoAlerta = document.getElementById('texto-alerta-entrega');
 
         @if(\Illuminate\Support\Facades\Route::has('compras.encomenda.status'))
         try {
@@ -234,20 +257,20 @@
                 body: JSON.stringify({ status_entrega: novoStatus })
             });
 
-            if (response.ok && alerta && textoAlerta) {
-                textoAlerta.textContent = `Status atualizado para: ${etapasConfig[novoStatus].titulo}.`;
-                alerta.classList.remove('hidden');
-                alerta.classList.add('flex');
+            if (!response.ok) {
+                const erroData = await response.json().catch(() => ({}));
+                throw new Error(erroData.message || 'Não foi possível atualizar o status da entrega.');
             }
+
+            exibirAlertaEntrega(`Status atualizado para: ${etapasConfig[novoStatus].titulo}.`, 'sucesso');
         } catch (e) {
             console.error('Erro ao salvar status de entrega:', e);
+            statusAtualFront = statusAnterior;
+            renderizarTimeline(statusAnterior);
+            exibirAlertaEntrega(e.message || 'Erro ao salvar status de entrega. Tente novamente.', 'erro');
         }
         @else
-        if (alerta && textoAlerta) {
-            textoAlerta.textContent = `Status selecionado: ${etapasConfig[novoStatus].titulo} (adicione a rota compras.encomenda.status para salvar no banco).`;
-            alerta.classList.remove('hidden');
-            alerta.classList.add('flex');
-        }
+        exibirAlertaEntrega(`Status selecionado: ${etapasConfig[novoStatus].titulo} (adicione a rota compras.encomenda.status para salvar no banco).`, 'sucesso');
         @endif
     }
 

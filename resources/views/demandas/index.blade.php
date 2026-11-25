@@ -9,12 +9,12 @@
 
         {{-- Item 1: Início --}}
         <li>
-            <a href="{{route('home')}}">
+            <a href="{{ route('home') }}">
                 Início
             </a>
         </li>
 
-        {{-- Item 2: Pégina Atual --}}
+        {{-- Item 2: Página Atual --}}
         <li class="flex items-center space-x-2 hover:cursor-pointer">
             <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
             <span class="font-semibold text-gray-800">
@@ -30,7 +30,7 @@
         <div class="text-left">
             <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 flex items-center gap-2">
                 <span class="material-symbols-outlined text-[#1B4D3E] text-3xl">assignment</span>
-                Demandas
+                Minhas Demandas
             </h1>
             <p class="text-sm text-gray-500 mt-1">
                 Acompanhe e gerencie as solicitações das demandas da empresa
@@ -54,7 +54,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             @foreach($demandas as $demanda)
                 <div class="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col justify-between overflow-hidden">
-                    
+
                     {{-- Conteúdo do Card --}}
                     <div class="p-5 text-left">
 
@@ -72,12 +72,12 @@
                         <div class="space-y-2 text-sm text-gray-600 mt-4">
                             <p class="flex items-center gap-1.5">
                                 <span class="material-symbols-outlined text-base text-gray-400">business</span>
-                                <span class="truncate"><strong>Empresa:</strong> {{ $demanda->cliente->nome }}</span>
+                                <span class="truncate"><strong>Empresa:</strong> {{ $demanda->cliente->nome ?? 'Não informada' }}</span>
                             </p>
 
                             <p class="flex items-center gap-1.5">
                                 <span class="material-symbols-outlined text-base text-gray-400">category</span>
-                                <span class="truncate"><strong>Categoria:</strong> {{ $demanda->categoria->nome }}</span>
+                                <span class="truncate"><strong>Categoria:</strong> {{ $demanda->categoria->nome ?? 'Sem categoria' }}</span>
                             </p>
 
                             <p class="flex items-center gap-1.5">
@@ -87,7 +87,7 @@
 
                             <p class="flex items-center gap-1.5">
                                 <span class="material-symbols-outlined text-base text-gray-400">payments</span>
-                                <span><strong>Máx:</strong> 
+                                <span><strong>Máx:</strong>
                                     @if($demanda->valor_maximo)
                                         R$ {{ number_format($demanda->valor_maximo, 2, ',', '.') }}
                                     @else
@@ -103,7 +103,7 @@
 
                             <p class="flex items-center gap-1.5">
                                 <span class="material-symbols-outlined text-base text-gray-400">event</span>
-                                <span><strong>Limite:</strong> 
+                                <span><strong>Limite:</strong>
                                     @if($demanda->data_limite)
                                         {{ $demanda->data_limite->format('d/m/Y') }}
                                     @else
@@ -133,13 +133,13 @@
             </div>
             <h3 class="text-lg font-semibold text-gray-800 mb-1">Nenhuma demanda cadastrada</h3>
             <p class="text-sm text-gray-500 mb-6">Ainda não existem solicitações de compra cadastradas no sistema.</p>
-            
-            @auth
-                <a href="{{ route('demandas.create') }}" class="btn bg-[#1B4D3E] hover:bg-[#143B2F] text-white border-none gap-2">
+
+            @if(auth()->user()?->podeGerenciarDemandas())
+                <a href="{{ route('demandas.create') }}" class="btn btn-copav text-white border-none gap-2">
                     <span class="material-symbols-outlined text-xl">add</span>
                     Cadastrar nova demanda
                 </a>
-            @endauth
+            @endif
         </div>
     @endif
 

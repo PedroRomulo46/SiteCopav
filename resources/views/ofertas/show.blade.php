@@ -4,19 +4,35 @@
 
 @section('conteudo')
 
+@php
+    $usuarioLogado = auth()->user();
+    $fornecedorDoUsuario = $usuarioLogado?->fornecedor;
+
+    $isDonoDaOferta = $usuarioLogado !== null && (
+        ($oferta->user_id !== null && (int) $usuarioLogado->id === (int) $oferta->user_id)
+        || ($fornecedorDoUsuario && (int) ($oferta->fornecedor_id ?? 0) === (int) $fornecedorDoUsuario->id)
+    );
+
+    $imagemProduto = ($produto && $produto->imagem)
+        ? (str_contains($produto->imagem, 'assets/')
+            ? asset($produto->imagem)
+            : asset('storage/' . ltrim(str_replace('public/', '', $produto->imagem), '/')))
+        : asset('assets/milho.png');
+@endphp
+
 {{-- Breadcrumbs com setas garantidas via ícone --}}
 <nav class="flex items-center text-sm mb-6 text-gray-600" aria-label="Breadcrumb">
     <ol class="inline-flex items-center space-x-2">
 
         {{-- Item 1: Início --}}
         <li>
-            <a href="{{route('home')}}">
+            <a href="{{ route('home') }}" class="hover:text-[#1B4D3E]">
                 Início
             </a>
         </li>
 
-        {{-- Item 2: Pégina Atual --}}
-        <li class="flex items-center space-x-2 hover:cursor-pointer">
+        {{-- Item 2: Página Atual --}}
+        <li class="flex items-center space-x-2">
             <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
             <span class="font-semibold text-gray-800">
                 @yield('title')
@@ -47,18 +63,15 @@
     @endif
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
+
         <!-- Coluna 1: Imagem do Produto -->
         <div class="lg:col-span-5 lg:sticky lg:top-6 w-full">
             <div class="bg-white p-2 rounded-xl border border-gray-100 overflow-hidden w-full h-380px">
                 <img
                     class="w-full h-full rounded-lg object-cover"
-                    src="{{ $produto->imagem 
-                        ? (str_contains($produto->imagem, 'assets/') 
-                            ? asset($produto->imagem) 
-                            : asset('storage/' . str_replace('public/', '', $produto->imagem))) 
-                        : asset('assets/milho.png') }}"
+                    src="{{ $imagemProduto }}"
                     alt="{{ $produto->nome ?? 'Imagem do produto' }}"
+                    onerror="this.onerror=null; this.src='{{ asset('assets/milho.png') }}';"
                 />
             </div>
         </div>
@@ -69,7 +82,7 @@
                 <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 leading-snug">
                     {{ $produto->nome ?? 'Produto sem nome' }}
                 </h1>
-                
+
                 <!-- Link do Fornecedor -->
                 <a href="#" class="inline-block mt-1 text-xs font-semibold text-[#236350] hover:underline">
                     Loja de {{ $oferta->fornecedor->nome ?? 'Fornecedor Copav' }}
@@ -98,7 +111,7 @@
                             ? 'text-yellow-700 bg-yellow-50 border border-yellow-100'
                             : 'text-red-700 bg-red-50 border border-red-100') }}"
                 >
-                    {{ ucfirst($oferta->status) }}
+                    {{ ucfirst($oferta->status ?? 'Indefinido') }}
                 </span>
             </div>
 
@@ -137,7 +150,7 @@
         <!-- Coluna 3: Box de Compra / Ações Comerciais -->
         <div class="lg:col-span-3">
             <div class="border border-gray-200 rounded-xl p-5 flex flex-col gap-4 shadow-sm bg-white">
-                
+
                 <div>
                     <span class="text-xs text-gray-500 block mb-1">
                         Valor da oferta
@@ -159,7 +172,7 @@
                         <strong>
                             <span id="oferta-quantidade">
                                 @if(isset($oferta->quantidade))
-                                    @if(strtolower($oferta->unidade) === 'saca')
+                                    @if(strtolower((string) $oferta->unidade) === 'saca')
                                         {{ number_format($oferta->quantidade, 0, ',', '.') }}
                                     @else
                                         {{ fmod($oferta->quantidade, 1) == 0
@@ -194,13 +207,13 @@
                 <!-- Botões de Ação -->
                 <div class="flex flex-col gap-2.5 w-full">
                     @auth
-                        @if(auth()->id() !== $oferta->user_id)
+                        @unless($isDonoDaOferta)
                             <form action="{{ route('negociacoes.store') }}" method="POST" class="w-full">
                                 @csrf
                                 <input type="hidden" name="oferta_id" value="{{ $oferta->id }}">
                                 <button
                                     type="submit"
-                                    class="w-full btn-copav p-3 text-white text-sm font-semibold rounded-lg transition-all shadow-sm hover:opacity-90 items-center justify-center gap-2 cursor-pointer border-0">
+                                    class="w-full btn-copav p-3 text-white text-sm font-semibold rounded-lg transition-all shadow-sm hover:opacity-90 flex items-center justify-center gap-2 cursor-pointer border-0">
                                     <span class="material-symbols-outlined text-base">currency_exchange</span>
                                     <span>Negociar Preço</span>
                                 </button>
@@ -209,11 +222,11 @@
                             <div class="text-xs text-center text-gray-500 py-2 bg-gray-100 rounded-lg">
                                 Esta oferta pertence a você.
                             </div>
-                        @endif
+                        @endunless
                     @else
                         <a
                             href="{{ route('login') }}"
-                            class="w-full btn-copav p-3 text-white btn-copav text-sm font-semibold rounded-lg transition-all shadow-sm text-center items-center justify-center gap-2">
+                            class="w-full btn-copav p-3 text-white text-sm font-semibold rounded-lg transition-all shadow-sm text-center inline-flex items-center justify-center gap-2">
                             <span class="material-symbols-outlined text-base">login</span>
                             <span>Entrar para negociar</span>
                         </a>
@@ -227,7 +240,6 @@
 @push('scripts')
 <script>
     window.addEventListener('load', function () {
-
         if (!window.Echo) {
             console.error('Echo não foi carregado.');
             return;
@@ -242,19 +254,11 @@
 
         const ofertaId = Number(ofertaShow.dataset.ofertaId);
 
-        console.log('Ouvindo atualizações da oferta:', ofertaId);
-
         window.Echo.channel('ofertas')
             .listen('.oferta.atualizada', function (event) {
-
-                console.log('OFERTA ATUALIZADA RECEBIDA:', event);
-
-                if (Number(event.oferta.id) !== ofertaId) {
-                    console.log('Atualização de outra oferta. Ignorando.');
+                if (!event?.oferta || Number(event.oferta.id) !== ofertaId) {
                     return;
                 }
-
-                console.log('Atualização pertence a esta oferta!');
 
                 const valor = Number(event.oferta.valor);
 
@@ -270,84 +274,68 @@
                         maximumFractionDigits: 2
                     });
 
-                    const quantidade = Number(event.oferta.quantidade);
+                const quantidade = Number(event.oferta.quantidade);
+                let quantidadeFormatada;
 
-                    let quantidadeFormatada;
-
-                    if (event.oferta.unidade?.toLowerCase() === 'saca') {
-                        quantidadeFormatada = quantidade.toLocaleString('pt-BR', {
-                            maximumFractionDigits: 0
-                        });
-                    } else {
-                        quantidadeFormatada = quantidade.toLocaleString('pt-BR', {
-                            minimumFractionDigits: quantidade % 1 === 0 ? 0 : 2,
-                            maximumFractionDigits: 2
-                        });
-                    }
-
-                    document.getElementById('oferta-quantidade').textContent =
-                        quantidadeFormatada;
-
-                    document.getElementById('oferta-quantidade-unidade').textContent =
-                        event.oferta.unidade ?? '';
-
-                    document.getElementById('oferta-unidade').textContent =
-                        '/ ' + (event.oferta.unidade ?? 'Unidade');
-
-                        const statusElemento = document.getElementById('oferta-status');
-
-                        if (statusElemento) {
-
-                            const status = event.oferta.status;
-
-                            statusElemento.textContent =
-                                status.charAt(0).toUpperCase() + status.slice(1);
-
-                            statusElemento.className =
-                                'inline-flex items-center px-3 py-1.5 rounded-md text-xs font-semibold';
-
-                            if (status === 'publicada') {
-
-                                statusElemento.classList.add(
-                                    'text-green-700',
-                                    'bg-green-50',
-                                    'border',
-                                    'border-green-100'
-                                );
-
-                            } else if (status === 'encerrada') {
-
-                                statusElemento.classList.add(
-                                    'text-yellow-700',
-                                    'bg-yellow-50',
-                                    'border',
-                                    'border-yellow-100'
-                                );
-
-                            } else {
-
-                                statusElemento.classList.add(
-                                    'text-red-700',
-                                    'bg-red-50',
-                                    'border',
-                                    'border-red-100'
-                                );
-                            }
-                        }
-            })
-
-            .listen('.oferta.excluida', function (event) {
-
-                console.log('OFERTA EXCLUÍDA RECEBIDA:', event);
-
-                if (Number(event.ofertaId) !== ofertaId) {
-                    console.log('Exclusão de outra oferta. Ignorando.');
-                    return;
+                if (event.oferta.unidade?.toLowerCase() === 'saca') {
+                    quantidadeFormatada = quantidade.toLocaleString('pt-BR', {
+                        maximumFractionDigits: 0
+                    });
+                } else {
+                    quantidadeFormatada = quantidade.toLocaleString('pt-BR', {
+                        minimumFractionDigits: quantidade % 1 === 0 ? 0 : 2,
+                        maximumFractionDigits: 2
+                    });
                 }
 
-                console.log('Esta oferta foi excluída.');
+                document.getElementById('oferta-quantidade').textContent =
+                    quantidadeFormatada;
 
-                const ofertaShow = document.getElementById('oferta-show');
+                document.getElementById('oferta-quantidade-unidade').textContent =
+                    event.oferta.unidade ?? '';
+
+                document.getElementById('oferta-unidade').textContent =
+                    '/ ' + (event.oferta.unidade ?? 'Unidade');
+
+                const statusElemento = document.getElementById('oferta-status');
+
+                if (statusElemento && event.oferta.status) {
+                    const status = String(event.oferta.status);
+
+                    statusElemento.textContent =
+                        status.charAt(0).toUpperCase() + status.slice(1);
+
+                    statusElemento.className =
+                        'inline-flex items-center px-3 py-1.5 rounded-md text-xs font-semibold';
+
+                    if (status === 'publicada') {
+                        statusElemento.classList.add(
+                            'text-green-700',
+                            'bg-green-50',
+                            'border',
+                            'border-green-100'
+                        );
+                    } else if (status === 'encerrada') {
+                        statusElemento.classList.add(
+                            'text-yellow-700',
+                            'bg-yellow-50',
+                            'border',
+                            'border-yellow-100'
+                        );
+                    } else {
+                        statusElemento.classList.add(
+                            'text-red-700',
+                            'bg-red-50',
+                            'border',
+                            'border-red-100'
+                        );
+                    }
+                }
+            })
+            .listen('.oferta.excluida', function (event) {
+                if (Number(event?.ofertaId) !== ofertaId) {
+                    return;
+                }
 
                 ofertaShow.innerHTML = `
                     <div class="flex flex-col items-center justify-center py-20 text-center">
@@ -365,7 +353,7 @@
 
                         <a
                             href="{{ route('home') }}"
-                            class="bg-[#236350] hover:bg-[#1B4D3E] text-white px-5 py-2.5 rounded-lg transition-colors"
+                            class="btn-copav inline-flex items-center gap-2 text-white px-5 py-2.5 rounded-lg transition-colors"
                         >
                             Voltar para a página inicial
                         </a>
@@ -373,7 +361,6 @@
                 `;
             });
     });
-
 </script>
 @endpush
 

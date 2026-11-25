@@ -11,18 +11,24 @@ class CategoriaController extends Controller
     public function index()
     {
         $categorias = Categoria::withCount('produtos')->get();
-        $sugestoes = CategoriaSugestao::with('user')->latest()->get();
+        $sugestoes = auth()->user()?->isAdmin()
+            ? CategoriaSugestao::with('user')->latest()->get()
+            : collect();
 
         return view('categorias.index', compact('categorias', 'sugestoes'));
     }
 
     public function create()
     {
+        abort_unless(auth()->user()?->isAdmin(), 403);
+
         return view('categorias.create');
     }
 
     public function store(Request $request)
     {
+        abort_unless(auth()->user()?->isAdmin(), 403);
+
         $dados = $request->validate([
             'nome' => 'required|string|max:255',
             'descricao' => 'nullable|string',
@@ -49,11 +55,15 @@ class CategoriaController extends Controller
 
     public function edit(Categoria $categoria)
     {
+        abort_unless(auth()->user()?->isAdmin(), 403);
+
         return view('categorias.edit', compact('categoria'));
     }
 
     public function update(Request $request, Categoria $categoria)
     {
+        abort_unless(auth()->user()?->isAdmin(), 403);
+
         $dados = $request->validate([
             'nome' => 'required|string|max:255',
             'descricao' => 'nullable|string',
@@ -68,6 +78,8 @@ class CategoriaController extends Controller
 
     public function destroy(Categoria $categoria)
     {
+        abort_unless(auth()->user()?->isAdmin(), 403);
+
         $categoria->delete();
 
         return redirect()
@@ -102,6 +114,8 @@ class CategoriaController extends Controller
 
     public function aprovarSugestao(CategoriaSugestao $sugestao)
     {
+        abort_unless(auth()->user()?->isAdmin(), 403);
+
         Categoria::firstOrCreate(
             ['nome' => $sugestao->nome],
             ['descricao' => $sugestao->descricao]
@@ -116,6 +130,8 @@ class CategoriaController extends Controller
 
     public function recusarSugestao(CategoriaSugestao $sugestao)
     {
+        abort_unless(auth()->user()?->isAdmin(), 403);
+
         $sugestao->delete();
 
         return redirect()

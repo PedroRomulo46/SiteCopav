@@ -2,28 +2,55 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\OfertaDireta;
 use App\Models\Demanda;
-use App\Models\Fornecedor;
+use App\Models\OfertaDireta;
 use Illuminate\Http\Request;
 
 class OfertaDiretaController extends Controller
 {
     public function index()
     {
-        $ofertasDiretas = OfertaDireta::with([
-            'demanda',
-            'fornecedor'
-        ])->get();
+        $usuario = auth()->user();
+
+        if ($usuario?->isAdmin()) {
+            $ofertasDiretas = OfertaDireta::with([
+                'demanda.cliente',
+                'demanda.categoria',
+                'fornecedor',
+            ])->latest()->get();
+        } elseif ($usuario?->isFornecedor()) {
+            $ofertasDiretas = OfertaDireta::with([
+                'demanda.cliente',
+                'demanda.categoria',
+                'fornecedor',
+            ])
+                ->where('fornecedor_id', $usuario->fornecedor->id)
+                ->latest()
+                ->get();
+        } else {
+            // Cliente vê ofertas diretas enviadas nas próprias demandas
+            $ofertasDiretas = OfertaDireta::with([
+                'demanda.cliente',
+                'demanda.categoria',
+                'fornecedor',
+            ])
+                ->whereHas('demanda', function ($query) use ($usuario) {
+                    $query->where('cliente_id', $usuario->id)
+                        ->orWhere('user_id', $usuario->id);
+                })
+                ->latest()
+                ->get();
+        }
 
         return view('ofertas_diretas.index', compact('ofertasDiretas'));
     }
 
     public function create()
     {
-        $fornecedor = auth()->user()->fornecedor;
+        $usuario = auth()->user();
+        $fornecedor = $usuario?->fornecedor;
 
-        if (!$fornecedor) {
+        if (! $fornecedor) {
             return redirect()
                 ->route('fornecedores.create')
                 ->with(
@@ -45,28 +72,22 @@ class OfertaDiretaController extends Controller
             ->with(['cliente', 'categoria'])
             ->get();
 
-        return view(
-            'ofertas_diretas.create',
-            compact('demandas')
-        );
+        return view('ofertas_diretas.create', compact('demandas'));
     }
 
     public function store(Request $request)
     {
-        $fornecedor = $request->user()->fornecedor;
+        $usuario = $request->user();
+        $fornecedor = $usuario?->fornecedor;
 
-        if (!$fornecedor) {
-            abort(403);
-        }
-
-        if ($fornecedor->status !== 'ativo') {
+        if (! $usuario?->isFornecedor() || ! $fornecedor || $fornecedor->status !== 'ativo') {
             abort(403);
         }
 
         $dados = $request->validate([
             'demanda_id' => 'required|exists:demandas,id',
-            'quantidade' => 'required|numeric|min:0',
-            'valor' => 'required|numeric|min:0',
+            'quantidade' => 'required|numeric|min:0.01',
+            'valor'      => 'required|numeric|min:0',
             'observacao' => 'nullable|string',
         ]);
 
@@ -74,7 +95,7 @@ class OfertaDiretaController extends Controller
             ->where('status', 'aberta')
             ->first();
 
-        if (!$demanda) {
+        if (! $demanda) {
             abort(403);
         }
 
@@ -85,10 +106,7 @@ class OfertaDiretaController extends Controller
 
         return redirect()
             ->route('demandas.show', $demanda)
-            ->with(
-                'sucesso',
-                'Oferta enviada com sucesso!'
-            );
+            ->with('sucesso', 'Oferta enviada com sucesso!');
     }
 
     public function show(OfertaDireta $ofertaDireta)
@@ -96,7 +114,7 @@ class OfertaDiretaController extends Controller
         $ofertaDireta->load([
             'demanda.cliente',
             'demanda.categoria',
-            'fornecedor'
+            'fornecedor',
         ]);
 
         return view('ofertas_diretas.show', compact('ofertaDireta'));
@@ -104,16 +122,13 @@ class OfertaDiretaController extends Controller
 
     public function edit(OfertaDireta $ofertaDireta)
     {
-        $fornecedor = auth()->user()->fornecedor;
+        $usuario = auth()->user();
+        $fornecedor = $usuario?->fornecedor;
+        $isAdmin = $usuario?->isAdmin() ?? false;
 
-        if (!$fornecedor) {
-            abort(403);
-        }
+        $donoDaOferta = $fornecedor && (int) $ofertaDireta->fornecedor_id === (int) $fornecedor->id;
 
-        if (
-            $ofertaDireta->fornecedor_id !== $fornecedor->id &&
-            auth()->user()->user_type !== 'admin'
-        ) {
+        if (! $isAdmin && ! $donoDaOferta) {
             abort(403);
         }
 
@@ -121,40 +136,34 @@ class OfertaDiretaController extends Controller
             ->with(['cliente', 'categoria'])
             ->get();
 
-        return view(
-            'ofertas_diretas.edit',
-            compact('ofertaDireta', 'demandas')
-        );
+        return view('ofertas_diretas.edit', compact('ofertaDireta', 'demandas'));
     }
 
     public function update(Request $request, OfertaDireta $ofertaDireta)
     {
-        $fornecedor = $request->user()->fornecedor;
+        $usuario = $request->user();
+        $fornecedor = $usuario?->fornecedor;
+        $isAdmin = $usuario?->isAdmin() ?? false;
 
-        if (!$fornecedor) {
-            abort(403);
-        }
+        $donoDaOferta = $fornecedor && (int) $ofertaDireta->fornecedor_id === (int) $fornecedor->id;
 
-        if (
-            $ofertaDireta->fornecedor_id !== $fornecedor->id &&
-            $request->user()->user_type !== 'admin'
-        ) {
+        if (! $isAdmin && ! $donoDaOferta) {
             abort(403);
         }
 
         $dados = $request->validate([
             'demanda_id' => 'required|exists:demandas,id',
-            'quantidade' => 'required|numeric|min:0',
-            'valor' => 'required|numeric|min:0',
+            'quantidade' => 'required|numeric|min:0.01',
+            'valor'      => 'required|numeric|min:0',
             'observacao' => 'nullable|string',
-            'status' => 'required|in:pendente,aceita,recusada',
+            'status'     => 'required|in:pendente,aceita,recusada',
         ]);
 
         $demanda = Demanda::where('id', $dados['demanda_id'])
             ->where('status', 'aberta')
             ->first();
 
-        if (!$demanda && $request->user()->user_type !== 'admin') {
+        if (! $demanda && ! $isAdmin) {
             abort(403);
         }
 
@@ -167,16 +176,13 @@ class OfertaDiretaController extends Controller
 
     public function destroy(OfertaDireta $ofertaDireta)
     {
-        $fornecedor = auth()->user()->fornecedor;
+        $usuario = auth()->user();
+        $fornecedor = $usuario?->fornecedor;
+        $isAdmin = $usuario?->isAdmin() ?? false;
 
-        if (!$fornecedor) {
-            abort(403);
-        }
+        $donoDaOferta = $fornecedor && (int) $ofertaDireta->fornecedor_id === (int) $fornecedor->id;
 
-        if (
-            $ofertaDireta->fornecedor_id !== $fornecedor->id &&
-            auth()->user()->user_type !== 'admin'
-        ) {
+        if (! $isAdmin && ! $donoDaOferta) {
             abort(403);
         }
 
