@@ -180,6 +180,89 @@
             border-color: #374151 !important;
         }
 
+        /* Botões secundários claros (bg-slate-200 / bg-gray-200) no modo escuro */
+        html.tema-escuro main .bg-slate-200,
+        html.tema-escuro main .bg-gray-200 {
+            background-color: #1f2937 !important;
+            color: #f3f4f6 !important;
+            border: 1px solid #374151 !important;
+        }
+
+        html.tema-escuro main .bg-slate-200:hover,
+        html.tema-escuro main .bg-gray-200:hover {
+            background-color: #374151 !important;
+            color: #ffffff !important;
+        }
+
+        /* Garante que .btn-copav mantenha letra branca em qualquer estado no modo escuro */
+        html.tema-escuro .btn-copav,
+        html.tema-escuro main .btn-copav {
+            background-color: #236350 !important;
+            color: #ffffff !important;
+        }
+
+        html.tema-escuro .btn-copav:hover,
+        html.tema-escuro main .btn-copav:hover {
+            background-color: #1a493b !important;
+            color: #ffffff !important;
+        }
+
+        /* Fundo do painel de gestão (bg-[#123228]) mais harmônico no modo escuro */
+        html.tema-escuro main section.bg-\[\#123228\] {
+            background-color: #0f172a !important;
+            border: 1px solid #1e293b !important;
+        }
+
+        html.tema-escuro main section.bg-\[\#123228\] .border-emerald-800 {
+            border-color: #1e293b !important;
+        }
+
+        /* Caixas / linhas de propostas no modo escuro */
+        html.tema-escuro main .bg-gray-100,
+        html.tema-escuro main .bg-slate-100,
+        html.tema-escuro main .bg-gray-50,
+        html.tema-escuro main .bg-slate-50,
+        html.tema-escuro main .divide-y > * {
+            background-color: #161f30 !important;
+            border-color: #273449 !important;
+        }
+
+        html.tema-escuro main .divide-y {
+            border-color: #273449 !important;
+        }
+
+        /* Selos amarelos / âmbar ("Maior valor", "Pendente") no modo escuro */
+        html.tema-escuro main .bg-amber-50,
+        html.tema-escuro main .bg-amber-100,
+        html.tema-escuro main .bg-yellow-50,
+        html.tema-escuro main .bg-yellow-100 {
+            background-color: rgba(245, 158, 11, 0.16) !important;
+            border-color: rgba(251, 191, 36, 0.35) !important;
+            color: #fcd34d !important;
+        }
+
+        html.tema-escuro main .bg-amber-50 *,
+        html.tema-escuro main .bg-amber-100 *,
+        html.tema-escuro main .bg-yellow-50 *,
+        html.tema-escuro main .bg-yellow-100 * {
+            color: #fcd34d !important;
+        }
+
+        /* Garante contraste branco nos botões de confirmar em modais no modo escuro */
+        html.tema-escuro [role="dialog"] button[type="submit"],
+        html.tema-escuro .modal button[type="submit"],
+        html.tema-escuro .modal-box button[type="submit"],
+        html.tema-escuro .fixed button[type="submit"] {
+            color: #ffffff !important;
+        }
+
+        html.tema-escuro [role="dialog"] button[type="submit"] *,
+        html.tema-escuro .modal button[type="submit"] *,
+        html.tema-escuro .modal-box button[type="submit"] *,
+        html.tema-escuro .fixed button[type="submit"] * {
+            color: #ffffff !important;
+        }
+
         /* Dropdowns / menus flutuantes brancos mantêm texto escuro e legível */
         [x-show].bg-white,
         [x-show] .bg-white {
@@ -194,7 +277,13 @@
             color: #1f2937 !important;
         }
 
-        .btn-copav {
+        a.btn-copav,
+        button.btn-copav,
+        .btn.btn-copav,
+        html:not(.tema-escuro) a.btn-copav,
+        html:not(.tema-escuro) button.btn-copav,
+        html.tema-escuro a.btn-copav,
+        html.tema-escuro button.btn-copav {
             background-color: #236350 !important;
             color: #ffffff !important;
             border: none !important;
@@ -203,6 +292,17 @@
             justify-content: center !important;
             opacity: 1 !important;
             visibility: visible !important;
+        }
+
+        a.btn-copav:hover,
+        button.btn-copav:hover,
+        .btn.btn-copav:hover,
+        html:not(.tema-escuro) a.btn-copav:hover,
+        html:not(.tema-escuro) button.btn-copav:hover,
+        html.tema-escuro a.btn-copav:hover,
+        html.tema-escuro button.btn-copav:hover {
+            background-color: #1a493b !important;
+            color: #ffffff !important;
         }
 
         .btn-copav:hover {

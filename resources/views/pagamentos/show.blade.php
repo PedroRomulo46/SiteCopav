@@ -111,22 +111,6 @@
 
                     {{-- Negociação e status --}}
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
-
-                        <div class="rounded-xl border border-gray-200
-                                    bg-gray-50 p-3 flex items-center gap-3">
-                            <span class="material-symbols-outlined
-                                        text-[#236350] text-xl shrink-0">
-                                receipt_long
-                            </span>
-
-                            <div class="min-w-0">
-                                <p class="text-xs text-gray-500">Negociação</p>
-                                <p class="font-semibold text-gray-900">
-                                    #{{ $negociacao->id }}
-                                </p>
-                            </div>
-                        </div>
-
                         <div class="rounded-xl border border-gray-200
                                     bg-gray-50 p-3 flex items-center gap-3">
                             <span class="material-symbols-outlined
@@ -270,8 +254,7 @@
 
                                 <p class="text-sm text-gray-500 mt-1 leading-relaxed">
                                     As opções de pagamento estarão disponíveis
-                                    após a integração de um meio de pagamento
-                                    ao marketplace.
+                                    durante a operação de pagamento.
                                 </p>
                             </div>
                         </div>

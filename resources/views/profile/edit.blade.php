@@ -191,12 +191,12 @@
     </div>
 
     {{-- Aparência / Modo Escuro --}}
-    <div class="card bg-base-100 shadow-sm border border-base-200 dark:bg-gray-900 dark:border-gray-800">
-        <div class="card-body max-w-2xl">
-            <div class="flex items-center justify-between gap-4">
-                <div>
-                    <h2 class="card-title text-lg text-gray-900 dark:text-gray-100">Aparência</h2>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+    <div id="cardAparencia" class="card bg-base-100 shadow-sm border border-base-200 transition-colors duration-200">
+        <div class="card-body p-4 sm:p-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div class="min-w-0 flex-1">
+                    <h2 id="tituloAparencia" class="card-title text-lg text-gray-900">Aparência</h2>
+                    <p id="descricaoAparencia" class="text-sm text-gray-500 mt-1">
                         Alterne entre o tema claro e o modo escuro em todo o site.
                     </p>
                 </div>
@@ -205,7 +205,7 @@
                     type="button"
                     id="btnToggleDarkMode"
                     onclick="alternarModoEscuro()"
-                    class="btn border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 gap-2 shrink-0 cursor-pointer"
+                    class="btn w-full sm:w-auto border border-gray-300 bg-white text-gray-800 hover:bg-gray-100 gap-2 shrink-0 cursor-pointer justify-center"
                 >
                     <span id="iconeModoEscuro" class="material-symbols-outlined text-xl">dark_mode</span>
                     <span id="textoModoEscuro">Ativar modo escuro</span>
@@ -376,24 +376,57 @@
 </div>
 
 <script>
-    function aplicarTemaEscuro(ativado) {
-    const html = document.documentElement;
-    const icone = document.getElementById('iconeModoEscuro');
-    const texto = document.getElementById('textoModoEscuro');
+    function sincronizarBotaoTema(ativado) {
+        const icone = document.getElementById('iconeModoEscuro');
+        const texto = document.getElementById('textoModoEscuro');
+        const btn = document.getElementById('btnToggleDarkMode');
+        const card = document.getElementById('cardAparencia');
+        const titulo = document.getElementById('tituloAparencia');
+        const descricao = document.getElementById('descricaoAparencia');
 
-    if (ativado) {
-        html.classList.add('tema-escuro');
-        html.setAttribute('data-theme', 'dark');
-        localStorage.setItem('tema_escuro', '1');
-        if (icone) icone.textContent = 'light_mode';
-        if (texto) texto.textContent = 'Modo escuro ativado';
-    } else {
-        html.classList.remove('tema-escuro');
-        html.setAttribute('data-theme', 'light');
-        localStorage.setItem('tema_escuro', '0');
-        if (icone) icone.textContent = 'dark_mode';
-        if (texto) texto.textContent = 'Ativar modo escuro';
+        if (icone) icone.textContent = ativado ? 'light_mode' : 'dark_mode';
+        if (texto) texto.textContent = ativado ? 'Modo escuro ativado' : 'Ativar modo escuro';
+
+        if (btn) {
+            if (ativado) {
+                btn.style.backgroundColor = '#1f2937';
+                btn.style.color = '#f9fafb';
+                btn.style.borderColor = '#374151';
+            } else {
+                btn.style.backgroundColor = '#ffffff';
+                btn.style.color = '#1f2937';
+                btn.style.borderColor = '#d1d5db';
+            }
+        }
+
+        if (card) {
+            if (ativado) {
+                card.style.backgroundColor = '#111827';
+                card.style.borderColor = '#1f2937';
+            } else {
+                card.style.backgroundColor = '#ffffff';
+                card.style.borderColor = '#e5e7eb';
+            }
+        }
+
+        if (titulo) titulo.style.color = ativado ? '#f9fafb' : '#111827';
+        if (descricao) descricao.style.color = ativado ? '#9ca3af' : '#6b7280';
     }
+
+    function aplicarTemaEscuro(ativado) {
+        const html = document.documentElement;
+
+        if (ativado) {
+            html.classList.add('tema-escuro');
+            html.setAttribute('data-theme', 'dark');
+            localStorage.setItem('tema_escuro', '1');
+        } else {
+            html.classList.remove('tema-escuro');
+            html.setAttribute('data-theme', 'light');
+            localStorage.setItem('tema_escuro', '0');
+        }
+
+        sincronizarBotaoTema(ativado);
     }
 
     function alternarModoEscuro() {
