@@ -208,17 +208,13 @@ class ChatController extends Controller
                         ->map(function ($negociacao) {
                             $produto = $negociacao->oferta?->produto;
 
-                            if (!$produto) {
-                                return null;
-                            }
-
                             return [
                                 'id' => $negociacao->id,
-                                'produto' => $produto->nome,
-                                'url' => route('ofertas.show', $negociacao->oferta),
+                                'titulo' => 'Negociação #' . $negociacao->id,
+                                'produto' => $produto?->nome ?? 'Negociação',
+                                'url' => route('negociacoes.show', $negociacao),
                             ];
                         })
-                        ->filter()
                         ->values(),
                 ];
             })->values();

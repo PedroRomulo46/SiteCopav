@@ -935,6 +935,7 @@
               erro: '',
               conversaSelecionada: null,
               assuntoSelecionadoId: null,
+              cardNegociacaoAberto: false,
               mensagens: [],
               carregandoMensagens: false,
               erroMensagens: '',
@@ -946,9 +947,19 @@
               totalNaoLidas: 0,
               chatIdAtivo: null,
               canaisInscritos: [],
+              chaveEstadoChat: 'sitecopav_chat_estado_{{ auth()->id() }}',
+  
+              salvarEstadoChat() {
+                  sessionStorage.setItem(this.chaveEstadoChat, JSON.stringify({
+                      chatId: this.chatIdAtivo,
+                      assuntoId: this.assuntoSelecionadoId,
+                      chatAberto: this.chatAberto
+                  }));
+              },
 
               abrirChat() {
                   this.chatAberto = !this.chatAberto;
+                  this.salvarEstadoChat();
 
                   if (this.chatAberto && !this.conversasCarregadas) {
                       this.carregarConversas();
@@ -988,9 +999,53 @@
                   }
               },
 
-              inicializarChat() {
-                  this.carregarConversas();
-              },
+              async inicializarChat() {
+                await this.carregarConversas();
+
+                const estadoSalvo = sessionStorage.getItem(this.chaveEstadoChat);
+
+                if (!estadoSalvo) return;
+
+                try {
+                    const estado = JSON.parse(estadoSalvo);
+
+                    // Restaura primeiro o estado de abertura.
+                    this.chatAberto = Boolean(estado.chatAberto);
+
+                    // É válido ter o painel aberto sem uma conversa selecionada.
+                    if (estado.chatId === null || estado.chatId === undefined) {
+                        return;
+                    }
+
+                    const conversa = this.conversas.find(
+                        item => Number(item.chat_id) === Number(estado.chatId)
+                    );
+
+                    if (!conversa) {
+                        sessionStorage.removeItem(this.chaveEstadoChat);
+                        return;
+                    }
+
+                    const assuntoExiste = estado.assuntoId === null ||
+                        conversa.assuntos?.some(
+                            item => Number(item.id) === Number(estado.assuntoId)
+                        );
+
+                    if (!assuntoExiste) {
+                        sessionStorage.removeItem(this.chaveEstadoChat);
+                        return;
+                    }
+
+                    await this.abrirConversa(conversa, estado.assuntoId);
+
+                    // Garante que o estado original seja mantido.
+                    this.chatAberto = Boolean(estado.chatAberto);
+
+                } catch (erro) {
+                    console.error('Erro ao restaurar o chat:', erro);
+                    sessionStorage.removeItem(this.chaveEstadoChat);
+                }
+            },
 
               atualizarTotalNaoLidas() {
                 this.totalNaoLidas = this.conversas.reduce(
@@ -1062,14 +1117,14 @@
               
             async abrirConversa(conversa, assuntoId = null) {
                 this.conversaSelecionada = conversa;
-
                 this.assuntoSelecionadoId =
                     assuntoId === null ? null : Number(assuntoId);
-
+                this.cardNegociacaoAberto = false;
                 this.mensagens = [];
                 this.erroMensagens = '';
                 this.carregandoMensagens = true;
                 this.chatIdAtivo = Number(conversa.chat_id);
+                this.salvarEstadoChat();
 
                 const lista = this.$refs.listaMensagens;
 
@@ -1205,11 +1260,15 @@
               },
 
               voltarConversas() {
-                  this.conversaSelecionada = null;
-                  this.chatIdAtivo = null;
-                  this.mensagens = [];
-                  this.erroMensagens = '';
-              },
+                this.conversaSelecionada = null;
+                this.chatIdAtivo = null;
+                this.assuntoSelecionadoId = null;
+                this.mensagens = [];
+                this.erroMensagens = '';
+                this.cardNegociacaoAberto = false;
+
+                this.salvarEstadoChat();
+            },
 
               rolarHistorico() {
                   const lista = this.$refs.listaMensagens;
@@ -1299,27 +1358,6 @@
                             x-text="conversaSelecionada ? conversaSelecionada.participante : 'Mensagens'"
                         ></h3>
 
-                        <template
-                            x-for="negociacao in (
-                                conversaSelecionada?.assuntos?.find(
-                                    item => Number(item.id) === Number(assuntoSelecionadoId)
-                                )?.links_negociacoes || []
-                            )"
-                            :key="negociacao.id"
-                        >
-                            <a
-                                :href="negociacao.url"
-                                target="_blank"
-                                class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-green-200 transition hover:bg-white/10 hover:text-white"
-                                title="Ver oferta"
-                                aria-label="Ver oferta"
-                                @click.stop
-                            >
-                                <span class="material-symbols-outlined text-[19px]">
-                                    storefront
-                                </span>
-                            </a>
-                        </template>
                     </div>
 
                     <p
@@ -1346,7 +1384,7 @@
 
                   <button
                       type="button"
-                      @click="chatAberto = false"
+                      @click="chatAberto = false; salvarEstadoChat()"
                       class="flex h-9 w-9 items-center justify-center rounded-full border-0 bg-transparent p-0 text-white transition-colors hover:bg-white/10"
                       aria-label="Fechar chat"
                   >
@@ -1357,6 +1395,87 @@
 
               </div>
           </div>
+
+          <!-- Acesso às negociações do assunto -->
+        <div
+            x-show="
+                conversaSelecionada &&
+                assuntoSelecionadoId !== null &&
+                (
+                    conversaSelecionada?.assuntos?.find(
+                        item => Number(item.id) === Number(assuntoSelecionadoId)
+                    )?.links_negociacoes || []
+                ).length > 0
+            "
+            x-cloak
+            class="shrink-0 border-b border-gray-200 bg-white px-4 py-2"
+        >
+            <button
+                type="button"
+                @click="cardNegociacaoAberto = !cardNegociacaoAberto"
+                class="flex w-full items-center justify-between rounded-lg px-2 py-2 text-sm font-medium text-[#236350] transition hover:bg-[#E5EFEA]/60"
+            >
+                <span class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[19px]">
+                        handshake
+                    </span>
+                    Negociações vinculadas
+                </span>
+
+                <span
+                    class="material-symbols-outlined text-[20px] transition-transform"
+                    :class="cardNegociacaoAberto ? 'rotate-180' : ''"
+                >
+                    expand_more
+                </span>
+            </button>
+
+            <div
+                x-show="cardNegociacaoAberto"
+                x-transition
+                x-cloak
+                class="mt-1 space-y-2 pb-2"
+            >
+                <template
+                    x-for="negociacao in (
+                        conversaSelecionada?.assuntos?.find(
+                            item => Number(item.id) === Number(assuntoSelecionadoId)
+                        )?.links_negociacoes || []
+                    )"
+                    :key="negociacao.id"
+                >
+                    <div class="rounded-xl border border-gray-200 bg-gray-50 p-3">
+                        <div class="flex items-start gap-2">
+                            <span class="material-symbols-outlined mt-0.5 text-[20px] text-[#236350]">
+                                handshake
+                            </span>
+
+                            <div class="min-w-0 flex-1">
+                                <p
+                                    class="text-sm font-semibold text-gray-800"
+                                    x-text="negociacao.titulo"
+                                ></p>
+
+                                <p
+                                    class="mt-1 truncate text-xs text-gray-500"
+                                    x-text="negociacao.produto"
+                                ></p>
+                            </div>
+                        </div>
+
+                        <a
+                            :href="negociacao.url"
+                            class="mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-[#236350] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#1B4D3E]"
+                        >
+                            <span class="material-symbols-outlined text-[17px]">
+                                open_in_new
+                            </span>
+                            Acessar negociação
+                        </a>
+                    </div>
+                </template>
+            </div>
+        </div>
 
 
               <!-- Lista de conversas -->
