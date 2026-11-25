@@ -48,7 +48,7 @@ class ChatController extends Controller
             ->with([
                 'cliente',
                 'fornecedor.usuario',
-                'assuntos.negociacoes',
+                'assuntos.negociacoes.oferta.produto',
                 'mensagens' => function ($query) {
                     $query->latest()->limit(1);
                 },
@@ -205,7 +205,7 @@ class ChatController extends Controller
                     'produtos' => $produtos,
 
                     'links_negociacoes' => $assunto->negociacoes
-                        ->map(function ($negociacao) {
+                        ->map(function ($negociacao) use ($assunto, $chat) {
                             $produto = $negociacao->oferta?->produto;
 
                             return [

@@ -958,7 +958,7 @@
                 this.totalNaoLidas = this.conversas.reduce(
                     (total, conversa) => {
                         const naoLidasGerais = Number(
-                            conversa.mensagens_nao_lidas || 0
+                            conversa.mensagens_gerais?.mensagens_nao_lidas || 0
                         );
 
                         const naoLidasAssuntos = (conversa.assuntos || []).reduce(
@@ -991,34 +991,63 @@
 
               
               receberMensagem(mensagem) {
-                  const conversa = this.conversas.find(
-                      item => Number(item.chat_id) === Number(mensagem.chat_id)
-                  );
+                const conversa = this.conversas.find(
+                    item => Number(item.chat_id) === Number(mensagem.chat_id)
+                );
 
-                  if (!conversa) return;
+                if (!conversa) return;
 
-                  conversa.ultima_mensagem = mensagem.conteudo;
+                const assuntoId = mensagem.assunto_chat_id
+                    ? Number(mensagem.assunto_chat_id)
+                    : null;
 
-                  // Não contabiliza mensagens enviadas pelo próprio usuário.
-                  if (Number(mensagem.usuario_id) === Number(this.usuarioId)) {
-                      return;
-                  }
+                // Atualiza a última mensagem geral ou do assunto correspondente.
+                let contexto;
 
-                  // Se a conversa estiver aberta, adiciona a mensagem ao histórico.
-                  if (
-                      this.chatAberto &&
-                      Number(this.chatIdAtivo) === Number(mensagem.chat_id)
-                  ) {
-                      this.adicionarMensagem(mensagem);
-                      this.rolarHistorico();
-                  } else {
-                      // Caso contrário, incrementa as mensagens não lidas.
-                      conversa.mensagens_nao_lidas =
-                          Number(conversa.mensagens_nao_lidas || 0) + 1;
-                  }
+                if (assuntoId === null) {
+                    contexto = conversa.mensagens_gerais;
+                } else {
+                    contexto = conversa.assuntos?.find(
+                        item => Number(item.id) === assuntoId
+                    );
+                }
 
-                  this.atualizarTotalNaoLidas();
-              },
+                if (!contexto) return;
+
+                contexto.ultima_mensagem = mensagem.conteudo;
+                contexto.ultima_mensagem_usuario = mensagem.usuario_id;
+                contexto.ultima_mensagem_data = mensagem.created_at;
+
+                // Atualiza também a última mensagem geral da conversa.
+                conversa.ultima_mensagem = mensagem.conteudo;
+                conversa.ultima_mensagem_usuario = mensagem.usuario_id;
+                conversa.ultima_mensagem_data = mensagem.created_at;
+                conversa.ultima_mensagem_assunto_chat_id = assuntoId;
+
+                // Mensagens enviadas pelo próprio usuário não geram notificações.
+                if (Number(mensagem.usuario_id) === Number(this.usuarioId)) {
+                    return;
+                }
+
+                // Verifica se o usuário está exatamente no contexto que recebeu a mensagem.
+                const mesmoContexto =
+                    this.chatAberto &&
+                    Number(this.chatIdAtivo) === Number(mensagem.chat_id) &&
+                    (
+                        (this.assuntoSelecionadoId === null && assuntoId === null) ||
+                        Number(this.assuntoSelecionadoId) === Number(assuntoId)
+                    );
+
+                if (mesmoContexto) {
+                    this.adicionarMensagem(mensagem);
+                    this.rolarHistorico();
+                } else {
+                    contexto.mensagens_nao_lidas =
+                        Number(contexto.mensagens_nao_lidas || 0) + 1;
+                }
+
+                this.atualizarTotalNaoLidas();
+            },
 
 
               
@@ -1072,16 +1101,20 @@
                     this.mensagens = dados.mensagens || [];
 
                     if (this.assuntoSelecionadoId === null) {
-                        conversa.mensagens_nao_lidas = 0;
-                    } else {
-                        const assunto = conversa.assuntos?.find(
-                            item => Number(item.id) === this.assuntoSelecionadoId
-                        );
-
-                        if (assunto) {
-                            assunto.mensagens_nao_lidas = 0;
-                        }
+                    if (conversa.mensagens_gerais) {
+                        conversa.mensagens_gerais.mensagens_nao_lidas = 0;
                     }
+                } else {
+                    const assunto = conversa.assuntos?.find(
+                        item => Number(item.id) === this.assuntoSelecionadoId
+                    );
+
+                    if (assunto) {
+                        assunto.mensagens_nao_lidas = 0;
+                    }
+                }
+
+                this.atualizarTotalNaoLidas();
 
                     this.atualizarTotalNaoLidas();
 
@@ -1096,22 +1129,41 @@
             },
 
               adicionarMensagem(mensagem) {
-                  if (this.mensagens.some(
-                      item => Number(item.id) === Number(mensagem.id)
-                  )) {
-                      return;
-                  }
+                if (this.mensagens.some(
+                    item => Number(item.id) === Number(mensagem.id)
+                )) {
+                    return;
+                }
 
-                  this.mensagens.push(mensagem);
+                this.mensagens.push(mensagem);
 
-                  const conversa = this.conversas.find(
-                      item => Number(item.chat_id) === Number(mensagem.chat_id)
-                  );
+                const conversa = this.conversas.find(
+                    item => Number(item.chat_id) === Number(mensagem.chat_id)
+                );
 
-                  if (conversa) {
-                      conversa.ultima_mensagem = mensagem.conteudo;
-                  }
-              },
+                if (!conversa) return;
+
+                const assuntoId = mensagem.assunto_chat_id
+                    ? Number(mensagem.assunto_chat_id)
+                    : null;
+
+                const contexto = assuntoId === null
+                    ? conversa.mensagens_gerais
+                    : conversa.assuntos?.find(
+                        item => Number(item.id) === assuntoId
+                    );
+
+                if (contexto) {
+                    contexto.ultima_mensagem = mensagem.conteudo;
+                    contexto.ultima_mensagem_usuario = mensagem.usuario_id;
+                    contexto.ultima_mensagem_data = mensagem.created_at;
+                }
+
+                conversa.ultima_mensagem = mensagem.conteudo;
+                conversa.ultima_mensagem_usuario = mensagem.usuario_id;
+                conversa.ultima_mensagem_data = mensagem.created_at;
+                conversa.ultima_mensagem_assunto_chat_id = assuntoId;
+            },
 
               async enviarMensagem() {
                 const conteudo = this.mensagemNova.trim();
@@ -1186,7 +1238,92 @@
                   }
               },
 
+              textoPrevia(contexto) {
+                if (!contexto) return 'Nenhuma mensagem ainda';
+
+                const mensagem = contexto.ultima_mensagem
+                    || 'Nenhuma mensagem ainda';
+
+                return Number(contexto.ultima_mensagem_usuario) === Number(this.usuarioId)
+                    ? `Você: ${mensagem}`
+                    : mensagem;
+            },
+
+            formatarHoraLista(data) {
+                if (!data) return '';
+
+                const dataMensagem = new Date(data);
+
+                if (isNaN(dataMensagem.getTime())) return '';
+
+                const agora = new Date();
+
+                const mesmaData =
+                    dataMensagem.toDateString() === agora.toDateString();
+
+                if (mesmaData) {
+                    return dataMensagem.toLocaleTimeString('pt-BR', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                }
+
+                const ontem = new Date();
+                ontem.setDate(ontem.getDate() - 1);
+
+                if (dataMensagem.toDateString() === ontem.toDateString()) {
+                    return 'Ontem';
+                }
+
+                return dataMensagem.toLocaleDateString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit'
+                });
+            },
               
+            itensCaixaEntrada() {
+                const itens = [];
+
+                this.conversas.forEach(conversa => {
+                    const geral = conversa.mensagens_gerais || {};
+
+                    // Item das mensagens gerais
+                    itens.push({
+                        chave: `${conversa.chat_id}-geral`,
+                        conversa: conversa,
+                        assuntoId: null,
+                        participante: conversa.participante,
+                        titulo: 'Mensagens gerais',
+                        imagem: null,
+                        contexto: geral,
+                        data: geral.ultima_mensagem_data,
+                        naoLidas: Number(geral.mensagens_nao_lidas || 0),
+                    });
+
+                    // Um item independente para cada assunto
+                    (conversa.assuntos || []).forEach(assunto => {
+                        itens.push({
+                            chave: `${conversa.chat_id}-assunto-${assunto.id}`,
+                            conversa: conversa,
+                            assuntoId: Number(assunto.id),
+                            participante: conversa.participante,
+                            titulo: assunto.produtos?.[0]?.nome || assunto.titulo,
+                            imagem: assunto.produtos?.[0]?.imagem || null,
+                            contexto: assunto,
+                            data: assunto.ultima_mensagem_data,
+                            naoLidas: Number(assunto.mensagens_nao_lidas || 0),
+                        });
+                    });
+                });
+
+                // Mais recentes primeiro
+                return itens.sort((a, b) => {
+                    const dataA = a.data ? new Date(a.data).getTime() : 0;
+                    const dataB = b.data ? new Date(b.data).getTime() : 0;
+
+                    return dataB - dataA;
+                });
+            },
             
             formatarDataHora(data) {
                 if (!data) return '';
@@ -1279,15 +1416,21 @@
               <div class="ml-3 flex shrink-0 items-center gap-1">
 
                   <a
-                      href="{{ route('chat') }}"
-                      class="flex h-9 w-9 items-center justify-center rounded-full border-0 bg-transparent text-white no-underline transition-colors hover:bg-white/10"
-                      title="Ver todas as conversas"
-                      aria-label="Ver todas as conversas"
-                  >
-                      <span class="material-symbols-outlined text-[22px] leading-none">
-                          open_in_new
-                      </span>
-                  </a>
+                    :href="conversaSelecionada
+                        ? `/chat?chat_id=${conversaSelecionada.chat_id}${
+                            assuntoSelecionadoId !== null
+                                ? `&assunto_chat_id=${assuntoSelecionadoId}`
+                                : ''
+                        }`
+                        : '{{ route('chat') }}'"
+                    class="flex h-9 w-9 items-center justify-center rounded-full border-0 bg-transparent text-white no-underline transition-colors hover:bg-white/10"
+                    title="Abrir no chat completo"
+                    aria-label="Abrir no chat completo"
+                >
+                    <span class="material-symbols-outlined text-[22px] leading-none">
+                        open_in_new
+                    </span>
+                </a>
 
                   <button
                       type="button"
@@ -1382,121 +1525,103 @@
                     </div>
                 </template>
             </div>
+        </div>              
+        
+        <!-- Lista de conversas -->
+        <div
+            x-show="!conversaSelecionada"
+            class="min-h-0 flex-1 overflow-y-auto bg-white"
+        >
+            <div
+                x-show="carregando"
+                class="p-6 text-center text-sm text-gray-500"
+            >
+                Carregando conversas...
+            </div>
+
+            <div
+                x-show="erro"
+                class="p-5 text-center text-sm text-red-600"
+                x-text="erro"
+            ></div>
+
+            <template
+                x-for="item in itensCaixaEntrada()"
+                :key="item.chave"
+            >
+                <button
+                    type="button"
+                    @click="abrirConversa(item.conversa, item.assuntoId)"
+                    class="flex w-full items-center gap-3 border-b border-gray-100 px-4 py-3 text-left transition hover:bg-gray-50"
+                >
+                    <!-- Imagem ou ícone -->
+                    <template x-if="item.imagem">
+                        <img
+                            :src="item.imagem"
+                            :alt="item.titulo"
+                            class="h-10 w-10 shrink-0 rounded-full object-cover"
+                        >
+                    </template>
+
+                    <template x-if="!item.imagem">
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#E5EFEA] text-[#236350]">
+                            <span
+                                class="material-symbols-outlined text-[21px]"
+                                x-text="item.assuntoId === null ? 'forum' : 'inventory_2'"
+                            ></span>
+                        </div>
+                    </template>
+
+                    <!-- Informações -->
+                    <div class="min-w-0 flex-1">
+                        <div class="flex min-w-0 items-center justify-between gap-2">
+                            <p
+                                class="truncate text-sm font-semibold text-gray-800"
+                                x-text="item.participante"
+                            ></p>
+
+                            <span
+                                class="shrink-0 text-[10px] text-gray-400"
+                                x-text="formatarHoraLista(item.data)"
+                            ></span>
+                        </div>
+
+                        <p
+                            class="mt-0.5 truncate text-xs font-medium text-[#236350]"
+                            x-text="item.titulo"
+                        ></p>
+
+                        <div class="mt-0.5 flex items-center justify-between gap-2">
+                            <p
+                                class="truncate text-xs text-gray-500"
+                                x-text="textoPrevia(item.contexto)"
+                            ></p>
+
+                            <span
+                                x-show="item.naoLidas > 0"
+                                class="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-[#236350] px-1 text-[10px] font-bold text-white"
+                                x-text="item.naoLidas > 99 ? '99+' : item.naoLidas"
+                            ></span>
+                        </div>
+                    </div>
+                </button>
+            </template>
+
+            <div
+                x-show="!carregando && conversas.length === 0 && !erro"
+                class="px-5 py-12 text-center"
+            >
+                <span class="material-symbols-outlined text-4xl text-gray-300">
+                    forum
+                </span>
+
+                <p class="mt-2 text-sm text-gray-500">
+                    Você ainda não possui conversas.
+                </p>
+            </div>
         </div>
 
 
-              <!-- Lista de conversas -->
-              <div
-                x-show="!conversaSelecionada"
-                class="min-h-0 flex-1 overflow-y-auto bg-gray-50"
-              >
-                  <div
-                      x-show="carregando"
-                      class="p-6 text-center text-sm text-gray-500"
-                  >
-                      Carregando conversas...
-                  </div>
-
-                  <div
-                      x-show="erro"
-                      class="p-5 text-center text-sm text-red-600"
-                      x-text="erro"
-                  ></div>
-
-                  <template x-for="conversa in conversas" :key="conversa.chat_id">
-                    <div class="border-b border-gray-200">
-
-                        <!-- Identificação do participante -->
-                        <div class="flex items-center gap-3 bg-white px-4 py-3">
-                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#1B4D3E]/10 text-[#1B4D3E]">
-                                <span class="material-symbols-outlined">person</span>
-                            </div>
-
-                            <div class="min-w-0 flex-1">
-                                <p
-                                    class="truncate font-semibold text-gray-800"
-                                    x-text="conversa.participante"
-                                ></p>
-
-                                <p class="text-xs text-gray-400">
-                                    Conversa
-                                </p>
-                            </div>
-                        </div>
-
-                        <!-- Mensagens gerais -->
-                        <button
-                            type="button"
-                            @click="abrirConversa(conversa, null)"
-                            class="flex w-full items-center gap-3 border-t border-gray-100 px-5 py-3 text-left transition hover:bg-white"
-                        >
-                            <span class="material-symbols-outlined text-xl text-gray-500">
-                                forum
-                            </span>
-
-                            <div class="min-w-0 flex-1">
-                                <p class="text-sm font-medium text-gray-700">
-                                    Mensagens gerais
-                                </p>
-
-                                <p class="text-xs text-gray-400">
-                                    Conversa sem assunto específico
-                                </p>
-                            </div>
-
-                            <span
-                                x-show="Number(conversa.mensagens_nao_lidas || 0) > 0"
-                                class="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#236350] px-1 text-xs font-bold text-white"
-                                x-text="conversa.mensagens_nao_lidas"
-                            ></span>
-                        </button>
-
-                        <!-- Assuntos -->
-                        <template
-                            x-for="assunto in (conversa.assuntos || [])"
-                            :key="assunto.id"
-                        >
-                            <button
-                                type="button"
-                                @click="abrirConversa(conversa, assunto.id)"
-                                class="flex w-full items-center gap-3 border-t border-gray-100 px-5 py-3 text-left transition hover:bg-white"
-                            >
-                                <span class="material-symbols-outlined text-xl text-[#236350]">
-                                    topic
-                                </span>
-
-                                <div class="min-w-0 flex-1">
-                                    <p
-                                        class="truncate text-sm font-medium text-gray-700"
-                                        x-text="assunto.titulo"
-                                    ></p>
-
-                                    <p class="text-xs text-gray-400">
-                                        Assunto da conversa
-                                    </p>
-                                </div>
-
-                                <span
-                                    x-show="Number(assunto.mensagens_nao_lidas || 0) > 0"
-                                    class="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#236350] px-1 text-xs font-bold text-white"
-                                    x-text="assunto.mensagens_nao_lidas"
-                                ></span>
-                            </button>
-                        </template>
-
-                    </div>
-                </template>
-
-                  <div
-                      x-show="!carregando && conversas.length === 0 && !erro"
-                      class="px-5 py-12 text-center"
-                  >
-                      <span class="material-symbols-outlined text-4xl text-gray-300">forum</span>
-                      <p class="mt-2 text-sm text-gray-500">
-                          Você ainda não possui conversas.
-                      </p>
-                  </div>
-              </div>
 
               <!-- Conversa selecionada -->
               <div
@@ -1566,13 +1691,13 @@
                           rows="1"
                           maxlength="5000"
                           placeholder="Digite sua mensagem..."
-                          class="max-h-24 min-h-42px flex-1 resize-none rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm outline-none transition focus:border-[#236350] focus:ring-1 focus:ring-[#236350]"
+                          class="h-11 min-h-11 flex-1 resize-none rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm outline-none transition focus:border-[#236350] focus:ring-1 focus:ring-[#236350]"
                       ></textarea>
 
                       <button
                           type="submit"
                           :disabled="!mensagemNova.trim() || enviandoMensagem"
-                          class="flex h-42px w-42px shrink-0 items-center justify-center rounded-xl bg-[#236350] text-white transition hover:bg-[#1B4D3E] disabled:cursor-not-allowed disabled:opacity-40"
+                          class="flex h-11 w-11 shrink-0 items-center justify-center self-end rounded-xl bg-[#236350] text-white transition hover:bg-[#1B4D3E] disabled:cursor-not-allowed disabled:opacity-40"
                           aria-label="Enviar mensagem"
                       >
                           <span

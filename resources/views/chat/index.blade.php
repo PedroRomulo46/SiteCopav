@@ -27,16 +27,38 @@
 
                     <div>
                         <h2 class="font-semibold text-gray-900">Suas conversas</h2>
-                        <p class="mt-1 text-xs text-gray-500">
-                            {{ $chats->count() }}
-                            {{ $chats->count() === 1 ? 'conversa' : 'conversas' }}
-                        </p>
+                        <p
+                            class="mt-1 text-xs text-gray-500"
+                            x-text="conversas.length + (conversas.length === 1 ? ' item' : ' itens')"
+                        ></p>
                     </div>
                 </div>
             </div>
 
             <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-                
+
+            @if ($chats->isEmpty())
+                <div class="px-6 py-16 text-center">
+                    <span class="material-symbols-outlined text-4xl text-gray-300">forum</span>
+
+                    <h3 class="mt-3 font-semibold text-gray-800">
+                        Nenhuma conversa por enquanto
+                    </h3>
+
+                    <p class="mt-2 text-sm text-gray-500">
+                        Quando uma proposta for aceita, sua conversa ficará disponível aqui.
+                    </p>
+
+                    <a
+                        href="{{ route('negociacoes.index') }}"
+                        class="mt-5 inline-flex rounded-lg bg-[#236350] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#1B4D3E]"
+                    >
+                        Ver negociações
+                    </a>
+                </div>
+            @else
+
+            {{-- LISTA: UMA ENTRADA POR CONTATO --}}
             @forelse ($chats as $chat)
                 @php
                     $ehCliente = (int) $chat->cliente_id === (int) auth()->id();
@@ -52,116 +74,58 @@
                     $inicial = mb_strtoupper(mb_substr($nomeParticipante, 0, 1));
                 @endphp
 
-                {{-- IDENTIFICAÇÃO DO FORNECEDOR/CLIENTE --}}
-                <div class="border-b border-gray-100 bg-gray-50 px-4 py-3">
-                    <div class="flex items-center gap-3">
-                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#E5EFEA] font-semibold text-[#1B4D3E]">
-                            {{ $inicial }}
-                        </div>
+                <button
+                    type="button"
+                    @click="abrirContato({{ $chat->id }})"
+                    :class="Number(conversaSelecionada?.chat_id) === {{ $chat->id }}
+                        ? 'border-l-4 border-[#236350] bg-[#E5EFEA]/70'
+                        : 'border-l-4 border-transparent hover:bg-gray-50'"
+                    class="flex w-full items-center gap-3 border-b border-gray-100 px-4 py-4 text-left transition"
+                >
+                    {{-- AVATAR --}}
+                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#E5EFEA] text-lg font-semibold text-[#1B4D3E]">
+                        {{ $inicial }}
+                    </div>
 
-                        <div class="min-w-0">
+                    {{-- INFORMAÇÕES DO CONTATO --}}
+                    <div class="min-w-0 flex-1">
+                        <div class="flex items-center justify-between gap-2">
                             <h3 class="truncate text-sm font-semibold text-gray-900">
                                 {{ $nomeParticipante }}
                             </h3>
 
-                            <p class="text-xs text-gray-500">
-                                {{ $chat->assuntos->count() }}
-                                {{ $chat->assuntos->count() === 1 ? 'assunto' : 'assuntos' }}
-                            </p>
+                            <span
+                                x-show="conversas.some(item => item.chat_id === {{ $chat->id }} && item.ultima_mensagem_data)"
+                                x-text="formatarHoraLista(
+                                    conversas
+                                        .filter(item => item.chat_id === {{ $chat->id }})
+                                        .sort((a, b) => new Date(b.ultima_mensagem_data || 0) - new Date(a.ultima_mensagem_data || 0))[0]?.ultima_mensagem_data
+                                )"
+                                class="shrink-0 text-[10px] text-gray-400"
+                            ></span>
                         </div>
-                    </div>
-                </div>
 
-                {{-- MENSAGENS GERAIS --}}
-                <button
-                    type="button"
-                    @click="abrirConversa({{ $chat->id }}, $event.currentTarget)"
-                    data-chat-id="{{ $chat->id }}"
-                    data-assunto-chat-id=""
-                    data-contexto-chave="{{ $chat->id }}:geral"
-                    data-contexto-titulo="Mensagens gerais"
-                    data-participante="{{ $nomeParticipante }}"
-                    class="flex w-full items-center gap-3 border-b border-gray-100 px-4 py-4 text-left transition hover:bg-gray-50"
-                >
-                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#E5EFEA] text-[#236350]">
-                        <span class="material-symbols-outlined">forum</span>
-                    </div>
-
-                    <div class="min-w-0 flex-1">
-                        <h4 class="truncate text-sm font-medium text-gray-800">
-                            Mensagens gerais
-                        </h4>
-
-                        <p class="mt-1 truncate text-xs text-gray-500">
-                            Conversa geral com {{ $nomeParticipante }}
+                        <p
+                            class="mt-1 truncate text-xs text-gray-500"
+                            x-text="previsualizacaoContato({{ $chat->id }})"
+                        >
+                            Nenhuma mensagem ainda
                         </p>
-                    </div>
 
-                    <span
-                        x-show="naoLidas['{{ $chat->id }}:geral'] > 0"
-                        x-cloak
-                        class="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-[#236350] px-1 text-[10px] font-bold text-white"
-                        x-text="naoLidas['{{ $chat->id }}:geral']"
-                    ></span>
-                </button>
+                        <div class="mt-1 flex items-center justify-between">
+                            <span class="text-[11px] text-gray-400">
+                                {{ $chat->assuntos->count() }} assuntos vinculados
+                            </span>
 
-                {{-- ASSUNTOS --}}
-                @foreach ($chat->assuntos as $assunto)
-                    @php
-                        $primeiroProduto = $assunto->negociacoes
-                            ->map(fn ($negociacao) => $negociacao->oferta?->produto)
-                            ->filter()
-                            ->unique('id')
-                            ->first();
-
-                        $primeiraOferta = $assunto->negociacoes
-                            ->map(fn ($negociacao) => $negociacao->oferta)
-                            ->filter()
-                            ->first();
-                    @endphp
-
-                    <button
-                        type="button"
-                        @click="abrirConversa({{ $chat->id }}, $event.currentTarget)"
-                        data-chat-id="{{ $chat->id }}"
-                        data-assunto-chat-id="{{ $assunto->id }}"
-                        data-oferta-url="{{ $primeiraOferta ? route('ofertas.show', $primeiraOferta) : '' }}"
-                        data-contexto-chave="{{ $chat->id }}:{{ $assunto->id }}"
-                        data-contexto-titulo="{{ $assunto->titulo }}"
-                        data-participante="{{ $nomeParticipante }}"
-                        class="flex w-full items-center gap-3 border-b border-gray-100 px-4 py-4 text-left transition hover:bg-gray-50"
-                    >
-                        @if ($primeiroProduto?->imagem)
-                            <img
-                                src="{{ asset('storage/' . ltrim($primeiroProduto->imagem, '/')) }}"
-                                alt="{{ $primeiroProduto->nome }}"
-                                class="h-10 w-10 shrink-0 rounded-xl object-cover"
-                            >
-                        @else
-                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#E5EFEA] text-[#236350]">
-                                <span class="material-symbols-outlined">inventory_2</span>
-                            </div>
-                        @endif
-
-                        <div class="min-w-0 flex-1">
-                            <h4 class="truncate text-sm font-medium text-gray-800">
-                                {{ $primeiroProduto?->nome ?? $assunto->titulo }}
-                            </h4>
-
-                            <p class="mt-1 truncate text-xs text-gray-500">
-                                {{ $assunto->titulo }}
-                            </p>
+                            <span
+                                x-show="totalNaoLidasContato({{ $chat->id }}) > 0"
+                                x-cloak
+                                x-text="totalNaoLidasContato({{ $chat->id }})"
+                                class="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#236350] px-1.5 text-[10px] font-semibold text-white"
+                            ></span>
                         </div>
-
-                        <span
-                            x-show="naoLidas['{{ $chat->id }}:{{ $assunto->id }}'] > 0"
-                            x-cloak
-                            class="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-[#236350] px-1 text-[10px] font-bold text-white"
-                            x-text="naoLidas['{{ $chat->id }}:{{ $assunto->id }}']"
-                        ></span>
-                    </button>
-                @endforeach
-
+                    </div>
+                </button>
             @empty
                 <div class="px-6 py-16 text-center">
                     <span class="material-symbols-outlined text-4xl text-gray-300">forum</span>
@@ -183,7 +147,79 @@
                 </div>
             @endforelse
 
+        @endif
+
+            {{-- DADOS DOS CONTEXTOS: USADOS PELO JAVASCRIPT --}}
+            <div class="hidden" aria-hidden="true">
+                @foreach ($chats as $chat)
+                    @php
+                        $ehCliente = (int) $chat->cliente_id === (int) auth()->id();
+
+                        $nomeParticipante = $ehCliente
+                            ? (
+                                $chat->fornecedor?->usuario?->nome
+                                ?? $chat->fornecedor?->nome
+                                ?? 'Fornecedor'
+                            )
+                            : ($chat->cliente?->nome ?? 'Cliente');
+                    @endphp
+
+                    {{-- MENSAGENS GERAIS --}}
+                    <button
+                        type="button"
+                        data-contexto-chat-id="{{ $chat->id }}"
+                        data-assunto-chat-id=""
+                        data-contexto-chave="{{ $chat->id }}:geral"
+                        data-contexto-titulo="Mensagens gerais"
+                        data-participante="{{ $nomeParticipante }}"
+                        data-oferta-url=""
+                        data-imagem-url=""
+                        data-negociacoes="[]"
+                    ></button>
+
+                    {{-- ASSUNTOS --}}
+                    @foreach ($chat->assuntos as $assunto)
+                        @php
+                            $primeiraOferta = $assunto->negociacoes
+                                ->map(fn ($negociacao) => $negociacao->oferta)
+                                ->filter()
+                                ->first();
+
+                            $produto = $primeiraOferta?->produto;
+
+                            $imagemProduto = $produto?->imagem
+                                ? asset('storage/' . ltrim($produto->imagem, '/'))
+                                : '';
+
+                            $negociacoesVinculadas = $assunto->negociacoes
+                                ->map(function ($negociacao) {
+                                    $produto = $negociacao->oferta?->produto;
+
+                                    return [
+                                        'id' => $negociacao->id,
+                                        'titulo' => 'Negociação #' . $negociacao->id,
+                                        'produto' => $produto?->nome ?? 'Negociação',
+                                        'url' => route('negociacoes.show', $negociacao),
+                                    ];
+                                })
+                                ->values();
+                        @endphp
+
+                        <button
+                            type="button"
+                            data-contexto-chat-id="{{ $chat->id }}"
+                            data-assunto-chat-id="{{ $assunto->id }}"
+                            data-contexto-chave="{{ $chat->id }}:{{ $assunto->id }}"
+                            data-contexto-titulo="{{ $assunto->titulo }}"
+                            data-participante="{{ $nomeParticipante }}"
+                            data-oferta-url="{{ $primeiraOferta ? route('ofertas.show', $primeiraOferta) : '' }}"
+                            data-imagem-url="{{ $imagemProduto }}"
+                            data-negociacoes="{{ $negociacoesVinculadas->toJson() }}"
+                        ></button>
+                    @endforeach
+                @endforeach
             </div>
+        </div>
         </aside>
 
         {{-- PAINEL DIREITO --}}
@@ -233,7 +269,7 @@
                     <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#E5EFEA] font-semibold text-[#1B4D3E]">
                         <span x-text="conversaSelecionada?.participante?.charAt(0).toUpperCase()"></span>
                     </div>
-
+                    
                     <div class="min-w-0 flex-1">
                         <h2
                             class="truncate font-semibold text-gray-900"
@@ -243,14 +279,37 @@
                         <p class="truncate text-xs text-gray-500">
                             Conversa privada
                         </p>
+
+                        <select
+                            x-show="conversaSelecionada && contextosDoChat().length > 1"
+                            x-cloak
+                            x-model="contextoSelecionado"
+                            @change="selecionarContexto(contextoSelecionado)"
+                            class="mt-2 block w-full max-w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-700 outline-none transition focus:border-[#236350] focus:ring-1 focus:ring-[#236350]"
+                            aria-label="Selecionar assunto da conversa"
+                        >
+                            <template x-for="contexto in contextosDoChat()" :key="contexto.contexto_chave">
+                                <option
+                                    :value="contexto.contexto_chave"
+                                    x-text="contexto.titulo"
+                                ></option>
+                            </template>
+                        </select>
                     </div>
 
+
                     <a
-                        x-show="conversaSelecionada?.oferta_url"
                         :href="conversaSelecionada?.oferta_url || '#'"
                         target="_blank"
-                        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-[#236350]"
-                        title="Ver oferta"
+                        :aria-disabled="!conversaSelecionada?.oferta_url"
+                        :tabindex="conversaSelecionada?.oferta_url ? 0 : -1"
+                        :class="conversaSelecionada?.oferta_url
+                            ? 'text-gray-500 hover:bg-gray-100 hover:text-[#236350] cursor-pointer'
+                            : 'text-gray-300 opacity-50 cursor-not-allowed pointer-events-none'"
+                        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition"
+                        :title="conversaSelecionada?.oferta_url
+                            ? 'Ver oferta'
+                            : 'Não há oferta vinculada a esta conversa'"
                         aria-label="Ver oferta"
                     >
                         <span class="material-symbols-outlined">storefront</span>
@@ -269,6 +328,80 @@
                         <span class="material-symbols-outlined">open_in_new</span>
                     </a>
                 </header>
+
+                {{-- Negociações vinculadas ao assunto --}}
+                <div
+                    x-show="(conversaSelecionada?.negociacoes || []).length > 0"
+                    x-cloak
+                    class="shrink-0 border-b border-gray-200 bg-white px-4 py-2 sm:px-6"
+                >
+                    <button
+                        type="button"
+                        @click="cardNegociacaoAberto = !cardNegociacaoAberto"
+                        class="flex w-full items-center justify-between rounded-lg px-2 py-2 text-sm font-medium text-[#236350] transition hover:bg-[#E5EFEA]/60"
+                    >
+                        <span class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[19px]">
+                                handshake
+                            </span>
+                            Negociações vinculadas
+
+                            <span
+                                class="rounded-full bg-[#E5EFEA] px-2 py-0.5 text-[10px] font-semibold text-[#236350]"
+                                x-text="conversaSelecionada?.negociacoes?.length || 0"
+                            ></span>
+                        </span>
+
+                        <span
+                            class="material-symbols-outlined text-[20px] transition-transform"
+                            :class="cardNegociacaoAberto ? 'rotate-180' : ''"
+                        >
+                            expand_more
+                        </span>
+                    </button>
+
+                    <div
+                        x-show="cardNegociacaoAberto"
+                        x-transition
+                        x-cloak
+                        class="mt-1 space-y-2 pb-2"
+                    >
+                        <template
+                            x-for="negociacao in (conversaSelecionada?.negociacoes || [])"
+                            :key="negociacao.id"
+                        >
+                            <div class="rounded-xl border border-gray-200 bg-gray-50 p-3">
+                                <div class="flex items-start gap-2">
+                                    <span class="material-symbols-outlined mt-0.5 text-[20px] text-[#236350]">
+                                        handshake
+                                    </span>
+
+                                    <div class="min-w-0 flex-1">
+                                        <p
+                                            class="text-sm font-semibold text-gray-800"
+                                            x-text="negociacao.titulo"
+                                        ></p>
+
+                                        <p
+                                            class="mt-1 truncate text-xs text-gray-500"
+                                            x-text="negociacao.produto"
+                                        ></p>
+                                    </div>
+                                </div>
+
+                                <a
+                                    :href="negociacao.url"
+                                    class="mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-[#236350] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#1B4D3E]"
+                                >
+                                    <span class="material-symbols-outlined text-[17px]">
+                                        open_in_new
+                                    </span>
+                                    Acessar negociação
+                                </a>
+                            </div>
+                        </template>
+                    </div>
+                </div>
 
                 {{-- Histórico --}}
                 <div
@@ -425,6 +558,7 @@ window.chatIndex = function () {
         conversaSelecionada: null,
         assuntoSelecionadoId: '',
         contextoSelecionado: '',
+        cardNegociacaoAberto: false,
         mensagens: [],
         mensagemNova: '',
 
@@ -437,11 +571,12 @@ window.chatIndex = function () {
         canaisInscritos: [],
         requisicaoMensagens: 0,
 
-        inicializar() {
+        
+        async inicializar() {
             this.conversas = Array.from(
-                this.$el.querySelectorAll('[data-chat-id]')
+                this.$el.querySelectorAll('[data-contexto-chat-id]')
             ).map(botao => {
-                const chatId = Number(botao.dataset.chatId);
+                const chatId = Number(botao.dataset.contextoChatId);
                 const assuntoId = botao.dataset.assuntoChatId || null;
 
                 return {
@@ -451,14 +586,116 @@ window.chatIndex = function () {
                     titulo: botao.dataset.contextoTitulo,
                     participante: botao.dataset.participante || 'Participante',
                     oferta_url: botao.dataset.ofertaUrl || '',
+                    imagem: botao.dataset.imagemUrl || '',
+                    negociacoes: JSON.parse(botao.dataset.negociacoes || '[]'),
                     ultima_mensagem: 'Nenhuma mensagem ainda',
                     ultima_mensagem_usuario: null,
-                    ultima_mensagem_data: null
+                    ultima_mensagem_data: null,
+                    elemento: botao
                 };
             });
 
-            this.carregarContadores();
+            await this.carregarContadores();
+
+            const parametros = new URLSearchParams(window.location.search);
+
+            const chatId = parametros.get('chat_id');
+            const assuntoId = parametros.get('assunto_chat_id');
+
+            if (!chatId) return;
+
+            const contexto = this.conversas.find(item =>
+                item.chat_id === Number(chatId) &&
+                item.assunto_chat_id === (assuntoId ? Number(assuntoId) : null)
+            );
+
+            if (!contexto) {
+                console.warn('Não foi encontrado o contexto solicitado no chat.');
+                return;
+            }
+
+            await this.abrirConversa(contexto.chat_id, contexto.elemento);
         },
+
+        itensLista() {
+            return [...this.conversas].sort((a, b) => {
+                const dataA = a.ultima_mensagem_data
+                    ? new Date(a.ultima_mensagem_data).getTime()
+                    : 0;
+
+                const dataB = b.ultima_mensagem_data
+                    ? new Date(b.ultima_mensagem_data).getTime()
+                    : 0;
+
+                return dataB - dataA;
+            });
+        },
+
+        contextosDoChat() {
+            if (!this.conversaSelecionada) return [];
+
+            return this.conversas.filter(
+                item => Number(item.chat_id) === Number(this.conversaSelecionada.chat_id)
+            );
+        },
+
+        abrirContato(chatId) {
+            const contextoGeral = this.conversas.find(
+                item =>
+                    Number(item.chat_id) === Number(chatId) &&
+                    item.assunto_chat_id === null
+            );
+
+            if (!contextoGeral) {
+                console.error('Mensagens gerais não encontradas para o contato:', chatId);
+                return;
+            }
+
+            this.abrirConversa(chatId, contextoGeral.elemento);
+        },
+
+        selecionarContexto(chave) {
+            const contexto = this.conversas.find(
+                item => item.contexto_chave === chave
+            );
+
+            if (!contexto) return;
+
+            this.abrirConversa(contexto.chat_id, contexto.elemento);
+        },
+
+        totalNaoLidasContato(chatId) {
+            return this.conversas
+                .filter(item => Number(item.chat_id) === Number(chatId))
+                .reduce(
+                    (total, item) =>
+                        total + Number(this.naoLidas[item.contexto_chave] || 0),
+                    0
+                );
+        },
+
+        previsualizacaoContato(chatId) {
+            const contextos = this.conversas.filter(
+                item => Number(item.chat_id) === Number(chatId)
+            );
+
+            if (!contextos.length) return 'Nenhuma mensagem ainda';
+
+            const maisRecente = [...contextos].sort((a, b) => {
+                const dataA = a.ultima_mensagem_data
+                    ? new Date(a.ultima_mensagem_data).getTime()
+                    : 0;
+
+                const dataB = b.ultima_mensagem_data
+                    ? new Date(b.ultima_mensagem_data).getTime()
+                    : 0;
+
+                return dataB - dataA;
+            })[0];
+
+            return `${maisRecente.titulo}: ${this.textoPrevia(maisRecente)}`;
+        },
+
 
         async carregarContadores() {
             try {
@@ -609,6 +846,7 @@ window.chatIndex = function () {
             this.conversaSelecionada = contexto;
             this.contextoSelecionado = chave;
             this.assuntoSelecionadoId = assuntoId || '';
+            this.cardNegociacaoAberto = false;
 
             this.mensagens = [];
             this.mensagemNova = '';
