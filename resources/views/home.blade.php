@@ -512,7 +512,7 @@
                                 @endif
                             </div>
 
-                            <div class="pt-2 border-t border-gray-100">
+                            <div class="pt-2 border-t border-gray-200">
                                 <span class="text-[10px] sm:text-xs text-gray-500 block font-medium">
                                     {{ fmod($quantidadeVitrine, 1) == 0 ? number_format($quantidadeVitrine, 0, ',', '.') : number_format($quantidadeVitrine, 2, ',', '.') }}
                                     {{ $item->unidade ?? '' }}
@@ -523,7 +523,7 @@
                                 </span>
                             </div>
 
-                            <div class="pt-2 border-t border-gray-100">
+                            <div class="pt-2 border-t border-gray-200">
                                 <span class="mt-2 block w-full text-center text-[11px] font-bold text-[#236350] border border-emerald-700 group-hover:bg-emerald-700 group-hover:text-white rounded-md py-1.5 transition-colors">
                                     Ver detalhes
                                 </span>

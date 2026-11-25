@@ -76,7 +76,108 @@
         /* Barras divisórias internas do card no modo escuro com tom cinza da descrição */
         html.tema-escuro .card-vitrine .border-gray-100,
         html.tema-escuro .card-vitrine .border-t {
-            border-color: #9ca3af !important;
+            border-color: #515356 !important;
+        }
+
+        /* Breadcrumb no modo claro */
+        html:not(.tema-escuro) nav[aria-label="Breadcrumb"] a {
+            color: #4b5563;
+        }
+
+        html:not(.tema-escuro) nav[aria-label="Breadcrumb"] span:not(.material-symbols-outlined) {
+            color: #1f2937;
+        }
+
+        /* Breadcrumb no modo escuro */
+        html.tema-escuro nav[aria-label="Breadcrumb"] a {
+            color: #9ca3af !important;
+        }
+
+        html.tema-escuro nav[aria-label="Breadcrumb"] a:hover {
+            color: #f9fafb !important;
+        }
+
+        html.tema-escuro nav[aria-label="Breadcrumb"] span:not(.material-symbols-outlined) {
+            color: #f9fafb !important;
+        }
+        
+        html.tema-escuro nav[aria-label="Breadcrumb"] .material-symbols-outlined {
+            color: #9ca3af !important;
+        }
+        
+        html:not(.tema-escuro) .container-home {
+            background-color: #ebeae7;
+        }
+        
+        html.tema-escuro .container-home {
+            background-color: transparent;
+        }
+
+        /* Recupera textos que usavam classes escuras do Tailwind nas views */
+        html.tema-escuro main .text-gray-900,
+        html.tema-escuro main .text-gray-800,
+        html.tema-escuro main .text-slate-900,
+        html.tema-escuro main .text-slate-800 {
+            color: #f9fafb !important;
+        }
+
+        html.tema-escuro main .text-gray-700,
+        html.tema-escuro main .text-slate-700 {
+            color: #e5e7eb !important;
+        }
+
+        html.tema-escuro main .text-gray-600,
+        html.tema-escuro main .text-slate-600 {
+            color: #d1d5db !important;
+        }
+
+        html.tema-escuro main .text-gray-500,
+        html.tema-escuro main .text-slate-500 {
+            color: #9ca3af !important;
+        }
+
+        /* Valores e destaques em verde escuro ficam mais claros e legíveis */
+        html.tema-escuro main .text-\[\#1B4D3E\],
+        html.tema-escuro main .text-\[\#236350\],
+        html.tema-escuro main .text-emerald-800,
+        html.tema-escuro main .text-emerald-700,
+        html.tema-escuro main .text-green-800,
+        html.tema-escuro main .text-green-700 {
+            color: #34d399 !important;
+        }
+
+        /* Caixas internas cinza claro (bg-gray-50 / bg-slate-50 / bg-gray-100) */
+        html.tema-escuro main .bg-gray-50,
+        html.tema-escuro main .bg-slate-50,
+        html.tema-escuro main .bg-gray-100,
+        html.tema-escuro main .bg-slate-100 {
+            background-color: #1f2937 !important;
+            border-color: #374151 !important;
+        }
+
+        /* Caixas e badges verde claro ("Em estoque: 800 kg", "Publicada", "Pago", "Aceita") */
+        html.tema-escuro main .bg-emerald-50,
+        html.tema-escuro main .bg-green-50,
+        html.tema-escuro main .bg-emerald-100,
+        html.tema-escuro main .bg-green-100 {
+            background-color: rgba(16, 185, 129, 0.14) !important;
+            border-color: rgba(52, 211, 153, 0.35) !important;
+            color: #6ee7b7 !important;
+        }
+
+        /* Garante que ícones e textos dentro desses blocos verdes sigam o verde suave */
+        html.tema-escuro main .bg-emerald-50 *,
+        html.tema-escuro main .bg-green-50 *,
+        html.tema-escuro main .bg-emerald-100 *,
+        html.tema-escuro main .bg-green-100 * {
+            color: #6ee7b7 !important;
+        }
+
+        /* 5. Linhas e bordas muito claras nas views */
+        html.tema-escuro main .border-gray-200,
+        html.tema-escuro main .border-gray-100,
+        html.tema-escuro main .border-slate-200 {
+            border-color: #374151 !important;
         }
 
         /* Dropdowns / menus flutuantes brancos mantêm texto escuro e legível */
@@ -121,14 +222,6 @@
 
         .nav-link:hover {
           color: #fcd34d !important;
-        }
-
-        html:not(.tema-escuro) .container-home {
-            background-color: #ebeae7;
-        }
-
-        html.tema-escuro .container-home {
-            background-color: transparent;
         }
     </style>
 

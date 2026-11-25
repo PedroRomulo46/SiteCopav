@@ -218,14 +218,6 @@
                             <span>Entrar para negociar</span>
                         </a>
                     @endauth
-
-                    <a
-                        type="button"
-                        class="w-full bg-gray-100 text-gray-400 text-sm py-3 font-semibold rounded-lg cursor-not-allowed border border-gray-200  flex text-center items-center  justify-center gap-2"
-                        disabled>
-                        <span class="material-symbols-outlined text-base">shopping_bag</span>
-                        <span>Comprar Agora</span>
-                    </a>
                 </div>
             </div>
         </div>
