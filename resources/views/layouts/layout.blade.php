@@ -1568,7 +1568,6 @@
                         </span>
                     </a>
 
-<<<<<<< HEAD
               <!-- Ações do cabeçalho -->
               <div class="ml-3 flex shrink-0 items-center gap-1">
 
@@ -1588,20 +1587,6 @@
                         open_in_new
                     </span>
                 </a>
-=======
-                    <button
-                        type="button"
-                        @click="chatAberto = false; salvarEstadoChat()"
-                        class="flex h-9 w-9 items-center justify-center rounded-full border-0 bg-transparent p-0 text-white transition-colors hover:bg-white/10"
-                        aria-label="Fechar chat"
-                    >
-                        <span class="material-symbols-outlined text-[23px] leading-none">
-                            close
-                        </span>
-                    </button>
-                </div>
-              </div>
->>>>>>> bb995e517147c7e83b5e837f4380814a4b1853b6
 
               <!-- Acesso às negociações do assunto -->
               <div
