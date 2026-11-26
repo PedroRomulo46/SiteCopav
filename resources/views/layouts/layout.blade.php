@@ -959,6 +959,10 @@
               assuntoSelecionadoId: null,
               cardNegociacaoAberto: false,
               mensagens: [],
+              marcadorNovasMensagens: {
+                  primeiraId: null,
+                  quantidade: 0
+              },
               carregandoMensagens: false,
               erroMensagens: '',
               mensagemNova: '',
@@ -979,14 +983,18 @@
                   }));
               },
 
-              abrirChat() {
-                  this.chatAberto = !this.chatAberto;
-                  this.salvarEstadoChat();
+              async abrirChat() {
+                if (this.chatAberto && this.conversaSelecionada) {
+                    await this.marcarContextoAtualComoLido();
+                }
 
-                  if (this.chatAberto && !this.conversasCarregadas) {
-                      this.carregarConversas();
-                  }
-              },
+                this.chatAberto = !this.chatAberto;
+                this.salvarEstadoChat();
+
+                if (this.chatAberto && !this.conversasCarregadas) {
+                    this.carregarConversas();
+                }
+            },
 
               async carregarConversas() {
                   if (this.carregando) return;
@@ -1098,66 +1106,81 @@
                           this.receberMensagem(mensagem);
                       });
               },
+    
+            receberMensagem(mensagem) {
+                const conversa = this.conversas.find(
+                    item => Number(item.chat_id) === Number(mensagem.chat_id)
+                );
 
-              receberMensagem(mensagem) {
-                  const conversa = this.conversas.find(
-                      item => Number(item.chat_id) === Number(mensagem.chat_id)
-                  );
+                if (!conversa) return;
 
-                  if (!conversa) return;
+                const assuntoId = mensagem.assunto_chat_id
+                    ? Number(mensagem.assunto_chat_id)
+                    : null;
 
-                  const assuntoId = mensagem.assunto_chat_id
-                      ? Number(mensagem.assunto_chat_id)
-                      : null;
+                let contexto;
 
-                  // Localiza o contexto exato que recebeu a mensagem.
-                  let contexto;
+                if (assuntoId === null) {
+                    contexto = conversa.mensagens_gerais;
+                } else {
+                    contexto = conversa.assuntos?.find(
+                        item => Number(item.id) === assuntoId
+                    );
+                }
 
-                  if (assuntoId === null) {
-                      contexto = conversa.mensagens_gerais;
-                  } else {
-                      contexto = conversa.assuntos?.find(
-                          item => Number(item.id) === assuntoId
-                      );
-                  }
+                if (!contexto) return;
 
-                  if (!contexto) return;
+                // Atualiza a última mensagem do contexto.
+                contexto.ultima_mensagem = mensagem.conteudo;
+                contexto.ultima_mensagem_usuario = mensagem.usuario_id;
+                contexto.ultima_mensagem_data = mensagem.created_at;
 
-                  // Atualiza a última mensagem do contexto.
-                  contexto.ultima_mensagem = mensagem.conteudo;
-                  contexto.ultima_mensagem_usuario = mensagem.usuario_id;
-                  contexto.ultima_mensagem_data = mensagem.created_at;
+                // Atualiza a última mensagem geral da conversa.
+                conversa.ultima_mensagem = mensagem.conteudo;
+                conversa.ultima_mensagem_usuario = mensagem.usuario_id;
+                conversa.ultima_mensagem_data = mensagem.created_at;
+                conversa.ultima_mensagem_assunto_chat_id = assuntoId;
 
-                  // Atualiza também a última mensagem geral da conversa.
-                  conversa.ultima_mensagem = mensagem.conteudo;
-                  conversa.ultima_mensagem_usuario = mensagem.usuario_id;
-                  conversa.ultima_mensagem_data = mensagem.created_at;
-                  conversa.ultima_mensagem_assunto_chat_id = assuntoId;
+                // Mensagens próprias não geram notificações.
+                if (Number(mensagem.usuario_id) === Number(this.usuarioId)) {
+                    return;
+                }
 
-                  // Mensagens enviadas pelo próprio usuário não geram notificações.
-                  if (Number(mensagem.usuario_id) === Number(this.usuarioId)) {
-                      return;
-                  }
+                const mesmoContexto =
+                    this.chatAberto &&
+                    Number(this.chatIdAtivo) === Number(mensagem.chat_id) &&
+                    (
+                        (this.assuntoSelecionadoId === null && assuntoId === null) ||
+                        Number(this.assuntoSelecionadoId) === Number(assuntoId)
+                    );
 
-                  // Verifica se o usuário está exatamente no contexto que recebeu a mensagem.
-                  const mesmoContexto =
-                      this.chatAberto &&
-                      Number(this.chatIdAtivo) === Number(mensagem.chat_id) &&
-                      (
-                          (this.assuntoSelecionadoId === null && assuntoId === null) ||
-                          Number(this.assuntoSelecionadoId) === Number(assuntoId)
-                      );
-  
-                  if (mesmoContexto) {
-                      this.adicionarMensagem(mensagem);
-                      this.rolarHistorico();
-                  } else {
-                      contexto.mensagens_nao_lidas =
-                          Number(contexto.mensagens_nao_lidas || 0) + 1;
-                  }
+                if (mesmoContexto) {
 
-                  this.atualizarTotalNaoLidas();
-              },
+                    // Guarda a posição do usuário antes de inserir a mensagem.
+                    const estavaPertoDoFinal = this.estaPertoDoFinal();
+
+                    // Se já existe divisor, aumenta sua quantidade.
+                    if (this.marcadorNovasMensagens.primeiraId !== null) {
+                        this.marcadorNovasMensagens.quantidade++;
+                    }
+
+                    this.adicionarMensagem(mensagem);
+
+                    // Só acompanha automaticamente se o usuário estava no final.
+                    if (estavaPertoDoFinal) {
+                        this.$nextTick(() => this.rolarHistorico(true));
+                    }
+
+                } else {
+
+                    // Mensagem recebida em outro contexto.
+                    contexto.mensagens_nao_lidas =
+                        Number(contexto.mensagens_nao_lidas || 0) + 1;
+                }
+
+                this.atualizarTotalNaoLidas();
+            },
+
 
               async abrirConversa(conversa, assuntoId = null) {
                 this.conversaSelecionada = conversa;
@@ -1166,6 +1189,10 @@
 
                 this.cardNegociacaoAberto = false;
                 this.mensagens = [];
+                this.marcadorNovasMensagens = {
+                    primeiraId: null,
+                    quantidade: 0
+                };
                 this.erroMensagens = '';
                 this.carregandoMensagens = true;
                 this.chatIdAtivo = Number(conversa.chat_id);
@@ -1209,6 +1236,14 @@
                     this.inscreverCanalGlobal(dados.chat_id);
                     this.mensagens = dados.mensagens || [];
 
+                  this.marcadorNovasMensagens = {
+                      primeiraId: dados.primeira_mensagem_nao_lida_id
+                          ? Number(dados.primeira_mensagem_nao_lida_id)
+                          : null,
+  
+                      quantidade: Number(dados.mensagens_nao_lidas || 0)
+                  };
+
                     // Zera somente o contador do contexto aberto.
                     if (this.assuntoSelecionadoId === null) {
                         if (conversa.mensagens_gerais) {
@@ -1226,7 +1261,7 @@
 
                     this.atualizarTotalNaoLidas();
 
-                    this.$nextTick(() => this.rolarHistorico());
+                    this.$nextTick(() => this.rolarHistorico(true));
 
                 } catch (erro) {
                     console.error('Erro ao carregar mensagens:', erro);
@@ -1314,9 +1349,33 @@
                       }
 
                       this.adicionarMensagem(dados.mensagem);
-                      this.mensagemNova = '';
 
-                      this.$nextTick(() => this.rolarHistorico());
+                    // O usuário respondeu: remove o divisor.
+                    this.marcadorNovasMensagens = {
+                        primeiraId: null,
+                        quantidade: 0
+                    };
+
+                    // Zera as mensagens pendentes desse contexto.
+                    if (this.assuntoSelecionadoId === null) {
+                        if (this.conversaSelecionada.mensagens_gerais) {
+                            this.conversaSelecionada.mensagens_gerais.mensagens_nao_lidas = 0;
+                        }
+                    } else {
+                        const assunto = this.conversaSelecionada.assuntos?.find(
+                            item => Number(item.id) === Number(this.assuntoSelecionadoId)
+                        );
+
+                        if (assunto) {
+                            assunto.mensagens_nao_lidas = 0;
+                        }
+                    }
+
+                    this.atualizarTotalNaoLidas();
+
+                    this.mensagemNova = '';
+
+                      this.$nextTick(() => this.rolarHistorico(true));
 
                   } catch (erro) {
                       console.error('Erro ao enviar mensagem:', erro);
@@ -1326,25 +1385,101 @@
                   }
               },
 
-              voltarConversas() {
-                  this.conversaSelecionada = null;
-                  this.chatIdAtivo = null;
-                  this.assuntoSelecionadoId = null;
-                  this.mensagens = [];
-                  this.erroMensagens = '';
-                  this.cardNegociacaoAberto = false;
+            async marcarContextoAtualComoLido() {
+                if (!this.conversaSelecionada) return;
 
-                  this.salvarEstadoChat();
-              },
+                const chatId = this.conversaSelecionada.chat_id;
+                const assuntoId = this.assuntoSelecionadoId;
 
-              rolarHistorico() {
-                  const lista = this.$refs.listaMensagens;
+                const url = new URL(
+                    `/chat/${chatId}/mensagens`,
+                    window.location.origin
+                );
 
-                  if (lista) {
-                      lista.scrollTop = lista.scrollHeight;
-                      lista.style.visibility = 'visible';
-                  }
-              },
+                if (assuntoId !== null) {
+                    url.searchParams.set('assunto_chat_id', assuntoId);
+                }
+
+                try {
+                    const resposta = await fetch(url, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    if (!resposta.ok) {
+                        throw new Error('Não foi possível atualizar a leitura.');
+                    }
+
+                    // Limpa o divisor da visualização atual.
+                    this.marcadorNovasMensagens = {
+                        primeiraId: null,
+                        quantidade: 0
+                    };
+
+                    // Zera somente o contador deste contexto.
+                    if (assuntoId === null) {
+                        this.conversaSelecionada.mensagens_gerais.mensagens_nao_lidas = 0;
+                    } else {
+                        const assunto = this.conversaSelecionada.assuntos?.find(
+                            item => Number(item.id) === Number(assuntoId)
+                        );
+
+                        if (assunto) {
+                            assunto.mensagens_nao_lidas = 0;
+                        }
+                    }
+
+                    this.atualizarTotalNaoLidas();
+
+                } catch (erro) {
+                    console.error('Erro ao marcar mensagens como lidas:', erro);
+                }
+            },
+
+              async voltarConversas() {
+                    await this.marcarContextoAtualComoLido();
+
+                    this.conversaSelecionada = null;
+                    this.chatIdAtivo = null;
+                    this.assuntoSelecionadoId = null;
+                    this.mensagens = [];
+
+                    this.marcadorNovasMensagens = {
+                        primeiraId: null,
+                        quantidade: 0
+                    };
+
+                    this.erroMensagens = '';
+                    this.cardNegociacaoAberto = false;
+
+                    this.salvarEstadoChat();
+                },
+
+              estaPertoDoFinal() {
+                const lista = this.$refs.listaMensagens;
+
+                if (!lista) return true;
+
+                const distancia =
+                    lista.scrollHeight - lista.scrollTop - lista.clientHeight;
+
+                // Considera próximo do final quando estiver a até 120px.
+                return distancia <= 120;
+            },
+
+              rolarHistorico(forcar = false) {
+                const lista = this.$refs.listaMensagens;
+
+                if (!lista) return;
+
+                if (forcar) {
+                    lista.scrollTop = lista.scrollHeight;
+                }
+
+                lista.style.visibility = 'visible';
+            },
 
             textoPrevia(contexto) {
                 if (!contexto) return 'Nenhuma mensagem ainda';
@@ -1463,7 +1598,7 @@
                 x-show="totalNaoLidas > 0"
                 x-text="totalNaoLidas > 99 ? '99+' : totalNaoLidas"
                 x-cloak
-                class="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white"
+                class="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full border border-[#D6A83D]/40 bg-[#FFF3CD] px-1 text-[10px] font-bold text-[#856404]"
             ></span>
           </button>
 
@@ -1475,7 +1610,7 @@
               style="display: none;"
           >
             <!-- Cabeçalho -->
-            <div class="flex min-h-68px items-center justify-between bg-[#1B4D3E] px-4 py-3 text-white">
+            <div class="flex min-h-[68px] items-center justify-between bg-[#1B4D3E] px-4 py-3 text-white">
 
                 <div class="flex min-w-0 flex-1 items-center gap-3">
 
@@ -1686,7 +1821,7 @@
 
                             <span
                                 x-show="item.naoLidas > 0"
-                                class="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-[#236350] px-1 text-[10px] font-bold text-white"
+                                class="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full border border-[#D6A83D]/40 bg-[#FFF3CD] px-1 text-[10px] font-bold text-[#856404]"
                                 x-text="item.naoLidas > 99 ? '99+' : item.naoLidas"
                             ></span>
                         </div>
@@ -1733,28 +1868,53 @@
                           class="rounded-lg bg-red-50 p-3 text-center text-sm text-red-600"
                           x-text="erroMensagens"
                       ></div>
-
+            
                       <template x-for="mensagem in mensagens" :key="mensagem.id">
-                          <div
-                              class="flex"
-                              :class="Number(mensagem.usuario_id) === usuarioId ? 'justify-end' : 'justify-start'"
-                          >
+                          <div class="w-full">
+  
+                              <!-- Divisor de novas mensagens -->
                               <div
-                                  class="max-w-[85%] rounded-2xl px-3 py-2 shadow-sm"
-                                  :class="Number(mensagem.usuario_id) === usuarioId
-                                      ? 'rounded-br-sm bg-[#d9f2df] text-gray-800'
-                                      : 'rounded-bl-sm bg-white text-gray-800'"
+                                  x-show="
+                                      marcadorNovasMensagens.primeiraId !== null &&
+                                      Number(mensagem.id) === marcadorNovasMensagens.primeiraId
+                                  "
+                                  class="flex items-center gap-3 py-3"
                               >
-                                  <p
-                                      class="whitespace-pre-wrap wrap-break-words text-sm"
-                                      x-text="mensagem.conteudo"
-                                  ></p>
-
-                                  <p
-                                      class="mt-1 text-right text-[10px] font-medium text-gray-500"
-                                      x-text="formatarDataHora(mensagem.created_at)"
-                                  ></p>
+                                  <div class="h-px flex-1 bg-[#D6A83D]"></div>
+  
+                                  <span class="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full border border-[#D6A83D]/40 bg-[#FFF3CD] px-1 text-[10px] font-bold text-[#856404]"
+                                      Novas mensagens:
+                                    <span x-text="marcadorNovasMensagens.quantidade"></span>
+                                  </span>
+  
+                                  <div class="h-px flex-1 bg-[#D6A83D]"></div>
                               </div>
+  
+                              <!-- Mensagem -->
+                              <div
+                                  class="flex"
+                                  :class="Number(mensagem.usuario_id) === usuarioId
+                                      ? 'justify-end'
+                                      : 'justify-start'"
+                              >
+                                  <div
+                                      class="max-w-[85%] rounded-2xl px-3 py-2 shadow-sm"
+                                      :class="Number(mensagem.usuario_id) === usuarioId
+                                          ? 'rounded-br-sm bg-[#d9f2df] text-gray-800'
+                                          : 'rounded-bl-sm bg-white text-gray-800'"
+                                  >
+                                      <p
+                                          class="whitespace-pre-wrap wrap-break-words text-sm"
+                                          x-text="mensagem.conteudo"
+                                      ></p>
+  
+                                      <p
+                                          class="mt-1 text-right text-[10px] font-medium text-gray-500"
+                                          x-text="formatarDataHora(mensagem.created_at)"
+                                      ></p>
+                                  </div>
+                              </div>
+
                           </div>
                       </template>
 

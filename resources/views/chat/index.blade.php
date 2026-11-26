@@ -27,10 +27,9 @@
 
                     <div>
                         <h2 class="font-semibold text-gray-900">Suas conversas</h2>
-                        <p
-                            class="mt-1 text-xs text-gray-500"
-                            x-text="conversas.length + (conversas.length === 1 ? ' item' : ' itens')"
-                        ></p>
+                        <p class="mt-1 text-xs text-gray-500">
+                            {{ $chats->count() }} {{ $chats->count() === 1 ? 'conversa' : 'conversas' }}
+                        </p>
                     </div>
                 </div>
             </div>
@@ -254,7 +253,6 @@
                 class="flex min-h-0 flex-1 flex-col"
                 style="display: none;"
             >
-                {{-- Cabeçalho --}}
                 <header class="flex min-h-[72px] shrink-0 items-center gap-3 border-b border-gray-200 bg-white px-4 py-3 sm:px-6">
                     <button
                         type="button"
@@ -267,9 +265,9 @@
                     </button>
 
                     <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#E5EFEA] font-semibold text-[#1B4D3E]">
-                        <span x-text="conversaSelecionada?.participante?.charAt(0).toUpperCase()"></span>
+                        <span x-text="conversaSelecionada?.participante?.charAt(0).toUpperCase() || '?'"></span>
                     </div>
-                    
+
                     <div class="min-w-0 flex-1">
                         <h2
                             class="truncate font-semibold text-gray-900"
@@ -280,37 +278,26 @@
                             Conversa privada
                         </p>
 
-                        <select
-                            x-show="conversaSelecionada && contextosDoChat().length > 1"
-                            x-cloak
-                            x-model="contextoSelecionado"
-                            @change="selecionarContexto(contextoSelecionado)"
-                            class="mt-2 block w-full max-w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-700 outline-none transition focus:border-[#236350] focus:ring-1 focus:ring-[#236350]"
-                            aria-label="Selecionar assunto da conversa"
-                        >
-                            <template x-for="contexto in contextosDoChat()" :key="contexto.contexto_chave">
-                                <option
-                                    :value="contexto.contexto_chave"
-                                    x-text="contexto.titulo"
-                                ></option>
-                            </template>
-                        </select>
+                        <p
+                            class="truncate text-sm font-medium text-[#1B4D3E]"
+                            x-text="conversaSelecionada?.titulo"
+                        ></p>
                     </div>
 
-
+                    {{-- A loja acompanha a negociação selecionada --}}
                     <a
-                        :href="conversaSelecionada?.oferta_url || '#'"
-                        target="_blank"
-                        :aria-disabled="!conversaSelecionada?.oferta_url"
-                        :tabindex="conversaSelecionada?.oferta_url ? 0 : -1"
-                        :class="conversaSelecionada?.oferta_url
-                            ? 'text-gray-500 hover:bg-gray-100 hover:text-[#236350] cursor-pointer'
-                            : 'text-gray-300 opacity-50 cursor-not-allowed pointer-events-none'"
+                        :href="urlNegociacaoSelecionada()"
+                        :target="urlNegociacaoSelecionada() !== '#' ? '_blank' : null"
+                        :aria-disabled="urlNegociacaoSelecionada() === '#'"
+                        :tabindex="urlNegociacaoSelecionada() !== '#' ? 0 : -1"
+                        :class="urlNegociacaoSelecionada() !== '#'
+                            ? 'text-gray-600 hover:bg-gray-100 hover:text-[#236350]'
+                            : 'pointer-events-none cursor-not-allowed text-gray-300 opacity-50'"
                         class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition"
-                        :title="conversaSelecionada?.oferta_url
-                            ? 'Ver oferta'
-                            : 'Não há oferta vinculada a esta conversa'"
-                        aria-label="Ver oferta"
+                        :title="urlNegociacaoSelecionada() !== '#'
+                            ? 'Acessar a negociação selecionada'
+                            : 'Nenhuma negociação vinculada a esta conversa'"
+                        aria-label="Acessar negociação selecionada"
                     >
                         <span class="material-symbols-outlined">storefront</span>
                     </a>
@@ -324,31 +311,29 @@
                             : '#'"
                         class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-[#236350]"
                         title="Abrir conversa em página completa"
+                        aria-label="Abrir conversa em página completa"
                     >
                         <span class="material-symbols-outlined">open_in_new</span>
                     </a>
                 </header>
 
-                {{-- Negociações vinculadas ao assunto --}}
-                <div
-                    x-show="(conversaSelecionada?.negociacoes || []).length > 0"
-                    x-cloak
-                    class="shrink-0 border-b border-gray-200 bg-white px-4 py-2 sm:px-6"
-                >
+                {{-- CONVERSAS E NEGOCIAÇÕES ENTRE OS PARTICIPANTES --}}
+                <div class="shrink-0 border-b border-gray-200 bg-white px-4 py-2 sm:px-6">
                     <button
                         type="button"
                         @click="cardNegociacaoAberto = !cardNegociacaoAberto"
                         class="flex w-full items-center justify-between rounded-lg px-2 py-2 text-sm font-medium text-[#236350] transition hover:bg-[#E5EFEA]/60"
                     >
                         <span class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-[19px]">
+                            <span class="material-symbols-outlined text-[20px]">
                                 handshake
                             </span>
-                            Negociações vinculadas
+
+                            Conversas e negociações
 
                             <span
                                 class="rounded-full bg-[#E5EFEA] px-2 py-0.5 text-[10px] font-semibold text-[#236350]"
-                                x-text="conversaSelecionada?.negociacoes?.length || 0"
+                                x-text="contextosDoChat().length"
                             ></span>
                         </span>
 
@@ -366,46 +351,171 @@
                         x-cloak
                         class="mt-1 space-y-2 pb-2"
                     >
+                        <p class="px-2 text-xs text-gray-500">
+                            Selecione uma conversa para visualizar suas mensagens.
+                        </p>
+
                         <template
-                            x-for="negociacao in (conversaSelecionada?.negociacoes || [])"
-                            :key="negociacao.id"
+                            x-for="contexto in contextosDoChat()"
+                            :key="contexto.contexto_chave"
                         >
-                            <div class="rounded-xl border border-gray-200 bg-gray-50 p-3">
-                                <div class="flex items-start gap-2">
-                                    <span class="material-symbols-outlined mt-0.5 text-[20px] text-[#236350]">
-                                        handshake
-                                    </span>
-
-                                    <div class="min-w-0 flex-1">
-                                        <p
-                                            class="text-sm font-semibold text-gray-800"
-                                            x-text="negociacao.titulo"
-                                        ></p>
-
-                                        <p
-                                            class="mt-1 truncate text-xs text-gray-500"
-                                            x-text="negociacao.produto"
-                                        ></p>
-                                    </div>
+                            <button
+                                type="button"
+                                @click="selecionarContexto(contexto.contexto_chave)"
+                                class="flex w-full items-center gap-3 rounded-xl border px-3 py-3 text-left transition"
+                                :class="contextoSelecionado === contexto.contexto_chave
+                                    ? 'border-[#236350] bg-[#E5EFEA]/70'
+                                    : 'border-gray-100 bg-white hover:border-gray-300 hover:bg-gray-50'"
+                            >
+                                <div
+                                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
+                                    :class="contexto.assunto_chat_id
+                                        ? 'bg-[#E5EFEA] text-[#236350]'
+                                        : 'bg-gray-100 text-gray-500'"
+                                >
+                                    <span
+                                        class="material-symbols-outlined text-[19px]"
+                                        x-text="contexto.assunto_chat_id ? 'handshake' : 'chat'"
+                                    ></span>
                                 </div>
 
-                                <a
-                                    :href="negociacao.url"
-                                    class="mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-[#236350] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#1B4D3E]"
+                                <div class="min-w-0 flex-1">
+                                    <p
+                                        class="truncate text-sm font-semibold text-gray-800"
+                                        x-text="contexto.titulo"
+                                    ></p>
+
+                                    <p
+                                        class="mt-0.5 truncate text-xs text-gray-500"
+                                        x-text="resumoContexto(contexto)"
+                                    ></p>
+                                </div>
+
+                                <span
+                                    x-show="Number(naoLidas[contexto.contexto_chave] || 0) > 0"
+                                    x-cloak
+                                    class="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-[#236350] px-1.5 text-[10px] font-semibold text-white"
+                                    x-text="naoLidas[contexto.contexto_chave]"
+                                ></span>
+
+                                <span
+                                    x-show="contextoSelecionado === contexto.contexto_chave"
+                                    class="material-symbols-outlined shrink-0 text-[19px] text-[#236350]"
                                 >
-                                    <span class="material-symbols-outlined text-[17px]">
-                                        open_in_new
-                                    </span>
-                                    Acessar negociação
-                                </a>
+                                    check_circle
+                                </span>
+                            </button>
+                        </template>
+
+                        {{-- Negociações vinculadas ao contexto atualmente selecionado --}}                        
+                        <template
+                            x-if="negociacoesDisponiveis().length > 0"
+                        >
+                            <div class="border-t border-gray-100 pt-3">
+                                <label class="mb-1.5 block px-1 text-xs font-medium text-gray-500">
+                                    Negociação relacionada
+                                </label>
+
+                                <select
+                                    x-model="negociacaoSelecionadaId"
+                                    @change="selecionarNegociacao(negociacaoSelecionadaId)"
+                                    class="block w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-700 outline-none transition focus:border-[#236350] focus:ring-1 focus:ring-[#236350]"
+                                >
+                                    <template
+                                        x-for="negociacao in negociacoesDisponiveis()"
+                                        :key="negociacao.id"
+                                    >
+                                        <option
+                                            :value="String(negociacao.id)"
+                                            x-text="negociacao.titulo + ' — ' + negociacao.produto"
+                                        ></option>
+                                    </template>
+                                </select>
+
+                                <p class="mt-1.5 px-1 text-[11px] text-gray-400">
+                                    Ao selecionar outra negociação, a conversa correspondente será aberta.
+                                </p>
                             </div>
                         </template>
+
+                        <p
+                            x-show="!conversaSelecionada?.assunto_chat_id"
+                            class="px-2 py-1 text-xs text-gray-400"
+                        >
+                            Esta é a conversa geral entre vocês.
+                        </p>
                     </div>
+                </div>
+
+                {{-- LIBERAÇÃO DAS MENSAGENS GERAIS --}}
+                <div
+                    x-show="mensagensGeraisBloqueadas()"
+                    x-cloak
+                    class="flex flex-1 flex-col items-center justify-center bg-[#F5F5F0] px-6 py-10 text-center"
+                >
+                    <div class="flex h-16 w-16 items-center justify-center rounded-full bg-[#E5EFEA] text-[#236350]">
+                        <span class="material-symbols-outlined text-3xl">lock</span>
+                    </div>
+
+                    <h3 class="mt-4 text-base font-semibold text-gray-800">
+                        Conversa geral
+                    </h3>
+
+                    <p
+                        x-show="conversaSelecionada?.mensagens_gerais_status === 'inativo'"
+                        class="mt-2 max-w-sm text-sm leading-relaxed text-gray-500"
+                    >
+                        Para trocar mensagens gerais, é necessário solicitar a liberação ao outro participante.
+                    </p>
+
+                    <p
+                        x-show="conversaSelecionada?.mensagens_gerais_status === 'solicitado'
+                            && conversaSelecionada?.mensagens_gerais_sou_solicitante"
+                        class="mt-2 max-w-sm text-sm leading-relaxed text-gray-500"
+                    >
+                        Sua solicitação foi enviada. Aguarde o outro participante aprovar o acesso às mensagens gerais.
+                    </p>
+
+                    <p
+                        x-show="conversaSelecionada?.mensagens_gerais_status === 'solicitado'
+                            && conversaSelecionada?.mensagens_gerais_pode_aprovar"
+                        class="mt-2 max-w-sm text-sm leading-relaxed text-gray-500"
+                    >
+                        O outro participante solicitou a liberação das mensagens gerais. Você pode aprovar a solicitação abaixo.
+                    </p>
+
+                    <button
+                        x-show="conversaSelecionada?.mensagens_gerais_status === 'inativo'"
+                        type="button"
+                        @click="solicitarMensagensGerais()"
+                        class="mt-5 inline-flex items-center gap-2 rounded-lg bg-[#236350] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#1B4D3E]"
+                    >
+                        <span class="material-symbols-outlined text-lg">send</span>
+                        Solicitar chat geral
+                    </button>
+
+                    <button
+                        x-show="conversaSelecionada?.mensagens_gerais_status === 'solicitado'
+                            && conversaSelecionada?.mensagens_gerais_pode_aprovar"
+                        type="button"
+                        @click="aprovarMensagensGerais()"
+                        class="mt-5 inline-flex items-center gap-2 rounded-lg bg-[#236350] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#1B4D3E]"
+                    >
+                        <span class="material-symbols-outlined text-lg">check_circle</span>
+                        Aprovar solicitação
+                    </button>
+
+                    <p
+                        x-show="erroEnvio"
+                        x-text="erroEnvio"
+                        class="mt-4 text-sm text-red-600"
+                    ></p>
                 </div>
 
                 {{-- Histórico --}}
                 <div
                     x-ref="listaMensagens"
+                    x-show="!mensagensGeraisBloqueadas()"
                     class="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-4 py-5 sm:px-6"
                     style="visibility: hidden;"
                 >
@@ -466,6 +576,7 @@
 
                 {{-- Formulário --}}
                 <form
+                    x-show="!mensagensGeraisBloqueadas()"
                     @submit.prevent="enviarMensagem()"
                     class="flex shrink-0 items-end gap-2 border-t border-gray-200 bg-white px-3 py-3 sm:gap-3 sm:px-5"
                 >
@@ -559,6 +670,7 @@ window.chatIndex = function () {
         assuntoSelecionadoId: '',
         contextoSelecionado: '',
         cardNegociacaoAberto: false,
+        negociacaoSelecionadaId: '',
         mensagens: [],
         mensagemNova: '',
 
@@ -588,6 +700,11 @@ window.chatIndex = function () {
                     oferta_url: botao.dataset.ofertaUrl || '',
                     imagem: botao.dataset.imagemUrl || '',
                     negociacoes: JSON.parse(botao.dataset.negociacoes || '[]'),
+
+                    mensagens_gerais_status: 'inativo',
+                    mensagens_gerais_sou_solicitante: false,
+                    mensagens_gerais_pode_aprovar: false,
+
                     ultima_mensagem: 'Nenhuma mensagem ainda',
                     ultima_mensagem_usuario: null,
                     ultima_mensagem_data: null,
@@ -635,8 +752,47 @@ window.chatIndex = function () {
             if (!this.conversaSelecionada) return [];
 
             return this.conversas.filter(
-                item => Number(item.chat_id) === Number(this.conversaSelecionada.chat_id)
+                item =>
+                    Number(item.chat_id) ===
+                    Number(this.conversaSelecionada.chat_id)
             );
+        },
+
+        negociacoesDisponiveis() {
+            const negociacoes = this.contextosDoChat()
+                .filter(contexto => contexto.assunto_chat_id !== null)
+                .flatMap(contexto =>
+                    (contexto.negociacoes || []).map(negociacao => ({
+                        ...negociacao,
+                        contexto_chave: contexto.contexto_chave
+                    }))
+                );
+
+            // Evita mostrar a mesma negociação mais de uma vez.
+            return negociacoes.filter(
+                (item, index, lista) =>
+                    lista.findIndex(
+                        outra => Number(outra.id) === Number(item.id)
+                    ) === index
+            );
+        },
+
+        resumoContexto(contexto) {
+            if (!contexto) return '';
+
+            if (!contexto.assunto_chat_id) {
+                return 'Mensagens gerais';
+            }
+
+            const produtos = (contexto.negociacoes || [])
+                .map(item => item.produto)
+                .filter(Boolean);
+
+            if (produtos.length === 0) {
+                return 'Conversa de negociação';
+            }
+
+            return [...new Set(produtos)].join(', ');
         },
 
         abrirContato(chatId) {
@@ -662,6 +818,43 @@ window.chatIndex = function () {
             if (!contexto) return;
 
             this.abrirConversa(contexto.chat_id, contexto.elemento);
+        },
+
+        async selecionarNegociacao(id) {
+            if (!id || !this.conversaSelecionada) return;
+
+            const chatId = this.conversaSelecionada.chat_id;
+
+            const contexto = this.conversas.find(item =>
+                Number(item.chat_id) === Number(chatId) &&
+                item.assunto_chat_id !== null &&
+                (item.negociacoes || []).some(
+                    negociacao => String(negociacao.id) === String(id)
+                )
+            );
+
+            if (!contexto) return;
+
+            await this.abrirConversa(
+                contexto.chat_id,
+                contexto.elemento
+            );
+
+            // Preserva a negociação escolhida, mesmo quando
+            // existem várias negociações vinculadas ao mesmo assunto.
+            this.negociacaoSelecionadaId = String(id);
+        },
+
+        urlNegociacaoSelecionada() {
+            if (!this.conversaSelecionada) return '#';
+
+            const negociacoes = this.conversaSelecionada.negociacoes || [];
+
+            const selecionada = negociacoes.find(
+                item => String(item.id) === String(this.negociacaoSelecionadaId)
+            );
+
+            return selecionada?.url || '#';
         },
 
         totalNaoLidasContato(chatId) {
@@ -721,6 +914,15 @@ window.chatIndex = function () {
                     );
 
                     if (geral && item.mensagens_gerais) {
+                        geral.mensagens_gerais_status =
+                            item.mensagens_gerais.status || 'inativo';
+
+                        geral.mensagens_gerais_sou_solicitante =
+                            Boolean(item.mensagens_gerais.sou_solicitante);
+
+                        geral.mensagens_gerais_pode_aprovar =
+                            Boolean(item.mensagens_gerais.pode_aprovar);
+
                         geral.ultima_mensagem =
                             item.mensagens_gerais.ultima_mensagem;
 
@@ -789,6 +991,9 @@ window.chatIndex = function () {
             window.Echo.private(`chat.${chatId}`)
                 .listen('.mensagem.enviada', mensagem => {
                     this.receberMensagem(mensagem);
+                })
+                .listen('.mensagens.gerais.atualizadas', dados => {
+                    this.receberAtualizacaoMensagensGerais(dados);
                 });
         },
 
@@ -821,6 +1026,119 @@ window.chatIndex = function () {
             }
         },
 
+        mensagensGeraisAtivas() {
+            return this.conversaSelecionada?.assunto_chat_id === null
+                && this.conversaSelecionada?.mensagens_gerais_status === 'ativo';
+        },
+
+        mensagensGeraisBloqueadas() {
+            return this.conversaSelecionada?.assunto_chat_id === null
+                && this.conversaSelecionada?.mensagens_gerais_status !== 'ativo';
+        },
+
+        async solicitarMensagensGerais() {
+            if (!this.conversaSelecionada || this.enviandoMensagem) return;
+
+            const chatId = this.conversaSelecionada.chat_id;
+
+            try {
+                this.erroEnvio = '';
+
+                const resposta = await fetch(
+                    `/chat/${chatId}/mensagens-gerais/solicitar`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': this.csrfToken,
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    }
+                );
+
+                const dados = await resposta.json();
+
+                if (!resposta.ok) {
+                    throw new Error(
+                        dados.message || 'Não foi possível solicitar a liberação.'
+                    );
+                }
+
+                this.conversaSelecionada.mensagens_gerais_status = 'solicitado';
+                this.conversaSelecionada.mensagens_gerais_sou_solicitante = true;
+                this.conversaSelecionada.mensagens_gerais_pode_aprovar = false;
+
+            } catch (erro) {
+                this.erroEnvio = erro.message;
+            }
+        },
+
+        async receberAtualizacaoMensagensGerais(dados) {
+            const contexto = this.conversas.find(item =>
+                Number(item.chat_id) === Number(dados.chat_id) &&
+                item.assunto_chat_id === null
+            );
+
+            if (!contexto) return;
+
+            contexto.mensagens_gerais_status = dados.status || 'inativo';
+
+            contexto.mensagens_gerais_sou_solicitante =
+                Number(dados.solicitado_por) === this.usuarioId;
+
+            contexto.mensagens_gerais_pode_aprovar =
+                dados.status === 'solicitado' &&
+                Number(dados.solicitado_por) !== this.usuarioId;
+
+            // Se a liberação aconteceu enquanto o usuário estava
+            // visualizando as mensagens gerais, carrega o histórico.
+            if (
+                dados.status === 'ativo' &&
+                this.contextoSelecionado === contexto.contexto_chave
+            ) {
+                await this.carregarMensagens();
+            }
+        },
+
+        async aprovarMensagensGerais() {
+            if (!this.conversaSelecionada) return;
+
+            const chatId = this.conversaSelecionada.chat_id;
+
+            try {
+                this.erroEnvio = '';
+
+                const resposta = await fetch(
+                    `/chat/${chatId}/mensagens-gerais/aprovar`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': this.csrfToken,
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    }
+                );
+
+                const dados = await resposta.json();
+
+                if (!resposta.ok) {
+                    throw new Error(
+                        dados.message || 'Não foi possível aprovar a conversa.'
+                    );
+                }
+
+                this.conversaSelecionada.mensagens_gerais_status = 'ativo';
+                this.conversaSelecionada.mensagens_gerais_sou_solicitante = false;
+                this.conversaSelecionada.mensagens_gerais_pode_aprovar = false;
+
+                await this.carregarMensagens();
+
+            } catch (erro) {
+                this.erroEnvio = erro.message;
+            }
+        },
+
         async abrirConversa(chatId, botao) {
             chatId = Number(chatId);
 
@@ -846,7 +1164,8 @@ window.chatIndex = function () {
             this.conversaSelecionada = contexto;
             this.contextoSelecionado = chave;
             this.assuntoSelecionadoId = assuntoId || '';
-            this.cardNegociacaoAberto = false;
+            this.negociacaoSelecionadaId =
+                contexto.negociacoes?.[0]?.id || '';
 
             this.mensagens = [];
             this.mensagemNova = '';
@@ -898,6 +1217,18 @@ window.chatIndex = function () {
                     numeroRequisicao === this.requisicaoMensagens &&
                     this.contextoSelecionado === chave
                 ) {
+                    // Atualiza o estado da conversa geral, quando for esse contexto.
+                    if (this.conversaSelecionada?.assunto_chat_id === null) {
+                        this.conversaSelecionada.mensagens_gerais_status =
+                            dados.status || this.conversaSelecionada.mensagens_gerais_status;
+
+                        this.conversaSelecionada.mensagens_gerais_sou_solicitante =
+                            Boolean(dados.sou_solicitante);
+
+                        this.conversaSelecionada.mensagens_gerais_pode_aprovar =
+                            Boolean(dados.pode_aprovar);
+                    }
+
                     this.mensagens = dados.mensagens || [];
 
                     // O controller já marcou somente este contexto como lido.

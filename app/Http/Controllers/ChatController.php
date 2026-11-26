@@ -10,6 +10,7 @@ use App\Events\MensagemEnviada;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use App\Events\MensagensGeraisAtualizadas;
 
 class ChatController extends Controller
 {
@@ -36,6 +37,126 @@ class ChatController extends Controller
     private function ehCliente(Chat $chat, $usuario): bool
     {
         return (int) $chat->cliente_id === (int) $usuario->id;
+    }
+
+    /**
+     * Verifica se o usuário é um dos participantes reais do chat.
+     * Administradores podem consultar o chat, mas não solicitar
+     * nem aprovar a liberação de mensagens gerais.
+     */
+    private function ehParticipanteReal(Chat $chat, $usuario): bool
+    {
+        if ((int) $chat->cliente_id === (int) $usuario->id) {
+            return true;
+        }
+
+        return $usuario->fornecedor
+            && (int) $chat->fornecedor_id === (int) $usuario->fornecedor->id;
+    }
+
+    /**
+     * Solicita a liberação das mensagens gerais.
+     */
+    public function solicitarMensagensGerais(Chat $chat)
+    {
+        $usuario = auth()->user();
+
+        abort_unless($this->ehParticipanteReal($chat, $usuario), 403);
+
+        $resultado = DB::transaction(function () use ($chat, $usuario) {
+            $chat = Chat::whereKey($chat->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($chat->mensagens_gerais_status !== 'inativo') {
+                return false;
+            }
+
+            $chat->update([
+                'mensagens_gerais_status' => 'solicitado',
+                'mensagens_gerais_solicitado_por' => $usuario->id,
+                'mensagens_gerais_solicitada_em' => now(),
+                'mensagens_gerais_aprovado_por' => null,
+                'mensagens_gerais_ativada_em' => null,
+            ]);
+
+            return true;
+        });
+
+        if (!$resultado) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Já existe uma solicitação ou o chat geral já está liberado.',
+                'status' => $chat->fresh()->mensagens_gerais_status,
+            ], 409);
+        }
+
+        $chatAtualizado = $chat->fresh();
+
+        broadcast(
+            new MensagensGeraisAtualizadas($chatAtualizado)
+        )->toOthers();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Solicitação enviada. Aguardando aprovação do outro participante.',
+            'status' => 'solicitado',
+            'solicitado_por' => $usuario->id,
+        ]);
+    }
+
+    /**
+     * Aprova a solicitação de liberação das mensagens gerais.
+     */
+    public function aprovarMensagensGerais(Chat $chat)
+    {
+        $usuario = auth()->user();
+
+        abort_unless($this->ehParticipanteReal($chat, $usuario), 403);
+
+        $resultado = DB::transaction(function () use ($chat, $usuario) {
+            $chat = Chat::whereKey($chat->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($chat->mensagens_gerais_status !== 'solicitado') {
+                return false;
+            }
+
+            // Quem solicitou não pode aprovar a própria solicitação.
+            if ((int) $chat->mensagens_gerais_solicitado_por === (int) $usuario->id) {
+                abort(403, 'Você não pode aprovar sua própria solicitação.');
+            }
+
+            $chat->update([
+                'mensagens_gerais_status' => 'ativo',
+                'mensagens_gerais_aprovado_por' => $usuario->id,
+                'mensagens_gerais_ativada_em' => now(),
+            ]);
+
+            return true;
+        });
+
+        if (!$resultado) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Não existe uma solicitação pendente para aprovar.',
+                'status' => $chat->fresh()->mensagens_gerais_status,
+            ], 409);
+        }
+
+        $chatAtualizado = $chat->fresh();
+
+        broadcast(
+            new MensagensGeraisAtualizadas($chatAtualizado)
+        )->toOthers();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Chat geral liberado com sucesso.',
+            'status' => 'ativo',
+            'aprovado_por' => $usuario->id,
+        ]);
     }
 
     /**
@@ -119,6 +240,10 @@ class ChatController extends Controller
             /*
             * MENSAGENS GERAIS
             */
+            $statusMensagensGerais = $chat->mensagens_gerais_status ?? 'inativo';
+
+            $mensagensGeraisAtivas = $statusMensagensGerais === 'ativo';
+
             $consultaGerais = $chat->mensagens()
                 ->whereNull('assunto_chat_id')
                 ->where('usuario_id', '!=', $usuario->id);
@@ -129,12 +254,26 @@ class ChatController extends Controller
                 $consultaGerais->where('id', '>', $ultimaLeituraGeral);
             }
 
-            $naoLidasGerais = (clone $consultaGerais)->count();
+            // Enquanto não houver aprovação, as mensagens gerais
+            // não aparecem nos contadores nem no histórico.
+            $naoLidasGerais = $mensagensGeraisAtivas
+                ? (clone $consultaGerais)->count()
+                : 0;
 
-            $ultimaMensagemGeral = $chat->mensagens()
-                ->whereNull('assunto_chat_id')
-                ->latest('id')
-                ->first();
+            $ultimaMensagemGeral = $mensagensGeraisAtivas
+                ? $chat->mensagens()
+                    ->whereNull('assunto_chat_id')
+                    ->latest('id')
+                    ->first()
+                : null;
+
+            $souSolicitanteMensagensGerais =
+                (int) $chat->mensagens_gerais_solicitado_por === (int) $usuario->id;
+
+            $podeAprovarMensagensGerais =
+                $statusMensagensGerais === 'solicitado'
+                && !$souSolicitanteMensagensGerais
+                && $this->ehParticipanteReal($chat, $usuario);
 
             /*
             * ASSUNTOS
@@ -233,9 +372,19 @@ class ChatController extends Controller
             $totalNaoLidas = $naoLidasGerais + $naoLidasAssuntos;
 
             /*
-            * ÚLTIMA MENSAGEM GERAL OU DE ASSUNTO
+            * ÚLTIMA MENSAGEM VISÍVEL NA LISTA DE CONVERSAS
+            * Enquanto o chat geral não estiver ativo, mensagens gerais
+            * não podem aparecer nem mesmo na prévia da conversa.
             */
-            $ultimaMensagem = $chat->mensagens->first();
+            $ultimaMensagemQuery = $chat->mensagens();
+
+            if (!$mensagensGeraisAtivas) {
+                $ultimaMensagemQuery->whereNotNull('assunto_chat_id');
+            }
+
+            $ultimaMensagem = $ultimaMensagemQuery
+                ->latest('id')
+                ->first();
 
             return [
                 'chat_id' => $chat->id,
@@ -244,6 +393,22 @@ class ChatController extends Controller
 
                 'mensagens_gerais' => [
                     'assunto_chat_id' => null,
+
+                    'status' => $statusMensagensGerais,
+
+                    'solicitado_por' => $chat->mensagens_gerais_solicitado_por,
+
+                    'sou_solicitante' => $souSolicitanteMensagensGerais,
+
+                    'pode_aprovar' => $podeAprovarMensagensGerais,
+
+                    'solicitada_em' => $chat->mensagens_gerais_solicitada_em
+                        ? $chat->mensagens_gerais_solicitada_em->utc()->toISOString()
+                        : null,
+
+                    'ativada_em' => $chat->mensagens_gerais_ativada_em
+                        ? $chat->mensagens_gerais_ativada_em->utc()->toISOString()
+                        : null,
 
                     'mensagens_nao_lidas' => $naoLidasGerais,
 
@@ -382,12 +547,83 @@ class ChatController extends Controller
 
         $assuntoId = $dados['assunto_chat_id'] ?? null;
 
+        $assunto = null;
+
         if ($assuntoId !== null) {
-            $chat->assuntos()->findOrFail($assuntoId);
+            $assunto = $chat->assuntos()->findOrFail($assuntoId);
         }
 
+        /*
+        * Mensagens gerais só podem ser acessadas depois da aprovação.
+        * Os assuntos das negociações continuam independentes.
+        */
+        if (
+            $assuntoId === null
+            && ($chat->mensagens_gerais_status ?? 'inativo') !== 'ativo'
+        ) {
+            $status = $chat->mensagens_gerais_status ?? 'inativo';
+
+            return response()->json([
+                'chat_id' => $chat->id,
+                'assunto_chat_id' => null,
+                'status' => $status,
+                'solicitado_por' => $chat->mensagens_gerais_solicitado_por,
+                'sou_solicitante' =>
+                    (int) $chat->mensagens_gerais_solicitado_por === (int) $usuario->id,
+                'pode_aprovar' =>
+                    $status === 'solicitado'
+                    && (int) $chat->mensagens_gerais_solicitado_por !== (int) $usuario->id
+                    && $this->ehParticipanteReal($chat, $usuario),
+                'mensagens_nao_lidas' => 0,
+                'primeira_mensagem_nao_lida_id' => null,
+                'mensagens' => [],
+            ]);
+        }
+
+        /*
+        * IDENTIFICA O CAMPO DE LEITURA DO USUÁRIO
+        */
+        $campoLeitura = $this->ehCliente($chat, $usuario)
+            ? 'cliente_ultima_leitura_id'
+            : 'fornecedor_ultima_leitura_id';
+
+        /*
+        * RECUPERA A ÚLTIMA LEITURA ANTES DE ATUALIZÁ-LA
+        */
+        $ultimaLeitura = $assunto
+            ? $assunto->$campoLeitura
+            : $chat->$campoLeitura;
+
+        /*
+        * IDENTIFICA AS MENSAGENS NÃO LIDAS DESTE CONTEXTO
+        */
+        $consultaNaoLidas = $chat->mensagens()
+            ->where('usuario_id', '!=', $usuario->id);
+
+        if ($assuntoId !== null) {
+            $consultaNaoLidas->where('assunto_chat_id', $assuntoId);
+        } else {
+            $consultaNaoLidas->whereNull('assunto_chat_id');
+        }
+
+        if ($ultimaLeitura !== null) {
+            $consultaNaoLidas->where('id', '>', $ultimaLeitura);
+        }
+
+        $mensagensNaoLidas = (clone $consultaNaoLidas)->count();
+
+        $primeiraMensagemNaoLidaId = $mensagensNaoLidas > 0
+            ? (clone $consultaNaoLidas)->orderBy('id')->value('id')
+            : null;
+
+        /*
+        * AGORA SIM: ATUALIZA O ÚLTIMO ID LIDO
+        */
         $this->marcarComoLida($chat, $usuario, $assuntoId);
 
+        /*
+        * RECUPERA O HISTÓRICO
+        */
         $query = $chat->mensagens()
             ->with('usuario:id,nome');
 
@@ -416,6 +652,11 @@ class ChatController extends Controller
         return response()->json([
             'chat_id' => $chat->id,
             'assunto_chat_id' => $assuntoId,
+
+            // Informações necessárias para o divisor.
+            'mensagens_nao_lidas' => $mensagensNaoLidas,
+            'primeira_mensagem_nao_lida_id' => $primeiraMensagemNaoLidaId,
+
             'mensagens' => $mensagens,
         ]);
     }
@@ -440,6 +681,15 @@ class ChatController extends Controller
             $chat->assuntos()->findOrFail($assuntoId);
         }
 
+        // Bloqueia mensagens gerais enquanto não houver aprovação.
+        if ($assuntoId === null) {
+            abort_unless(
+                $chat->mensagens_gerais_status === 'ativo',
+                403,
+                'As mensagens gerais ainda não foram liberadas.'
+            );
+        }
+
         $mensagem = DB::transaction(function () use (
             $chat,
             $usuario,
@@ -461,6 +711,12 @@ class ChatController extends Controller
         });
 
         $mensagem->load('usuario');
+
+        /*
+        * Ao enviar uma mensagem, o contexto é considerado lido.
+        * Isso também atualiza o último ID lido no banco de dados.
+        */
+        $this->marcarComoLida($chat, $usuario, $assuntoId);
 
         broadcast(new MensagemEnviada($mensagem))->toOthers();
 

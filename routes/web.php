@@ -61,12 +61,28 @@ Route::middleware('auth')->group(function () {
 
     // Chat
     Route::get('/chat', [ChatController::class, 'index'])->name('chat');
-    Route::get('/chat/conversas', [ChatController::class, 'conversas'])->name('chat.conversas');
-    Route::get('/chat/{chat}', [ChatController::class, 'show'])->whereNumber('chat')->name('chat.show');
-    Route::get('/chat/{chat}/assuntos', [ChatController::class, 'assuntos'])->whereNumber('chat')->name('chat.assuntos');
-    Route::get('/chat/{chat}/mensagens', [ChatController::class, 'mensagens'])->whereNumber('chat')->name('chat.mensagens');
-    Route::post('/chat/{chat}/mensagens', [ChatController::class, 'store'])->whereNumber('chat')->name('chat.mensagens.store');
-    Route::get('/negociacoes/{negociacao}/chat', [ChatController::class, 'abrirNegociacao'])->name('negociacoes.chat');
+    Route::get('/chat/conversas', [ChatController::class, 'conversas'])
+        ->name('chat.conversas');
+    Route::post('/chat/{chat}/mensagens-gerais/solicitar', [ChatController::class, 'solicitarMensagensGerais'])
+        ->whereNumber('chat')
+        ->name('chat.mensagens-gerais.solicitar');
+    Route::post('/chat/{chat}/mensagens-gerais/aprovar', [ChatController::class, 'aprovarMensagensGerais'])
+        ->whereNumber('chat')
+        ->name('chat.mensagens-gerais.aprovar');
+    Route::get('/chat/{chat}', [ChatController::class, 'show'])
+        ->whereNumber('chat')
+        ->name('chat.show');
+    Route::get('/chat/{chat}/assuntos', [ChatController::class, 'assuntos'])
+        ->whereNumber('chat')
+        ->name('chat.assuntos');
+    Route::get('/chat/{chat}/mensagens', [ChatController::class, 'mensagens'])
+        ->whereNumber('chat')
+        ->name('chat.mensagens');
+    Route::post('/chat/{chat}/mensagens', [ChatController::class, 'store'])
+        ->whereNumber('chat')
+        ->name('chat.mensagens.store');
+    Route::get('/negociacoes/{negociacao}/chat', [ChatController::class, 'abrirNegociacao'])
+        ->name('negociacoes.chat');
 
     // Negociações, Compras, Vendas e Propostas
     // Declarar rotas estáticas (/compras e /vendas) ANTES do resource de negociacoes

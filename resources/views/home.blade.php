@@ -124,7 +124,7 @@
                             {{ $isFornecedor ? 'Minhas Ofertas' : 'Lotes da empresa' }}
 
                             <span id="indicador-novas-propostas"
-                                class="ml-1.5 inline-flex items-center justify-center rounded-full bg-amber-400 text-gray-900 text-[10px] font-extrabold min-w-5 h-5 px-1"
+                                class="ml-1.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full border border-[#D6A83D]/40 bg-[#FFF3CD] px-1 text-[10px] font-bold text-[#856404]"
                                 style="{{ $totalNovasPropostas > 0 ? 'display: inline-flex;' : 'display: none;' }}"
                                 title="{{ $totalNovasPropostas }} {{ $totalNovasPropostas === 1 ? 'nova proposta' : 'novas propostas' }}">
 
@@ -200,7 +200,7 @@
                                 <div class="flex items-center justify-end gap-2 w-full sm:w-auto sm:shrink-0">
                                     @if($quantidadeNovas > 0)
                                         <span
-                                            class="contador-propostas-oferta proposta-nova inline-flex items-center justify-center min-w-6 h-6 px-1 rounded-full bg-amber-400 text-gray-900 text-xs font-extrabold"
+                                            class="ml-1.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full border border-[#D6A83D]/40 bg-[#FFF3CD] px-1 text-[10px] font-bold text-[#856404]"
                                             title="{{ $quantidadeNovas }} {{ $quantidadeNovas === 1 ? 'nova proposta' : 'novas propostas' }}">
                                             {{ $quantidadeNovas }}
                                         </span>
