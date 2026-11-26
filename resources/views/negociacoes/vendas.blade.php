@@ -5,39 +5,42 @@
 @section('conteudo')
 
 {{-- Breadcrumbs com setas garantidas via ícone --}}
-<nav class="flex items-center text-sm mb-4 text-gray-600" aria-label="Breadcrumb">
+<nav class="flex items-center text-sm mb-4 text-gray-600 dark:text-gray-400" aria-label="Breadcrumb">
     <ol class="inline-flex items-center space-x-2">
 
         {{-- Item 1: Início --}}
-        <li>
-            <a href="{{ route('home') }}">
+        <li class="inline-flex items-center">
+            <a
+                href="{{ route('home') }}"
+                class="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-[#236350] dark:hover:text-emerald-400 transition-colors"
+            >
                 Início
             </a>
         </li>
 
         {{-- Item 2: Página Atual --}}
-        <li class="flex items-center space-x-2 hover:cursor-pointer">
-            <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
-            <span class="font-semibold text-gray-800">
+        <li class="inline-flex items-center space-x-2">
+            <span class="material-symbols-outlined text-gray-400 dark:text-gray-500 text-sm leading-none">chevron_right</span>
+            <span class="font-semibold text-gray-800 dark:text-gray-100 leading-none">
                 @yield('title')
             </span>
         </li>
     </ol>
 </nav>
 
-<div class="w-full max-w-7xl mx-auto px-6 py-6">
+<div class="w-full max-w-7xl mx-auto px-6 py-6 text-left">
 
     <div class="mb-8">
-        <h1 class="text-2xl font-bold text-gray-800">
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">
             Painel de vendas
         </h1>
-        <p class="text-gray-500 mt-2">
+        <p class="text-gray-500 dark:text-gray-400 mt-2">
             Acompanhe as negociações recebidas nos seus lotes.
         </p>
     </div>
 
     @if(session('sucesso'))
-        <div class="mb-5 rounded-lg bg-green-50 border border-green-200 p-4 text-green-800">
+        <div class="mb-5 rounded-lg bg-green-50 dark:bg-emerald-950/50 border border-green-200 dark:border-emerald-800/60 p-4 text-green-800 dark:text-emerald-200">
             {{ session('sucesso') }}
         </div>
     @endif
@@ -54,9 +57,9 @@
 
                 <article
                     data-negociacao-id="{{ $negociacao->id }}"
-                    class="bg-white rounded-2xl border {{ $vendaPaga ? 'border-sky-500' : 'border-gray-200' }} shadow-sm overflow-hidden flex flex-col"
+                    class="bg-white dark:bg-[#111827] rounded-2xl border {{ $vendaPaga ? 'border-sky-500 dark:border-sky-400' : 'border-gray-200 dark:border-[#273449]' }} shadow-sm overflow-hidden flex flex-col"
                 >
-                    <div class="h-44 bg-gray-100">
+                    <div class="h-44 bg-gray-100 dark:bg-slate-800 overflow-hidden">
                         <img
                             src="{{ $produto && $produto->imagem
                                 ? (str_contains($produto->imagem, 'assets/')
@@ -69,40 +72,40 @@
                     </div>
 
                     <div class="p-5 flex flex-col flex-1">
-                        <h2 class="text-xl font-bold text-gray-800">
+                        <h2 class="text-xl font-bold text-gray-800 dark:text-gray-100">
                             {{ $produto->nome ?? 'Produto indisponível' }}
                         </h2>
 
-                        <p class="text-sm text-gray-500 mt-2">
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
                             Comprador:
-                            <strong class="text-gray-700">
+                            <strong class="text-gray-700 dark:text-gray-200">
                                 {{ $negociacao->cliente->nome
                                     ?? $negociacao->cliente->name
                                     ?? 'Usuário' }}
                             </strong>
                         </p>
 
-                        <div class="mt-4 mb-5 rounded-xl bg-gray-50 border border-gray-100 p-4">
-                            <p class="text-xs uppercase tracking-wide text-gray-400 font-semibold">
+                        <div class="mt-4 mb-5 rounded-xl bg-gray-50 dark:bg-[#161f30] border border-gray-200/80 dark:border-[#273449] p-4">
+                            <p class="text-xs uppercase tracking-wide text-gray-400 dark:text-gray-500 font-semibold">
                                 Última proposta
                             </p>
 
                             @if($ultimaProposta)
-                                <p class="text-2xl font-bold text-[#236350] mt-1">
+                                <p class="text-2xl font-bold text-[#236350] dark:text-emerald-400 mt-1">
                                     R$ {{ number_format($ultimaProposta->valor, 2, ',', '.') }}
                                 </p>
-                                <p class="text-sm text-gray-500 mt-1">
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                                     Quantidade:
-                                    <strong>
+                                    <strong class="text-gray-700 dark:text-gray-200">
                                         {{ number_format($ultimaProposta->quantidade ?? 0, 0, ',', '.') }}
                                         {{ $oferta->unidade ?? '' }}
                                     </strong>
                                 </p>
-                                <p class="text-sm text-gray-500 mt-1">
-                                    Situação: <strong>{{ ucfirst(str_replace('_', ' ', $ultimaProposta->status)) }}</strong>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                    Situação: <strong class="text-gray-700 dark:text-gray-200">{{ ucfirst(str_replace('_', ' ', $ultimaProposta->status)) }}</strong>
                                 </p>
                             @else
-                                <p class="text-sm text-gray-500 mt-2">
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
                                     Ainda não há propostas nesta negociação.
                                 </p>
                             @endif
@@ -111,10 +114,10 @@
                         <div class="mt-auto space-y-2">
                             <a
                                 href="{{ route('negociacoes.show', $negociacao) }}"
-                                class="btn-copav w-full rounded-lg px-4 py-3 gap-2 text-sm font-semibold flex items-center justify-center"
+                                class="btn-copav w-full rounded-lg px-4 py-3 gap-2 text-sm font-semibold text-white flex items-center justify-center transition-colors"
                             >
-                                <span class="material-symbols-outlined">library_books</span>
-                                Ver Negociação
+                                <span class="material-symbols-outlined text-lg leading-none">library_books</span>
+                                <span>Ver Negociação</span>
                             </a>
 
                             <a
@@ -122,8 +125,8 @@
                                 href="{{ route('compras.encomenda', $negociacao) }}"
                                 class="{{ $vendaPaga ? 'flex' : 'hidden' }} w-full rounded-lg px-4 py-3 gap-2 text-sm font-semibold items-center justify-center bg-sky-600 hover:bg-sky-700 text-white transition-colors"
                             >
-                                <span class="material-symbols-outlined text-lg">local_shipping</span>
-                                Atualizar entrega
+                                <span class="material-symbols-outlined text-lg leading-none">local_shipping</span>
+                                <span>Atualizar entrega</span>
                             </a>
                         </div>
                     </div>
@@ -131,21 +134,21 @@
             @endforeach
         </div>
     @else
-        <div class="bg-white rounded-2xl border border-gray-200 p-8 sm:p-12 text-center shadow-sm">
-            <span class="material-symbols-outlined text-5xl text-gray-400">
+        <div class="bg-white dark:bg-[#111827] rounded-2xl border border-gray-200 dark:border-[#273449] p-8 sm:p-12 text-center shadow-sm">
+            <span class="material-symbols-outlined text-5xl text-gray-400 dark:text-gray-500 leading-none">
                 storefront
             </span>
-            <h2 class="text-xl font-bold text-gray-700 mt-4">
+            <h2 class="text-xl font-bold text-gray-700 dark:text-gray-100 mt-4">
                 Nenhuma venda sendo negociada
             </h2>
-            <p class="text-gray-500 mt-2">
+            <p class="text-gray-500 dark:text-gray-400 mt-2">
                 Quando alguém iniciar uma negociação nos seus lotes, ela aparecerá aqui.
             </p>
             <a
                 href="{{ route('ofertas.index') }}"
-                class="btn-copav inline-flex items-center gap-2 rounded-lg px-5 py-3 mt-5 text-sm font-semibold"
+                class="btn-copav inline-flex items-center justify-center gap-2 rounded-lg px-5 py-3 mt-5 text-sm font-semibold text-white transition-colors"
             >
-                Ver lotes
+                <span>Ver lotes</span>
             </a>
         </div>
     @endif
@@ -163,8 +166,8 @@ document.addEventListener('DOMContentLoaded', function () {
             .private(`negociacao.${negociacaoId}`)
             .listen('.pagamento.aprovado', function () {
                 const botaoEntrega = document.getElementById(`botao-entrega-${negociacaoId}`);
-                card.classList.remove('border-gray-200');
-                card.classList.add('border-sky-500');
+                card.classList.remove('border-gray-200', 'dark:border-[#273449]');
+                card.classList.add('border-sky-500', 'dark:border-sky-400');
 
                 if (botaoEntrega) {
                     botaoEntrega.classList.remove('hidden');

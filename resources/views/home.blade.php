@@ -62,21 +62,21 @@
     {{-- Painel de gestão --}}
     @auth
         @if($hasGestaoPanel)
-            <section class="bg-[#123228] text-white p-4 sm:p-6 rounded-2xl shadow-md">
+            <section class="bg-[#123228] dark:bg-[#0f172a] border border-transparent dark:border-[#1e293b] text-white p-4 sm:p-6 rounded-2xl shadow-md">
 
                 {{-- Cabeçalho do painel --}}
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 pb-4 border-b border-emerald-800">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 pb-4 border-b border-emerald-800 dark:border-[#1e293b]">
                     <div>
                         @if($isFornecedor)
                             <h1 class="text-lg sm:text-2xl font-bold mt-1">
                                 Gestão de Ofertas
                             </h1>
 
-                            <p class="text-sm text-emerald-50 mt-1">
+                            <p class="text-sm text-emerald-50 dark:text-slate-300 mt-1">
                                 Gerencie suas ofertas, acompanhe propostas e encontre oportunidades.
                             </p>
                         @elseif($isAdmin)
-                            <span class="text-xs font-bold uppercase tracking-wider text-emerald-50">
+                            <span class="text-xs font-bold uppercase tracking-wider text-emerald-50 dark:text-emerald-300">
                                 Painel administrativo
                             </span>
 
@@ -84,7 +84,7 @@
                                 Gestão do marketplace
                             </h1>
 
-                            <p class="text-xs sm:text-sm text-emerald-50 mt-1">
+                            <p class="text-xs sm:text-sm text-emerald-50 dark:text-slate-300 mt-1">
                                 Acompanhe as demandas e oportunidades do marketplace.
                             </p>
                         @endif
@@ -107,18 +107,18 @@
                     @endif
                 </div>
 
-                <div class="bg-white rounded-xl p-3 sm:p-4 text-gray-800 shadow-inner">
+                <div class="bg-white dark:bg-[#111827] border border-transparent dark:border-[#273449] rounded-xl p-3 sm:p-4 text-gray-800 dark:text-gray-100 shadow-inner">
 
                     {{-- Abas do painel --}}
                     <div role="tablist"
                          aria-label="Painel de gestão"
-                         class="flex flex-wrap items-center gap-4 sm:gap-6 border-b border-gray-200 pb-3 mb-3 text-sm font-bold">
+                         class="flex flex-wrap items-center gap-4 sm:gap-6 border-b border-gray-200 dark:border-[#273449] pb-3 mb-3 text-sm font-bold">
 
                         <button type="button"
                             role="tab"
                             @click="abaAtiva = 'lotes'"
                             :aria-selected="abaAtiva === 'lotes'"
-                            :class="abaAtiva === 'lotes' ? 'text-[#236350] border-b-2 border-[#236350]' : 'text-gray-400 hover:text-gray-600'"
+                            :class="abaAtiva === 'lotes' ? 'text-[#236350] dark:text-emerald-400 border-b-2 border-[#236350] dark:border-emerald-400' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'"
                             class="relative pb-2 transition-colors">
 
                             {{ $isFornecedor ? 'Minhas Ofertas' : 'Lotes da empresa' }}
@@ -138,13 +138,13 @@
                             role="tab"
                             @click="abaAtiva = 'demandas'"
                             :aria-selected="abaAtiva === 'demandas'"
-                            :class="abaAtiva === 'demandas' ? 'text-[#236350] border-b-2 border-[#236350]' : 'text-gray-400 hover:text-gray-600'"
+                            :class="abaAtiva === 'demandas' ? 'text-[#236350] dark:text-emerald-400 border-b-2 border-[#236350] dark:border-emerald-400' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'"
                             class="pb-2 transition-colors">
 
                             Minhas Demandas
 
                             @if($minhasDemandas->count() > 0)
-                                <span class="ml-1 text-[10px] bg-slate-100 text-slate-600 rounded-full px-1.5 py-0.5">
+                                <span class="ml-1 text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-full px-1.5 py-0.5">
                                     {{ $minhasDemandas->count() }}
                                 </span>
                             @endif
@@ -164,33 +164,33 @@
                             @endphp
 
                             <article
-                                class="card-oferta-fornecedor relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-2 sm:p-3 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition-colors"
+                                class="card-oferta-fornecedor relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-2 sm:p-3 rounded-xl border border-gray-200 dark:border-[#273449] bg-white dark:bg-[#161f30] hover:bg-gray-50 dark:hover:bg-[#1c273b] transition-colors"
                                 data-oferta-id="{{ $oferta->id }}"
                                 data-novas-propostas="{{ $quantidadeNovas }}">
 
                                 <div class="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 sm:mr-auto">
                                     <img
-                                        class="w-20 h-20 sm:w-16 sm:h-16 object-cover rounded-lg shrink-0 bg-gray-100"
+                                        class="w-20 h-20 sm:w-16 sm:h-16 object-cover rounded-lg shrink-0 bg-gray-100 dark:bg-slate-800"
                                         src="{{ $imagemProduto ? (str_contains($imagemProduto, 'assets/') ? asset($imagemProduto) : asset('storage/' . ltrim(str_replace('public/', '', $imagemProduto), '/'))) : asset('assets/milho.png') }}"
                                         alt="{{ $oferta->produto->nome ?? 'Produto' }}"
                                         onerror="this.onerror=null; this.src='{{ asset('assets/milho.png') }}';">
 
                                     <div class="min-w-0 flex-1">
-                                        <h2 class="font-bold text-gray-800 text-sm sm:text-base truncate">
+                                        <h2 class="font-bold text-gray-800 dark:text-gray-100 text-sm sm:text-base truncate">
                                             {{ $oferta->produto->nome ?? 'Produto sem nome' }}
                                         </h2>
 
-                                        <p class="text-xs text-gray-700 mt-0.5">
+                                        <p class="text-xs text-gray-700 dark:text-gray-300 mt-0.5">
                                             Unidade:
-                                            <strong>
+                                            <strong class="text-gray-900 dark:text-white">
                                                 {{ number_format($oferta->quantidade, 2, ',', '.') }}
                                                 {{ $oferta->unidade }}
                                             </strong>
                                         </p>
 
-                                        <p class="text-[11px] text-gray-700 mt-0.5">
+                                        <p class="text-[11px] text-gray-700 dark:text-gray-400 mt-0.5">
                                             Validade:
-                                            <strong>
+                                            <strong class="text-gray-900 dark:text-gray-200">
                                                 {{ $oferta->data_validade ? \Carbon\Carbon::parse($oferta->data_validade)->format('d/m/Y') : 'Sem prazo definido' }}
                                             </strong>
                                         </p>
@@ -209,7 +209,7 @@
                                     @endif
 
                                     <a href="{{ route('negociacoes.propostas', ['oferta' => $oferta->id]) }}"
-                                       class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold px-3 py-2 rounded-md text-xs transition-colors whitespace-nowrap">
+                                       class="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 font-bold px-3 py-2 rounded-md text-xs transition-colors whitespace-nowrap">
                                         Negociações
                                     </a>
 
@@ -220,7 +220,7 @@
                                 </div>
                             </article>
                         @empty
-                            <p class="text-sm text-gray-400 text-center py-6">
+                            <p class="text-sm text-gray-400 dark:text-gray-500 text-center py-6">
                                 {{ $isFornecedor ? 'Você ainda não possui ofertas cadastradas.' : 'Nenhum lote da empresa foi encontrado.' }}
                             </p>
                         @endforelse
@@ -228,7 +228,7 @@
                         @if($listaOfertas->count() > 3)
                             <div class="pt-2 text-center">
                                 <a href="{{ route('ofertas.index') }}"
-                                   class="inline-flex items-center justify-center gap-1 text-xs font-bold bg-slate-200 hover:bg-slate-300 px-4 py-2.5 rounded-lg transition-colors">
+                                   class="inline-flex items-center justify-center gap-1 text-xs font-bold bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 px-4 py-2.5 rounded-lg transition-colors">
                                     Ver todas as ofertas
                                     <span class="material-symbols-outlined text-sm">arrow_forward</span>
                                 </a>
@@ -247,11 +247,11 @@
                             @endphp
 
                             <article
-                                class="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-2 sm:p-3 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition-colors">
+                                class="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-2 sm:p-3 rounded-xl border border-gray-200 dark:border-[#273449] bg-white dark:bg-[#161f30] hover:bg-gray-50 dark:hover:bg-[#1c273b] transition-colors">
 
                                 <div class="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 sm:mr-auto">
                                     <img
-                                        class="w-20 h-20 sm:w-16 sm:h-16 object-cover rounded-lg shrink-0 bg-gray-100"
+                                        class="w-20 h-20 sm:w-16 sm:h-16 object-cover rounded-lg shrink-0 bg-gray-100 dark:bg-slate-800"
                                         src="{{ $imagemDemanda
                                             ? (str_contains($imagemDemanda, 'assets/')
                                                 ? asset($imagemDemanda)
@@ -261,20 +261,20 @@
                                         onerror="this.onerror=null; this.src='{{ asset('assets/milho.png') }}';">
 
                                     <div class="min-w-0 flex-1">
-                                        <h2 class="font-extrabold text-gray-800 text-sm sm:text-base truncate">
+                                        <h2 class="font-extrabold text-gray-800 dark:text-gray-100 text-sm sm:text-base truncate">
                                             {{ $demanda->nome_produto ?? 'Produto solicitado' }}
                                         </h2>
 
                                         @if($demanda->descricao)
-                                            <p class="text-xs text-gray-500 mt-0.5 line-clamp-2">
+                                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-2">
                                                 {{ $demanda->descricao }}
                                             </p>
                                         @endif
 
-                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 mt-1 text-xs text-gray-500">
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 mt-1 text-xs text-gray-500 dark:text-gray-400">
                                             <p>
                                                 Quantidade:
-                                                <strong class="text-gray-700">
+                                                <strong class="text-gray-700 dark:text-gray-200">
                                                     {{ number_format($demanda->quantidade, 2, ',', '.') }}
                                                     {{ $demanda->unidade }}
                                                 </strong>
@@ -283,7 +283,7 @@
                                             @if($demanda->valor_maximo !== null)
                                                 <p>
                                                     Valor máximo:
-                                                    <strong class="text-gray-700">
+                                                    <strong class="text-gray-700 dark:text-gray-200">
                                                         R$ {{ number_format($demanda->valor_maximo, 2, ',', '.') }}
                                                     </strong>
                                                 </p>
@@ -292,7 +292,7 @@
                                             @if($demanda->localizacao)
                                                 <p>
                                                     Local:
-                                                    <strong class="text-gray-700">
+                                                    <strong class="text-gray-700 dark:text-gray-200">
                                                         {{ $demanda->localizacao }}
                                                     </strong>
                                                 </p>
@@ -301,7 +301,7 @@
                                             @if($demanda->data_limite)
                                                 <p>
                                                     Prazo:
-                                                    <strong class="text-gray-700">
+                                                    <strong class="text-gray-700 dark:text-gray-200">
                                                         {{ \Carbon\Carbon::parse($demanda->data_limite)->format('d/m/Y') }}
                                                     </strong>
                                                 </p>
@@ -311,7 +311,7 @@
                                 </div>
 
                                 <div class="flex items-center justify-end gap-2 w-full sm:w-auto sm:shrink-0">
-                                    <span class="inline-flex items-center justify-center min-w-fit px-2 h-6 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-extrabold uppercase">
+                                    <span class="inline-flex items-center justify-center min-w-fit px-2 h-6 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-transparent dark:border-emerald-800/50 text-[10px] font-extrabold uppercase">
                                         {{ ucfirst($demanda->status ?? 'aberta') }}
                                     </span>
 
@@ -322,7 +322,7 @@
                                 </div>
                             </article>
                         @empty
-                            <p class="text-sm text-gray-400 text-center py-6">
+                            <p class="text-sm text-gray-400 dark:text-gray-500 text-center py-6">
                                 Você ainda não cadastrou nenhuma demanda.
                             </p>
                         @endforelse
@@ -330,7 +330,7 @@
                         @if($minhasDemandas->count() > 3)
                             <div class="pt-2 text-center">
                                 <a href="{{ route('demandas.index') }}"
-                                   class="inline-flex items-center justify-center gap-1 text-xs font-bold bg-slate-200 hover:bg-slate-300 px-4 py-2.5 text-[#236350] rounded-lg transition-colors">
+                                   class="inline-flex items-center justify-center gap-1 text-xs font-bold bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 px-4 py-2.5 text-[#236350] dark:text-emerald-400 rounded-lg transition-colors">
                                     Ver todas as minhas demandas
                                     <span class="material-symbols-outlined text-sm">arrow_forward</span>
                                 </a>
@@ -342,13 +342,13 @@
             </section>
 
         @elseif($isCliente)
-            <section class="bg-[#123228] text-white p-4 sm:p-5 rounded-2xl shadow-md flex flex-row items-center justify-between gap-3">
+            <section class="bg-[#123228] dark:bg-[#0f172a] border border-transparent dark:border-[#1e293b] text-white p-4 sm:p-5 rounded-2xl shadow-md flex flex-row items-center justify-between gap-3">
                 <div>
                     <h2 class="font-bold text-base">
                         Quer vender no marketplace?
                     </h2>
 
-                    <p class="text-sm mt-1">
+                    <p class="text-sm text-emerald-50 dark:text-slate-300 mt-1">
                         Torne-se um fornecedor para cadastrar lotes e gerenciar seus produtos.
                     </p>
                 </div>
@@ -363,13 +363,13 @@
 
     {{-- Mensagem para visitantes --}}
     @guest
-        <section class="bg-[#123228] text-white p-4 sm:p-5 rounded-2xl shadow-md flex flex-col sm:flex-row items-center justify-between gap-3">
+        <section class="bg-[#123228] dark:bg-[#0f172a] border border-transparent dark:border-[#1e293b] text-white p-4 sm:p-5 rounded-2xl shadow-md flex flex-col sm:flex-row items-center justify-between gap-3">
             <div>
                 <h2 class="font-bold text-base">
                     Quer comprar ou vender produtos agrícolas?
                 </h2>
 
-                <p class="text-sm text-emerald-50 mt-1">
+                <p class="text-sm text-emerald-50 dark:text-slate-300 mt-1">
                     Entre na sua conta ou cadastre-se para negociar no marketplace.
                 </p>
             </div>
@@ -393,11 +393,11 @@
 
         <div class="flex flex-col items-start gap-3">
             <div class="w-full text-left">
-                <h2 class="text-2xl sm:text-xl font-bold text-gray-800">
+                <h2 class="text-2xl sm:text-xl font-bold text-gray-800 dark:text-gray-100">
                     Produtos que você pode se interessar...
                 </h2>
 
-                <p class="text-md sm:text-sm text-gray-500 mt-1">
+                <p class="text-md sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
                     Explore os lotes disponíveis no marketplace.
                 </p>
             </div>
@@ -408,7 +408,7 @@
                 </label>
 
                 <select id="ordenar-vitrine"
-                    class="bg-white border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-700 outline-none focus:border-[#236350] focus:ring-2 focus:ring-emerald-100">
+                    class="bg-white dark:bg-[#111827] border border-gray-200 dark:border-[#273449] rounded-lg px-4 py-2 text-sm text-gray-700 dark:text-gray-100 outline-none focus:border-[#236350] dark:focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900/40">
                     <option value="recentes">Mais recentes</option>
                     <option value="menor-preco">Menor preço</option>
                     <option value="maior-preco">Maior preço</option>
@@ -436,9 +436,9 @@
                     data-valor="{{ $valorVitrine }}"
                     data-id="{{ $item->id }}">
 
-                    <div class="bg-white rounded-xl shadow-sm group-hover:shadow-lg transition-all duration-300 border border-gray-200 overflow-hidden flex flex-col h-full group-hover:-translate-y-0.5">
+                    <div class="bg-white dark:bg-[#111827] rounded-xl shadow-sm group-hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-[#273449] overflow-hidden flex flex-col h-full group-hover:-translate-y-0.5">
 
-                        <div class="w-full aspect-square bg-gray-100 overflow-hidden relative">
+                        <div class="w-full aspect-square bg-gray-100 dark:bg-slate-800 overflow-hidden relative">
                             <img
                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ease-out"
                                 src="{{ $imagemVitrine ? (str_contains($imagemVitrine, 'assets/') ? asset($imagemVitrine) : asset('storage/' . ltrim(str_replace('public/', '', $imagemVitrine), '/'))) : asset('assets/milho.png') }}"
@@ -449,30 +449,30 @@
 
                         <div class="p-2.5 sm:p-3 flex flex-col flex-1 justify-between gap-2">
                             <div>
-                                <h3 class="font-bold text-xs sm:text-lg text-gray-800 line-clamp-2 leading-tight group-hover:text-[#236350] transition-colors">
+                                <h3 class="font-bold text-xs sm:text-lg text-gray-800 dark:text-gray-100 line-clamp-2 leading-tight group-hover:text-[#236350] dark:group-hover:text-emerald-400 transition-colors">
                                     {{ $nomeVitrine }}
                                 </h3>
 
                                 @if($descricaoVitrine)
-                                    <p class="text-[14px] text-gray-400 line-clamp-2 mt-1">
+                                    <p class="text-[14px] text-gray-400 dark:text-gray-400 line-clamp-2 mt-1">
                                         {{ $descricaoVitrine }}
                                     </p>
                                 @endif
                             </div>
 
-                            <div class="pt-2 border-t border-gray-200">
-                                <span class="text-[10px] sm:text-xs text-gray-500 block font-medium">
+                            <div class="pt-2 border-t border-gray-200 dark:border-[#273449]">
+                                <span class="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 block font-medium">
                                     {{ fmod($quantidadeVitrine, 1) == 0 ? number_format($quantidadeVitrine, 0, ',', '.') : number_format($quantidadeVitrine, 2, ',', '.') }}
                                     {{ $item->unidade ?? '' }}
                                 </span>
 
-                                <span class="text-sm sm:text-base font-extrabold text-[#1B4D3E] block mt-0.5">
+                                <span class="text-sm sm:text-base font-extrabold text-[#1B4D3E] dark:text-emerald-400 block mt-0.5">
                                     R$ {{ number_format($valorVitrine, 2, ',', '.') }}
                                 </span>
                             </div>
 
-                            <div class="pt-2 border-t border-gray-200">
-                                <span class="mt-2 block w-full text-center text-[11px] font-bold text-[#236350] border border-emerald-700 group-hover:bg-emerald-700 group-hover:text-white rounded-md py-1.5 transition-colors">
+                            <div class="pt-2 border-t border-gray-200 dark:border-[#273449]">
+                                <span class="mt-2 block w-full text-center text-[11px] font-bold text-[#236350] dark:text-emerald-400 border border-emerald-700 dark:border-emerald-500/60 group-hover:bg-emerald-700 dark:group-hover:bg-emerald-600 group-hover:text-white rounded-md py-1.5 transition-colors">
                                     Ver detalhes
                                 </span>
                             </div>
@@ -481,16 +481,16 @@
                 </a>
 
             @empty
-                <div class="col-span-full bg-white border border-gray-200 rounded-xl text-center py-10 px-4">
-                    <span class="material-symbols-outlined text-4xl text-gray-300">
+                <div class="col-span-full bg-white dark:bg-[#111827] border border-gray-200 dark:border-[#273449] rounded-xl text-center py-10 px-4">
+                    <span class="material-symbols-outlined text-4xl text-gray-300 dark:text-gray-600">
                         inventory_2
                     </span>
 
-                    <p class="text-gray-600 font-semibold mt-2">
+                    <p class="text-gray-600 dark:text-gray-300 font-semibold mt-2">
                         Nenhum lote disponível no mercado.
                     </p>
 
-                    <p class="text-gray-400 text-sm mt-1">
+                    <p class="text-gray-400 dark:text-gray-500 text-sm mt-1">
                         Quando houver ofertas publicadas, elas aparecerão aqui.
                     </p>
                 </div>
