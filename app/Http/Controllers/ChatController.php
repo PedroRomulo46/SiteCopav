@@ -9,6 +9,7 @@ use App\Models\AssuntoChat;
 use App\Events\MensagemEnviada;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class ChatController extends Controller
 {
@@ -177,7 +178,11 @@ class ChatController extends Controller
                             'id' => $produto->id,
                             'nome' => $produto->nome,
                             'imagem' => $produto->imagem
-                                ? asset('storage/' . ltrim($produto->imagem, '/'))
+                                ? (
+                                    str_starts_with($produto->imagem, 'assets/')
+                                        ? asset($produto->imagem)
+                                        : Storage::url($produto->imagem)
+                                )
                                 : null,
                         ];
                     })

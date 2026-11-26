@@ -1066,19 +1066,11 @@
               },
 
               atualizarTotalNaoLidas() {
-<<<<<<< HEAD
-                this.totalNaoLidas = this.conversas.reduce(
-                    (total, conversa) => {
-                        const naoLidasGerais = Number(
-                            conversa.mensagens_gerais?.mensagens_nao_lidas || 0
-                        );
-=======
                   this.totalNaoLidas = this.conversas.reduce(
                       (total, conversa) => {
                           const naoLidasGerais = Number(
-                              conversa.mensagens_nao_lidas || 0
+                              conversa.mensagens_gerais?.mensagens_nao_lidas || 0
                           );
->>>>>>> bb995e517147c7e83b5e837f4380814a4b1853b6
 
                           const naoLidasAssuntos = (conversa.assuntos || []).reduce(
                               (subtotal, assunto) =>
@@ -1087,7 +1079,7 @@
                           );
 
                           return total + naoLidasGerais + naoLidasAssuntos;
-                      },
+                    },
                       0
                   );
               },
@@ -1108,171 +1100,141 @@
               },
 
               receberMensagem(mensagem) {
-                const conversa = this.conversas.find(
-                    item => Number(item.chat_id) === Number(mensagem.chat_id)
-                );
+                  const conversa = this.conversas.find(
+                      item => Number(item.chat_id) === Number(mensagem.chat_id)
+                  );
 
-                if (!conversa) return;
+                  if (!conversa) return;
 
-                const assuntoId = mensagem.assunto_chat_id
-                    ? Number(mensagem.assunto_chat_id)
-                    : null;
+                  const assuntoId = mensagem.assunto_chat_id
+                      ? Number(mensagem.assunto_chat_id)
+                      : null;
 
-<<<<<<< HEAD
-                // Atualiza a última mensagem geral ou do assunto correspondente.
-                let contexto;
+                  // Localiza o contexto exato que recebeu a mensagem.
+                  let contexto;
 
-                if (assuntoId === null) {
-                    contexto = conversa.mensagens_gerais;
-                } else {
-                    contexto = conversa.assuntos?.find(
-                        item => Number(item.id) === assuntoId
-                    );
-                }
-=======
+                  if (assuntoId === null) {
+                      contexto = conversa.mensagens_gerais;
+                  } else {
+                      contexto = conversa.assuntos?.find(
+                          item => Number(item.id) === assuntoId
+                      );
+                  }
+
+                  if (!contexto) return;
+
+                  // Atualiza a última mensagem do contexto.
+                  contexto.ultima_mensagem = mensagem.conteudo;
+                  contexto.ultima_mensagem_usuario = mensagem.usuario_id;
+                  contexto.ultima_mensagem_data = mensagem.created_at;
+
+                  // Atualiza também a última mensagem geral da conversa.
+                  conversa.ultima_mensagem = mensagem.conteudo;
+                  conversa.ultima_mensagem_usuario = mensagem.usuario_id;
+                  conversa.ultima_mensagem_data = mensagem.created_at;
+                  conversa.ultima_mensagem_assunto_chat_id = assuntoId;
+
+                  // Mensagens enviadas pelo próprio usuário não geram notificações.
                   if (Number(mensagem.usuario_id) === Number(this.usuarioId)) {
                       return;
                   }
 
-                  if (
+                  // Verifica se o usuário está exatamente no contexto que recebeu a mensagem.
+                  const mesmoContexto =
                       this.chatAberto &&
-                      Number(this.chatIdAtivo) === Number(mensagem.chat_id)
-                  ) {
+                      Number(this.chatIdAtivo) === Number(mensagem.chat_id) &&
+                      (
+                          (this.assuntoSelecionadoId === null && assuntoId === null) ||
+                          Number(this.assuntoSelecionadoId) === Number(assuntoId)
+                      );
+  
+                  if (mesmoContexto) {
                       this.adicionarMensagem(mensagem);
                       this.rolarHistorico();
                   } else {
-                      conversa.mensagens_nao_lidas =
-                          Number(conversa.mensagens_nao_lidas || 0) + 1;
+                      contexto.mensagens_nao_lidas =
+                          Number(contexto.mensagens_nao_lidas || 0) + 1;
                   }
->>>>>>> bb995e517147c7e83b5e837f4380814a4b1853b6
 
-                if (!contexto) return;
-
-                contexto.ultima_mensagem = mensagem.conteudo;
-                contexto.ultima_mensagem_usuario = mensagem.usuario_id;
-                contexto.ultima_mensagem_data = mensagem.created_at;
-
-                // Atualiza também a última mensagem geral da conversa.
-                conversa.ultima_mensagem = mensagem.conteudo;
-                conversa.ultima_mensagem_usuario = mensagem.usuario_id;
-                conversa.ultima_mensagem_data = mensagem.created_at;
-                conversa.ultima_mensagem_assunto_chat_id = assuntoId;
-
-                // Mensagens enviadas pelo próprio usuário não geram notificações.
-                if (Number(mensagem.usuario_id) === Number(this.usuarioId)) {
-                    return;
-                }
-
-                // Verifica se o usuário está exatamente no contexto que recebeu a mensagem.
-                const mesmoContexto =
-                    this.chatAberto &&
-                    Number(this.chatIdAtivo) === Number(mensagem.chat_id) &&
-                    (
-                        (this.assuntoSelecionadoId === null && assuntoId === null) ||
-                        Number(this.assuntoSelecionadoId) === Number(assuntoId)
-                    );
-
-                if (mesmoContexto) {
-                    this.adicionarMensagem(mensagem);
-                    this.rolarHistorico();
-                } else {
-                    contexto.mensagens_nao_lidas =
-                        Number(contexto.mensagens_nao_lidas || 0) + 1;
-                }
-
-                this.atualizarTotalNaoLidas();
-            },
+                  this.atualizarTotalNaoLidas();
+              },
 
               async abrirConversa(conversa, assuntoId = null) {
-                  this.conversaSelecionada = conversa;
-                  this.assuntoSelecionadoId =
-                      assuntoId === null ? null : Number(assuntoId);
-                  this.cardNegociacaoAberto = false;
-                  this.mensagens = [];
-                  this.erroMensagens = '';
-                  this.carregandoMensagens = true;
-                  this.chatIdAtivo = Number(conversa.chat_id);
-                  this.salvarEstadoChat();
+                this.conversaSelecionada = conversa;
+                this.assuntoSelecionadoId =
+                    assuntoId === null ? null : Number(assuntoId);
 
-                  const lista = this.$refs.listaMensagens;
+                this.cardNegociacaoAberto = false;
+                this.mensagens = [];
+                this.erroMensagens = '';
+                this.carregandoMensagens = true;
+                this.chatIdAtivo = Number(conversa.chat_id);
+                this.salvarEstadoChat();
 
-                  if (lista) {
-                      lista.style.visibility = 'hidden';
-                      lista.scrollTop = 0;
-                  }
+                const lista = this.$refs.listaMensagens;
 
-                  try {
-                      const url = new URL(
-                          `/chat/${conversa.chat_id}/mensagens`,
-                          window.location.origin
-                      );
-
-                      if (this.assuntoSelecionadoId !== null) {
-                          url.searchParams.set(
-                              'assunto_chat_id',
-                              this.assuntoSelecionadoId
-                          );
-                      }
-
-                      const resposta = await fetch(url, {
-                          headers: {
-                              'Accept': 'application/json',
-                              'X-Requested-With': 'XMLHttpRequest'
-                          }
-                      });
-
-                      const dados = await resposta.json();
-
-                      if (!resposta.ok) {
-                          throw new Error(
-                              dados.message || 'Não foi possível carregar as mensagens.'
-                          );
-                      }
-
-                      this.inscreverCanalGlobal(dados.chat_id);
-                      this.mensagens = dados.mensagens || [];
-
-                      if (this.assuntoSelecionadoId === null) {
-                          conversa.mensagens_nao_lidas = 0;
-                      } else {
-                          const assunto = conversa.assuntos?.find(
-                              item => Number(item.id) === this.assuntoSelecionadoId
-                          );
-
-<<<<<<< HEAD
-                    if (this.assuntoSelecionadoId === null) {
-                    if (conversa.mensagens_gerais) {
-                        conversa.mensagens_gerais.mensagens_nao_lidas = 0;
-                    }
-                } else {
-                    const assunto = conversa.assuntos?.find(
-                        item => Number(item.id) === this.assuntoSelecionadoId
-                    );
-
-                    if (assunto) {
-                        assunto.mensagens_nao_lidas = 0;
-                    }
+                if (lista) {
+                    lista.style.visibility = 'hidden';
+                    lista.scrollTop = 0;
                 }
 
-                this.atualizarTotalNaoLidas();
-=======
-                          if (assunto) {
-                              assunto.mensagens_nao_lidas = 0;
-                          }
-                      }
+                try {
+                    const url = new URL(
+                        `/chat/${conversa.chat_id}/mensagens`,
+                        window.location.origin
+                    );
 
-                      this.atualizarTotalNaoLidas();
->>>>>>> bb995e517147c7e83b5e837f4380814a4b1853b6
+                    if (this.assuntoSelecionadoId !== null) {
+                        url.searchParams.set(
+                            'assunto_chat_id',
+                            this.assuntoSelecionadoId
+                        );
+                    }
 
-                      this.$nextTick(() => this.rolarHistorico());
+                    const resposta = await fetch(url, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
 
-                  } catch (erro) {
-                      console.error('Erro ao carregar mensagens:', erro);
-                      this.erroMensagens = erro.message;
-                  } finally {
-                      this.carregandoMensagens = false;
-                  }
-              },
+                    const dados = await resposta.json();
+
+                    if (!resposta.ok) {
+                        throw new Error(
+                            dados.message || 'Não foi possível carregar as mensagens.'
+                        );
+                    }
+
+                    this.inscreverCanalGlobal(dados.chat_id);
+                    this.mensagens = dados.mensagens || [];
+
+                    // Zera somente o contador do contexto aberto.
+                    if (this.assuntoSelecionadoId === null) {
+                        if (conversa.mensagens_gerais) {
+                            conversa.mensagens_gerais.mensagens_nao_lidas = 0;
+                        }
+                    } else {
+                        const assunto = conversa.assuntos?.find(
+                            item => Number(item.id) === this.assuntoSelecionadoId
+                        );
+
+                        if (assunto) {
+                            assunto.mensagens_nao_lidas = 0;
+                        }
+                    }
+
+                    this.atualizarTotalNaoLidas();
+
+                    this.$nextTick(() => this.rolarHistorico());
+
+                } catch (erro) {
+                    console.error('Erro ao carregar mensagens:', erro);
+                    this.erroMensagens = erro.message;
+                } finally {
+                    this.carregandoMensagens = false;
+                }
+            },
 
               adicionarMensagem(mensagem) {
                 if (this.mensagens.some(
@@ -1384,8 +1346,7 @@
                   }
               },
 
-<<<<<<< HEAD
-              textoPrevia(contexto) {
+            textoPrevia(contexto) {
                 if (!contexto) return 'Nenhuma mensagem ainda';
 
                 const mensagem = contexto.ultima_mensagem
@@ -1427,14 +1388,13 @@
                     month: '2-digit'
                 });
             },
-              
+
             itensCaixaEntrada() {
                 const itens = [];
 
                 this.conversas.forEach(conversa => {
                     const geral = conversa.mensagens_gerais || {};
 
-                    // Item das mensagens gerais
                     itens.push({
                         chave: `${conversa.chat_id}-geral`,
                         conversa: conversa,
@@ -1447,7 +1407,6 @@
                         naoLidas: Number(geral.mensagens_nao_lidas || 0),
                     });
 
-                    // Um item independente para cada assunto
                     (conversa.assuntos || []).forEach(assunto => {
                         itens.push({
                             chave: `${conversa.chat_id}-assunto-${assunto.id}`,
@@ -1463,7 +1422,6 @@
                     });
                 });
 
-                // Mais recentes primeiro
                 return itens.sort((a, b) => {
                     const dataA = a.data ? new Date(a.data).getTime() : 0;
                     const dataB = b.data ? new Date(b.data).getTime() : 0;
@@ -1471,28 +1429,24 @@
                     return dataB - dataA;
                 });
             },
-            
+
             formatarDataHora(data) {
                 if (!data) return '';
-=======
-              formatarDataHora(data) {
-                  if (!data) return '';
->>>>>>> bb995e517147c7e83b5e837f4380814a4b1853b6
 
-                  const dataMensagem = new Date(data);
+                const dataMensagem = new Date(data);
 
-                  if (isNaN(dataMensagem.getTime())) return '';
+                if (isNaN(dataMensagem.getTime())) return '';
 
-                  return dataMensagem.toLocaleString('pt-BR', {
-                      day: '2-digit',
-                      month: '2-digit',
-                      year: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      hour12: false
-                  }).replace(',', ' às');
-              }
-          }"
+                return dataMensagem.toLocaleString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                }).replace(',', ' às');
+            }
+            }"
           x-cloak
       >
           <!-- Botão flutuante -->
@@ -1520,9 +1474,11 @@
               class="absolute bottom-16 right-0 flex h-[min(560px,75vh)] w-[min(370px,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl"
               style="display: none;"
           >
-              <!-- Cabeçalho -->
-              <div class="flex min-h-68px items-center justify-between bg-[#1B4D3E] px-4 py-3 text-white">
+            <!-- Cabeçalho -->
+            <div class="flex min-h-68px items-center justify-between bg-[#1B4D3E] px-4 py-3 text-white">
+
                 <div class="flex min-w-0 flex-1 items-center gap-3">
+
                     <button
                         x-show="conversaSelecionada"
                         @click="voltarConversas()"
@@ -1542,12 +1498,10 @@
                     </div>
 
                     <div class="min-w-0 flex-1">
-                        <div class="flex min-w-0 items-center gap-1.5">
-                            <h3
-                                class="truncate font-semibold"
-                                x-text="conversaSelecionada ? conversaSelecionada.participante : 'Mensagens'"
-                            ></h3>
-                        </div>
+                        <h3
+                            class="truncate font-semibold"
+                            x-text="conversaSelecionada ? conversaSelecionada.participante : 'Mensagens'"
+                        ></h3>
 
                         <p
                             class="truncate text-xs text-white/70"
@@ -1556,121 +1510,30 @@
                     </div>
                 </div>
 
+                <!-- Ações do cabeçalho -->
                 <div class="ml-3 flex shrink-0 items-center gap-1">
+
                     <a
-                        href="{{ route('chat') }}"
+                        :href="conversaSelecionada
+                            ? `/chat?chat_id=${conversaSelecionada.chat_id}${
+                                assuntoSelecionadoId !== null
+                                    ? `&assunto_chat_id=${assuntoSelecionadoId}`
+                                    : ''
+                            }`
+                            : '{{ route('chat') }}'"
                         class="flex h-9 w-9 items-center justify-center rounded-full border-0 bg-transparent text-white no-underline transition-colors hover:bg-white/10"
-                        title="Ver todas as conversas"
-                        aria-label="Ver todas as conversas"
+                        title="Abrir no chat completo"
+                        aria-label="Abrir no chat completo"
                     >
                         <span class="material-symbols-outlined text-[22px] leading-none">
                             open_in_new
                         </span>
                     </a>
 
-              <!-- Ações do cabeçalho -->
-              <div class="ml-3 flex shrink-0 items-center gap-1">
+                </div>
+            </div>
 
-                  <a
-                    :href="conversaSelecionada
-                        ? `/chat?chat_id=${conversaSelecionada.chat_id}${
-                            assuntoSelecionadoId !== null
-                                ? `&assunto_chat_id=${assuntoSelecionadoId}`
-                                : ''
-                        }`
-                        : '{{ route('chat') }}'"
-                    class="flex h-9 w-9 items-center justify-center rounded-full border-0 bg-transparent text-white no-underline transition-colors hover:bg-white/10"
-                    title="Abrir no chat completo"
-                    aria-label="Abrir no chat completo"
-                >
-                    <span class="material-symbols-outlined text-[22px] leading-none">
-                        open_in_new
-                    </span>
-                </a>
-
-              <!-- Acesso às negociações do assunto -->
-              <div
-                  x-show="
-                      conversaSelecionada &&
-                      assuntoSelecionadoId !== null &&
-                      (
-                          conversaSelecionada?.assuntos?.find(
-                              item => Number(item.id) === Number(assuntoSelecionadoId)
-                          )?.links_negociacoes || []
-                      ).length > 0
-                  "
-                  x-cloak
-                  class="shrink-0 border-b border-gray-200 bg-white px-4 py-2"
-              >
-                  <button
-                      type="button"
-                      @click="cardNegociacaoAberto = !cardNegociacaoAberto"
-                      class="flex w-full items-center justify-between rounded-lg px-2 py-2 text-sm font-medium text-[#236350] transition hover:bg-[#E5EFEA]/60"
-                  >
-                      <span class="flex items-center gap-2">
-                          <span class="material-symbols-outlined text-[19px]">
-                              handshake
-                          </span>
-                          Negociações vinculadas
-                      </span>
-
-                      <span
-                          class="material-symbols-outlined text-[20px] transition-transform"
-                          :class="cardNegociacaoAberto ? 'rotate-180' : ''"
-                      >
-                          expand_more
-                      </span>
-                  </button>
-
-                  <div
-                      x-show="cardNegociacaoAberto"
-                      x-transition
-                      x-cloak
-                      class="mt-1 space-y-2 pb-2"
-                  >
-                      <template
-                          x-for="negociacao in (
-                              conversaSelecionada?.assuntos?.find(
-                                  item => Number(item.id) === Number(assuntoSelecionadoId)
-                              )?.links_negociacoes || []
-                          )"
-                          :key="negociacao.id"
-                      >
-                          <div class="rounded-xl border border-gray-200 bg-gray-50 p-3">
-                              <div class="flex items-start gap-2">
-                                  <span class="material-symbols-outlined mt-0.5 text-[20px] text-[#236350]">
-                                      handshake
-                                  </span>
-
-                                  <div class="min-w-0 flex-1">
-                                      <p
-                                          class="text-sm font-semibold text-gray-800"
-                                          x-text="negociacao.titulo"
-                                      ></p>
-
-                                      <p
-                                          class="mt-1 truncate text-xs text-gray-500"
-                                          x-text="negociacao.produto"
-                                      ></p>
-                                  </div>
-                              </div>
-
-                              <a
-                                  :href="negociacao.url"
-                                  class="mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-[#236350] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#1B4D3E]"
-                              >
-                                  <span class="material-symbols-outlined text-[17px]">
-                                      open_in_new
-                                  </span>
-                                  Acessar negociação
-                              </a>
-                          </div>
-                      </template>
-                  </div>
-              </div>
-          </div>
-
-          <!-- Acesso às negociações do assunto -->
+        <!-- Acesso às negociações do assunto -->
         <div
             x-show="
                 conversaSelecionada &&
