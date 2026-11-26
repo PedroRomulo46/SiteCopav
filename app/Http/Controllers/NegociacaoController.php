@@ -77,6 +77,7 @@ class NegociacaoController extends Controller
         }
 
         $negociacoes = $consulta
+            ->whereHas('propostas')
             ->with([
                 'oferta.produto',
                 'oferta.fornecedor',
