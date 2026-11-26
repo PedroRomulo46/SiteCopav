@@ -21,20 +21,20 @@
 @endphp
 
 {{-- Breadcrumbs com setas garantidas via ícone --}}
-<nav class="flex items-center text-sm mb-6 text-gray-600" aria-label="Breadcrumb">
+<nav class="flex items-center text-sm mb-6 text-gray-600 dark:text-gray-400" aria-label="Breadcrumb">
     <ol class="inline-flex items-center space-x-2">
 
         {{-- Item 1: Início --}}
-        <li>
-            <a href="{{ route('home') }}" class="hover:text-[#1B4D3E]">
+        <li class="inline-flex items-center">
+            <a href="{{ route('home') }}" class="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-[#1B4D3E] dark:hover:text-emerald-400 transition-colors">
                 Início
             </a>
         </li>
 
         {{-- Item 2: Página Atual --}}
-        <li class="flex items-center space-x-2">
-            <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
-            <span class="font-semibold text-gray-800">
+        <li class="inline-flex items-center space-x-2">
+            <span class="material-symbols-outlined text-gray-400 dark:text-gray-500 text-sm leading-none">chevron_right</span>
+            <span class="font-semibold text-gray-800 dark:text-gray-100 leading-none">
                 @yield('title')
             </span>
         </li>
@@ -44,20 +44,20 @@
 <div
     id="oferta-show"
     data-oferta-id="{{ $oferta->id }}"
-    class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 bg-white rounded-md"
+    class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 bg-white dark:bg-[#111827] border border-gray-200 dark:border-[#273449] rounded-xl shadow-sm text-left"
 >
 
     {{-- Exibição de Alertas de Sucesso / Erro --}}
     @if(session('success'))
-        <div class="mb-6 p-4 bg-emerald-50 border-l-4 border-emerald-600 text-emerald-800 rounded-r-md shadow-sm flex items-center gap-2">
-            <span class="material-symbols-outlined text-emerald-600">check_circle</span>
+        <div class="mb-6 p-4 bg-emerald-50 dark:bg-emerald-950/50 border-l-4 border-emerald-600 dark:border-emerald-400 text-emerald-800 dark:text-emerald-200 rounded-r-md shadow-sm flex items-center gap-2">
+            <span class="material-symbols-outlined text-emerald-600 dark:text-emerald-400 leading-none shrink-0">check_circle</span>
             <span>{{ session('success') }}</span>
         </div>
     @endif
 
     @if(session('error'))
-        <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-r-md shadow-sm flex items-center gap-2">
-            <span class="material-symbols-outlined text-red-500">error</span>
+        <div class="mb-6 p-4 bg-red-50 dark:bg-red-950/50 border-l-4 border-red-500 dark:border-red-400 text-red-700 dark:text-red-300 rounded-r-md shadow-sm flex items-center gap-2">
+            <span class="material-symbols-outlined text-red-500 dark:text-red-400 leading-none shrink-0">error</span>
             <span>{{ session('error') }}</span>
         </div>
     @endif
@@ -66,7 +66,7 @@
 
         <!-- Coluna 1: Imagem do Produto -->
         <div class="lg:col-span-5 lg:sticky lg:top-6 w-full">
-            <div class="bg-white p-2 rounded-xl border border-gray-100 overflow-hidden w-full h-380px">
+            <div class="bg-white dark:bg-[#161f30] p-2 rounded-xl border border-gray-200/80 dark:border-[#273449] overflow-hidden w-full h-380px">
                 <img
                     class="w-full h-full rounded-lg object-cover"
                     src="{{ $imagemProduto }}"
@@ -77,27 +77,27 @@
         </div>
 
         <!-- Coluna 2: Informações Técnicas e Descrição -->
-        <div class="lg:col-span-4 flex flex-col gap-4 bg-white p-3 rounded-md">
+        <div class="lg:col-span-4 flex flex-col gap-4 bg-white dark:bg-[#111827] p-2 sm:p-3 rounded-md">
             <div>
-                <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 leading-snug">
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 leading-snug">
                     {{ $produto->nome ?? 'Produto sem nome' }}
                 </h1>
 
                 <!-- Link do Fornecedor -->
-                <a href="#" class="inline-block mt-1 text-xs font-semibold text-[#236350] hover:underline">
+                <a href="#" class="inline-block mt-1 text-xs font-semibold text-[#236350] dark:text-emerald-400 hover:underline">
                     Loja de {{ $oferta->fornecedor->nome ?? 'Fornecedor Copav' }}
                 </a>
             </div>
 
             <!-- Avaliações -->
-            <div class="flex items-center gap-2 py-1 px-2 rounded-lg">
+            <div class="flex items-center gap-2 py-1 rounded-lg">
                 <div class="flex items-center gap-1">
                     <span class="text-sm font-bold text-amber-400">4.6</span>
-                    <div class="flex text-amber-400 text-base">
-                        ★★★★<span class="text-gray-300">★</span>
+                    <div class="flex text-amber-400 text-base leading-none">
+                        ★★★★<span class="text-gray-300 dark:text-slate-600">★</span>
                     </div>
                 </div>
-                <span class="text-xs text-gray-500">(1.889 avaliações)</span>
+                <span class="text-xs text-gray-500 dark:text-gray-400">(1.889 avaliações)</span>
             </div>
 
             <!-- Status da Oferta -->
@@ -106,10 +106,10 @@
                     id="oferta-status"
                     class="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-semibold
                     {{ $oferta->status === 'publicada'
-                        ? 'text-green-700 bg-green-50 border border-green-100'
+                        ? 'text-green-700 dark:text-emerald-300 bg-green-50 dark:bg-emerald-950/60 border border-green-100 dark:border-emerald-800/60'
                         : ($oferta->status === 'encerrada'
-                            ? 'text-yellow-700 bg-yellow-50 border border-yellow-100'
-                            : 'text-red-700 bg-red-50 border border-red-100') }}"
+                            ? 'text-yellow-700 dark:text-amber-300 bg-yellow-50 dark:bg-amber-950/60 border border-yellow-100 dark:border-amber-800/60'
+                            : 'text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-950/60 border border-red-100 dark:border-red-800/60') }}"
                 >
                     {{ ucfirst($oferta->status ?? 'Indefinido') }}
                 </span>
@@ -117,21 +117,21 @@
 
             <!-- Preço e Medida da Oferta -->
             <div class="space-y-1">
-                <span class="text-xs text-gray-500 uppercase tracking-wider font-semibold">
+                <span class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-semibold">
                     Preço unitário
                 </span>
 
                 <div class="flex items-baseline gap-1">
-                    <span class="text-lg font-bold text-gray-700">R$</span>
+                    <span class="text-lg font-bold text-gray-700 dark:text-gray-300">R$</span>
                     <span
                         id="oferta-valor"
-                        class="text-3xl sm:text-4xl font-bold text-gray-900"
+                        class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100"
                     >
                         {{ number_format($oferta->valor ?? 0, 2, ',', '.') }}
                     </span>
                     <span
                         id="oferta-unidade"
-                        class="text-sm font-medium text-gray-500"
+                        class="text-sm font-medium text-gray-500 dark:text-gray-400"
                     >
                         / {{ $oferta->unidade ?? 'Unidade' }}
                     </span>
@@ -139,9 +139,9 @@
             </div>
 
             <!-- Descrição detalhada -->
-            <div class="pt-2 border-t border-gray-200">
-                <h3 class="font-semibold text-sm text-gray-900 uppercase tracking-wider">Sobre este item</h3>
-                <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">
+            <div class="pt-3 border-t border-gray-200 dark:border-[#273449]">
+                <h3 class="font-semibold text-sm text-gray-900 dark:text-gray-100 uppercase tracking-wider mb-1.5">Sobre este item</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-line">
                     {{ $produto->descricao ?? 'Nenhuma descrição detalhada informada para este produto.' }}
                 </p>
             </div>
@@ -149,13 +149,13 @@
 
         <!-- Coluna 3: Box de Compra / Ações Comerciais -->
         <div class="lg:col-span-3">
-            <div class="border border-gray-200 rounded-xl p-5 flex flex-col gap-4 shadow-sm bg-white">
+            <div class="border border-gray-200 dark:border-[#273449] rounded-xl p-5 flex flex-col gap-4 shadow-sm bg-white dark:bg-[#161f30]">
 
                 <div>
-                    <span class="text-xs text-gray-500 block mb-1">
+                    <span class="text-xs text-gray-500 dark:text-gray-400 block mb-1">
                         Valor da oferta
                     </span>
-                    <div class="text-2xl font-bold text-gray-900">
+                    <div class="text-2xl font-bold text-gray-900 dark:text-gray-100">
                         R$
                         <span id="oferta-valor-box">
                             {{ number_format($oferta->valor ?? 0, 2, ',', '.') }}
@@ -163,8 +163,8 @@
                     </div>
                 </div>
 
-                <div class="inline-flex items-center gap-1.5 text-xs text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-md font-medium border border-emerald-100">
-                    <span class="material-symbols-outlined text-sm">inventory_2</span>
+                <div class="inline-flex items-center gap-1.5 text-xs text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-3 py-1.5 rounded-md font-medium border border-emerald-100 dark:border-emerald-800/60">
+                    <span class="material-symbols-outlined text-sm leading-none shrink-0">inventory_2</span>
 
                     <span>
                         Em estoque:
@@ -191,18 +191,18 @@
                     </span>
                 </div>
 
-                <div class="text-xs text-gray-600 space-y-1 bg-gray-50 p-3 rounded-lg border border-gray-100">
-                    <div class="flex justify-between">
-                        <span class="text-gray-500">Enviado por:</span>
-                        <span class="text-gray-800 font-semibold">Copav</span>
+                <div class="text-xs text-gray-600 dark:text-gray-300 space-y-1.5 bg-gray-50 dark:bg-[#111827] p-3 rounded-lg border border-gray-200/80 dark:border-[#273449]">
+                    <div class="flex justify-between gap-2">
+                        <span class="text-gray-500 dark:text-gray-400">Enviado por:</span>
+                        <span class="text-gray-800 dark:text-gray-100 font-semibold">Copav</span>
                     </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-500">Vendido por:</span>
-                        <span class="text-gray-800 font-semibold">{{ $oferta->fornecedor->nome ?? 'Fornecedor' }}</span>
+                    <div class="flex justify-between gap-2">
+                        <span class="text-gray-500 dark:text-gray-400">Vendido por:</span>
+                        <span class="text-gray-800 dark:text-gray-100 font-semibold text-right">{{ $oferta->fornecedor->nome ?? 'Fornecedor' }}</span>
                     </div>
                 </div>
 
-                <hr class="border-gray-200">
+                <hr class="border-gray-200 dark:border-[#273449]">
 
                 <!-- Botões de Ação -->
                 <div class="flex flex-col gap-2.5 w-full">
@@ -213,13 +213,13 @@
                                 <input type="hidden" name="oferta_id" value="{{ $oferta->id }}">
                                 <button
                                     type="submit"
-                                    class="w-full btn-copav p-3 text-white text-sm font-semibold rounded-lg transition-all shadow-sm hover:opacity-90 flex items-center justify-center gap-2 cursor-pointer border-0">
-                                    <span class="material-symbols-outlined text-base">currency_exchange</span>
+                                    class="w-full btn-copav p-3 text-white text-sm font-semibold rounded-lg transition-all shadow-sm hover:opacity-95 inline-flex items-center justify-center gap-2 cursor-pointer border-0">
+                                    <span class="material-symbols-outlined text-base leading-none">currency_exchange</span>
                                     <span>Negociar Preço</span>
                                 </button>
                             </form>
                         @else
-                            <div class="text-xs text-center text-gray-500 py-2 bg-gray-100 rounded-lg">
+                            <div class="text-xs text-center text-gray-500 dark:text-gray-400 py-2 px-3 bg-gray-100 dark:bg-[#111827] border border-transparent dark:border-[#273449] rounded-lg">
                                 Esta oferta pertence a você.
                             </div>
                         @endunless
@@ -227,7 +227,7 @@
                         <a
                             href="{{ route('login') }}"
                             class="w-full btn-copav p-3 text-white text-sm font-semibold rounded-lg transition-all shadow-sm text-center inline-flex items-center justify-center gap-2">
-                            <span class="material-symbols-outlined text-base">login</span>
+                            <span class="material-symbols-outlined text-base leading-none">login</span>
                             <span>Entrar para negociar</span>
                         </a>
                     @endauth
@@ -311,23 +311,32 @@
                     if (status === 'publicada') {
                         statusElemento.classList.add(
                             'text-green-700',
+                            'dark:text-emerald-300',
                             'bg-green-50',
+                            'dark:bg-emerald-950/60',
                             'border',
-                            'border-green-100'
+                            'border-green-100',
+                            'dark:border-emerald-800/60'
                         );
                     } else if (status === 'encerrada') {
                         statusElemento.classList.add(
                             'text-yellow-700',
+                            'dark:text-amber-300',
                             'bg-yellow-50',
+                            'dark:bg-amber-950/60',
                             'border',
-                            'border-yellow-100'
+                            'border-yellow-100',
+                            'dark:border-amber-800/60'
                         );
                     } else {
                         statusElemento.classList.add(
                             'text-red-700',
+                            'dark:text-red-300',
                             'bg-red-50',
+                            'dark:bg-red-950/60',
                             'border',
-                            'border-red-100'
+                            'border-red-100',
+                            'dark:border-red-800/60'
                         );
                     }
                 }
@@ -339,23 +348,23 @@
 
                 ofertaShow.innerHTML = `
                     <div class="flex flex-col items-center justify-center py-20 text-center">
-                        <span class="material-symbols-outlined text-6xl text-gray-400 mb-4">
+                        <span class="material-symbols-outlined text-6xl text-gray-400 dark:text-gray-500 leading-none mb-4">
                             inventory_2
                         </span>
 
-                        <h2 class="text-2xl font-bold text-gray-800 mb-2">
+                        <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2">
                             Oferta não disponível
                         </h2>
 
-                        <p class="text-gray-500 mb-6">
+                        <p class="text-gray-500 dark:text-gray-400 mb-6">
                             Esta oferta foi excluída pelo fornecedor e não está mais disponível.
                         </p>
 
                         <a
                             href="{{ route('home') }}"
-                            class="btn-copav inline-flex items-center gap-2 text-white px-5 py-2.5 rounded-lg transition-colors"
+                            class="btn-copav inline-flex items-center justify-center gap-2 text-white px-5 py-2.5 rounded-lg transition-colors"
                         >
-                            Voltar para a página inicial
+                            <span>Voltar para a página inicial</span>
                         </a>
                     </div>
                 `;

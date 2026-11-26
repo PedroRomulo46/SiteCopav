@@ -13,20 +13,23 @@
 @endphp
 
 {{-- Breadcrumbs com setas garantidas via ícone --}}
-<nav class="flex items-center text-sm mb-6 text-gray-600" aria-label="Breadcrumb">
+<nav class="flex items-center text-sm mb-6 text-gray-600 dark:text-gray-400" aria-label="Breadcrumb">
     <ol class="inline-flex items-center space-x-2">
 
         {{-- Item 1: Início --}}
-        <li class="flex items-center">
-            <a href="{{ route('home') }}" class="hover:text-[#1B4D3E]">
+        <li class="inline-flex items-center">
+            <a
+                href="{{ route('home') }}"
+                class="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-[#1B4D3E] dark:hover:text-emerald-400 transition-colors"
+            >
                 Início
             </a>
         </li>
 
         {{-- Item 2: Página Atual --}}
-        <li class="flex items-center space-x-2">
-            <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
-            <span class="font-semibold text-gray-800">
+        <li class="inline-flex items-center space-x-2">
+            <span class="material-symbols-outlined text-gray-400 dark:text-gray-500 text-sm leading-none">chevron_right</span>
+            <span class="font-semibold text-gray-800 dark:text-gray-100 leading-none">
                 @yield('title')
             </span>
         </li>
@@ -35,15 +38,17 @@
 
 <div class="max-w-5xl mx-auto px-4 py-8 space-y-6 text-left">
     <div>
-        <h1 class="text-2xl font-bold text-gray-800">Configurações</h1>
-        <p class="text-sm text-gray-500">Gerencie as informações da sua conta, senha e segurança.</p>
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Configurações</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            Gerencie as informações da sua conta, senha e segurança.
+        </p>
     </div>
 
     {{-- Informações do perfil --}}
-    <div class="card bg-base-100 shadow-sm border border-base-200">
-        <div class="card-body max-w-2xl">
-            <h2 class="card-title text-lg text-gray-900">Informações do perfil</h2>
-            <p class="text-sm text-gray-500">
+    <div class="bg-white dark:bg-[#111827] rounded-2xl shadow-sm border border-gray-200 dark:border-[#273449]">
+        <div class="p-6 max-w-2xl">
+            <h2 class="text-lg font-bold text-gray-900 dark:text-gray-100">Informações do perfil</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                 Atualize as informações do seu perfil e o seu endereço de email.
             </p>
 
@@ -55,19 +60,19 @@
                 method="post"
                 action="{{ route('profile.update') }}"
                 enctype="multipart/form-data"
-                class="mt-4 space-y-5"
+                class="mt-5 space-y-5"
             >
                 @csrf
                 @method('patch')
 
                 {{-- Foto de perfil --}}
-                <div class="form-control">
-                    <span class="label-text font-medium mb-2 block">Foto de perfil</span>
+                <div>
+                    <span class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">Foto de perfil</span>
 
                     <label
                         for="imagem"
                         title="Alterar foto de perfil"
-                        class="relative w-32 h-32 rounded-full overflow-hidden border-2 border-[#236350] bg-gray-100 flex items-center justify-center cursor-pointer group select-none shadow-sm"
+                        class="relative w-32 h-32 rounded-full overflow-hidden border-2 border-[#236350] dark:border-emerald-500 bg-gray-100 dark:bg-slate-800 flex items-center justify-center cursor-pointer group select-none shadow-sm"
                     >
                         {{-- Imagem atual ou preview da nova imagem --}}
                         <img
@@ -81,7 +86,7 @@
                         {{-- Ícone padrão quando não há imagem --}}
                         <span
                             id="avatarPlaceholder"
-                            class="text-gray-400 {{ $imagemPerfil ? 'hidden' : 'flex' }} items-center justify-center w-full h-full"
+                            class="text-gray-400 dark:text-gray-500 {{ $imagemPerfil ? 'hidden' : 'flex' }} items-center justify-center w-full h-full"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
@@ -108,19 +113,19 @@
                         onchange="previewAvatar(event)"
                     >
 
-                    <span class="label-text-alt text-gray-500 mt-2 block">
+                    <span class="block text-xs text-gray-500 dark:text-gray-400 mt-2">
                         Clique na foto para selecionar. JPG, JPEG, PNG ou WEBP. Máximo de 2 MB.
                     </span>
 
                     @foreach ($errors->get('imagem') as $message)
-                        <p class="text-error text-sm mt-1">{{ $message }}</p>
+                        <p class="text-red-600 dark:text-red-400 text-sm mt-1">{{ $message }}</p>
                     @endforeach
                 </div>
 
                 {{-- Nome --}}
-                <div class="form-control">
-                    <label for="nome" class="label">
-                        <span class="label-text font-medium">Nome</span>
+                <div>
+                    <label for="nome" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1.5">
+                        Nome
                     </label>
                     <input
                         id="nome"
@@ -130,17 +135,17 @@
                         required
                         autofocus
                         autocomplete="name"
-                        class="input input-bordered w-full max-w-md focus:border-[#236350] focus:outline-none"
+                        class="w-full max-w-md px-3.5 py-2.5 rounded-lg text-sm bg-white dark:bg-[#161f30] text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border {{ $errors->has('nome') ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-[#273449]' }} outline-none transition focus:border-[#236350] dark:focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20"
                     >
                     @foreach ($errors->get('nome') as $message)
-                        <p class="text-error text-sm mt-1">{{ $message }}</p>
+                        <p class="text-red-600 dark:text-red-400 text-sm mt-1">{{ $message }}</p>
                     @endforeach
                 </div>
 
                 {{-- Email --}}
-                <div class="form-control">
-                    <label for="email" class="label">
-                        <span class="label-text font-medium">Email</span>
+                <div>
+                    <label for="email" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1.5">
+                        Email
                     </label>
                     <input
                         id="email"
@@ -149,24 +154,24 @@
                         value="{{ old('email', $user?->email) }}"
                         required
                         autocomplete="username"
-                        class="input input-bordered w-full max-w-md focus:border-[#236350] focus:outline-none"
+                        class="w-full max-w-md px-3.5 py-2.5 rounded-lg text-sm bg-white dark:bg-[#161f30] text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border {{ $errors->has('email') ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-[#273449]' }} outline-none transition focus:border-[#236350] dark:focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20"
                     >
                     @foreach ($errors->get('email') as $message)
-                        <p class="text-error text-sm mt-1">{{ $message }}</p>
+                        <p class="text-red-600 dark:text-red-400 text-sm mt-1">{{ $message }}</p>
                     @endforeach
 
                     @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
-                        <div class="alert alert-warning mt-3 text-sm">
+                        <div class="mt-3 rounded-lg border border-amber-200 dark:border-amber-700/50 bg-amber-50 dark:bg-amber-950/40 px-4 py-3 text-sm text-amber-800 dark:text-amber-200">
                             <div>
                                 <span>Seu endereço de email não foi verificado.</span>
-                                <button type="submit" form="send-verification" class="link link-hover font-semibold underline ml-1">
+                                <button type="submit" form="send-verification" class="font-semibold underline ml-1 cursor-pointer">
                                     Clique aqui para reenviar a verificação de email.
                                 </button>
                             </div>
                         </div>
 
                         @if (session('status') === 'verification-link-sent')
-                            <p class="text-success text-sm font-medium mt-2">
+                            <p class="text-emerald-700 dark:text-emerald-400 text-sm font-medium mt-2">
                                 Um link de verificação foi enviado para o seu endereço de email.
                             </p>
                         @endif
@@ -177,7 +182,7 @@
                 <div class="pt-2 flex items-center gap-4">
                     <button
                         type="submit"
-                        class="btn-copav inline-flex items-center justify-center rounded-md px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-95 cursor-pointer"
+                        class="btn-copav inline-flex items-center justify-center rounded-lg px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-95 cursor-pointer"
                     >
                         Salvar
                     </button>
@@ -188,7 +193,7 @@
                             x-show="show"
                             x-transition
                             x-init="setTimeout(() => show = false, 2000)"
-                            class="badge badge-success badge-outline"
+                            class="inline-flex items-center rounded-full border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-950/60 px-3 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-300"
                         >
                             Salvo.
                         </span>
@@ -199,12 +204,12 @@
     </div>
 
     {{-- Aparência / Modo Escuro --}}
-    <div id="cardAparencia" class="card bg-base-100 shadow-sm border border-base-200 transition-colors duration-200">
-        <div class="card-body p-4 sm:p-6">
+    <div id="cardAparencia" class="bg-white dark:bg-[#111827] rounded-2xl shadow-sm border border-gray-200 dark:border-[#273449] transition-colors duration-200">
+        <div class="p-4 sm:p-6">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div class="min-w-0 flex-1">
-                    <h2 id="tituloAparencia" class="card-title text-lg text-gray-900">Aparência</h2>
-                    <p id="descricaoAparencia" class="text-sm text-gray-500 mt-1">
+                    <h2 id="tituloAparencia" class="text-lg font-bold text-gray-900 dark:text-gray-100">Aparência</h2>
+                    <p id="descricaoAparencia" class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                         Alterne entre o tema claro e o modo escuro em todo o site.
                     </p>
                 </div>
@@ -213,9 +218,9 @@
                     type="button"
                     id="btnToggleDarkMode"
                     onclick="alternarModoEscuro()"
-                    class="btn w-full sm:w-auto border border-gray-300 bg-white text-gray-800 hover:bg-gray-100 gap-2 shrink-0 cursor-pointer justify-center"
+                    class="inline-flex w-full sm:w-auto items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium border border-gray-300 dark:border-[#273449] bg-white dark:bg-[#161f30] text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-slate-800 shrink-0 cursor-pointer transition-colors"
                 >
-                    <span id="iconeModoEscuro" class="material-symbols-outlined text-xl">dark_mode</span>
+                    <span id="iconeModoEscuro" class="material-symbols-outlined text-xl leading-none">dark_mode</span>
                     <span id="textoModoEscuro">Ativar modo escuro</span>
                 </button>
             </div>
@@ -223,11 +228,11 @@
     </div>
 
     {{-- Trocar senha --}}
-    <div class="card bg-base-100 shadow-sm border border-base-200">
-        <div class="card-body">
+    <div class="bg-white dark:bg-[#111827] rounded-2xl shadow-sm border border-gray-200 dark:border-[#273449]">
+        <div class="p-6">
             <div class="max-w-xl">
-                <h2 class="card-title text-lg text-gray-900">Trocar Senha</h2>
-                <p class="text-sm text-gray-500 mt-1">
+                <h2 class="text-lg font-bold text-gray-900 dark:text-gray-100">Trocar Senha</h2>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                     Garanta que sua conta utiliza uma senha longa e segura.
                 </p>
             </div>
@@ -244,9 +249,9 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 
                     {{-- Senha atual --}}
-                    <div class="form-control">
-                        <label for="update_password_current_password" class="label py-1">
-                            <span class="label-text font-medium text-gray-700">Senha atual</span>
+                    <div>
+                        <label for="update_password_current_password" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1.5">
+                            Senha atual
                         </label>
                         <input
                             id="update_password_current_password"
@@ -254,17 +259,17 @@
                             :type="showPasswords ? 'text' : 'password'"
                             autocomplete="current-password"
                             placeholder="••••••••"
-                            class="input input-bordered w-full focus:border-[#236350] focus:outline-none"
+                            class="w-full px-3.5 py-2.5 rounded-lg text-sm bg-white dark:bg-[#161f30] text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border {{ $errors->updatePassword->has('current_password') ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-[#273449]' }} outline-none transition focus:border-[#236350] dark:focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20"
                         >
                         @foreach ($errors->updatePassword->get('current_password') as $message)
-                            <p class="text-error text-xs mt-1">{{ $message }}</p>
+                            <p class="text-red-600 dark:text-red-400 text-xs mt-1">{{ $message }}</p>
                         @endforeach
                     </div>
 
                     {{-- Nova senha --}}
-                    <div class="form-control">
-                        <label for="update_password_password" class="label py-1">
-                            <span class="label-text font-medium text-gray-700">Nova senha</span>
+                    <div>
+                        <label for="update_password_password" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1.5">
+                            Nova senha
                         </label>
                         <input
                             id="update_password_password"
@@ -272,17 +277,17 @@
                             :type="showPasswords ? 'text' : 'password'"
                             autocomplete="new-password"
                             placeholder="Mínimo de 8 caracteres"
-                            class="input input-bordered w-full focus:border-[#236350] focus:outline-none"
+                            class="w-full px-3.5 py-2.5 rounded-lg text-sm bg-white dark:bg-[#161f30] text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border {{ $errors->updatePassword->has('password') ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-[#273449]' }} outline-none transition focus:border-[#236350] dark:focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20"
                         >
                         @foreach ($errors->updatePassword->get('password') as $message)
-                            <p class="text-error text-xs mt-1">{{ $message }}</p>
+                            <p class="text-red-600 dark:text-red-400 text-xs mt-1">{{ $message }}</p>
                         @endforeach
                     </div>
 
                     {{-- Confirmar nova senha --}}
-                    <div class="form-control">
-                        <label for="update_password_password_confirmation" class="label py-1">
-                            <span class="label-text font-medium text-gray-700">Confirmar senha nova</span>
+                    <div>
+                        <label for="update_password_password_confirmation" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1.5">
+                            Confirmar senha nova
                         </label>
                         <input
                             id="update_password_password_confirmation"
@@ -290,21 +295,20 @@
                             :type="showPasswords ? 'text' : 'password'"
                             autocomplete="new-password"
                             placeholder="Repita a nova senha"
-                            class="input input-bordered w-full focus:border-[#236350] focus:outline-none"
+                            class="w-full px-3.5 py-2.5 rounded-lg text-sm bg-white dark:bg-[#161f30] text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border {{ $errors->updatePassword->has('password_confirmation') ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-[#273449]' }} outline-none transition focus:border-[#236350] dark:focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20"
                         >
                         @foreach ($errors->updatePassword->get('password_confirmation') as $message)
-                            <p class="text-error text-xs mt-1">{{ $message }}</p>
+                            <p class="text-red-600 dark:text-red-400 text-xs mt-1">{{ $message }}</p>
                         @endforeach
                     </div>
                 </div>
 
                 <div class="flex flex-wrap items-center justify-between gap-4 pt-1">
-                    <label class="inline-flex items-center gap-2 cursor-pointer select-none text-sm text-gray-600">
+                    <label class="inline-flex items-center gap-2 cursor-pointer select-none text-sm text-gray-600 dark:text-gray-300">
                         <input
                             type="checkbox"
                             x-model="showPasswords"
-                            class="checkbox checkbox-sm rounded border-gray-300 checked:border-[#236350]"
-                            style="--chkbg: #236350; --chkfg: #ffffff;"
+                            class="h-4 w-4 rounded border-gray-300 dark:border-slate-600 text-[#236350] focus:ring-[#236350] cursor-pointer"
                         >
                         <span>Mostrar senhas</span>
                     </label>
@@ -316,7 +320,7 @@
                                 x-show="show"
                                 x-transition
                                 x-init="setTimeout(() => show = false, 3000)"
-                                class="badge badge-success badge-outline"
+                                class="inline-flex items-center rounded-full border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-950/60 px-3 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-300"
                             >
                                 Senha atualizada
                             </span>
@@ -324,7 +328,7 @@
 
                         <button
                             type="submit"
-                            class="btn-copav inline-flex items-center justify-center rounded-md px-6 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-95 cursor-pointer"
+                            class="btn-copav inline-flex items-center justify-center rounded-lg px-6 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-95 cursor-pointer"
                         >
                             Salvar
                         </button>
@@ -335,29 +339,29 @@
     </div>
 
     {{-- Deletar conta --}}
-    <div class="card bg-base-100 shadow-sm border border-error/30">
-        <div class="card-body max-w-2xl">
-            <h2 class="card-title text-lg text-error">Deletar Conta</h2>
-            <p class="text-sm text-gray-500">
+    <div class="bg-white dark:bg-[#111827] rounded-2xl shadow-sm border border-red-200 dark:border-red-900/60">
+        <div class="p-6 max-w-2xl">
+            <h2 class="text-lg font-bold text-red-600 dark:text-red-400">Deletar Conta</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                 Assim que sua conta for deletada, todos os dados serão permanentemente apagados. Antes de deletar sua conta, faça o download de todas as informações que você deseja salvar.
             </p>
 
             <form
                 method="post"
                 action="{{ route('profile.destroy') }}"
-                class="mt-4 p-4 rounded-box bg-error/5 border border-error/20 space-y-4 max-w-md"
+                class="mt-4 p-4 rounded-xl bg-red-50/70 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 space-y-4 max-w-md"
                 onsubmit="return confirm('Tem certeza que deseja deletar sua conta? Todos os seus dados serão perdidos permanentemente.');"
             >
                 @csrf
                 @method('delete')
 
-                <p class="text-sm text-gray-700">
+                <p class="text-sm text-gray-700 dark:text-gray-300">
                     Todos os seus dados não baixados serão perdidos permanentemente, não sendo possível recuperá-los.
                 </p>
 
-                <div class="form-control">
-                    <label for="delete_account_password" class="label">
-                        <span class="label-text font-medium">Senha</span>
+                <div>
+                    <label for="delete_account_password" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1.5">
+                        Senha
                     </label>
                     <input
                         id="delete_account_password"
@@ -365,15 +369,18 @@
                         type="password"
                         placeholder="Digite sua senha para confirmar"
                         required
-                        class="input input-bordered w-full focus:border-error focus:outline-none"
+                        class="w-full px-3.5 py-2.5 rounded-lg text-sm bg-white dark:bg-[#161f30] text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border {{ $errors->userDeletion->has('password') ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-[#273449]' }} outline-none transition focus:border-red-500 dark:focus:border-red-400 focus:ring-2 focus:ring-red-500/20"
                     >
                     @foreach ($errors->userDeletion->get('password') as $message)
-                        <p class="text-error text-sm mt-1">{{ $message }}</p>
+                        <p class="text-red-600 dark:text-red-400 text-sm mt-1">{{ $message }}</p>
                     @endforeach
                 </div>
 
                 <div class="pt-1">
-                    <button type="submit" class="btn btn-error text-white cursor-pointer">
+                    <button
+                        type="submit"
+                        class="inline-flex items-center justify-center rounded-lg bg-red-600 hover:bg-red-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors cursor-pointer"
+                    >
                         Deletar Conta
                     </button>
                 </div>
@@ -386,38 +393,9 @@
     function sincronizarBotaoTema(ativado) {
         const icone = document.getElementById('iconeModoEscuro');
         const texto = document.getElementById('textoModoEscuro');
-        const btn = document.getElementById('btnToggleDarkMode');
-        const card = document.getElementById('cardAparencia');
-        const titulo = document.getElementById('tituloAparencia');
-        const descricao = document.getElementById('descricaoAparencia');
 
         if (icone) icone.textContent = ativado ? 'light_mode' : 'dark_mode';
         if (texto) texto.textContent = ativado ? 'Modo escuro ativado' : 'Ativar modo escuro';
-
-        if (btn) {
-            if (ativado) {
-                btn.style.backgroundColor = '#1f2937';
-                btn.style.color = '#f9fafb';
-                btn.style.borderColor = '#374151';
-            } else {
-                btn.style.backgroundColor = '#ffffff';
-                btn.style.color = '#1f2937';
-                btn.style.borderColor = '#d1d5db';
-            }
-        }
-
-        if (card) {
-            if (ativado) {
-                card.style.backgroundColor = '#111827';
-                card.style.borderColor = '#1f2937';
-            } else {
-                card.style.backgroundColor = '#ffffff';
-                card.style.borderColor = '#e5e7eb';
-            }
-        }
-
-        if (titulo) titulo.style.color = ativado ? '#f9fafb' : '#111827';
-        if (descricao) descricao.style.color = ativado ? '#9ca3af' : '#6b7280';
     }
 
     function aplicarTemaEscuro(ativado) {

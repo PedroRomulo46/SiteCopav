@@ -7,23 +7,23 @@
 @php
     $usuarioLogado = auth()->user();
 
-    $is_Admin = $usuarioLogado && $usuarioLogado->isAdmin();
+    $isAdmin = $usuarioLogado && $usuarioLogado->isAdmin();
 
-    $is_ClienteDaNegociacao = $usuarioLogado
+    $isClienteDaNegociacao = $usuarioLogado
         && (int) $negociacao->cliente_id === (int) $usuarioLogado->id;
 
     $fornecedorDoUsuario = $usuarioLogado?->fornecedor;
 
-    $is_DonoDaOferta = $usuarioLogado
+    $isDonoDaOferta = $usuarioLogado
         && $fornecedorDoUsuario
         && (int) ($negociacao->oferta->fornecedor_id ?? 0)
             === (int) $fornecedorDoUsuario->id;
 
-    $podeGerenciarPropostas = $is_DonoDaOferta
-        || ($is_Admin && !$is_ClienteDaNegociacao);
+    $podeGerenciarPropostas = $isDonoDaOferta
+        || ($isAdmin && ! $isClienteDaNegociacao);
 
-    $podeCriarProposta = $is_ClienteDaNegociacao
-        && !$is_DonoDaOferta;
+    $podeCriarProposta = $isClienteDaNegociacao
+        && ! $isDonoDaOferta;
 
     $urlAnterior = url()->previous();
     $subCompras = str_contains($urlAnterior, 'compras');
@@ -32,11 +32,11 @@
 @endphp
 
 {{-- Breadcrumbs Dinâmicos --}}
-<nav class="flex items-center text-sm mb-6 text-gray-600" aria-label="Breadcrumb">
+<nav class="flex items-center text-sm mb-6 text-gray-600 dark:text-gray-400" aria-label="Breadcrumb">
     <ol class="inline-flex items-center space-x-2">
         {{-- Item 1: Início --}}
-        <li>
-            <a href="{{ route('home') }}" class="hover:text-[#236350]">
+        <li class="inline-flex items-center">
+            <a href="{{ route('home') }}" class="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-[#236350] dark:hover:text-emerald-400 transition-colors">
                 Início
             </a>
         </li>
@@ -44,38 +44,38 @@
         {{-- Item Intermediário Dinâmico baseado no contexto ou origem --}}
         @if($subCompras)
             <li class="flex items-center space-x-2">
-                <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
-                <a href="{{ route('negociacoes.compras') }}" class="hover:text-[#236350] transition-colors">
+                <span class="material-symbols-outlined text-gray-400 dark:text-gray-500 text-sm leading-none">chevron_right</span>
+                <a href="{{ route('negociacoes.compras') }}" class="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-[#236350] dark:hover:text-emerald-400 transition-colors">
                     Minhas Compras
                 </a>
             </li>
         @elseif($subVendas)
             <li class="flex items-center space-x-2">
-                <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
-                <a href="{{ route('negociacoes.vendas') }}" class="hover:text-[#236350] transition-colors">
+                <span class="material-symbols-outlined text-gray-400 dark:text-gray-500 text-sm leading-none">chevron_right</span>
+                <a href="{{ route('negociacoes.vendas') }}" class="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-[#236350] dark:hover:text-emerald-400 transition-colors">
                     Minhas Vendas
                 </a>
             </li>
         @elseif($subOferta)
             <li class="flex items-center space-x-2">
-                <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
-                <a href="{{ $urlAnterior }}" class="hover:text-[#236350] transition-colors">
+                <span class="material-symbols-outlined text-gray-400 dark:text-gray-500 text-sm leading-none">chevron_right</span>
+                <a href="{{ $urlAnterior }}" class="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-[#236350] dark:hover:text-emerald-400 transition-colors">
                     {{ $negociacao->oferta->produto->nome ?? 'Oferta' }}
                 </a>
             </li>
         @else
             <li class="flex items-center space-x-2">
-                <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
-                <a href="{{ $is_ClienteDaNegociacao ? route('negociacoes.compras') : route('negociacoes.vendas') }}" class="hover:text-[#236350] transition-colors">
-                    {{ $is_ClienteDaNegociacao ? 'Minhas Compras' : 'Minhas Vendas' }}
+                <span class="material-symbols-outlined text-gray-400 dark:text-gray-500 text-sm leading-none">chevron_right</span>
+                <a href="{{ $isClienteDaNegociacao ? route('negociacoes.compras') : route('negociacoes.vendas') }}" class="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-[#236350] dark:hover:text-emerald-400 transition-colors">
+                    {{ $isClienteDaNegociacao ? 'Minhas Compras' : 'Minhas Vendas' }}
                 </a>
             </li>
         @endif
 
         {{-- Item Atual --}}
         <li class="flex items-center space-x-2">
-            <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
-            <span class="font-semibold text-gray-800">
+            <span class="material-symbols-outlined text-gray-400 dark:text-gray-500 text-sm leading-none">chevron_right</span>
+            <span class="font-semibold text-gray-800 dark:text-gray-100 leading-none">
                 Painel de Negociação
             </span>
         </li>
@@ -91,37 +91,37 @@
     data-csrf="{{ csrf_token() }}"
     data-url-aceitar="{{ route('propostas.aceitar', ['proposta' => '__ID__']) }}"
     data-url-recusar="{{ route('propostas.recusar', ['proposta' => '__ID__']) }}"
-    class="max-w-4xl mx-auto my-6 space-y-6"
+    class="max-w-4xl mx-auto my-6 space-y-6 text-left"
 >
 
     {{-- Mensagens de Feedback --}}
     @if(session('sucesso'))
-        <div class="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+        <div class="rounded-lg border border-green-200 dark:border-emerald-800/60 bg-green-50 dark:bg-emerald-950/50 px-4 py-3 text-sm text-green-800 dark:text-emerald-200">
             <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-green-600">check_circle</span>
+                <span class="material-symbols-outlined text-green-600 dark:text-emerald-400 text-lg leading-none">check_circle</span>
                 <span>{{ session('sucesso') }}</span>
             </div>
         </div>
     @endif
 
     @if(session('erro'))
-        <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+        <div class="rounded-lg border border-red-200 dark:border-red-800/60 bg-red-50 dark:bg-red-950/50 px-4 py-3 text-sm text-red-800 dark:text-red-200">
             <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-red-600">error</span>
+                <span class="material-symbols-outlined text-red-600 dark:text-red-400 text-lg leading-none">error</span>
                 <span>{{ session('erro') }}</span>
             </div>
         </div>
     @endif
 
     {{-- Card de Detalhes da Negociação --}}
-    <div class="bg-white rounded-lg shadow-md p-6">
-        <div class="flex items-center justify-between border-b border-gray-200 pb-4 mb-6">
+    <div class="bg-white dark:bg-[#111827] rounded-xl shadow-md border border-gray-200 dark:border-[#273449] p-6">
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-gray-200 dark:border-[#273449] pb-4 mb-6">
             <div class="text-left">
-                <span class="text-xs font-semibold uppercase tracking-wider text-gray-500 block">
+                <span class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 block mb-1">
                     NEGOCIAÇÃO
                 </span>
                 <div class="flex items-center gap-3 flex-wrap">
-                    <h1 class="text-2xl font-bold text-gray-800">
+                    <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">
                         {{ $negociacao->oferta->produto->nome ?? 'Produto' }}
                     </h1>
 
@@ -131,11 +131,11 @@
                             title="Visitar loja do produto"
                             aria-label="Visitar loja do produto"
                             class="inline-flex items-center justify-center w-9 h-9 rounded-lg
-                                text-[#236350] bg-green-50 border border-green-100
-                                hover:bg-green-100 hover:border-green-200
+                                text-[#236350] dark:text-emerald-400 bg-green-50 dark:bg-emerald-950/50 border border-green-100 dark:border-emerald-800/60
+                                hover:bg-green-100 dark:hover:bg-emerald-900/50 hover:border-green-200 dark:hover:border-emerald-700
                                 transition-colors"
                         >
-                            <span class="material-symbols-outlined text-xl">
+                            <span class="material-symbols-outlined text-xl leading-none">
                                 storefront
                             </span>
                         </a>
@@ -144,7 +144,7 @@
             </div>
 
             <div>
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-emerald-100 text-emerald-800 capitalize">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-transparent dark:border-emerald-800/60 capitalize">
                     {{ str_replace('_', ' ', $negociacao->status) }}
                 </span>
             </div>
@@ -152,23 +152,23 @@
 
         {{-- Grid de Informações Principais --}}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div class="p-3 bg-gray-50 rounded-md border border-gray-100">
-                <span class="block text-xs font-medium text-gray-500 uppercase">FORNECEDOR</span>
-                <span class="text-base font-semibold text-gray-800">
+            <div class="p-3.5 bg-gray-50 dark:bg-[#161f30] rounded-lg border border-gray-200/80 dark:border-[#273449]">
+                <span class="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">FORNECEDOR</span>
+                <span class="text-base font-semibold text-gray-800 dark:text-gray-100 mt-0.5 block">
                     {{ $negociacao->oferta->fornecedor->nome ?? 'Fornecedor não informado' }}
                 </span>
             </div>
 
-            <div class="p-3 bg-gray-50 rounded-md border border-gray-100">
-                <span class="block text-xs font-medium text-gray-500 uppercase">CLIENTE</span>
-                <span class="text-base font-semibold text-gray-800">
+            <div class="p-3.5 bg-gray-50 dark:bg-[#161f30] rounded-lg border border-gray-200/80 dark:border-[#273449]">
+                <span class="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">CLIENTE</span>
+                <span class="text-base font-semibold text-gray-800 dark:text-gray-100 mt-0.5 block">
                     {{ $negociacao->cliente->nome ?? $negociacao->cliente->name ?? 'Cliente não informado' }}
                 </span>
             </div>
 
-            <div class="p-3 bg-gray-50 rounded-md border border-gray-100">
-                <span class="block text-xs font-medium text-gray-500 uppercase">QUANTIDADE DA OFERTA</span>
-                <span class="text-base font-semibold text-gray-800">
+            <div class="p-3.5 bg-gray-50 dark:bg-[#161f30] rounded-lg border border-gray-200/80 dark:border-[#273449]">
+                <span class="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">QUANTIDADE DA OFERTA</span>
+                <span class="text-base font-semibold text-gray-800 dark:text-gray-100 mt-0.5 block">
                     @php
                         $qtdOferta = $negociacao->oferta->quantidade ?? 0;
                         $unidadeOferta = $negociacao->oferta->unidade ?? '';
@@ -184,9 +184,9 @@
                 </span>
             </div>
 
-            <div class="p-3 bg-gray-50 rounded-md border border-gray-100">
-                <span class="block text-xs font-medium text-gray-500 uppercase">VALOR DA OFERTA</span>
-                <span class="text-base font-semibold text-gray-800">
+            <div class="p-3.5 bg-gray-50 dark:bg-[#161f30] rounded-lg border border-gray-200/80 dark:border-[#273449]">
+                <span class="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">VALOR DA OFERTA</span>
+                <span class="text-base font-semibold text-gray-800 dark:text-gray-100 mt-0.5 block">
                     R$ {{ number_format($negociacao->oferta->valor ?? 0, 2, ',', '.') }}
                 </span>
             </div>
@@ -194,16 +194,16 @@
     </div>
 
     {{-- Seção de Propostas --}}
-    <div class="bg-white rounded-lg shadow-md p-6">
-        <div class="flex items-center justify-between border-b border-gray-200 pb-4 mb-6">
-            <h2 class="text-xl font-bold text-gray-800">
+    <div class="bg-white dark:bg-[#111827] rounded-xl shadow-md border border-gray-200 dark:border-[#273449] p-6">
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-gray-200 dark:border-[#273449] pb-4 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 dark:text-gray-100">
                 Propostas
             </h2>
 
             @auth
                 @if($podeGerenciarPropostas)
-                    <div class="text-xs text-center text-gray-500 py-2 px-4 bg-gray-100 rounded-lg">
-                        @if($is_DonoDaOferta)
+                    <div class="text-xs text-center text-gray-600 dark:text-gray-300 py-2 px-4 bg-gray-100 dark:bg-[#161f30] border border-transparent dark:border-[#273449] rounded-lg">
+                        @if($isDonoDaOferta)
                             Esta oferta pertence a você.
                         @else
                             Acesso Administrativo.
@@ -212,10 +212,10 @@
                 @elseif($podeCriarProposta)
                     <a
                         href="{{ route('propostas.create', $negociacao) }}"
-                        class="inline-flex items-center gap-1 btn-copav text-white text-sm px-4 py-2 rounded-md transition-colors shadow-sm"
+                        class="inline-flex items-center justify-center gap-1.5 btn-copav text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors shadow-sm"
                     >
-                        <span class="material-symbols-outlined text-base">add</span>
-                        Fazer proposta
+                        <span class="material-symbols-outlined text-base leading-none">add</span>
+                        <span>Fazer proposta</span>
                     </a>
                 @endif
             @endauth
@@ -225,13 +225,13 @@
             {{-- Propostas aceitas --}}
             <section>
                 <div class="flex items-center gap-2 mb-3">
-                    <span class="material-symbols-outlined text-green-600">check_circle</span>
-                    <h3 class="font-bold text-gray-800">Propostas aceitas</h3>
-                    <span id="contador-aceitas" class="text-xs text-gray-500"></span>
+                    <span class="material-symbols-outlined text-green-600 dark:text-emerald-400 text-xl leading-none">check_circle</span>
+                    <h3 class="font-bold text-gray-800 dark:text-gray-100">Propostas aceitas</h3>
+                    <span id="contador-aceitas" class="text-xs text-gray-500 dark:text-gray-400"></span>
                 </div>
 
                 <div id="propostas-aceitas" class="space-y-4">
-                    <p id="vazio-aceitas" class="text-sm text-gray-500 bg-gray-50 border border-gray-100 rounded-lg p-4">
+                    <p id="vazio-aceitas" class="text-sm text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-[#161f30] border border-gray-200/80 dark:border-[#273449] rounded-lg p-4">
                         Nenhuma proposta aceita ainda.
                     </p>
                 </div>
@@ -240,13 +240,13 @@
             {{-- Demais propostas --}}
             <section>
                 <div class="flex items-center gap-2 mb-3">
-                    <span class="material-symbols-outlined text-amber-600">pending_actions</span>
-                    <h3 class="font-bold text-gray-800">Outras propostas</h3>
-                    <span id="contador-outras" class="text-xs text-gray-500"></span>
+                    <span class="material-symbols-outlined text-amber-600 dark:text-amber-400 text-xl leading-none">pending_actions</span>
+                    <h3 class="font-bold text-gray-800 dark:text-gray-100">Outras propostas</h3>
+                    <span id="contador-outras" class="text-xs text-gray-500 dark:text-gray-400"></span>
                 </div>
 
                 <div id="propostas-outras" class="space-y-4">
-                    <p id="vazio-outras" class="text-sm text-gray-500 bg-gray-50 border border-gray-100 rounded-lg p-4">
+                    <p id="vazio-outras" class="text-sm text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-[#161f30] border border-gray-200/80 dark:border-[#273449] rounded-lg p-4">
                         Nenhuma outra proposta no momento.
                     </p>
                 </div>
@@ -259,44 +259,44 @@
                         $statusAtual = strtolower($proposta->status ?? 'pendente');
 
                         $coresCard = [
-                            'aceita' => 'border-l-4 border-l-green-500 border-gray-200',
-                            'recusada' => 'border-l-4 border-l-red-500 border-gray-200',
-                            'cancelada' => 'border-l-4 border-l-gray-400 border-gray-200',
-                            'pendente' => 'border-l-4 border-l-amber-400 border-gray-200',
+                            'aceita' => 'border-l-4 border-l-green-500 border-gray-200 dark:border-[#273449]',
+                            'recusada' => 'border-l-4 border-l-red-500 border-gray-200 dark:border-[#273449]',
+                            'cancelada' => 'border-l-4 border-l-gray-400 border-gray-200 dark:border-[#273449]',
+                            'pendente' => 'border-l-4 border-l-amber-400 border-gray-200 dark:border-[#273449]',
                         ];
 
-                        $ehAutorCliente = (int) ($proposta->usuario_id ?? 0) === (int) $negociacao->cliente_id;
+                        $isAutorCliente = (int) ($proposta->usuario_id ?? 0) === (int) $negociacao->cliente_id;
                         $statusPendente = $statusAtual === 'pendente';
-                        $is_AutorDaProposta = $usuarioLogado && (int) $usuarioLogado->id === (int) $proposta->usuario_id;
-                        $is_GerenciadorDoProduto = $podeGerenciarPropostas;
+                        $isAutorDaProposta = $usuarioLogado && (int) $usuarioLogado->id === (int) $proposta->usuario_id;
+                        $isGerenciadorDoProduto = $podeGerenciarPropostas;
                     @endphp
 
                     <div
                         id="card-proposta-{{ $proposta->id }}"
                         data-status="{{ $statusAtual }}"
-                        class="rounded-lg border {{ $coresCard[$statusAtual] ?? $coresCard['pendente'] }} p-4 mb-4 bg-white shadow-sm"
+                        class="rounded-lg border {{ $coresCard[$statusAtual] ?? $coresCard['pendente'] }} p-4 mb-4 bg-white dark:bg-[#111827] shadow-sm"
                     >
                         {{-- Cabeçalho da Proposta --}}
-                        <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-3">
+                        <div class="flex items-center justify-between border-b border-gray-100 dark:border-[#273449] pb-3 mb-3">
                             <div class="flex items-center gap-3 flex-wrap">
-                                <div class="flex items-center gap-1.5 text-gray-700 font-semibold">
-                                    <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div class="flex items-center gap-1.5 text-gray-700 dark:text-gray-200 font-semibold">
+                                    <svg class="w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                     </svg>
                                     <span>{{ $proposta->usuario->nome ?? $proposta->usuario->name ?? 'Usuário' }}</span>
                                 </div>
 
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
-                                    {{ $ehAutorCliente ? 'Cliente' : 'Fornecedor' }}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-blue-800/60">
+                                    {{ $isAutorCliente ? 'Cliente' : 'Fornecedor' }}
                                 </span>
 
                                 <span
                                     id="status-proposta-{{ $proposta->id }}"
                                     class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border capitalize
-                                        {{ $statusAtual === 'aceita' ? 'bg-green-100 text-green-800 border-green-200' : '' }}
-                                        {{ $statusAtual === 'recusada' ? 'bg-red-100 text-red-800 border-red-200' : '' }}
-                                        {{ $statusAtual === 'cancelada' ? 'bg-gray-100 text-gray-600 border-gray-200' : '' }}
-                                        {{ $statusAtual === 'pendente' ? 'bg-amber-100 text-amber-800 border-amber-200' : '' }}"
+                                        {{ $statusAtual === 'aceita' ? 'bg-green-100 dark:bg-emerald-950/60 text-green-800 dark:text-emerald-300 border-green-200 dark:border-emerald-800/60' : '' }}
+                                        {{ $statusAtual === 'recusada' ? 'bg-red-100 dark:bg-red-950/60 text-red-800 dark:text-red-300 border-red-200 dark:border-red-800/60' : '' }}
+                                        {{ $statusAtual === 'cancelada' ? 'bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-700' : '' }}
+                                        {{ $statusAtual === 'pendente' ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800/60' : '' }}"
                                 >
                                     {{ ucfirst($statusAtual) }}
                                 </span>
@@ -304,22 +304,22 @@
                         </div>
 
                         {{-- Informações de Valor e Quantidade --}}
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 py-2 border-b border-gray-100">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 py-2 border-b border-gray-100 dark:border-[#273449]">
                             <div>
-                                <span class="font-bold text-gray-800">Valor Unitário:</span>
-                                <span class="text-gray-700">R$ {{ number_format($proposta->valor, 2, ',', '.') }}</span>
+                                <span class="font-bold text-gray-800 dark:text-gray-100">Valor Unitário:</span>
+                                <span class="text-gray-700 dark:text-gray-300">R$ {{ number_format($proposta->valor, 2, ',', '.') }}</span>
                             </div>
 
                             <div>
-                                <span class="font-bold text-gray-800">Quantidade:</span>
-                                <span class="text-gray-700">{{ $proposta->quantidade }} {{ $unidadeOferta }}</span>
+                                <span class="font-bold text-gray-800 dark:text-gray-100">Quantidade:</span>
+                                <span class="text-gray-700 dark:text-gray-300">{{ $proposta->quantidade }} {{ $unidadeOferta }}</span>
                             </div>
                         </div>
 
                         {{-- Observação --}}
                         <div class="mt-3">
-                            <span class="block font-bold text-gray-800 mb-1">Observação:</span>
-                            <div class="p-3 bg-gray-50 rounded-md border border-gray-100 text-gray-600 text-sm">
+                            <span class="block font-bold text-gray-800 dark:text-gray-100 mb-1">Observação:</span>
+                            <div class="p-3 bg-gray-50 dark:bg-[#161f30] rounded-md border border-gray-200/80 dark:border-[#273449] text-gray-600 dark:text-gray-300 text-sm">
                                 {{ $proposta->observacao ?? 'Sem observação' }}
                             </div>
                         </div>
@@ -327,27 +327,27 @@
                         @if($statusPendente)
                             <div
                                 id="acoes-proposta-{{ $proposta->id }}"
-                                class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-end gap-2"
+                                class="mt-4 pt-3 border-t border-gray-100 dark:border-[#273449] flex items-center justify-end gap-2"
                             >
-                                @if($is_AutorDaProposta && !$is_GerenciadorDoProduto)
+                                @if($isAutorDaProposta && ! $isGerenciadorDoProduto)
                                     <form action="{{ route('propostas.cancelar', $proposta->id) }}" method="POST">
                                         @csrf
                                         @method('PATCH')
 
                                         <button
                                             type="submit"
-                                            class="p-2 rounded-md text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 border border-gray-300 transition-colors cursor-pointer">
+                                            class="p-2 rounded-md text-xs font-semibold text-gray-600 dark:text-gray-200 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 border border-gray-300 dark:border-slate-600 transition-colors cursor-pointer">
                                             Cancelar Proposta
                                         </button>
                                     </form>
-                                @elseif($is_GerenciadorDoProduto)
+                                @elseif($isGerenciadorDoProduto)
                                     <form action="{{ route('propostas.recusar', $proposta->id) }}" method="POST">
                                         @csrf
                                         @method('PATCH')
 
                                         <button
                                             type="submit"
-                                            class="p-2 rounded-md text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors cursor-pointer">
+                                            class="p-2 rounded-md text-xs font-semibold text-red-600 dark:text-red-300 bg-red-50 dark:bg-red-950/60 hover:bg-red-100 dark:hover:bg-red-900/50 border border-red-200 dark:border-red-800/60 transition-colors cursor-pointer">
                                             Recusar Proposta
                                         </button>
                                     </form>
@@ -369,7 +369,7 @@
                     </div>
                 @empty
                     <div id="lista-propostas-vazia"
-                        class="text-center py-6 text-gray-500">
+                        class="text-center py-6 text-gray-500 dark:text-gray-400">
                         Nenhuma proposta foi realizada ainda.
                     </div>
                 @endforelse
@@ -381,54 +381,54 @@
 {{-- Pop-up de confirmação --}}
 <div
     id="modalConfirmarProposta"
-    class="hidden fixed inset-0 z-50 items-center justify-center bg-black/50 px-4">
+    class="hidden fixed inset-0 z-50 items-center justify-center bg-black/50 dark:bg-black/70 px-4">
 
-    <div class="bg-white w-full max-w-md rounded-2xl shadow-xl overflow-hidden">
-        <div class="px-6 py-5 border-b border-gray-200">
+    <div class="bg-white dark:bg-[#111827] w-full max-w-md rounded-2xl shadow-xl border border-gray-200 dark:border-[#273449] overflow-hidden text-left">
+        <div class="px-6 py-5 border-b border-gray-200 dark:border-[#273449]">
             <div class="flex items-center gap-3">
-                <div class="w-11 h-11 rounded-full bg-green-100 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-green-600">handshake</span>
+                <div class="w-11 h-11 rounded-full bg-green-100 dark:bg-emerald-950/60 flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-green-600 dark:text-emerald-400 leading-none">handshake</span>
                 </div>
                 <div>
-                    <h2 class="text-lg font-bold text-gray-800">Confirmar proposta</h2>
-                    <p class="text-sm text-gray-500">Confira os valores antes de aceitar.</p>
+                    <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100">Confirmar proposta</h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Confira os valores antes de aceitar.</p>
                 </div>
             </div>
         </div>
 
         <div class="p-6">
             <div class="space-y-3">
-                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                    <span class="text-sm text-gray-500">Valor por unidade</span>
-                    <strong id="modalValor" class="text-gray-800"></strong>
+                <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-[#161f30] border border-transparent dark:border-[#273449] rounded-lg">
+                    <span class="text-sm text-gray-500 dark:text-gray-400">Valor por unidade</span>
+                    <strong id="modalValor" class="text-gray-800 dark:text-gray-100"></strong>
                 </div>
 
-                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                    <span class="text-sm text-gray-500">Quantidade</span>
-                    <strong id="modalQuantidade" class="text-gray-800"></strong>
+                <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-[#161f30] border border-transparent dark:border-[#273449] rounded-lg">
+                    <span class="text-sm text-gray-500 dark:text-gray-400">Quantidade</span>
+                    <strong id="modalQuantidade" class="text-gray-800 dark:text-gray-100"></strong>
                 </div>
 
-                <div class="flex justify-between items-center p-3 bg-green-50 border border-green-100 rounded-lg">
-                    <span class="text-sm font-medium text-green-700">Valor total</span>
-                    <strong id="modalTotal" class="text-lg text-[#236350]"></strong>
+                <div class="flex justify-between items-center p-3 bg-green-50 dark:bg-emerald-950/50 border border-green-100 dark:border-emerald-800/60 rounded-lg">
+                    <span class="text-sm font-medium text-green-700 dark:text-emerald-300">Valor total</span>
+                    <strong id="modalTotal" class="text-lg text-[#236350] dark:text-emerald-400"></strong>
                 </div>
             </div>
 
-            <div class="mt-4 p-3 bg-amber-50 border border-amber-100 rounded-lg">
+            <div class="mt-4 p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-100 dark:border-amber-800/60 rounded-lg">
                 <div class="flex gap-2">
-                    <span class="material-symbols-outlined text-amber-600 text-lg">warning</span>
-                    <p class="text-xs text-amber-800">
+                    <span class="material-symbols-outlined text-amber-600 dark:text-amber-400 text-lg leading-none shrink-0">warning</span>
+                    <p class="text-xs text-amber-800 dark:text-amber-200">
                         Ao aceitar, esta proposta será confirmada e a quantidade será contabilizada na oferta.
                     </p>
                 </div>
             </div>
         </div>
 
-        <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-2">
+        <div class="px-6 py-4 bg-gray-50 dark:bg-[#161f30] border-t border-gray-200 dark:border-[#273449] flex justify-end gap-2">
             <button
                 type="button"
                 onclick="fecharModalProposta()"
-                class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 bg-white border border-gray-200 hover:bg-gray-100 transition-colors cursor-pointer">
+                class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-[#111827] border border-gray-200 dark:border-[#273449] hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors cursor-pointer">
                 Cancelar
             </button>
             <button
@@ -440,8 +440,6 @@
         </div>
     </div>
 </div>
-@endsection
-
 @push('scripts')
 <script>
     let formularioProposta = null;
@@ -602,10 +600,10 @@ document.addEventListener('DOMContentLoaded', function () {
         };
 
         const cores = {
-            aceita: ['bg-green-100', 'text-green-800', 'border-green-200'],
-            recusada: ['bg-red-100', 'text-red-800', 'border-red-200'],
-            cancelada: ['bg-gray-100', 'text-gray-600', 'border-gray-200'],
-            pendente: ['bg-amber-100', 'text-amber-800', 'border-amber-200']
+            aceita: ['bg-green-100', 'dark:bg-emerald-950/60', 'text-green-800', 'dark:text-emerald-300', 'border-green-200', 'dark:border-emerald-800/60'],
+            recusada: ['bg-red-100', 'dark:bg-red-950/60', 'text-red-800', 'dark:text-red-300', 'border-red-200', 'dark:border-red-800/60'],
+            cancelada: ['bg-gray-100', 'dark:bg-slate-800', 'text-gray-600', 'dark:text-gray-300', 'border-gray-200', 'dark:border-slate-700'],
+            pendente: ['bg-amber-100', 'dark:bg-amber-950/60', 'text-amber-800', 'dark:text-amber-300', 'border-amber-200', 'dark:border-amber-800/60']
         };
 
         const statusAtual = proposta.status || 'pendente';
@@ -620,7 +618,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (card) {
             card.dataset.status = statusAtual;
             card.className =
-                'rounded-lg border border-gray-200 border-l-4 p-4 mb-4 bg-white shadow-sm';
+                'rounded-lg border border-gray-200 dark:border-[#273449] border-l-4 p-4 mb-4 bg-white dark:bg-[#111827] shadow-sm';
 
             const bordas = {
                 aceita: 'border-l-green-500',
@@ -669,7 +667,7 @@ document.addEventListener('DOMContentLoaded', function () {
         botao.type = 'submit';
         botao.className = tipo === 'aceitar'
             ? 'btn-copav p-2 rounded-md text-xs font-semibold text-white transition-colors cursor-pointer'
-            : 'p-2 rounded-md text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors cursor-pointer';
+            : 'p-2 rounded-md text-xs font-semibold text-red-600 dark:text-red-300 bg-red-50 dark:bg-red-950/60 hover:bg-red-100 dark:hover:bg-red-900/50 border border-red-200 dark:border-red-800/60 transition-colors cursor-pointer';
 
         botao.textContent = tipo === 'aceitar'
             ? 'Aceitar Proposta'
@@ -703,42 +701,42 @@ document.addEventListener('DOMContentLoaded', function () {
         const card = document.createElement('article');
         card.id = `card-proposta-${proposta.id}`;
         card.className =
-            'rounded-lg border border-gray-200 border-l-4 p-4 mb-4 bg-white shadow-sm';
+            'rounded-lg border border-gray-200 dark:border-[#273449] border-l-4 p-4 mb-4 bg-white dark:bg-[#111827] shadow-sm';
 
         const cabecalho = document.createElement('div');
         cabecalho.className =
-            'flex flex-wrap items-center gap-2 border-b border-gray-100 pb-3 mb-3';
+            'flex flex-wrap items-center gap-2 border-b border-gray-100 dark:border-[#273449] pb-3 mb-3';
 
         const autor = document.createElement('strong');
-        autor.className = 'text-gray-700';
+        autor.className = 'text-gray-700 dark:text-gray-200';
         autor.textContent = proposta.usuario_nome || 'Usuário';
         cabecalho.appendChild(autor);
 
-        const ehAutorCliente = Number(proposta.usuario_id) === clienteId;
+        const isAutorCliente = Number(proposta.usuario_id) === clienteId;
         const tipo = document.createElement('span');
         tipo.className =
-            'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100';
-        tipo.textContent = ehAutorCliente ? 'Cliente' : 'Fornecedor';
+            'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-blue-800/60';
+        tipo.textContent = isAutorCliente ? 'Cliente' : 'Fornecedor';
         cabecalho.appendChild(tipo);
 
         const status = document.createElement('span');
         status.id = `status-proposta-${proposta.id}`;
         status.className =
-            'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200 capitalize';
+            'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-slate-800 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-slate-700 capitalize';
         cabecalho.appendChild(status);
 
         card.appendChild(cabecalho);
 
         const detalhes = document.createElement('div');
         detalhes.className =
-            'grid grid-cols-1 sm:grid-cols-2 gap-4 py-2 border-b border-gray-100';
+            'grid grid-cols-1 sm:grid-cols-2 gap-4 py-2 border-b border-gray-100 dark:border-[#273449]';
 
         const valor = document.createElement('p');
-        valor.className = 'text-gray-700';
+        valor.className = 'text-gray-700 dark:text-gray-300';
         valor.textContent = `Valor Unitário: R$ ${formatarValor(proposta.valor)}`;
 
         const quantidade = document.createElement('p');
-        quantidade.className = 'text-gray-700';
+        quantidade.className = 'text-gray-700 dark:text-gray-300';
         quantidade.textContent =
             `Quantidade: ${formatarQuantidade(proposta.quantidade)}${unidade ? ' ' + unidade : ''}`;
 
@@ -746,13 +744,13 @@ document.addEventListener('DOMContentLoaded', function () {
         card.appendChild(detalhes);
 
         const observacaoTitulo = document.createElement('strong');
-        observacaoTitulo.className = 'block text-gray-800 mt-3 mb-1';
+        observacaoTitulo.className = 'block text-gray-800 dark:text-gray-100 mt-3 mb-1';
         observacaoTitulo.textContent = 'Observação:';
         card.appendChild(observacaoTitulo);
 
         const observacao = document.createElement('div');
         observacao.className =
-            'p-3 bg-gray-50 rounded-md border border-gray-100 text-gray-600 text-sm';
+            'p-3 bg-gray-50 dark:bg-[#161f30] rounded-md border border-gray-200/80 dark:border-[#273449] text-gray-600 dark:text-gray-300 text-sm';
         observacao.textContent = proposta.observacao || 'Sem observação';
         card.appendChild(observacao);
 
@@ -760,7 +758,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const acoes = document.createElement('div');
             acoes.id = `acoes-proposta-${proposta.id}`;
             acoes.className =
-                'mt-4 pt-3 border-t border-gray-100 flex items-center justify-end gap-2';
+                'mt-4 pt-3 border-t border-gray-100 dark:border-[#273449] flex items-center justify-end gap-2';
 
             acoes.appendChild(criarFormulario(proposta, 'recusar'));
             acoes.appendChild(criarFormulario(proposta, 'aceitar'));
@@ -799,3 +797,4 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 @endpush
+@endsection

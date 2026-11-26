@@ -1,1 +1,65 @@
 @import "tailwindcss";
+
+@custom-variant dark (&:where(.tema-escuro, .tema-escuro *, [data-theme="dark"], [data-theme="dark"] *));
+
+:root {
+    --bg-canvas: #ebeae7;
+    --bg-card: #ffffff;
+    --bg-subtle: #f9fafb;
+    --border-subtle: #e5e7eb;
+    --text-primary: #111827;
+    --text-secondary: #4b5563;
+    --text-muted: #6b7280;
+    --accent-copav: #236350;
+    --accent-copav-hover: #1a493b;
+}
+
+html.tema-escuro {
+    --bg-canvas: #090d16;
+    --bg-card: #111827;
+    --bg-subtle: #161f30;
+    --border-subtle: #273449;
+    --text-primary: #f9fafb;
+    --text-secondary: #d1d5db;
+    --text-muted: #9ca3af;
+    --accent-copav: #236350;
+    --accent-copav-hover: #1a493b;
+}
+
+[x-cloak] {
+    display: none !important;
+}
+
+body {
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
+}
+
+/* Botão padrão COPAV consistente nos dois temas */
+.btn-copav {
+    background-color: var(--accent-copav);
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-copav:hover {
+    background-color: var(--accent-copav-hover);
+    color: #ffffff;
+}
+
+/* Menu desktop responsivo */
+.menu-desktop {
+    display: none;
+}
+
+@media (min-width: 1024px) {
+    .menu-desktop {
+        display: flex;
+    }
+}
+
+.nav-link:hover {
+    color: #fcd34d;
+}

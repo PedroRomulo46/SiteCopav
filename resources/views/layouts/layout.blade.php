@@ -6,324 +6,9 @@
     <title>@yield('title', 'Meu Marketplace')</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=block" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css"/>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-    <style>
-        [x-cloak] { display: none !important; }
-
-        /* Fundo padrão (modo claro) */
-        html:not(.tema-escuro) body {
-            background-color: #ebeae7;
-            color: #111827;
-        }
-
-        /* Modo escuro explícito */
-        html.tema-escuro body {
-            background-color: #090d16;
-            color: #f3f4f6;
-        }
-
-        /* Títulos e textos gerais no modo escuro */
-        html.tema-escuro main h1,
-        html.tema-escuro main h2,
-        html.tema-escuro main h3,
-        html.tema-escuro main h4,
-        html.tema-escuro nav[aria-label="Breadcrumb"] {
-            color: #f9fafb;
-        }
-
-        html.tema-escuro main p {
-            color: #9ca3af;
-        }
-
-        /* Cartões e blocos com bg-white no modo escuro (excluindo dropdowns e busca) */
-        html.tema-escuro .card,
-        html.tema-escuro main .bg-white:not([x-show]) {
-            background-color: #111827 !important;
-            color: #f3f4f6 !important;
-            border-color: #1f2937 !important;
-        }
-
-        /* Blocos internos claros (como "SUA ÚLTIMA PROPOSTA") no modo escuro */
-        html.tema-escuro main .bg-gray-50 {
-            background-color: #1f2937 !important;
-            border-color: #374151 !important;
-        }
-
-        html.tema-escuro main .bg-gray-50 p,
-        html.tema-escuro main .bg-gray-50 strong {
-            color: #e5e7eb !important;
-        }
-
-        /* Inputs dentro de formulários no modo escuro (sem quebrar a barra de busca do topo) */
-        html.tema-escuro main input,
-        html.tema-escuro main textarea,
-        html.tema-escuro main select {
-            background-color: #1f2937 !important;
-            color: #f9fafb !important;
-            border-color: #374151 !important;
-        }
-
-        /* Verde do valor mais claro e legível no modo escuro */
-        html.tema-escuro .card-vitrine .text-\[\#1B4D3E\],
-        html.tema-escuro .card-vitrine .text-\[\#236350\] {
-            color: #34d399 !important;
-        }
-
-        /* Barras divisórias internas do card no modo escuro com tom cinza da descrição */
-        html.tema-escuro .card-vitrine .border-gray-100,
-        html.tema-escuro .card-vitrine .border-t {
-            border-color: #515356 !important;
-        }
-
-        /* Breadcrumb no modo claro */
-        html:not(.tema-escuro) nav[aria-label="Breadcrumb"] a {
-            color: #4b5563;
-        }
-
-        html:not(.tema-escuro) nav[aria-label="Breadcrumb"] span:not(.material-symbols-outlined) {
-            color: #1f2937;
-        }
-
-        /* Breadcrumb no modo escuro */
-        html.tema-escuro nav[aria-label="Breadcrumb"] a {
-            color: #9ca3af !important;
-        }
-
-        html.tema-escuro nav[aria-label="Breadcrumb"] a:hover {
-            color: #f9fafb !important;
-        }
-
-        html.tema-escuro nav[aria-label="Breadcrumb"] span:not(.material-symbols-outlined) {
-            color: #f9fafb !important;
-        }
-
-        html.tema-escuro nav[aria-label="Breadcrumb"] .material-symbols-outlined {
-            color: #9ca3af !important;
-        }
-
-        html:not(.tema-escuro) .container-home {
-            background-color: #ebeae7;
-        }
-
-        html.tema-escuro .container-home {
-            background-color: transparent;
-        }
-
-        /* Recupera textos que usavam classes escuras do Tailwind nas views */
-        html.tema-escuro main .text-gray-900,
-        html.tema-escuro main .text-gray-800,
-        html.tema-escuro main .text-slate-900,
-        html.tema-escuro main .text-slate-800 {
-            color: #f9fafb !important;
-        }
-
-        html.tema-escuro main .text-gray-700,
-        html.tema-escuro main .text-slate-700 {
-            color: #e5e7eb !important;
-        }
-
-        html.tema-escuro main .text-gray-600,
-        html.tema-escuro main .text-slate-600 {
-            color: #d1d5db !important;
-        }
-
-        html.tema-escuro main .text-gray-500,
-        html.tema-escuro main .text-slate-500 {
-            color: #9ca3af !important;
-        }
-
-        /* Valores e destaques em verde escuro ficam mais claros e legíveis */
-        html.tema-escuro main .text-\[\#1B4D3E\],
-        html.tema-escuro main .text-\[\#236350\],
-        html.tema-escuro main .text-emerald-800,
-        html.tema-escuro main .text-emerald-700,
-        html.tema-escuro main .text-green-800,
-        html.tema-escuro main .text-green-700 {
-            color: #34d399 !important;
-        }
-
-        /* Caixas internas cinza claro (bg-gray-50 / bg-slate-50 / bg-gray-100) */
-        html.tema-escuro main .bg-gray-50,
-        html.tema-escuro main .bg-slate-50,
-        html.tema-escuro main .bg-gray-100,
-        html.tema-escuro main .bg-slate-100 {
-            background-color: #1f2937 !important;
-            border-color: #374151 !important;
-        }
-
-        /* Caixas e badges verde claro ("Em estoque: 800 kg", "Publicada", "Pago", "Aceita") */
-        html.tema-escuro main .bg-emerald-50,
-        html.tema-escuro main .bg-green-50,
-        html.tema-escuro main .bg-emerald-100,
-        html.tema-escuro main .bg-green-100 {
-            background-color: rgba(16, 185, 129, 0.14) !important;
-            border-color: rgba(52, 211, 153, 0.35) !important;
-            color: #6ee7b7 !important;
-        }
-
-        /* Garante que ícones e textos dentro desses blocos verdes sigam o verde suave */
-        html.tema-escuro main .bg-emerald-50 *,
-        html.tema-escuro main .bg-green-50 *,
-        html.tema-escuro main .bg-emerald-100 *,
-        html.tema-escuro main .bg-green-100 * {
-            color: #6ee7b7 !important;
-        }
-
-        /* Linhas e bordas muito claras nas views */
-        html.tema-escuro main .border-gray-200,
-        html.tema-escuro main .border-gray-100,
-        html.tema-escuro main .border-slate-200 {
-            border-color: #374151 !important;
-        }
-
-        /* Botões secundários claros (bg-slate-200 / bg-gray-200) no modo escuro */
-        html.tema-escuro main .bg-slate-200,
-        html.tema-escuro main .bg-gray-200 {
-            background-color: #1f2937 !important;
-            color: #f3f4f6 !important;
-            border: 1px solid #374151 !important;
-        }
-
-        html.tema-escuro main .bg-slate-200:hover,
-        html.tema-escuro main .bg-gray-200:hover {
-            background-color: #374151 !important;
-            color: #ffffff !important;
-        }
-
-        /* Garante que .btn-copav mantenha letra branca em qualquer estado no modo escuro */
-        html.tema-escuro .btn-copav,
-        html.tema-escuro main .btn-copav {
-            background-color: #236350 !important;
-            color: #ffffff !important;
-        }
-
-        html.tema-escuro .btn-copav:hover,
-        html.tema-escuro main .btn-copav:hover {
-            background-color: #1a493b !important;
-            color: #ffffff !important;
-        }
-
-        /* Fundo do painel de gestão (bg-[#123228]) mais harmônico no modo escuro */
-        html.tema-escuro main section.bg-\[\#123228\] {
-            background-color: #0f172a !important;
-            border: 1px solid #1e293b !important;
-        }
-
-        html.tema-escuro main section.bg-\[\#123228\] .border-emerald-800 {
-            border-color: #1e293b !important;
-        }
-
-        /* Caixas / linhas de propostas no modo escuro */
-        html.tema-escuro main .bg-gray-100,
-        html.tema-escuro main .bg-slate-100,
-        html.tema-escuro main .bg-gray-50,
-        html.tema-escuro main .bg-slate-50,
-        html.tema-escuro main .divide-y > * {
-            background-color: #161f30 !important;
-            border-color: #273449 !important;
-        }
-
-        html.tema-escuro main .divide-y {
-            border-color: #273449 !important;
-        }
-
-        /* Selos amarelos / âmbar ("Maior valor", "Pendente") no modo escuro */
-        html.tema-escuro main .bg-amber-50,
-        html.tema-escuro main .bg-amber-100,
-        html.tema-escuro main .bg-yellow-50,
-        html.tema-escuro main .bg-yellow-100 {
-            background-color: rgba(245, 158, 11, 0.16) !important;
-            border-color: rgba(251, 191, 36, 0.35) !important;
-            color: #fcd34d !important;
-        }
-
-        html.tema-escuro main .bg-amber-50 *,
-        html.tema-escuro main .bg-amber-100 *,
-        html.tema-escuro main .bg-yellow-50 *,
-        html.tema-escuro main .bg-yellow-100 * {
-            color: #fcd34d !important;
-        }
-
-        /* Garante contraste branco nos botões de confirmar em modais no modo escuro */
-        html.tema-escuro [role="dialog"] button[type="submit"],
-        html.tema-escuro .modal button[type="submit"],
-        html.tema-escuro .modal-box button[type="submit"],
-        html.tema-escuro .fixed button[type="submit"] {
-            color: #ffffff !important;
-        }
-
-        html.tema-escuro [role="dialog"] button[type="submit"] *,
-        html.tema-escuro .modal button[type="submit"] *,
-        html.tema-escuro .modal-box button[type="submit"] *,
-        html.tema-escuro .fixed button[type="submit"] * {
-            color: #ffffff !important;
-        }
-
-        /* Dropdowns / menus flutuantes brancos mantêm texto escuro e legível */
-        [x-show].bg-white,
-        [x-show] .bg-white {
-            background-color: #ffffff !important;
-            color: #1f2937 !important;
-        }
-
-        [x-show].bg-white a,
-        [x-show].bg-white button,
-        [x-show] .bg-white a,
-        [x-show] .bg-white button {
-            color: #1f2937 !important;
-        }
-
-        a.btn-copav,
-        button.btn-copav,
-        .btn.btn-copav,
-        html:not(.tema-escuro) a.btn-copav,
-        html:not(.tema-escuro) button.btn-copav,
-        html.tema-escuro a.btn-copav,
-        html.tema-escuro button.btn-copav {
-            background-color: #236350 !important;
-            color: #ffffff !important;
-            border: none !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            opacity: 1 !important;
-            visibility: visible !important;
-        }
-
-        a.btn-copav:hover,
-        button.btn-copav:hover,
-        .btn.btn-copav:hover,
-        html:not(.tema-escuro) a.btn-copav:hover,
-        html:not(.tema-escuro) button.btn-copav:hover,
-        html.tema-escuro a.btn-copav:hover,
-        html.tema-escuro button.btn-copav:hover {
-            background-color: #1a493b !important;
-            color: #ffffff !important;
-        }
-
-        .btn-copav:hover {
-            background-color: #1a493b !important;
-            color: #ffffff !important;
-        }
-
-        /* Esconde no mobile/tablet e exibe flex no computador */
-        .menu-desktop {
-          display: none;
-        }
-        @media (min-width: 1024px) {
-          .menu-desktop {
-            display: flex !important;
-          }
-        }
-
-        .nav-link:hover {
-          color: #fcd34d !important;
-        }
-    </style>
+    @stack('styles')
 
     <script>
         (function () {
@@ -603,7 +288,7 @@
                                 <span class="material-symbols-outlined text-base">list</span>
                                 Ver Todas
                             </a>
-                        @else
+                        @elseif($isFornecedorLayout)
                             <a
                                 href="{{ route('categorias.sugerir') }}"
                                 @click="categoriasMenuAberto = false"
@@ -624,7 +309,9 @@
                         </a>
                     @endauth
 
-                    <div class="border-t border-gray-100 my-1"></div>
+                    @if($isAdminLayout || $isFornecedorLayout || auth()->guest())
+                        <div class="border-t border-gray-100 my-1"></div>
+                    @endif
 
                     @forelse($categorias ?? [] as $categoria)
                         <a
@@ -728,7 +415,7 @@
                       x-show="usuarioMenuAberto"
                       x-cloak
                       x-transition.origin.top.right
-                      class="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-200 p-2 z-100"
+                      class="absolute right-0 top-full mt-2 w-48 bg-white text-gray-800 rounded-xl shadow-xl border border-gray-200 p-2 z-100"
                   >
                       <a
                           href="{{ route('profile.show') }}"
@@ -754,7 +441,7 @@
                           @csrf
                           <button
                               type="submit"
-                              class="flex items-center gap-2 w-full px-3 py-2 rounded-md text-left text-error hover:bg-red-50 transition-colors duration-150 cursor-pointer"
+                              class="flex items-center gap-2 w-full px-3 py-2 rounded-md text-left text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-150 cursor-pointer"
                           >
                               <span class="material-symbols-outlined text-lg">logout</span>
                               <span>Sair</span>
@@ -825,7 +512,7 @@
                             >
                                 - Ver Todas -
                             </a>
-                        @else
+                        @elseif($isFornecedorLayout)
                             <a
                                 href="{{ route('categorias.sugerir') }}"
                                 class="p-1.5 text-md hover:bg-[#236350] rounded font-semibold flex items-center gap-1"
@@ -1087,7 +774,7 @@
                           );
 
                           return total + naoLidasGerais + naoLidasAssuntos;
-                    },
+                      },
                       0
                   );
               },
@@ -1747,8 +1434,8 @@
                     </div>
                 </template>
             </div>
-        </div>              
-        
+        </div>
+
         <!-- Lista de conversas -->
         <div
             x-show="!conversaSelecionada"
@@ -1842,8 +1529,6 @@
                 </p>
             </div>
         </div>
-
-
 
               <!-- Conversa selecionada -->
               <div

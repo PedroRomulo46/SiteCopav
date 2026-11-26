@@ -26,8 +26,10 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 // Ofertas públicas (index e show; create/store/edit/update/destroy protegidos abaixo)
 Route::resource('ofertas', OfertaController::class)->only(['index', 'show']);
 
-// Categorias públicas (index e show)
-Route::resource('categorias', CategoriaController::class)->only(['index', 'show']);
+// Categorias públicas (index e show apenas para ID numérico)
+Route::resource('categorias', CategoriaController::class)
+    ->only(['index', 'show'])
+    ->where(['categoria' => '[0-9]+']);
 
 // Pesquisa
 Route::get('/buscar', [BuscaController::class, 'index'])->name('buscar');

@@ -5,20 +5,23 @@
 @section('conteudo')
 
 {{-- Breadcrumbs com setas garantidas via ícone --}}
-<nav class="flex items-center text-sm mb-4 text-gray-600" aria-label="Breadcrumb">
+<nav class="flex items-center text-sm mb-4 text-gray-600 dark:text-gray-400" aria-label="Breadcrumb">
     <ol class="inline-flex items-center space-x-2">
 
         {{-- Item 1: Início --}}
-        <li>
-            <a href="{{ route('home') }}">
+        <li class="inline-flex items-center">
+            <a
+                href="{{ route('home') }}"
+                class="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-[#236350] dark:hover:text-emerald-400 transition-colors"
+            >
                 Início
             </a>
         </li>
 
         {{-- Item 2: Página Atual --}}
-        <li class="flex items-center space-x-2 hover:cursor-pointer">
-            <span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
-            <span class="font-semibold text-gray-800">
+        <li class="inline-flex items-center space-x-2">
+            <span class="material-symbols-outlined text-gray-400 dark:text-gray-500 text-sm leading-none">chevron_right</span>
+            <span class="font-semibold text-gray-800 dark:text-gray-100 leading-none">
                 @yield('title')
             </span>
         </li>
@@ -30,10 +33,10 @@
     {{-- Cabeçalho --}}
     <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8 w-full text-left">
         <div class="text-left w-full">
-            <h1 class="text-2xl font-bold text-gray-800 text-left">
+            <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100 text-left">
                 Painel de Compras
             </h1>
-            <p class="text-gray-500 mt-1 text-left">
+            <p class="text-gray-500 dark:text-gray-400 mt-1 text-left">
                 Acompanhe as propostas enviadas e o andamento das suas negociações com fornecedores.
             </p>
         </div>
@@ -41,16 +44,16 @@
 
     {{-- Mensagens --}}
     @if(session('sucesso'))
-        <div class="mb-5 w-full flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
-            <span class="material-symbols-outlined text-lg">check_circle</span>
-            {{ session('sucesso') }}
+        <div class="mb-5 w-full flex items-center gap-3 rounded-lg border border-green-200 dark:border-emerald-800/60 bg-green-50 dark:bg-emerald-950/50 px-4 py-3 text-sm text-green-800 dark:text-emerald-200">
+            <span class="material-symbols-outlined text-lg leading-none">check_circle</span>
+            <span>{{ session('sucesso') }}</span>
         </div>
     @endif
 
     @if(session('erro'))
-        <div class="mb-5 w-full flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-            <span class="material-symbols-outlined text-lg">error</span>
-            {{ session('erro') }}
+        <div class="mb-5 w-full flex items-center gap-3 rounded-lg border border-red-200 dark:border-red-800/60 bg-red-50 dark:bg-red-950/50 px-4 py-3 text-sm text-red-800 dark:text-red-200">
+            <span class="material-symbols-outlined text-lg leading-none">error</span>
+            <span>{{ session('erro') }}</span>
         </div>
     @endif
 
@@ -84,12 +87,12 @@
                 id="compra-negociacao-{{ $negociacao->id }}"
                 data-negociacao-id="{{ $negociacao->id }}"
                 data-status="{{ $compraAprovada ? 'aprovada' : ($minhaPropostaAceita ? 'aceita' : 'em_negociacao') }}"
-                class="group bg-white rounded-2xl border-3 overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 text-left
-                    {{ $compraAprovada ? 'border-sky-500' : ($minhaPropostaAceita ? 'border-emerald-600' : 'border-amber-400') }}"
+                class="group bg-white dark:bg-[#111827] rounded-2xl border-2 overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 text-left
+                    {{ $compraAprovada ? 'border-sky-500 dark:border-sky-400' : ($minhaPropostaAceita ? 'border-emerald-600 dark:border-emerald-400' : 'border-amber-400 dark:border-amber-400/80') }}"
             >
 
                 {{-- Imagem --}}
-                <div class="relative h-44 bg-gray-100 overflow-hidden">
+                <div class="relative h-44 bg-gray-100 dark:bg-slate-800 overflow-hidden">
                     <img
                         src="{{ $produto && $produto->imagem
                             ? (str_contains($produto->imagem, 'assets/')
@@ -106,11 +109,11 @@
                             class="status-compra inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-white text-xs font-semibold shadow-sm
                                 {{ $compraAprovada ? 'bg-sky-600' : ($minhaPropostaAceita ? 'bg-emerald-600' : 'bg-amber-500') }}"
                         >
-                            <span class="material-symbols-outlined text-sm">
+                            <span class="material-symbols-outlined text-sm leading-none">
                                 {{ $compraAprovada ? 'verified' : ($minhaPropostaAceita ? 'check_circle' : 'pending') }}
                             </span>
 
-                            <span class="texto-status-compra">
+                            <span class="texto-status-compra leading-none">
                                 {{ $compraAprovada ? 'Compra Aprovada' : ($minhaPropostaAceita ? 'Proposta Aceita' : 'Em Negociação') }}
                             </span>
                         </span>
@@ -122,27 +125,27 @@
 
                     {{-- Produto e Fornecedor --}}
                     <div class="mb-4 text-left">
-                        <h2 class="text-xl font-bold text-gray-800 text-left">
+                        <h2 class="text-xl font-bold text-gray-800 dark:text-gray-100 text-left">
                             {{ $produto->nome ?? 'Produto' }}
                         </h2>
-                        <p class="text-sm text-gray-500 mt-1 text-left flex items-center gap-1">
-                            <span class="material-symbols-outlined text-base">store</span>
-                            Fornecedor: <strong>{{ $fornecedor->nome ?? 'Copav' }}</strong>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 text-left flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-base leading-none shrink-0">store</span>
+                            <span>Fornecedor: <strong class="text-gray-700 dark:text-gray-200">{{ $fornecedor->nome ?? 'Copav' }}</strong></span>
                         </p>
                     </div>
 
                     {{-- Quantidade Solicitada e Valor Enviado --}}
                     @if($ultimaProposta)
-                        <div class="rounded-xl bg-gray-50 border border-gray-100 p-4 mb-4 text-left">
-                            <p class="text-xs uppercase tracking-wide font-medium text-gray-400 mb-1">
+                        <div class="rounded-xl bg-gray-50 dark:bg-[#161f30] border border-gray-200/80 dark:border-[#273449] p-4 mb-4 text-left">
+                            <p class="text-xs uppercase tracking-wide font-medium text-gray-400 dark:text-gray-500 mb-1">
                                 Sua última proposta
                             </p>
-                            <p class="text-2xl font-bold text-[#236350]">
+                            <p class="text-2xl font-bold text-[#236350] dark:text-emerald-400">
                                 R$ {{ number_format($ultimaProposta->valor, 2, ',', '.') }}
-                                <span class="text-xs text-gray-500 font-normal">/ {{ $unidade }}</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400 font-normal">/ {{ $unidade }}</span>
                             </p>
-                            <p class="text-xs text-gray-600 mt-1">
-                                Qtd. proposta: <strong>{{ number_format($ultimaProposta->quantidade ?? 0, 0, ',', '.') }} {{ $unidade }}</strong>
+                            <p class="text-xs text-gray-600 dark:text-gray-300 mt-1">
+                                Qtd. proposta: <strong class="text-gray-800 dark:text-gray-100">{{ number_format($ultimaProposta->quantidade ?? 0, 0, ',', '.') }} {{ $unidade }}</strong>
                             </p>
                         </div>
                     @endif
@@ -168,9 +171,9 @@
                         <a
                             id="botao-compra-{{ $negociacao->id }}"
                             href="{{ $rotaBotao }}"
-                            class="btn-copav flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors"
+                            class="btn-copav flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg text-sm font-semibold text-white transition-colors"
                         >
-                            <span class="material-symbols-outlined text-lg icone-botao-compra">
+                            <span class="material-symbols-outlined text-lg leading-none icone-botao-compra">
                                 {{ $iconeBotao }}
                             </span>
 
@@ -187,18 +190,21 @@
     @else
 
         {{-- Estado Vazio para Compras --}}
-        <div class="bg-white rounded-2xl border border-gray-200 p-12 text-center shadow-sm w-full">
-            <div class="w-16 h-16 mx-auto rounded-full bg-gray-100 flex items-center justify-center">
-                <span class="material-symbols-outlined text-gray-400 text-3xl">shopping_bag</span>
+        <div class="bg-white dark:bg-[#111827] rounded-2xl border border-gray-200 dark:border-[#273449] p-12 text-center shadow-sm w-full">
+            <div class="w-16 h-16 mx-auto rounded-full bg-gray-100 dark:bg-slate-800 flex items-center justify-center">
+                <span class="material-symbols-outlined text-gray-400 dark:text-gray-500 text-3xl leading-none">shopping_bag</span>
             </div>
-            <h2 class="text-xl font-bold text-gray-700 mt-4">
+            <h2 class="text-xl font-bold text-gray-700 dark:text-gray-100 mt-4">
                 Nenhuma compra em andamento
             </h2>
-            <p class="text-sm text-gray-500 mt-1">
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                 Você ainda não enviou propostas para ofertas. Explore os lotes disponíveis para iniciar uma negociação!
             </p>
-            <a href="{{ route('ofertas.index') }}" class="btn-copav inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold mt-4 text-sm">
-                Explorar Lotes
+            <a
+                href="{{ route('ofertas.index') }}"
+                class="btn-copav inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-white mt-4 text-sm transition-colors"
+            >
+                <span>Explorar Lotes</span>
             </a>
         </div>
 
@@ -227,8 +233,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 const status = document.getElementById(`status-compra-${negociacaoId}`);
                 const botao = document.getElementById(`botao-compra-${negociacaoId}`);
 
-                card.classList.remove('border-amber-400', 'border-amber-500', 'border-emerald-600');
-                card.classList.add('border-sky-500');
+                card.classList.remove('border-amber-400', 'border-amber-500', 'border-emerald-600', 'dark:border-emerald-400');
+                card.classList.add('border-sky-500', 'dark:border-sky-400');
 
                 if (status) {
                     status.classList.remove('bg-amber-500', 'bg-emerald-600');
