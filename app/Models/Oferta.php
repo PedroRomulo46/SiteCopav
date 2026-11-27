@@ -49,4 +49,9 @@ class Oferta extends Model
             'negociacao_id'
         );
     }
+
+    public function comentarios()
+    {
+        return $this->hasMany(Comentario::class)->latest();
+    }
 }

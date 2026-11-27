@@ -17,6 +17,8 @@ use App\Http\Controllers\PagamentoController;
 use App\Http\Controllers\BuscaController;
 use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\CompraController;
+use App\Http\Controllers\ComentarioController;
+use App\Http\Controllers\Admin\FornecedorMapaController;
 
 // =========================================================================
 // ROTAS PÚBLICAS (Visitantes e Autenticados)
@@ -111,6 +113,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    // Comentários
+    Route::post('/ofertas/{oferta}/comentarios', [ComentarioController::class, 'store'])
+        ->name('ofertas.comentarios.store');
+
     // Logística e Pagamentos
     Route::get('/compras/{negociacao}/encomenda', [CompraController::class, 'encomenda'])->name('compras.encomenda');
     Route::get('/negociacoes/{negociacao}/pagamento', [PagamentoController::class, 'show'])->name('pagamentos.show');
@@ -140,6 +146,7 @@ Route::middleware('auth')->group(function () {
     // =====================================================================
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/mapa-fornecedores', [FornecedorMapaController::class, 'index'])->name('fornecedores.mapa');
     });
 
     Route::middleware('role:admin')->group(function () {

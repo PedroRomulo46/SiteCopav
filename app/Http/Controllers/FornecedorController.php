@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Categoria;
 use App\Models\Fornecedor;
 use Illuminate\Http\Request;
 
@@ -49,6 +50,7 @@ class FornecedorController extends Controller
 
         $dados['user_id'] = $user->id;
         $dados['status'] = 'ativo';
+        $dados['estado'] = strtoupper($dados['estado']);
 
         Fornecedor::create($dados);
 
@@ -56,7 +58,6 @@ class FornecedorController extends Controller
             $user->update(['user_type' => 'fornecedor']);
         }
 
-        // Recarrega relação e usuário para o middleware/rotas subsequentes reconhecerem o papel
         $user->unsetRelation('fornecedor');
 
         return redirect()
@@ -66,7 +67,40 @@ class FornecedorController extends Controller
 
     public function show(Fornecedor $fornecedor)
     {
-        return view('fornecedores.show', compact('fornecedor'));
+        $fornecedor->load([
+            'categorias',
+            'ofertas' => function ($query) {
+                $query->where('status', 'publicada')
+                    ->with('produto.categoria')
+                    ->latest();
+            },
+        ]);
+
+        $todasCategorias = Categoria::orderBy('nome')->get();
+
+        $categoriasSelecionadasIds = $fornecedor->categorias
+            ->pluck('id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+
+        if (empty($categoriasSelecionadasIds)) {
+            $categoriasSelecionadasIds = $fornecedor->ofertas
+                ->pluck('produto.categoria.id')
+                ->filter()
+                ->map(fn ($id) => (int) $id)
+                ->unique()
+                ->values()
+                ->all();
+        }
+
+        $principaisOfertas = $fornecedor->ofertas->take(6);
+
+        return view('fornecedores.show', compact(
+            'fornecedor',
+            'todasCategorias',
+            'categoriasSelecionadasIds',
+            'principaisOfertas'
+        ));
     }
 
     public function edit(Fornecedor $fornecedor)
@@ -78,7 +112,10 @@ class FornecedorController extends Controller
             abort(403);
         }
 
-        return view('fornecedores.edit', compact('fornecedor'));
+        $fornecedor->load('categorias');
+        $categorias = Categoria::orderBy('nome')->get();
+
+        return view('fornecedores.edit', compact('fornecedor', 'categorias'));
     }
 
     public function update(Request $request, Fornecedor $fornecedor)
@@ -98,9 +135,14 @@ class FornecedorController extends Controller
             'endereco' => 'required|string|max:255',
             'cidade' => 'required|string|max:255',
             'estado' => 'required|string|size:2',
+            'categorias' => 'nullable|array',
+            'categorias.*' => 'integer|exists:categorias,id',
         ]);
 
+        $dados['estado'] = strtoupper($dados['estado']);
+
         $fornecedor->update($dados);
+        $fornecedor->categorias()->sync($dados['categorias'] ?? []);
 
         return redirect()
             ->route('fornecedores.show', $fornecedor)

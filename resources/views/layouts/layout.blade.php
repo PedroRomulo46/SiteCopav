@@ -43,7 +43,7 @@
             usuarioMenuAberto: false,
             categoriasMenuAberto: false
         }"
-        class="bg-[#1B4D3E] text-white shadow-md w-full"
+        class="bg-[#1B4D3E] dark:bg-emerald-700 text-white shadow-md w-full transition-colors duration-200"
     >
       <div class="w-full px-4 sm:px-6 lg:px-10 py-3 flex flex-col gap-3">
 
@@ -295,7 +295,7 @@
         </div>
 
         {{-- LINHA INFERIOR (DESKTOP) --}}
-        <div class="menu-desktop items-center justify-between text-sm border-t border-[#236350] pt-2.5 text-gray-100 w-full">
+        <div class="menu-desktop items-center justify-between text-sm border-t border-[#236350] dark:border-emerald-600 pt-2.5 text-gray-100 w-full">
 
           {{-- Links de Navegação Principal --}}
           <nav class="flex items-center gap-6 font-medium">
@@ -311,88 +311,7 @@
               @endif
             @endauth
 
-            {{-- Dropdown Categorias --}}
-            <div
-                class="relative"
-                @click.outside="categoriasMenuAberto = false"
-                @keydown.escape.window="categoriasMenuAberto = false"
-            >
-                <button
-                    type="button"
-                    @click="categoriasMenuAberto = !categoriasMenuAberto"
-                    :aria-expanded="categoriasMenuAberto"
-                    class="flex items-center gap-1 nav-link transition-colors cursor-pointer py-1 focus:outline-none"
-                >
-                    <span>Categorias</span>
-                    <span
-                        class="material-symbols-outlined text-base transition-transform duration-200"
-                        :class="categoriasMenuAberto ? 'rotate-180' : ''"
-                    >
-                        expand_more
-                    </span>
-                </button>
-
-                <div
-                    x-show="categoriasMenuAberto"
-                    x-cloak
-                    x-transition:enter="transition ease-out duration-200"
-                    x-transition:enter-start="opacity-0 -translate-y-2 scale-95"
-                    x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                    x-transition:leave="transition ease-in duration-150"
-                    x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-                    x-transition:leave-end="opacity-0 -translate-y-2 scale-95"
-                    class="absolute left-0 top-full mt-2 w-56 bg-white text-gray-800 rounded-xl shadow-xl border border-gray-200 p-2 z-100 max-h-60 overflow-y-auto origin-top-left"
-                >
-                    @auth
-                        @if($isAdminLayout)
-                            <a
-                                href="{{ route('categorias.index') }}"
-                                @click="categoriasMenuAberto = false"
-                                class="flex items-center gap-2 px-3 py-2 rounded-md font-bold text-[#1B4D3E] hover:bg-emerald-50 transition-colors"
-                            >
-                                <span class="material-symbols-outlined text-base">list</span>
-                                Ver Todas
-                            </a>
-                        @elseif($isFornecedorLayout)
-                            <a
-                                href="{{ route('categorias.sugerir') }}"
-                                @click="categoriasMenuAberto = false"
-                                class="flex items-center gap-2 px-3 py-2 rounded-md font-bold text-amber-700 hover:bg-amber-50 transition-colors"
-                            >
-                                <span class="material-symbols-outlined text-base">add</span>
-                                Sugerir Categoria
-                            </a>
-                        @endif
-                    @else
-                        <a
-                            href="{{ route('login') }}"
-                            @click="categoriasMenuAberto = false"
-                            class="flex items-center gap-2 px-3 py-2 rounded-md font-bold text-amber-700 hover:bg-amber-50 transition-colors"
-                        >
-                            <span class="material-symbols-outlined text-base">add</span>
-                            Sugerir Categoria
-                        </a>
-                    @endauth
-
-                    @if($isAdminLayout || $isFornecedorLayout || auth()->guest())
-                        <div class="border-t border-gray-100 my-1"></div>
-                    @endif
-
-                    @forelse($categorias ?? [] as $categoria)
-                        <a
-                            href="{{ route('categorias.show', $categoria->id) }}"
-                            @click="categoriasMenuAberto = false"
-                            class="block px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-emerald-50 hover:text-[#1B4D3E] transition-colors"
-                        >
-                            {{ $categoria->nome }}
-                        </a>
-                    @empty
-                        <div class="text-xs text-gray-400 p-2 text-center">
-                            Nenhuma categoria encontrada
-                        </div>
-                    @endforelse
-                </div>
-            </div>
+            <a href="{{ route('categorias.index') }}" class="nav-link transition-colors">Categorias</a>
           </nav>
 
           {{-- Ações do Usuário / Autenticação --}}
@@ -404,39 +323,39 @@
                   <span>Minhas compras</span>
               </a>
 
-              @if($isFornecedorLayout || $isAdminLayout)
-                  <a href="{{ route('negociacoes.vendas') }}"
-                    class="flex items-center gap-1.5 nav-link transition-colors">
-                      <span class="material-symbols-outlined text-lg">storefront</span>
-                      <span>Minhas Vendas</span>
+                @if($isFornecedorLayout || $isAdminLayout)
+                    <a href="{{ route('negociacoes.vendas') }}"
+                        class="flex items-center gap-1.5 nav-link transition-colors">
+                        <span class="material-symbols-outlined text-lg">storefront</span>
+                        <span>Minhas Vendas</span>
+                    </a>
+                @endif
+
+                @if(! $isFornecedorLayout)
+                    <a href="{{ route('fornecedores.create') }}" class="flex items-center gap-1.5 nav-link transition-colors">
+                    <span class="material-symbols-outlined text-lg">patient_list</span>
+                    <span>Virar Fornecedor</span>
+                    </a>
+                @else
+                    <a href="{{ route('fornecedores.show', $usuarioLayout->fornecedor) }}" class="flex items-center gap-1.5 nav-link transition-colors">
+                    <span class="material-symbols-outlined text-lg">patient_list</span>
+                    <span>Menu Fornecedor</span>
+                    </a>
+                @endif
+
+                @if($podeGerenciarDemandasLayout)
+                    <a href="{{ route('demandas.create') }}" class="flex items-center gap-1.5 nav-link transition-colors">
+                    <span class="material-symbols-outlined text-lg">add_circle</span>
+                    <span>Criar Demanda</span>
+                    </a>
+                @endif
+              
+                @if($isAdminLayout)
+                  <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-1.5 nav-link transition-colors">
+                    <span class="material-symbols-outlined text-lg">dashboard</span>
+                    <span>Admin</span>
                   </a>
-              @endif
-
-              @if(! $isFornecedorLayout)
-                <a href="{{ route('fornecedores.create') }}" class="flex items-center gap-1.5 nav-link transition-colors">
-                  <span class="material-symbols-outlined text-lg">patient_list</span>
-                  <span>Virar Fornecedor</span>
-                </a>
-              @else
-                <a href="{{ route('fornecedores.show', $usuarioLayout->fornecedor) }}" class="flex items-center gap-1.5 nav-link transition-colors">
-                  <span class="material-symbols-outlined text-lg">patient_list</span>
-                  <span>Menu Fornecedor</span>
-                </a>
-              @endif
-
-              @if($isAdminLayout)
-                <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-1.5 nav-link transition-colors">
-                  <span class="material-symbols-outlined text-lg">dashboard</span>
-                  <span>Admin</span>
-                </a>
-              @endif
-
-              @if($podeGerenciarDemandasLayout)
-                <a href="{{ route('demandas.create') }}" class="flex items-center gap-1.5 nav-link transition-colors">
-                  <span class="material-symbols-outlined text-lg">add_circle</span>
-                  <span>Criar Demanda</span>
-                </a>
-              @endif
+                @endif
 
               {{-- Menu do Usuário Logado --}}
               <div
@@ -542,70 +461,7 @@
               @endif
             @endauth
 
-            <div x-data="{ openCat: false }">
-                <button
-                    type="button"
-                    @click="openCat = !openCat"
-                    :aria-expanded="openCat"
-                    class="flex items-center justify-between w-full p-2 hover:bg-[#236350] rounded-md text-left"
-                >
-                    <span>Categorias</span>
-                    <span
-                        class="material-symbols-outlined text-sm transition-transform duration-200"
-                        :class="openCat ? 'rotate-180' : ''"
-                    >
-                        expand_more
-                    </span>
-                </button>
-
-                <div
-                    x-show="openCat"
-                    x-cloak
-                    x-transition:enter="transition ease-out duration-200"
-                    x-transition:enter-start="opacity-0 -translate-y-2"
-                    x-transition:enter-end="opacity-100 translate-y-0"
-                    x-transition:leave="transition ease-in duration-150"
-                    x-transition:leave-start="opacity-100 translate-y-0"
-                    x-transition:leave-end="opacity-0 -translate-y-2"
-                    class="pl-4 flex flex-col gap-1 mt-1"
-                >
-                    @auth
-                        @if($isAdminLayout)
-                            <a
-                                href="{{ route('categorias.index') }}"
-                                class="p-1.5 text-md text-amber-200 hover:bg-[#236350] rounded font-semibold flex items-center gap-1"
-                            >
-                                - Ver Todas -
-                            </a>
-                        @elseif($isFornecedorLayout)
-                            <a
-                                href="{{ route('categorias.sugerir') }}"
-                                class="p-1.5 text-md hover:bg-[#236350] rounded font-semibold flex items-center gap-1"
-                            >
-                                <span class="material-symbols-outlined text-sm">add</span>
-                                Sugerir Categoria
-                            </a>
-                        @endif
-                    @else
-                        <a
-                            href="{{ route('login') }}"
-                            class="p-1.5 text-md hover:bg-[#236350] rounded font-semibold flex items-center gap-1"
-                        >
-                            <span class="material-symbols-outlined text-sm">add</span>
-                            Sugerir Categoria
-                        </a>
-                    @endauth
-
-                    @foreach($categorias ?? [] as $categoria)
-                        <a
-                            href="{{ route('categorias.show', $categoria->id) }}"
-                            class="p-1.5 text-md hover:bg-[#236350] rounded"
-                        >
-                            {{ $categoria->nome }}
-                        </a>
-                    @endforeach
-                </div>
-            </div>
+            <a href="{{ route('categorias.index') }}" class="hover:bg-[#236350] p-2 rounded-md">Categorias</a>
           </nav>
 
           <div class="border-t border-[#236350] pt-2 flex flex-col gap-1">
@@ -636,19 +492,19 @@
                 </a>
               @endif
 
-              @if($isAdminLayout)
-                <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
-                  <span class="material-symbols-outlined text-lg">dashboard</span>
-                  <span>Admin</span>
-                </a>
-              @endif
-
               @if($podeGerenciarDemandasLayout)
                 <a href="{{ route('demandas.create') }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
                   <span class="material-symbols-outlined text-lg">add_circle</span>
                   <span>Criar Demanda</span>
                 </a>
-              @endif
+                @endif
+              
+                @if($isAdminLayout)
+                  <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2 p-2 hover:bg-[#236350] rounded-md">
+                    <span class="material-symbols-outlined text-lg">dashboard</span>
+                    <span>Menu Admin</span>
+                  </a>
+                @endif
 
               <a href="{{ route('profile.show') }}"
                 class="flex w-full items-center gap-2 p-2 rounded-md text-white hover:bg-[#236350] transition-colors duration-200">
@@ -1433,7 +1289,7 @@
               style="display: none;"
           >
             <!-- Cabeçalho -->
-            <div class="flex min-h-[68px] items-center justify-between bg-[#1B4D3E] px-4 py-3 text-white">
+            <div class="flex min-h-68px items-center justify-between bg-[#1B4D3E] px-4 py-3 text-white">
 
                 <div class="flex min-w-0 flex-1 items-center gap-3">
 
