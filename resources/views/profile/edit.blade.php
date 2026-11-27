@@ -204,7 +204,7 @@
     </div>
 
     {{-- Aparência / Modo Escuro --}}
-    <div id="cardAparencia" class="bg-white dark:bg-[#111827] rounded-2xl shadow-sm border border-gray-200 dark:border-[#273449] transition-colors duration-200">
+    <div id="cardAparencia" class="bg-white dark:bg-[#111827] rounded-2xl shadow-sm border border-gray-200 dark:border-[#273449] transition-colors duration-300">
         <div class="p-4 sm:p-6">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div class="min-w-0 flex-1">
@@ -217,10 +217,10 @@
                 <button
                     type="button"
                     id="btnToggleDarkMode"
-                    onclick="alternarModoEscuro()"
-                    class="inline-flex w-full sm:w-auto items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium border border-gray-300 dark:border-[#273449] bg-white dark:bg-[#161f30] text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-slate-800 shrink-0 cursor-pointer transition-colors"
+                    onclick="alternarModoEscuro(event)"
+                    class="inline-flex w-full sm:w-auto items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium border border-gray-300 dark:border-[#273449] bg-white dark:bg-[#161f30] text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-slate-800 shrink-0 cursor-pointer transition-all duration-200 active:scale-95"
                 >
-                    <span id="iconeModoEscuro" class="material-symbols-outlined text-xl leading-none">dark_mode</span>
+                    <span id="iconeModoEscuro" class="material-symbols-outlined text-xl leading-none transition-transform duration-300">dark_mode</span>
                     <span id="textoModoEscuro">Ativar modo escuro</span>
                 </button>
             </div>
@@ -390,15 +390,20 @@
 </div>
 
 <script>
+    let animandoTema = false;
+
     function sincronizarBotaoTema(ativado) {
         const icone = document.getElementById('iconeModoEscuro');
         const texto = document.getElementById('textoModoEscuro');
 
-        if (icone) icone.textContent = ativado ? 'light_mode' : 'dark_mode';
+        if (icone) {
+            icone.textContent = ativado ? 'light_mode' : 'dark_mode';
+            icone.style.transform = ativado ? 'rotate(180deg)' : 'rotate(0deg)';
+        }
         if (texto) texto.textContent = ativado ? 'Modo escuro ativado' : 'Ativar modo escuro';
     }
 
-    function aplicarTemaEscuro(ativado) {
+    function mutarEstadoTema(ativado) {
         const html = document.documentElement;
 
         if (ativado) {
@@ -414,14 +419,86 @@
         sincronizarBotaoTema(ativado);
     }
 
-    function alternarModoEscuro() {
+    function animarOndaTema(ativado, event = null) {
+        if (animandoTema) return;
+
+        const prefereMenosMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (prefereMenosMovimento) {
+            mutarEstadoTema(ativado);
+            return;
+        }
+
+        animandoTema = true;
+
+        const botao = document.getElementById('btnToggleDarkMode');
+        const rect = botao ? botao.getBoundingClientRect() : null;
+
+        const x = event && typeof event.clientX === 'number' && event.clientX > 0
+            ? event.clientX
+            : (rect ? rect.left + rect.width / 2 : window.innerWidth / 2);
+
+        const y = event && typeof event.clientY === 'number' && event.clientY > 0
+            ? event.clientY
+            : (rect ? rect.top + rect.height / 2 : window.innerHeight / 2);
+
+        const raioMax = Math.hypot(
+            Math.max(x, window.innerWidth - x),
+            Math.max(y, window.innerHeight - y)
+        );
+
+        const corFundo = ativado ? '#090d16' : '#ebeae7';
+        const corBorda = ativado ? 'rgba(16, 185, 129, 0.35)' : 'rgba(35, 99, 80, 0.25)';
+
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            pointer-events: none;
+            background: radial-gradient(circle at ${x}px ${y}px, ${corFundo} 0%, ${corFundo} 96%, ${corBorda} 100%);
+            clip-path: circle(0px at ${x}px ${y}px);
+            opacity: 1;
+            will-change: clip-path, opacity;
+        `;
+
+        document.body.appendChild(overlay);
+
+        const animacao = overlay.animate(
+            [
+                { clipPath: `circle(0px at ${x}px ${y}px)`, opacity: 0.95 },
+                { clipPath: `circle(${raioMax}px at ${x}px ${y}px)`, opacity: 1 },
+                { clipPath: `circle(${raioMax * 1.05}px at ${x}px ${y}px)`, opacity: 0 }
+            ],
+            {
+                duration: 720,
+                easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+                fill: 'forwards'
+            }
+        );
+
+        // Aplica o tema real a meio da expansão para o conteúdo já surgir por baixo
+        setTimeout(() => {
+            mutarEstadoTema(ativado);
+        }, 280);
+
+        const concluir = () => {
+            mutarEstadoTema(ativado);
+            overlay.remove();
+            animandoTema = false;
+        };
+
+        animacao.onfinish = concluir;
+        animacao.oncancel = concluir;
+    }
+
+    function alternarModoEscuro(event = null) {
         const estaEscuro = document.documentElement.classList.contains('tema-escuro');
-        aplicarTemaEscuro(!estaEscuro);
+        animarOndaTema(!estaEscuro, event);
     }
 
     document.addEventListener('DOMContentLoaded', function () {
         const salvo = localStorage.getItem('tema_escuro') === '1';
-        aplicarTemaEscuro(salvo);
+        mutarEstadoTema(salvo);
     });
 
     function previewAvatar(event) {

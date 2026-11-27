@@ -36,6 +36,7 @@ html[data-theme="dark"] {
 body {
     background-color: var(--bg-canvas);
     color: var(--text-primary);
+    transition: background-color 280ms ease, color 280ms ease;
 }
 
 /* Botão padrão COPAV consistente nos dois temas */
@@ -68,8 +69,4 @@ html[data-theme="dark"] .btn-copav:hover {
     .menu-desktop {
         display: flex;
     }
-}
-
-.nav-link:hover {
-    color: #fcd34d;
 }

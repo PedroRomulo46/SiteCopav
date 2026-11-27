@@ -9,6 +9,24 @@
     $podeGerenciarFornecedor = $usuarioAtual !== null
         && ((int) $usuarioAtual->id === (int) $fornecedor->user_id || $isAdmin);
 
+    $rawFotoFornecedor = $fornecedor->imagem
+        ?? $fornecedor->foto
+        ?? $fornecedor->avatar
+        ?? $fornecedor->usuario?->imagem
+        ?? $fornecedor->usuario?->avatar
+        ?? null;
+
+    $fotoFornecedorUrl = null;
+    if (! empty($rawFotoFornecedor)) {
+        if (str_starts_with($rawFotoFornecedor, 'http://') || str_starts_with($rawFotoFornecedor, 'https://')) {
+            $fotoFornecedorUrl = $rawFotoFornecedor;
+        } elseif (str_contains($rawFotoFornecedor, 'assets/')) {
+            $fotoFornecedorUrl = asset($rawFotoFornecedor);
+        } else {
+            $fotoFornecedorUrl = asset('storage/' . ltrim(str_replace('public/', '', $rawFotoFornecedor), '/'));
+        }
+    }
+
     $categoriasDisponiveis = collect($todasCategorias ?? \App\Models\Categoria::orderBy('nome')->get());
 
     $idsSelecionados = collect($categoriasSelecionadasIds ?? ($fornecedor->relationLoaded('categorias')
@@ -70,8 +88,21 @@
     {{-- Card Principal --}}
     <div class="w-full bg-white dark:bg-[#111827] rounded-xl shadow-md border border-gray-200 dark:border-[#273449] p-6 sm:p-8 overflow-hidden">
 
-        {{-- Cabeçalho Centralizado --}}
+        {{-- Cabeçalho Centralizado com Foto de Perfil --}}
         <div class="flex flex-col items-center justify-center text-center gap-4 mb-6 pb-6 border-b border-gray-200 dark:border-[#273449] w-full">
+
+            {{-- Foto de Perfil do Fornecedor --}}
+            <div class="w-24 h-24 rounded-full overflow-hidden bg-emerald-50 dark:bg-emerald-950/60 border-2 border-emerald-200 dark:border-emerald-700/60 shadow-sm flex items-center justify-center shrink-0">
+                @if($fotoFornecedorUrl)
+                    <img
+                        src="{{ $fotoFornecedorUrl }}"
+                        alt="Foto de perfil de {{ $fornecedor->nome }}"
+                        class="w-full h-full object-cover"
+                    >
+                @else
+                    <span class="material-symbols-outlined text-4xl text-[#236350] dark:text-emerald-400 leading-none">storefront</span>
+                @endif
+            </div>
 
             {{-- Título --}}
             <div class="w-full text-center">
