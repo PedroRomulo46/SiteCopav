@@ -3,6 +3,16 @@
 
 @section('conteudo')
 
+@php
+    $listaCategorias = collect($categorias ?? \App\Models\Categoria::orderBy('nome')->get());
+
+    $categoriasSelecionadas = collect(old('categorias',
+        method_exists($fornecedor, 'categorias') && $fornecedor->relationLoaded('categorias')
+            ? $fornecedor->categorias->pluck('id')->all()
+            : (method_exists($fornecedor, 'categorias') ? $fornecedor->categorias()->pluck('categorias.id')->all() : [])
+    ))->map(fn ($id) => (int) $id)->all();
+@endphp
+
 {{-- Breadcrumbs com setas garantidas via ícone --}}
 <nav class="flex items-center text-sm mb-6 text-gray-600 dark:text-gray-400" aria-label="Breadcrumb">
     <ol class="inline-flex items-center space-x-2">
@@ -53,7 +63,7 @@
         </div>
     @endif
 
-    <form action="{{ route('fornecedores.update', $fornecedor) }}" method="POST" class="space-y-4">
+    <form action="{{ route('fornecedores.update', $fornecedor) }}" method="POST" class="space-y-5">
         @csrf
         @method('PUT')
 
@@ -68,7 +78,7 @@
                     name="nome"
                     value="{{ old('nome', $fornecedor->nome) }}"
                     required
-                    class="p-3 w-full rounded-md text-sm bg-white dark:bg-[#161f30] text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border {{ $errors->has('nome') ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-[#273449]' }} shadow-sm outline-none transition focus:ring-1 focus:ring-[#236350] focus:border-[#236350] dark:focus:border-emerald-400">
+                    class="p-3 w-full rounded-lg text-sm bg-white dark:bg-[#161f30] text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border {{ $errors->has('nome') ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-[#273449]' }} shadow-sm outline-none transition focus:ring-2 focus:ring-[#236350] focus:border-[#236350] dark:focus:border-emerald-400">
             </div>
 
             {{-- Documento --}}
@@ -80,7 +90,7 @@
                     name="documento"
                     value="{{ old('documento', $fornecedor->documento) }}"
                     required
-                    class="p-3 w-full rounded-md text-sm bg-white dark:bg-[#161f30] text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border {{ $errors->has('documento') ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-[#273449]' }} shadow-sm outline-none transition focus:ring-1 focus:ring-[#236350] focus:border-[#236350] dark:focus:border-emerald-400">
+                    class="p-3 w-full rounded-lg text-sm bg-white dark:bg-[#161f30] text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border {{ $errors->has('documento') ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-[#273449]' }} shadow-sm outline-none transition focus:ring-2 focus:ring-[#236350] focus:border-[#236350] dark:focus:border-emerald-400">
             </div>
 
             {{-- Telefone --}}
@@ -92,7 +102,7 @@
                     name="telefone"
                     value="{{ old('telefone', $fornecedor->telefone) }}"
                     required
-                    class="p-3 w-full rounded-md text-sm bg-white dark:bg-[#161f30] text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border {{ $errors->has('telefone') ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-[#273449]' }} shadow-sm outline-none transition focus:ring-1 focus:ring-[#236350] focus:border-[#236350] dark:focus:border-emerald-400">
+                    class="p-3 w-full rounded-lg text-sm bg-white dark:bg-[#161f30] text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border {{ $errors->has('telefone') ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-[#273449]' }} shadow-sm outline-none transition focus:ring-2 focus:ring-[#236350] focus:border-[#236350] dark:focus:border-emerald-400">
             </div>
 
             {{-- Descrição --}}
@@ -102,7 +112,7 @@
                     id="descricao"
                     name="descricao"
                     rows="3"
-                    class="p-3 w-full rounded-md text-sm bg-white dark:bg-[#161f30] text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border {{ $errors->has('descricao') ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-[#273449]' }} shadow-sm outline-none transition focus:ring-1 focus:ring-[#236350] focus:border-[#236350] dark:focus:border-emerald-400">{{ old('descricao', $fornecedor->descricao) }}</textarea>
+                    class="p-3 w-full rounded-lg text-sm bg-white dark:bg-[#161f30] text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border {{ $errors->has('descricao') ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-[#273449]' }} shadow-sm outline-none transition focus:ring-2 focus:ring-[#236350] focus:border-[#236350] dark:focus:border-emerald-400">{{ old('descricao', $fornecedor->descricao) }}</textarea>
             </div>
 
             {{-- Endereço --}}
@@ -114,7 +124,7 @@
                     name="endereco"
                     value="{{ old('endereco', $fornecedor->endereco) }}"
                     required
-                    class="p-3 w-full rounded-md text-sm bg-white dark:bg-[#161f30] text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border {{ $errors->has('endereco') ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-[#273449]' }} shadow-sm outline-none transition focus:ring-1 focus:ring-[#236350] focus:border-[#236350] dark:focus:border-emerald-400">
+                    class="p-3 w-full rounded-lg text-sm bg-white dark:bg-[#161f30] text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border {{ $errors->has('endereco') ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-[#273449]' }} shadow-sm outline-none transition focus:ring-2 focus:ring-[#236350] focus:border-[#236350] dark:focus:border-emerald-400">
             </div>
 
             {{-- Cidade --}}
@@ -126,7 +136,7 @@
                     name="cidade"
                     value="{{ old('cidade', $fornecedor->cidade) }}"
                     required
-                    class="p-3 w-full rounded-md text-sm bg-white dark:bg-[#161f30] text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border {{ $errors->has('cidade') ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-[#273449]' }} shadow-sm outline-none transition focus:ring-1 focus:ring-[#236350] focus:border-[#236350] dark:focus:border-emerald-400">
+                    class="p-3 w-full rounded-lg text-sm bg-white dark:bg-[#161f30] text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border {{ $errors->has('cidade') ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-[#273449]' }} shadow-sm outline-none transition focus:ring-2 focus:ring-[#236350] focus:border-[#236350] dark:focus:border-emerald-400">
             </div>
 
             {{-- Estado --}}
@@ -139,10 +149,41 @@
                     maxlength="2"
                     value="{{ old('estado', $fornecedor->estado) }}"
                     required
-                    class="p-3 w-full rounded-md text-sm bg-white dark:bg-[#161f30] text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border {{ $errors->has('estado') ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-[#273449]' }} shadow-sm outline-none transition focus:ring-1 focus:ring-[#236350] focus:border-[#236350] dark:focus:border-emerald-400 uppercase">
+                    class="p-3 w-full rounded-lg text-sm bg-white dark:bg-[#161f30] text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border {{ $errors->has('estado') ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-[#273449]' }} shadow-sm outline-none transition focus:ring-2 focus:ring-[#236350] focus:border-[#236350] dark:focus:border-emerald-400 uppercase">
             </div>
 
         </div>
+
+        {{-- Categorias em foco (Tags) --}}
+        @if($listaCategorias->isNotEmpty())
+            <div class="pt-4 border-t border-gray-200 dark:border-[#273449]">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                    Categorias de atuação (tags):
+                </label>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                    Selecione as categorias do site em que você foca suas vendas.
+                </p>
+
+                <div class="flex flex-wrap gap-2">
+                    @foreach($listaCategorias as $categoria)
+                        @php $marcada = in_array((int) $categoria->id, $categoriasSelecionadas, true); @endphp
+                        <label class="cursor-pointer select-none">
+                            <input
+                                type="checkbox"
+                                name="categorias[]"
+                                value="{{ $categoria->id }}"
+                                {{ $marcada ? 'checked' : '' }}
+                                class="peer sr-only"
+                            >
+                            <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-colors bg-gray-50 dark:bg-[#161f30] text-gray-700 dark:text-gray-300 border-gray-300 dark:border-[#273449] hover:border-[#236350] dark:hover:border-emerald-500 peer-checked:bg-emerald-50 dark:peer-checked:bg-emerald-950/70 peer-checked:text-[#236350] dark:peer-checked:text-emerald-300 peer-checked:border-[#236350] dark:peer-checked:border-emerald-500">
+                                <span class="material-symbols-outlined text-sm leading-none">label</span>
+                                <span>{{ $categoria->nome }}</span>
+                            </span>
+                        </label>
+                    @endforeach
+                </div>
+            </div>
+        @endif
 
         <div class="flex items-center justify-between gap-3 mt-6 pt-4 border-t border-gray-200 dark:border-[#273449]">
             <a

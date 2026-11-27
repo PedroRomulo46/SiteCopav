@@ -84,9 +84,19 @@
                 </h1>
 
                 <!-- Link do Fornecedor -->
-                <a href="#" class="inline-block mt-1 text-xs font-semibold text-[#236350] dark:text-emerald-400 hover:underline">
-                    Loja de {{ $oferta->fornecedor->nome ?? 'Fornecedor Copav' }}
-                </a>
+                @if($oferta->fornecedor)
+                    <a
+                        href="{{ route('fornecedores.show', $oferta->fornecedor) }}"
+                        class="inline-flex items-center gap-1 mt-1 text-xs font-semibold text-[#236350] dark:text-emerald-400 hover:underline transition-colors"
+                    >
+                        <span class="material-symbols-outlined text-sm leading-none">storefront</span>
+                        <span>Visite a loja de {{ $oferta->fornecedor->nome ?? 'Fornecedor Copav' }}</span>
+                    </a>
+                @else
+                    <span class="inline-block mt-1 text-xs font-semibold text-[#236350] dark:text-emerald-400">
+                        Loja de Fornecedor Copav
+                    </span>
+                @endif
             </div>
 
             <!-- Avaliações -->

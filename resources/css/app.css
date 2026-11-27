@@ -12,9 +12,11 @@
     --text-muted: #6b7280;
     --accent-copav: #236350;
     --accent-copav-hover: #1a493b;
+    --accent-copav-text: #ffffff;
 }
 
-html.tema-escuro {
+html.tema-escuro,
+html[data-theme="dark"] {
     --bg-canvas: #090d16;
     --bg-card: #111827;
     --bg-subtle: #161f30;
@@ -22,8 +24,9 @@ html.tema-escuro {
     --text-primary: #f9fafb;
     --text-secondary: #d1d5db;
     --text-muted: #9ca3af;
-    --accent-copav: #236350;
-    --accent-copav-hover: #1a493b;
+    --accent-copav: #047857;       /* emerald-700 (mesma tonalidade do cabeçalho) */
+    --accent-copav-hover: #065f46; /* emerald-800 */
+    --accent-copav-text: #ffffff;
 }
 
 [x-cloak] {
@@ -38,7 +41,7 @@ body {
 /* Botão padrão COPAV consistente nos dois temas */
 .btn-copav {
     background-color: var(--accent-copav);
-    color: #ffffff;
+    color: var(--accent-copav-text);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -46,7 +49,14 @@ body {
 
 .btn-copav:hover {
     background-color: var(--accent-copav-hover);
-    color: #ffffff;
+    color: var(--accent-copav-text);
+}
+
+html.tema-escuro .btn-copav,
+html[data-theme="dark"] .btn-copav,
+html.tema-escuro .btn-copav:hover,
+html[data-theme="dark"] .btn-copav:hover {
+    color: #ffffff !important;
 }
 
 /* Menu desktop responsivo */
