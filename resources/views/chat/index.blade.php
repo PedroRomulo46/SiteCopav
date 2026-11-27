@@ -14,7 +14,9 @@
             class="flex min-h-0 w-full flex-col overflow-hidden border-r border-gray-200 bg-white md:w-[340px] md:shrink-0 lg:w-[390px]"
             :class="conversaSelecionada ? 'hidden md:flex' : 'flex'"
         >
-            <div class="shrink-0 border-b border-gray-100 px-5 py-4">
+            
+            <div class="shrink-0 border-b border-gray-100 px-4 py-4">
+                {{-- TÍTULO E VOLTAR --}}
                 <div class="flex items-center gap-3">
                     <button
                         type="button"
@@ -25,12 +27,29 @@
                         <span class="material-symbols-outlined text-[23px]">arrow_back</span>
                     </button>
 
-                    <div>
-                        <h2 class="font-semibold text-gray-900">Suas conversas</h2>
+                    <div class="min-w-0 flex-1">
+                        <h2 class="font-semibold text-gray-900">
+                            Suas conversas
+                        </h2>
+
                         <p class="mt-1 text-xs text-gray-500">
                             {{ $chats->count() }} {{ $chats->count() === 1 ? 'conversa' : 'conversas' }}
                         </p>
                     </div>
+                </div>
+
+                {{-- PESQUISA --}}
+                <div class="relative mt-4 w-full">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[20px] text-gray-400">
+                        search
+                    </span>
+
+                    <input
+                        type="search"
+                        x-model="busca"
+                        placeholder="Pesquisar contato, assunto ou produto..."
+                        class="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-10 pr-4 text-sm text-gray-700 outline-none transition placeholder:text-gray-400 focus:border-[#236350] focus:bg-white focus:ring-1 focus:ring-[#236350]"
+                    >
                 </div>
             </div>
 
@@ -75,6 +94,7 @@
 
                 <button
                     type="button"
+                    x-show="!busca.trim()"
                     @click="abrirContato({{ $chat->id }})"
                     :class="Number(conversaSelecionada?.chat_id) === {{ $chat->id }}
                         ? 'border-l-4 border-[#236350] bg-[#E5EFEA]/70'
@@ -120,7 +140,7 @@
                                 x-show="totalNaoLidasContato({{ $chat->id }}) > 0"
                                 x-cloak
                                 x-text="totalNaoLidasContato({{ $chat->id }})"
-                                class="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#236350] px-1.5 text-[10px] font-semibold text-white"
+                                class="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full border border-[#236350]/20 bg-[#E5EFEA] px-1 text-[10px] font-bold text-[#1B4D3E]"
                             ></span>
                         </div>
                     </div>
@@ -145,6 +165,70 @@
                     </a>
                 </div>
             @endforelse
+
+            {{-- RESULTADOS DA PESQUISA --}}
+            <div
+                x-show="busca.trim().length > 0"
+                x-cloak
+                class="divide-y divide-gray-100"
+            >
+                <template x-for="contexto in resultadosBusca()" :key="contexto.contexto_chave">
+                    <button
+                        type="button"
+                        @click="selecionarContexto(contexto.contexto_chave)"
+                        class="flex w-full items-center gap-3 px-4 py-4 text-left transition hover:bg-[#E5EFEA]/50"
+                    >
+                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#E5EFEA] text-[#236350]">
+                            <span
+                                class="material-symbols-outlined"
+                                x-text="contexto.assunto_chat_id ? 'handshake' : 'chat'"
+                            ></span>
+                        </div>
+
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center justify-between gap-2">
+                                <p
+                                    class="truncate text-sm font-semibold text-gray-900"
+                                    x-text="contexto.participante"
+                                ></p>
+
+                                <span
+                                    x-show="Number(naoLidas[contexto.contexto_chave] || 0) > 0"
+                                    class="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full border border-[#236350]/20 bg-[#E5EFEA] px-1 text-[10px] font-bold text-[#1B4D3E]"
+                                    x-text="naoLidas[contexto.contexto_chave]"
+                                ></span>
+                            </div>
+
+                            <p
+                                class="mt-0.5 truncate text-xs font-medium text-[#236350]"
+                                x-text="contexto.titulo"
+                            ></p>
+
+                            <p
+                                class="mt-1 truncate text-xs text-gray-500"
+                                x-text="resumoContexto(contexto)"
+                            ></p>
+                        </div>
+
+                        <span class="material-symbols-outlined shrink-0 text-gray-400">
+                            chevron_right
+                        </span>
+                    </button>
+                </template>
+
+                <div
+                    x-show="resultadosBusca().length === 0"
+                    class="px-5 py-10 text-center"
+                >
+                    <span class="material-symbols-outlined text-3xl text-gray-300">search_off</span>
+                    <p class="mt-2 text-sm font-medium text-gray-600">
+                        Nenhum resultado encontrado
+                    </p>
+                    <p class="mt-1 text-xs text-gray-400">
+                        Tente pesquisar pelo nome, assunto ou produto.
+                    </p>
+                </div>
+            </div>
 
         @endif
 
@@ -274,10 +358,6 @@
                             x-text="conversaSelecionada?.participante"
                         ></h2>
 
-                        <p class="truncate text-xs text-gray-500">
-                            Conversa privada
-                        </p>
-
                         <p
                             class="truncate text-sm font-medium text-[#1B4D3E]"
                             x-text="conversaSelecionada?.titulo"
@@ -351,9 +431,6 @@
                         x-cloak
                         class="mt-1 space-y-2 pb-2"
                     >
-                        <p class="px-2 text-xs text-gray-500">
-                            Selecione uma conversa para visualizar suas mensagens.
-                        </p>
 
                         <template
                             x-for="contexto in contextosDoChat()"
@@ -394,7 +471,7 @@
                                 <span
                                     x-show="Number(naoLidas[contexto.contexto_chave] || 0) > 0"
                                     x-cloak
-                                    class="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-[#236350] px-1.5 text-[10px] font-semibold text-white"
+                                    class="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full border border-[#236350]/20 bg-[#E5EFEA] px-1 text-[10px] font-bold text-[#1B4D3E]"
                                     x-text="naoLidas[contexto.contexto_chave]"
                                 ></span>
 
@@ -406,44 +483,6 @@
                                 </span>
                             </button>
                         </template>
-
-                        {{-- Negociações vinculadas ao contexto atualmente selecionado --}}                        
-                        <template
-                            x-if="negociacoesDisponiveis().length > 0"
-                        >
-                            <div class="border-t border-gray-100 pt-3">
-                                <label class="mb-1.5 block px-1 text-xs font-medium text-gray-500">
-                                    Negociação relacionada
-                                </label>
-
-                                <select
-                                    x-model="negociacaoSelecionadaId"
-                                    @change="selecionarNegociacao(negociacaoSelecionadaId)"
-                                    class="block w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-700 outline-none transition focus:border-[#236350] focus:ring-1 focus:ring-[#236350]"
-                                >
-                                    <template
-                                        x-for="negociacao in negociacoesDisponiveis()"
-                                        :key="negociacao.id"
-                                    >
-                                        <option
-                                            :value="String(negociacao.id)"
-                                            x-text="negociacao.titulo + ' — ' + negociacao.produto"
-                                        ></option>
-                                    </template>
-                                </select>
-
-                                <p class="mt-1.5 px-1 text-[11px] text-gray-400">
-                                    Ao selecionar outra negociação, a conversa correspondente será aberta.
-                                </p>
-                            </div>
-                        </template>
-
-                        <p
-                            x-show="!conversaSelecionada?.assunto_chat_id"
-                            class="px-2 py-1 text-xs text-gray-400"
-                        >
-                            Esta é a conversa geral entre vocês.
-                        </p>
                     </div>
                 </div>
 
@@ -531,27 +570,51 @@
                         class="mx-auto max-w-md rounded-lg bg-red-50 p-3 text-center text-sm text-red-600"
                         x-text="erroMensagens"
                     ></div>
-
+          
                     <template x-for="mensagem in mensagens" :key="mensagem.id">
-                        <div
-                            class="flex"
-                            :class="Number(mensagem.usuario_id) === usuarioId ? 'justify-end' : 'justify-start'"
-                        >
+                        <div class="space-y-2">
+                            {{-- DIVISÓRIA DE NOVAS MENSAGENS --}}
                             <div
-                                class="max-w-[88%] rounded-2xl px-4 py-3 shadow-sm sm:max-w-[75%]"
-                                :class="Number(mensagem.usuario_id) === usuarioId
-                                    ? 'rounded-br-sm bg-[#D9F2DF] text-gray-800'
-                                    : 'rounded-bl-sm bg-white text-gray-800'"
+                                x-show="
+                                    marcadorNovasMensagens.id !== null &&
+                                    Number(mensagem.id) === Number(marcadorNovasMensagens.id)
+                                "
+                                x-cloak
+                                class="flex items-center gap-3 py-3"
                             >
-                                <p
-                                    class="whitespace-pre-wrap wrap-break-words text-sm leading-relaxed"
-                                    x-text="mensagem.conteudo"
-                                ></p>
+                                <div class="h-px flex-1 bg-[#236350]"></div>
 
-                                <p
-                                    class="mt-2 text-right text-[11px] text-gray-500"
-                                    x-text="formatarDataHora(mensagem.created_at)"
-                                ></p>
+                                <span class="flex h-5 min-w-5 shrink-0 items-center justify-center gap-1 rounded-full border border-[#236350]/20 bg-[#E5EFEA] px-2 text-[10px] font-bold text-[#1B4D3E]">
+                                    Novas mensagens:
+                                    <span x-text="marcadorNovasMensagens.quantidade"></span>
+                                </span>
+
+                                <div class="h-px flex-1 bg-[#236350]"></div>
+                            </div>
+
+                            {{-- MENSAGEM --}}
+                            <div
+                                class="flex"
+                                :class="Number(mensagem.usuario_id) === usuarioId
+                                    ? 'justify-end'
+                                    : 'justify-start'"
+                            >
+                                <div
+                                    class="max-w-[88%] rounded-2xl px-4 py-3 shadow-sm sm:max-w-[75%]"
+                                    :class="Number(mensagem.usuario_id) === usuarioId
+                                        ? 'rounded-br-sm bg-[#D9F2DF] text-gray-800'
+                                        : 'rounded-bl-sm bg-white text-gray-800'"
+                                >
+                                    <p
+                                        class="whitespace-pre-wrap wrap-break-words text-sm leading-relaxed"
+                                        x-text="mensagem.conteudo"
+                                    ></p>
+
+                                    <p
+                                        class="mt-2 text-right text-[11px] text-gray-500"
+                                        x-text="formatarDataHora(mensagem.created_at)"
+                                    ></p>
+                                </div>
                             </div>
                         </div>
                     </template>
@@ -586,7 +649,7 @@
                         rows="1"
                         maxlength="5000"
                         placeholder="Digite sua mensagem..."
-                        class="max-h-32 min-h-[44px] min-w-0 flex-1 resize-none rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 outline-none transition placeholder:text-gray-400 focus:border-[#236350] focus:ring-1 focus:ring-[#236350]"
+                        class="h-11 min-h-11 flex-1 resize-none rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 caret-[#1B4D3E] outline-none transition focus:border-[#236350] focus:ring-1 focus:ring-[#236350]"
                     ></textarea>
 
                     <div class="flex shrink-0 flex-col items-center gap-1">
@@ -599,9 +662,18 @@
                             :disabled="!mensagemNova.trim() || enviandoMensagem"
                             class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#236350] text-white transition hover:bg-[#1B4D3E] disabled:cursor-not-allowed disabled:opacity-40"
                             aria-label="Enviar mensagem"
+                            :title="enviandoMensagem ? 'Enviando mensagem...' : 'Enviar mensagem'"
                         >
-                            <span x-show="!enviandoMensagem" class="material-symbols-outlined">send</span>
-                            <span x-show="enviandoMensagem" class="material-symbols-outlined animate-spin">progress_activity</span>
+                            <span
+                                x-show="!enviandoMensagem"
+                                class="material-symbols-outlined text-xl"
+                            >send</span>
+
+                            <span
+                                x-show="enviandoMensagem"
+                                x-cloak
+                                class="material-symbols-outlined animate-spin text-xl"
+                            >progress_activity</span>
                         </button>
                     </div>
                 </form>
@@ -665,6 +737,7 @@ window.chatIndex = function () {
         usuarioId: {{ (int) auth()->id() }},
         csrfToken: @json(csrf_token()),
 
+        busca: '',
         conversas: [],
         conversaSelecionada: null,
         assuntoSelecionadoId: '',
@@ -672,6 +745,10 @@ window.chatIndex = function () {
         cardNegociacaoAberto: false,
         negociacaoSelecionadaId: '',
         mensagens: [],
+        marcadorNovasMensagens: {
+            id: null,
+            quantidade: 0
+        },
         mensagemNova: '',
 
         carregandoMensagens: false,
@@ -748,14 +825,72 @@ window.chatIndex = function () {
             });
         },
 
+        normalizarTexto(texto) {
+            return String(texto || '')
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .toLowerCase()
+                .trim();
+        },
+
+        resultadosBusca() {
+            const termo = this.normalizarTexto(this.busca);
+
+            if (!termo) return [];
+
+            return this.conversas
+                .map(contexto => {
+                    const negociacoes = contexto.negociacoes || [];
+
+                    const termosPesquisa = [
+                        contexto.participante,
+                        contexto.titulo,
+                        this.resumoContexto(contexto),
+                        ...negociacoes.map(item => item.titulo),
+                        ...negociacoes.map(item => item.produto)
+                    ];
+
+                    const corresponde = termosPesquisa.some(texto =>
+                        this.normalizarTexto(texto).includes(termo)
+                    );
+
+                    return corresponde ? contexto : null;
+                })
+                .filter(Boolean)
+                .sort((a, b) => {
+                    const dataA = a.ultima_mensagem_data
+                        ? new Date(a.ultima_mensagem_data).getTime()
+                        : 0;
+
+                    const dataB = b.ultima_mensagem_data
+                        ? new Date(b.ultima_mensagem_data).getTime()
+                        : 0;
+
+                    return dataB - dataA;
+                });
+        },
+
+        
         contextosDoChat() {
             if (!this.conversaSelecionada) return [];
 
-            return this.conversas.filter(
-                item =>
-                    Number(item.chat_id) ===
-                    Number(this.conversaSelecionada.chat_id)
-            );
+            return this.conversas
+                .filter(
+                    item =>
+                        Number(item.chat_id) ===
+                        Number(this.conversaSelecionada.chat_id)
+                )
+                .sort((a, b) => {
+                    const dataA = a.ultima_mensagem_data
+                        ? new Date(a.ultima_mensagem_data).getTime()
+                        : 0;
+
+                    const dataB = b.ultima_mensagem_data
+                        ? new Date(b.ultima_mensagem_data).getTime()
+                        : 0;
+
+                    return dataB - dataA;
+                });
         },
 
         negociacoesDisponiveis() {
@@ -1230,6 +1365,11 @@ window.chatIndex = function () {
                     }
 
                     this.mensagens = dados.mensagens || [];
+
+                    this.marcadorNovasMensagens = {
+                        id: dados.primeira_mensagem_nao_lida_id || null,
+                        quantidade: Number(dados.mensagens_nao_lidas || 0)
+                    };
 
                     // O controller já marcou somente este contexto como lido.
                     this.naoLidas[chave] = 0;

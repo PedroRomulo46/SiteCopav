@@ -336,11 +336,14 @@ class="{{ $mostrarConversaMobile ? 'hidden' : 'flex' }} min-h-0 w-full shrink-0 
 
                         <button
                             type="submit"
+                            disabled
                             class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#236350] text-white transition hover:bg-[#1B4D3E] disabled:cursor-not-allowed disabled:opacity-40"
                             aria-label="Enviar mensagem"
+                            title="Enviar mensagem"
                         >
                             <span id="texto-botao" class="hidden">Enviar</span>
-                            <span class="material-symbols-outlined text-xl">send</span>
+                            <span id="icone-enviar" class="material-symbols-outlined text-xl">send</span>
+                            <span id="icone-carregando" class="material-symbols-outlined hidden animate-spin text-xl">progress_activity</span>
                         </button>
 
                     </div>
@@ -397,6 +400,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const botao = formulario.querySelector('button[type="submit"]');
     const textoBotao = document.getElementById('texto-botao');
+    const iconeEnviar = document.getElementById('icone-enviar');
+    const iconeCarregando = document.getElementById('icone-carregando');
+
+    function atualizarBotaoEnvio() {
+        botao.disabled = !campo.value.trim();
+    }
+
+    function alterarEstadoEnvio(enviando) {
+        botao.disabled = enviando || !campo.value.trim();
+
+        iconeEnviar.classList.toggle('hidden', enviando);
+        iconeCarregando.classList.toggle('hidden', !enviando);
+    }
+    campo.addEventListener('input', atualizarBotaoEnvio);
+    atualizarBotaoEnvio();
+
     const estado = document.getElementById('estado-chat');
 
     function atualizarEstado(mensagem) {
@@ -506,8 +525,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        botao.disabled = true;
-        textoBotao.textContent = 'Enviando...';
+        alterarEstadoEnvio(true);
         atualizarEstado('Enviando sua mensagem...');
 
         try {
@@ -540,8 +558,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Erro ao enviar mensagem:', erro);
             atualizarEstado(erro.message || 'Erro ao enviar mensagem.');
         } finally {
-            botao.disabled = false;
-            textoBotao.textContent = 'Enviar';
+            alterarEstadoEnvio(false);
             rolarParaBaixo();
         }
     });

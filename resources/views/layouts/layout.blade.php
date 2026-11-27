@@ -35,6 +35,7 @@
         $podeGerenciarDemandasLayout = auth()->check() && $usuarioLayout->podeGerenciarDemandas();
     @endphp
 
+@unless(View::hasSection('chat_layout'))
     {{-- Cabeçalho --}}
     <header
         x-data="{
@@ -57,27 +58,59 @@
           {{-- Busca Desktop Inteligente (Live Search) --}}
           <div
               x-data="{
-                  termo: '{{ request('q') }}',
+                  termo: @js(request('q', '')),
                   resultados: [],
                   aberto: false,
                   carregando: false,
+                  pesquisaId: 0,
                   async pesquisar() {
-                      if (this.termo.trim().length < 2) {
-                          this.resultados = [];
-                          this.aberto = false;
-                          return;
-                      }
-                      this.carregando = true;
-                      this.aberto = true;
-                      try {
-                          const res = await fetch(`{{ route('buscar.sugestoes') }}?q=${encodeURIComponent(this.termo)}`);
-                          this.resultados = await res.json();
-                      } catch (e) {
-                          console.error(e);
-                      } finally {
-                          this.carregando = false;
-                      }
-                  }
+                    const pesquisaAtual = ++this.pesquisaId;
+                    const termoPesquisado = this.termo.trim();
+
+                    if (termoPesquisado.length < 2) {
+                        this.resultados = [];
+                        this.aberto = false;
+                        this.carregando = false;
+                        return;
+                    }
+
+                    this.carregando = true;
+                    this.aberto = true;
+
+                    try {
+                        const res = await fetch(
+                            `{{ route('buscar.sugestoes') }}?q=${encodeURIComponent(termoPesquisado)}`,
+                            {
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                }
+                            }
+                        );
+
+                        if (!res.ok) {
+                            throw new Error('Não foi possível realizar a pesquisa.');
+                        }
+
+                        const dados = await res.json();
+
+                        // Ignora respostas de pesquisas anteriores.
+                        if (pesquisaAtual !== this.pesquisaId) return;
+
+                        this.resultados = Array.isArray(dados) ? dados : [];
+
+                    } catch (erro) {
+                        if (pesquisaAtual !== this.pesquisaId) return;
+
+                        console.error('Erro na pesquisa:', erro);
+                        this.resultados = [];
+
+                    } finally {
+                        if (pesquisaAtual === this.pesquisaId) {
+                            this.carregando = false;
+                        }
+                    }
+                }
               }"
               @click.outside="aberto = false"
               @keydown.escape.window="aberto = false"
@@ -148,25 +181,57 @@
         {{-- Busca Mobile Inteligente (Live Search) --}}
         <div
             x-data="{
-                termo: '{{ request('q') }}',
+                termo: @js(request('q', '')),
                 resultados: [],
                 aberto: false,
                 carregando: false,
+                pesquisaId: 0,
                 async pesquisar() {
-                    if (this.termo.trim().length < 2) {
+                    const pesquisaAtual = ++this.pesquisaId;
+                    const termoPesquisado = this.termo.trim();
+
+                    if (termoPesquisado.length < 2) {
                         this.resultados = [];
                         this.aberto = false;
+                        this.carregando = false;
                         return;
                     }
+
                     this.carregando = true;
                     this.aberto = true;
+
                     try {
-                        const res = await fetch(`{{ route('buscar.sugestoes') }}?q=${encodeURIComponent(this.termo)}`);
-                        this.resultados = await res.json();
-                    } catch (e) {
-                        console.error(e);
+                        const res = await fetch(
+                            `{{ route('buscar.sugestoes') }}?q=${encodeURIComponent(termoPesquisado)}`,
+                            {
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                }
+                            }
+                        );
+
+                        if (!res.ok) {
+                            throw new Error('Não foi possível realizar a pesquisa.');
+                        }
+
+                        const dados = await res.json();
+
+                        // Ignora respostas de pesquisas anteriores.
+                        if (pesquisaAtual !== this.pesquisaId) return;
+
+                        this.resultados = Array.isArray(dados) ? dados : [];
+
+                    } catch (erro) {
+                        if (pesquisaAtual !== this.pesquisaId) return;
+
+                        console.error('Erro na pesquisa:', erro);
+                        this.resultados = [];
+
                     } finally {
-                        this.carregando = false;
+                        if (pesquisaAtual === this.pesquisaId) {
+                            this.carregando = false;
+                        }
                     }
                 }
             }"
@@ -618,6 +683,7 @@
 
       </div>
     </header>
+@endunless
 
     <!-- Conteúdo Principal -->
     <main class="flex-1 min-h-0 w-full
@@ -670,11 +736,7 @@
                   }));
               },
 
-              async abrirChat() {
-                if (this.chatAberto && this.conversaSelecionada) {
-                    await this.marcarContextoAtualComoLido();
-                }
-
+              abrirChat() {
                 this.chatAberto = !this.chatAberto;
                 this.salvarEstadoChat();
 
@@ -715,50 +777,61 @@
                       this.carregando = false;
                   }
               },
+              
+            async inicializarChat() {
+                await this.carregarConversas();
 
-              async inicializarChat() {
-                  await this.carregarConversas();
+                const estadoSalvo = sessionStorage.getItem(this.chaveEstadoChat);
 
-                  const estadoSalvo = sessionStorage.getItem(this.chaveEstadoChat);
+                if (!estadoSalvo) return;
 
-                  if (!estadoSalvo) return;
+                try {
+                    const estado = JSON.parse(estadoSalvo);
 
-                  try {
-                      const estado = JSON.parse(estadoSalvo);
+                    this.chatAberto = Boolean(estado.chatAberto);
 
-                      this.chatAberto = Boolean(estado.chatAberto);
+                    // Se a janela estava fechada, não restaura o histórico.
+                    // Isso evita marcar mensagens recebidas como lidas
+                    // apenas porque a página foi recarregada ou acessada novamente.
+                    if (!this.chatAberto) {
+                        this.conversaSelecionada = null;
+                        this.chatIdAtivo = null;
+                        this.assuntoSelecionadoId = null;
+                        this.mensagens = [];
+                        return;
+                    }
 
-                      if (estado.chatId === null || estado.chatId === undefined) {
-                          return;
-                      }
+                    if (estado.chatId === null || estado.chatId === undefined) {
+                        return;
+                    }
 
-                      const conversa = this.conversas.find(
-                          item => Number(item.chat_id) === Number(estado.chatId)
-                      );
+                    const conversa = this.conversas.find(
+                        item => Number(item.chat_id) === Number(estado.chatId)
+                    );
 
-                      if (!conversa) {
-                          sessionStorage.removeItem(this.chaveEstadoChat);
-                          return;
-                      }
+                    if (!conversa) {
+                        sessionStorage.removeItem(this.chaveEstadoChat);
+                        return;
+                    }
 
-                      const assuntoExiste = estado.assuntoId === null ||
-                          conversa.assuntos?.some(
-                              item => Number(item.id) === Number(estado.assuntoId)
-                          );
+                    const assuntoExiste = estado.assuntoId === null ||
+                        conversa.assuntos?.some(
+                            item => Number(item.id) === Number(estado.assuntoId)
+                        );
 
-                      if (!assuntoExiste) {
-                          sessionStorage.removeItem(this.chaveEstadoChat);
-                          return;
-                      }
+                    if (!assuntoExiste) {
+                        sessionStorage.removeItem(this.chaveEstadoChat);
+                        return;
+                    }
 
-                      await this.abrirConversa(conversa, estado.assuntoId);
-                      this.chatAberto = Boolean(estado.chatAberto);
+                    // Só carrega o histórico quando a janela estava aberta.
+                    await this.abrirConversa(conversa, estado.assuntoId);
 
-                  } catch (erro) {
-                      console.error('Erro ao restaurar o chat:', erro);
-                      sessionStorage.removeItem(this.chaveEstadoChat);
-                  }
-              },
+                } catch (erro) {
+                    console.error('Erro ao restaurar o chat:', erro);
+                    sessionStorage.removeItem(this.chaveEstadoChat);
+                }
+            },
 
               atualizarTotalNaoLidas() {
                   this.totalNaoLidas = this.conversas.reduce(
@@ -780,19 +853,56 @@
               },
 
               inscreverCanalGlobal(chatId) {
-                  if (!window.Echo || !chatId) return;
+                if (!window.Echo || !chatId) return;
 
-                  chatId = Number(chatId);
+                chatId = Number(chatId);
 
-                  if (this.canaisInscritos.includes(chatId)) return;
+                if (this.canaisInscritos.includes(chatId)) return;
 
-                  this.canaisInscritos.push(chatId);
+                this.canaisInscritos.push(chatId);
 
-                  window.Echo.private(`chat.${chatId}`)
-                      .listen('.mensagem.enviada', mensagem => {
-                          this.receberMensagem(mensagem);
-                      });
-              },
+                window.Echo.private(`chat.${chatId}`)
+                    .listen('.mensagem.enviada', mensagem => {
+                        this.receberMensagem(mensagem);
+                    })
+                    .listen('.mensagens.gerais.atualizadas', evento => {
+                        const conversa = this.conversas.find(
+                            item => Number(item.chat_id) === Number(evento.chat_id)
+                        );
+
+                        if (!conversa) return;
+
+                        // Atualiza o estado da autorização.
+                        conversa.mensagens_gerais_status = evento.status;
+
+                        // Mantém também os dados do contexto sincronizados.
+                        if (conversa.mensagens_gerais) {
+                            conversa.mensagens_gerais.status = evento.status;
+                        }
+
+                        // Atualiza os dados complementares recebidos pelo evento.
+                        conversa.mensagens_gerais_solicitado_por = evento.solicitado_por;
+                        conversa.mensagens_gerais_solicitada_em = evento.solicitada_em;
+                        conversa.mensagens_gerais_aprovado_por = evento.aprovado_por;
+                        conversa.mensagens_gerais_ativada_em = evento.ativada_em;
+
+                        // Se o contexto deixou de estar disponível, não o mantém aberto.
+                        if (
+                            evento.status !== 'ativo' &&
+                            Number(this.chatIdAtivo) === Number(evento.chat_id) &&
+                            this.assuntoSelecionadoId === null
+                        ) {
+                            this.conversaSelecionada = null;
+                            this.chatIdAtivo = null;
+                            this.assuntoSelecionadoId = null;
+                            this.mensagens = [];
+                            this.mensagemNova = '';
+                            this.salvarEstadoChat();
+                        }
+
+                        this.atualizarTotalNaoLidas();
+                    });
+            },
     
             receberMensagem(mensagem) {
                 const conversa = this.conversas.find(
@@ -870,6 +980,20 @@
 
 
               async abrirConversa(conversa, assuntoId = null) {
+                const statusGeral =
+                    conversa.mensagens_gerais_status ||
+                    conversa.mensagens_gerais?.status ||
+                    'inativo';
+
+                if (assuntoId === null && statusGeral !== 'ativo') {
+                    this.conversaSelecionada = null;
+                    this.chatIdAtivo = null;
+                    this.assuntoSelecionadoId = null;
+                    this.mensagens = [];
+                    this.salvarEstadoChat();
+                    return;
+                }
+
                 this.conversaSelecionada = conversa;
                 this.assuntoSelecionadoId =
                     assuntoId === null ? null : Number(assuntoId);
@@ -1217,6 +1341,10 @@
                 this.conversas.forEach(conversa => {
                     const geral = conversa.mensagens_gerais || {};
 
+                    const statusGeral =
+                    conversa.mensagens_gerais_status || geral.status || 'inativo';
+
+                if (statusGeral === 'ativo') {
                     itens.push({
                         chave: `${conversa.chat_id}-geral`,
                         conversa: conversa,
@@ -1228,6 +1356,7 @@
                         data: geral.ultima_mensagem_data,
                         naoLidas: Number(geral.mensagens_nao_lidas || 0),
                     });
+                }
 
                     (conversa.assuntos || []).forEach(assunto => {
                         itens.push({
@@ -1274,6 +1403,7 @@
           <!-- Botão flutuante -->
           <button
               type="button"
+              data-chat-toggle
               @click="abrirChat()"
               class="relative flex h-14 w-14 items-center justify-center rounded-full bg-[#1B4D3E] text-white shadow-xl transition hover:bg-[#236350] hover:scale-105"
               aria-label="Abrir mensagens"
@@ -1285,7 +1415,7 @@
                 x-show="totalNaoLidas > 0"
                 x-text="totalNaoLidas > 99 ? '99+' : totalNaoLidas"
                 x-cloak
-                class="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full border border-[#D6A83D]/40 bg-[#FFF3CD] px-1 text-[10px] font-bold text-[#856404]"
+                class="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full border border-[#236350]/20 bg-[#E5EFEA] px-1 text-[10px] font-bold text-[#1B4D3E]"
             ></span>
           </button>
 
@@ -1293,6 +1423,12 @@
           <section
               x-show="chatAberto"
               x-transition
+              @click.outside="
+                  if (!$event.target.closest('[data-chat-toggle]')) {
+                      chatAberto = false;
+                      salvarEstadoChat();
+                  }
+              "
               class="absolute bottom-16 right-0 flex h-[min(560px,75vh)] w-[min(370px,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl"
               style="display: none;"
           >
@@ -1508,7 +1644,7 @@
 
                             <span
                                 x-show="item.naoLidas > 0"
-                                class="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full border border-[#D6A83D]/40 bg-[#FFF3CD] px-1 text-[10px] font-bold text-[#856404]"
+                                class="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full border border-[#236350]/20 bg-[#E5EFEA] px-1 text-[10px] font-bold text-[#1B4D3E]"
                                 x-text="item.naoLidas > 99 ? '99+' : item.naoLidas"
                             ></span>
                         </div>
@@ -1565,14 +1701,14 @@
                                   "
                                   class="flex items-center gap-3 py-3"
                               >
-                                  <div class="h-px flex-1 bg-[#D6A83D]"></div>
+                                  <div class="h-px flex-1 bg-[#236350]"></div>
   
-                                  <span class="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full border border-[#D6A83D]/40 bg-[#FFF3CD] px-1 text-[10px] font-bold text-[#856404]"
+                                  <span class="flex h-5 min-w-5 shrink-0 items-center justify-center gap-1 rounded-full border 	border-[#236350]/20 bg-[#E5EFEA] px-2 text-[10px] font-bold text-[#1B4D3E]">
                                       Novas mensagens:
-                                    <span x-text="marcadorNovasMensagens.quantidade"></span>
+                                      <span x-text="marcadorNovasMensagens.quantidade"></span>
                                   </span>
   
-                                  <div class="h-px flex-1 bg-[#D6A83D]"></div>
+                                  <div class="h-px flex-1 bg-[#236350]"></div>
                               </div>
   
                               <!-- Mensagem -->
@@ -1621,7 +1757,7 @@
                           rows="1"
                           maxlength="5000"
                           placeholder="Digite sua mensagem..."
-                          class="h-11 min-h-11 flex-1 resize-none rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm outline-none transition focus:border-[#236350] focus:ring-1 focus:ring-[#236350]"
+                          class="h-11 min-h-11 flex-1 resize-none rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm !text-gray-800 placeholder:text-gray-400 caret-[#236350] outline-none transition focus:border-[#236350] focus:ring-1 focus:ring-[#236350]"
                       ></textarea>
 
                       <button
